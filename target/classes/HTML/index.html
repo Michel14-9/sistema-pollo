@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Luren Chicken - Inicio</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+</head>
+
+<body>
+
+<header>
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container-fluid">
+            <!-- Logo -->
+            <a class="navbar-brand" th:href="@{/}">
+                <img th:src="@{/archivos/logo.jpg}" alt="Logo" style="width: 3rem;">
+            </a>
+
+            <!-- Botón móvil -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarLuren" aria-controls="navbarLuren"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <!-- Links -->
+            <div class="collapse navbar-collapse" id="navbarLuren">
+                <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-3 justify-content-center align-items-center">
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/menu}">Menú</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/nuestros-locales}">Local</a>
+                    </li>
+                    <li class="nav-item d-flex align-items-center">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </li>
+                    <!-- Enlaces móviles -->
+                    <li class="nav-item d-lg-none">
+                        <a th:href="@{/favoritos}" class="nav-link">
+                            <i class="fa-solid fa-star"></i> Mis favoritos
+                        </a>
+                    </li>
+                    <li class="nav-item d-lg-none">
+                        <a th:href="@{/carrito}" class="nav-link">Carrito</a> <!-- Cambiado aquí -->
+                    </li>
+                    <li class="nav-item d-lg-none">
+                        <a th:href="@{/sigue-tu-pedido}" class="nav-link">Sigue tu pedido</a>
+                    </li>
+                </ul>
+
+                <!-- Lado derecho (escritorio) -->
+                <ul class="navbar-nav ms-auto gap-3 align-items-center">
+                    <li class="nav-item d-flex align-items-center" style="font-weight: bold; font-size: 14px; gap: 0.2rem;">
+                        <i class="fa-brands fa-whatsapp" style="font-size: 1.8rem;"></i>
+                        <div>Pide por <br><span class="text-orange">WHATSAPP</span></div>
+                    </li>
+                    <li class="nav-item d-flex align-items-center" style="font-weight: bold; font-size: 14px; gap: 0.2rem;">
+                        <i class="fa-solid fa-phone" style="font-size: 1.5rem;"></i>
+                        <div>Llámanos <br><span class="text-orange">123-456-7890</span></div>
+                    </li>
+                    <!---->
+                    <li class="nav-item d-flex align-items-center" style="font-weight: bold; font-size: 14px;">
+                        <i class="fa-solid fa-user" style="font-size: 1.5rem;"></i>
+                        <div>
+                            <!-- Usuario NO logueado -->
+                            <div th:if="${#authorization.expression('!isAuthenticated()')}">
+                                Hola, <br>
+                                <a th:href="@{/login}" class="text-orange text-decoration-none">Iniciar sesión</a>
+                            </div>
+
+                            <!-- Usuario SÍ logueado -->
+                            <div th:if="${#authorization.expression('isAuthenticated()')}">
+                                <span th:text="'Hola, ' + ${#authentication.principal.username}"></span>
+                                <br>
+                                <a th:href="@{/logout}" class="text-decoration-none text-muted small">Cerrar sesión</a>
+                            </div>
+                        </div>
+                    </li>
+
+                    <li class="nav-item">
+                        <!--  button  a -->
+                        <a th:href="@{/carrito}" class="btn btn-success" style="border-radius: 20px; text-decoration: none;">
+                            <i class="fa-solid fa-cart-shopping"></i> S/. 0.00
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Links rápidos escritorio -->
+    <div class="bg-light py-2 px-3 border-bottom d-none d-lg-block">
+        <div class="container-fluid d-flex justify-content-end gap-4 small">
+            <a th:href="@{/favoritos}" class="text-decoration-none text-reset">
+                <i class="fa-solid fa-star"></i> Mis favoritos
+            </a>
+            <a th:href="@{/sigue-tu-pedido}" class="text-decoration-none text-reset">
+                <i class="fa-solid fa-truck"></i> Sigue tu pedido
+            </a>
+        </div>
+    </div>
+</header>
+
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="hero-title">¡Bienvenido a Luren Chicken!</h1>
+                <p class="hero-subtitle">El auténtico sabor del pollo a la brasa que tanto te gusta</p>
+                <div class="hero-buttons">
+                    <a th:href="@{/menu}" class="btn btn-primary btn-lg">Ver Menú</a>
+                    <a th:href="@{/locales}" class="btn btn-outline-primary btn-lg">Nuestro Local</a> <!-- ✅ CORREGIDO -->
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <img th:src="@{/imagenes/pollo-brasa.jpg}" alt="Pollo a la Brasa Luren Chicken" class="hero-image">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="features-section py-5">
+    <div class="container">
+        <h2 class="section-title text-center mb-5">¿Por qué elegir Luren Chicken?</h2>
+        <div class="row">
+            <div class="col-md-3 text-center mb-4">
+                <div class="feature-icon">
+                    <i class="fas fa-award"></i>
+                </div>
+                <h4>Calidad Premium</h4>
+                <p>Pollo seleccionado y marinado con nuestras especias secretas</p>
+            </div>
+            <div class="col-md-3 text-center mb-4">
+                <div class="feature-icon">
+                    <i class="fas fa-shipping-fast"></i>
+                </div>
+                <h4>Delivery Rápido</h4>
+                <p>Entregamos en tu domicilio en tiempo récord</p>
+            </div>
+            <div class="col-md-3 text-center mb-4">
+                <div class="feature-icon">
+                    <i class="fas fa-tag"></i>
+                </div>
+                <h4>Precios Competitivos</h4>
+                <p>La mejor relación calidad-precio del mercado</p>
+            </div>
+            <div class="col-md-3 text-center mb-4">
+                <div class="feature-icon">
+                    <i class="fas fa-star"></i>
+                </div>
+                <h4>Experiencia Única</h4>
+                <p>Más de 20 años deleitando paladares</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Special Offers -->
+<!-- Special Offers -->
+<section class="offers-section py-5 bg-light">
+    <div class="container">
+        <h2 class="section-title text-center mb-5">Ofertas Especiales</h2>
+        <div class="row">
+            <!-- Combo 01 -->
+            <div class="col-md-6 mb-4">
+                <div class="offer-card">
+                    <div class="offer-badge">Más Vendido</div>
+                    <img th:src="@{/imagenes/pollo-brasa.jpg}" class="offer-image" alt="Combo 01">
+                    <div class="offer-content">
+                        <h3>Combo 01 "El Clásico No Falta"</h3>
+                        <p class="offer-description">1 1/2 pollo, 1 porción de papas familiar, 1 ensalada de casa, 1 gaseosa Inca Kola 1.5 Lt</p>
+                        <div class="price-section">
+                            <div class="price-left">
+                                <span class="old-price">S/ 110.00</span>
+                                <span class="current-price">S/ 95.00</span>
+                            </div>
+                            <div class="price-right">
+                                <span class="discount-price">S/ 31.67 c/u</span>
+                            </div>
+                        </div>
+                        <button class="btn btn-success w-100">AGREGAR AL PEDIDO</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Combo 02 -->
+            <div class="col-md-6 mb-4">
+                <div class="offer-card">
+                    <div class="offer-badge">Popular</div>
+                    <img th:src="@{/imagenes/pollo-brasa.jpg}" class="offer-image" alt="Combo 02">
+                    <div class="offer-content">
+                        <h3>Combo 02 "Criollo de Corazón"</h3>
+                        <p class="offer-description">1 1/4 pollo, 1 porción de papas familiar, 1 ensalada de casa, 1 porción de arroz chaufa</p>
+                        <div class="price-section">
+                            <div class="price-left">
+                                <span class="old-price">S/ 85.00</span>
+                                <span class="current-price">S/ 76.00</span>
+                            </div>
+                            <div class="price-right">
+                                <span class="discount-price">S/ 19.00 c/u</span>
+                            </div>
+                        </div>
+                        <button class="btn btn-success w-100">AGREGAR AL PEDIDO</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Combo 03 -->
+            <div class="col-md-6 mb-4">
+                <div class="offer-card">
+                    <div class="offer-badge">Familiar</div>
+                    <img th:src="@{/imagenes/pollo-brasa.jpg}" class="offer-image" alt="Combo 03">
+                    <div class="offer-content">
+                        <h3>Combo 03 Familiar</h3>
+                        <p class="offer-description">1 pollo entero, 2 papas familiares, 2 ensaladas, 1 gaseosa 2L</p>
+                        <div class="price-section">
+                            <div class="price-left">
+                                <span class="old-price">S/ 150.00</span>
+                                <span class="current-price">S/ 130.00</span>
+                            </div>
+                            <div class="price-right">
+                                <span class="discount-price">S/ 32.50 c/u</span>
+                            </div>
+                        </div>
+                        <button class="btn btn-success w-100">AGREGAR AL PEDIDO</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pollo Entero -->
+            <div class="col-md-6 mb-4">
+                <div class="offer-card">
+                    <div class="offer-badge">Clásico</div>
+                    <img th:src="@{/imagenes/pollo-brasa.jpg}" class="offer-image" alt="Pollo Entero">
+                    <div class="offer-content">
+                        <h3>1 Pollo a la Brasa Completo</h3>
+                        <p class="offer-description">Pollo entero + papas familiares + ensalada + cremas</p>
+                        <div class="price-section">
+                            <div class="price-left">
+                                <span class="old-price">S/ 70.00</span>
+                                <span class="current-price">S/ 65.00</span>
+                            </div>
+                            <div class="price-right">
+                                <span class="discount-price">S/ 65.00 c/u</span>
+                            </div>
+                        </div>
+                        <button class="btn btn-success w-100">AGREGAR AL PEDIDO</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Location Preview -->
+<section class="location-section py-5">
+    <div class="container">
+        <h2 class="section-title text-center mb-5">Visita Nuestro Local</h2>
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="location-card">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <img th:src="@{/imagenes/local-ica.jpg}" alt="Local Ica" class="location-image">
+                        </div>
+                        <div class="col-md-6">
+                            <div class="location-info">
+                                <h3>Luren Chicken - Ica</h3>
+                                <p><i class="fas fa-map-marker-alt"></i> Calle Lamar 1114, Ica</p>
+                                <p><i class="fas fa-clock"></i> Lunes a Domingo: 10:00 AM - 10:00 PM</p>
+                                <p><i class="fas fa-phone"></i> Teléfono: (056) 123-456</p>
+                                <p><i class="fab fa-whatsapp"></i> WhatsApp: +51 987 654 321</p>
+                                <div class="services">
+                                    <span class="service-badge">🍽️ Comer en tienda</span>
+                                    <span class="service-badge">📦 Retiro en tienda</span>
+                                    <span class="service-badge">🚚 Delivery</span>
+                                </div>
+                                <a th:href="@{/locales}" class="btn btn-outline-primary mt-3">Ver Más Información</a> <!-- ✅ CORREGIDO -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer class="bg-light pt-5 pb-3">
+    <div class="container-fluid px-4">
+        <div class="row">
+            <!-- Columna del Logo y Conectividad -->
+            <div class="col-md-3 mb-4">
+                <div class="d-flex flex-column align-items-md-start align-items-center">
+                    <img th:src="@{/archivos/logo.jpg}" alt="Logo" style="height: 70px;" class="mb-3">
+                    <h5 class="fw-bold mb-2 text-md-start text-center">Conéctate con nosotros</h5>
+                    <div class="d-flex gap-2">
+                        <a th:href="@{https://www.instagram.com}" target="_blank"
+                           class="btn btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center"
+                           style="width: 40px; height: 40px;">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a th:href="@{https://www.facebook.com}" target="_blank"
+                           class="btn btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center"
+                           style="width: 40px; height: 40px;">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Columna de Productos -->
+            <div class="col-md-3 mb-4">
+                <h5 class="fw-bold mb-3">Nuestros Productos</h5>
+                <ul class="list-unstyled">
+                    <li><a th:href="@{/menu#pollos}" class="text-decoration-none text-dark">Pollo a la brasa</a></li>
+                    <li><a th:href="@{/menu#parrillas}" class="text-decoration-none text-dark">Parrillas</a></li>
+                    <li><a th:href="@{/menu#chicharron}" class="text-decoration-none text-dark">Chicharrón</a></li>
+                    <li><a th:href="@{/menu#broaster}" class="text-decoration-none text-dark">Broster</a></li>
+                    <li><a th:href="@{/menu#hamburguesas}" class="text-decoration-none text-dark">Hamburguesas</a></li>
+                    <li><a th:href="@{/menu#criollos}" class="text-decoration-none text-dark">Criollos</a></li>
+                    <li><a th:href="@{/menu#combos}" class="text-decoration-none text-dark">Combos</a></li>
+                </ul>
+            </div>
+
+            <!-- Columna de Ayuda -->
+            <div class="col-md-3 mb-4">
+                <h5 class="fw-bold mb-3">Ayuda</h5>
+                <ul class="list-unstyled">
+                    <li><a th:href="@{/politica-datos}" class="text-decoration-none text-dark">Política de Datos Personales</a></li>
+                    <li><a th:href="@{/terminos}" class="text-decoration-none text-dark">Términos y Condiciones</a></li>
+                    <li><a th:href="@{/locales}" class="text-decoration-none text-dark">Nuestro Local</a></li> <!-- ✅ CORREGIDO -->
+                    <li><a th:href="@{/politica-cookies}" class="text-decoration-none text-dark">Política de cookies</a></li>
+                </ul>
+            </div>
+
+            <!-- Columna de Reclamaciones y Pagos -->
+            <div class="col-md-3 mb-4">
+                <h5 class="fw-bold mb-3">Libro de reclamaciones</h5>
+                <a th:href="@{/libro-reclamaciones}">
+                    <img th:src="@{/archivos/libro.png}" alt="Libro de Reclamaciones" style="width: 120px;" class="mb-3">
+                </a>
+                <h5 class="fw-bold mb-3">Métodos de Pago</h5>
+                <div class="d-flex gap-2 align-items-center">
+                    <img th:src="@{/archivos/visa_PNG30.png}" alt="Visa" style="width: 50px; border-radius: 10px;">
+                    <img th:src="@{/archivos/mastercard-og-image.png}" alt="Mastercard" style="width: 50px; border-radius: 10px;">
+                </div>
+            </div>
+        </div>
+
+        <!-- Separador y Copyright -->
+        <hr class="my-4">
+        <div class="d-flex justify-content-center text-center">
+            <small>&copy; 2024 D'LurenChicken. Todos los derechos reservados.</small>
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+<script th:src="@{/js/index.js}"></script>
+
+</body>
+</html>

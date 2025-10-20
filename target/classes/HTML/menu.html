@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Luren Chicken - Menú Horizontal con 3 Columnas</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Aquí pon las rutas correctas para tus CSS -->
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <link rel="stylesheet" th:href="@{/css/menu.css}">
+</head>
+
+<body>
+
+<header>
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container-fluid">
+            <!-- Logo -->
+            <a class="navbar-brand" th:href="@{/}">
+                <img th:src="@{/archivos/logo.jpg}" alt="Logo" style="width: 3rem;">
+            </a>
+
+            <!-- Botón móvil -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarLuren" aria-controls="navbarLuren"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <!-- Links -->
+            <div class="collapse navbar-collapse" id="navbarLuren">
+                <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-3 justify-content-center align-items-center">
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/menu}">Menú</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/nuestros-locales}">Local</a>
+                    </li>
+                    <li class="nav-item d-flex align-items-center">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </li>
+                    <!-- Enlaces móviles -->
+                    <li class="nav-item d-lg-none">
+                        <a th:href="@{/favoritos}" class="nav-link">
+                            <i class="fa-solid fa-star"></i> Mis favoritos
+                        </a>
+                    </li>
+                    <li class="nav-item d-lg-none">
+                        <a th:href="@{/carrito}" class="nav-link">Carrito</a> <!-- Cambiado aquí -->
+                    </li>
+                    <li class="nav-item d-lg-none">
+                        <a th:href="@{/sigue-tu-pedido}" class="nav-link">Sigue tu pedido</a>
+                    </li>
+                </ul>
+
+                <!-- Lado derecho (escritorio) -->
+                <ul class="navbar-nav ms-auto gap-3 align-items-center">
+                    <li class="nav-item d-flex align-items-center" style="font-weight: bold; font-size: 14px; gap: 0.2rem;">
+                        <i class="fa-brands fa-whatsapp" style="font-size: 1.8rem;"></i>
+                        <div>Pide por <br><span class="text-orange">WHATSAPP</span></div>
+                    </li>
+                    <li class="nav-item d-flex align-items-center" style="font-weight: bold; font-size: 14px; gap: 0.2rem;">
+                        <i class="fa-solid fa-phone" style="font-size: 1.5rem;"></i>
+                        <div>Llámanos <br><span class="text-orange">123-456-7890</span></div>
+                    </li>
+                    <!---->
+                    <li class="nav-item d-flex align-items-center" style="font-weight: bold; font-size: 14px;">
+                        <i class="fa-solid fa-user" style="font-size: 1.5rem;"></i>
+                        <div>
+                            <!-- Usuario NO logueado -->
+                            <div th:if="${#authorization.expression('!isAuthenticated()')}">
+                                Hola, <br>
+                                <a th:href="@{/login}" class="text-orange text-decoration-none">Iniciar sesión</a>
+                            </div>
+
+                            <!-- Usuario SÍ logueado -->
+                            <div th:if="${#authorization.expression('isAuthenticated()')}">
+                                <span th:text="'Hola, ' + ${#authentication.principal.username}"></span>
+                                <br>
+                                <a th:href="@{/logout}" class="text-decoration-none text-muted small">Cerrar sesión</a>
+                            </div>
+                        </div>
+                    </li>
+
+                    <li class="nav-item">
+                        <!--  button  a -->
+                        <a th:href="@{/carrito}" class="btn btn-success" style="border-radius: 20px; text-decoration: none;">
+                            <i class="fa-solid fa-cart-shopping"></i> S/. 0.00
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Links rápidos escritorio -->
+    <div class="bg-light py-2 px-3 border-bottom d-none d-lg-block">
+        <div class="container-fluid d-flex justify-content-end gap-4 small">
+            <a th:href="@{/favoritos}" class="text-decoration-none text-reset">
+                <i class="fa-solid fa-star"></i> Mis favoritos
+            </a>
+            <a th:href="@{/sigue-tu-pedido}" class="text-decoration-none text-reset">
+                <i class="fa-solid fa-truck"></i> Sigue tu pedido
+            </a>
+        </div>
+    </div>
+</header>
+
+<!-- CONTENIDO PRINCIPAL -->
+<div class="container">
+        <section class="categories-nav">
+            <div class="categories-container">
+                <button class="category-tab active" data-category="pollos">
+                    <div class="category-image-container">
+                        <img src="imagenes/pollo a la brasa.webp" alt="POLLOS A LA BRASA" class="category-image">
+                    </div>
+                    <span class="category-text">POLLOS A LA BRASA</span>
+                </button>
+                <button class="category-tab" data-category="parrillas">
+                    <div class="category-image-container">
+                        <img src="imagenes/parrilla.webp" alt="PARRILLAS" class="category-image">
+                    </div>
+                    <span class="category-text">PARRILLAS</span>
+                </button>
+                <button class="category-tab" data-category="chicharron">
+                    <div class="category-image-container">
+                        <img src="imagenes/chicharron.webp" alt="CHICHARRÓN" class="category-image">
+                    </div>
+                    <span class="category-text">CHICHARRÓN</span>
+                </button>
+                <button class="category-tab" data-category="broaster">
+                    <div class="category-image-container">
+                        <img src="imagenes/broaster.webp" alt="BROASTER" class="category-image">
+                    </div>
+                    <span class="category-text">BROASTER</span>
+                </button>
+                <button class="category-tab" data-category="hamburguesas">
+                    <div class="category-image-container">
+                        <img src="imagenes/hamburguesa.webp" alt="HAMBURGUESAS" class="category-image">
+                    </div>
+                    <span class="category-text">HAMBURGUESAS</span>
+                </button>
+                <button class="category-tab" data-category="combos">
+                    <div class="category-image-container">
+                        <img src="imagenes/combo.jpg" alt="COMBOS" class="category-image">
+                    </div>
+                    <span class="category-text">COMBOS</span>
+                </button>
+                <button class="category-tab" data-category="criollos">
+                    <div class="category-image-container">
+                        <img src="imagenes/piqueo.webp" alt="CRIOLLOS" class="category-image">
+                    </div>
+                    <span class="category-text">CRIOLLOS</span>
+                </button>
+            </div>
+        </section>
+
+        <h2 class="category-title" id="pollos">Pollos a la Brasa</h2>
+        <div class="products-grid">
+
+            <div class="product-card">
+                <div class="product-image-wrapper">
+                    <img src="imagenes/pollo a la brasa.webp" alt="1 Pollo a la Brasa" class="product-image">
+                </div>
+                <div class="product-content">
+                    <button class="favorite-btn"><i class="far fa-heart"></i><i class="fas fa-heart"></i></button>
+                    <div class="product-header">
+                        <h3 class="product-title">1 Pollo a la Brasa</h3>
+                    </div>
+                    <p class="product-description">Papas familiares, ensalada y cremas.</p>
+                    <div class="product-price-info">
+                        <div class="price-group">
+                            <span class="price-current">S/ 65.00</span>
+                        </div>
+                        <button class="add-to-cart-button">Agregar al pedido</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-card">
+                <div class="product-image-wrapper">
+                    <img src="imagenes/4727231d014dbc0067414f952db2fc42.jpg" alt="1/2 Pollo a la Brasa"
+                        class="product-image">
+                </div>
+                <div class="product-content">
+                    <button class="favorite-btn"><i class="far fa-heart"></i><i class="fas fa-heart"></i></button>
+                    <div class="product-header">
+                        <h3 class="product-title">1/2 Pollo a la Brasa</h3>
+                    </div>
+                    <p class="product-description">Papas, ensalada personal y cremas.</p>
+                    <div class="product-price-info">
+                        <div class="price-group">
+                            <span class="price-current">S/ 35.00</span>
+                        </div>
+                        <button class="add-to-cart-button">Agregar al pedido</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-card">
+                <div class="product-image-wrapper">
+                    <img src="imagenes/un cuarto de pollo.webp" alt="1/4 de Pollo a la Brasa" class="product-image">
+                </div>
+                <div class="product-content">
+                    <button class="favorite-btn"><i class="far fa-heart"></i><i class="fas fa-heart"></i></button>
+                    <div class="product-header">
+                        <h3 class="product-title">1/4 de Pollo a la Brasa</h3>
+                    </div>
+                    <p class="product-description">Papas, ensalada personal y cremas.</p>
+                    <div class="product-price-info">
+                        <div class="price-group">
+                            <span class="price-current">S/ 18.00</span>
+                        </div>
+                        <button class="add-to-cart-button">Agregar al pedido</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="category-title" id="parrillas">Parrillas</h2>
+        <div class="products-grid">
+
+            <div class="product-card">
+                <div class="product-image-wrapper">
+                    <img src="imagenes/parrilla con papa.webp" alt="Parrilla con Papa" class="product-image">
+                </div>
+                <div class="product-content">
+                    <button class="favorite-btn"><i class="far fa-heart"></i><i class="fas fa-heart"></i></button>
+                    <div class="product-header">
+                        <h3 class="product-title">Parrilla c/ Papa</h3>
+                    </div>
+                    <p class="product-description">Papas, ensalada y cremas.</p>
+                    <div class="product-price-info">
+                        <div class="price-group">
+                            <span class="price-current">S/ 15.50</span>
+                        </div>
+                        <button class="add-to-cart-button">Agregar al pedido</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-card">
+                <div class="product-image-wrapper">
+                    <img src="imagenes/Parrilla con Arroz Blanco.webp" alt="Parrilla con Arroz Blanco"
+                        class="product-image">
+                </div>
+                <div class="product-content">
+                    <button class="favorite-btn"><i class="far fa-heart"></i><i class="fas fa-heart"></i></button>
+                    <div class="product-header">
+                        <h3 class="product-title">Parrilla c/ Arroz Blanco</h3>
+                    </div>
+                    <p class="product-description">Arroz, papas, ensalada y cremas.</p>
+                    <div class="product-price-info">
+                        <div class="price-group">
+                            <span class="price-current">S/ 16.50</span>
+                        </div>
+                        <button class="add-to-cart-button">Agregar al pedido</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-card">
+                <div class="product-image-wrapper">
+                    <img src="imagenes/Parrilla con Arroz Chaufa.jpg" alt="Parrilla con Arroz Chaufa"
+                        class="product-image">
+                </div>
+                <div class="product-content">
+                    <button class="favorite-btn"><i class="far fa-heart"></i><i class="fas fa-heart"></i></button>
+                    <div class="product-header">
+                        <h3 class="product-title">Parrilla c/ Arroz Chaufa</h3>
+                    </div>
+                    <p class="product-description">Arroz chaufa, papas, ensalada y cremas.</p>
+                    <div class="product-price-info">
+                        <div class="price-group">
+                            <span class="price-current">S/ 16.50</span>
+                        </div>
+                        <button class="add-to-cart-button">Agregar al pedido</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="category-title" id="chicharron">Chicharrón</h2>
+        <div class="products-grid">
+
+            <div class="product-card">
+                <div class="product-image-wrapper">
+                    <img src="imagenes/Chicharrón 1 Porción.webp" alt="Chicharrón 1 Porción" class="product-image">
+                </div>
+                <div class="product-content">
+                    <button class="favorite-btn"><i class="far fa-heart"></i><i class="fas fa-heart"></i></button>
+                    <div class="product-header">
+                        <h3 class="product-title">Chicharrón</h3>
+                    </div>
+                    <p class="product-description">Papas, ensalada y cremas.</p>
+                    <div class="product-price-info">
+                        <div class="price-group">
+                            <span class="price-current">S/ 45.00</span>
+                        </div>
+                        <button class="add-to-cart-button">Agregar al pedido</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-card">
+                <div class="product-image-wrapper">
+                    <img src="imagenes/media Porción de Chicharrón.webp" alt="1/2 Porción de Chicharrón"
+                        class="product-image">
+                </div>
+                <div class="product-content">
+                    <button class="favorite-btn"><i class="far fa-heart"></i><i class="fas fa-heart"></i></button>
+                    <div class="product-header">
+                        <h3 class="product-title">1/2 Porción de Chicharrón</h3>
+                    </div>
+                    <p class="product-description">Papas, ensalada y cremas.</p>
+                    <div class="product-price-info">
+                        <div class="price-group">
+                            <span class="price-current">S/ 25.00</span>
+                        </div>
+                        <button class="add-to-cart-button">Agregar al pedido</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="category-title" id="broaster">Broaster</h2>
+        <div class="products-grid">
+            <div class="product-card">
+                <div class="product-image-wrapper">
+                    <img src="imagenes/broaster chaufa" alt="Broaster c/ Chaufa" class="product-image">
+                </div>
+                <div class="product-content">
+                    <button class="favorite-btn"><i class="far fa-heart"></i><i class="fas fa-heart"></i></button>
+                    <div class="product-header">
+                        <h3 class="product-title">Broaster c/ Chaufa</h3>
+                    </div>
+                    <p class="product-description">Pollo Broaster con arroz chaufa.</p>
+                    <div class="product-price-info">
+                        <div class="price-group">
+                            <span class="price-current">S/ 15.00</span>
+                        </div>
+                        <button class="add-to-cart-button">Agregar al pedido</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-card">
+                <div class="product-image-wrapper">
+                    <img src="imagenes/chaufa con encuentro.webp" alt="Chaufa c/ Encuentro" class="product-image">
+                </div>
+                <div class="product-content">
+                    <button class="favorite-btn"><i class="far fa-heart"></i><i class="fas fa-heart"></i></button>
+                    <div class="product-header">
+                        <h3 class="product-title">Chaufa c/ Encuentro</h3>
+                    </div>
+                    <p class="product-description">Arroz chaufa con presa de encuentro.</p>
+                    <div class="product-price-info">
+                        <div class="price-group">
+                            <span class="price-current">S/ 15.00</span>
+                        </div>
+                        <button class="add-to-cart-button">Agregar al pedido</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-card">
+                <div class="product-image-wrapper">
+                    <img src="imagenes/chaufa con alita.webp" alt="Chaufa c/ Alita" class="product-image">
+                </div>
+                <div class="product-content">
+                    <button class="favorite-btn"><i class="far fa-heart"></i><i class="fas fa-heart"></i></button>
+                    <div class="product-header">
+                        <h3 class="product-title">Chaufa c/ Alita</h3>
+                    </div>
+                    <p class="product-description">Arroz chaufa con alita de pollo.</p>
+                    <div class="product-price-info">
+                        <div class="price-group">
+                            <span class="price-current">S/ 12.00</span>
+                        </div>
+                        <button class="add-to-cart-button">Agregar al pedido</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-card">
+                <div class="product-image-wrapper">
+                    <img src="imagenes/chaufa con pierna.jpg" alt="Chaufa c/ Papa + Pierna" class="product-image">
+                </div>
+                <div class="product-content">
+                    <button class="favorite-btn"><i class="far fa-heart"></i><i class="fas fa-heart"></i></button>
+                    <div class="product-header">
+                        <h3 class="product-title">Chaufa c/ Papa + Pierna</h3>
+                    </div>
+                    <p class="product-description">Arroz chaufa, papas y pierna de pollo.</p>
+                    <div class="product-price-info">
+                        <div class="price-group">
+                            <span class="price-current">S/ 12.00</span>
+                        </div>
+                        <button class="add-to-cart-button">Agregar al pedido</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-card">
+                <div class="product-image-wrapper">
+                    <img src="imagenes/chaufa con tortilla.webp" alt="Chaufa c/ Tortilla" class="product-image">
+                </div>
+                <div class="product-content">
+                    <button class="favorite-btn"><i class="far fa-heart"></i><i class="fas fa-heart"></i></button>
+                    <div class="product-header">
+                        <h3 class="product-title">Chaufa c/ Tortilla</h3>
+                    </div>
+                    <p class="product-description">Arroz chaufa con tortilla de huevo.</p>
+                    <div class="product-price-info">
+                        <div class="price-group">
+                            <span class="price-current">S/ 15.00</span>
+                        </div>
+                        <button class="add-to-cart-button">Agregar al pedido</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="category-title" id="hamburguesas">Hamburguesas</h2>
+        <div class="products-grid">
+
+            <div class="product-card">
+                <div class="product-image-wrapper">
+                    <img src="imagenes/hamburguesa de carne.webp" alt="Hamburguesa Carne" class="product-image">
+                </div>
+                <div class="product-content">
+                    <button class="favorite-btn"><i class="far fa-heart"></i><i class="fas fa-heart"></i></button>
+                    <div class="product-header">
+                        <h3 class="product-title">Hamburguesa Carne</h3>
+                    </div>
+                    <p class="product-description">Hamburguesa clásica de carne.</p>
+                    <div class="product-price-info">
+                        <div class="price-group">
+                            <span class="price-current">S/ 5.00</span>
+                        </div>
+                        <button class="add-to-cart-button">Agregar al pedido</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-card">
+                <div class="product-image-wrapper">
+                    <img src="imagenes/hamburguesa de milanesa.webp" alt="Hamburguesa Milanesa" class="product-image">
+                </div>
+                <div class="product-content">
+                    <button class="favorite-btn"><i class="far fa-heart"></i><i class="fas fa-heart"></i></button>
+                    <div class="product-header">
+                        <h3 class="product-title">Hamburguesa Milanesa</h3>
+                    </div>
+                    <p class="product-description">Hamburguesa de milanesa de pollo o carne.</p>
+                    <div class="product-price-info">
+                        <div class="price-group">
+                            <span class="price-current">S/ 5.00</span>
+                        </div>
+                        <button class="add-to-cart-button">Agregar al pedido</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-card">
+                <div class="product-image-wrapper">
+                    <img src="imagenes/hamburguesa especial.webp" alt="Hamburguesa Especial" class="product-image">
+                </div>
+                <div class="product-content">
+                    <button class="favorite-btn"><i class="far fa-heart"></i><i class="fas fa-heart"></i></button>
+                    <div class="product-header">
+                        <h3 class="product-title">Hamburguesa Especial</h3>
+                    </div>
+                    <p class="product-description">Con chorizo, carne, huevo y queso.</p>
+                    <div class="product-price-info">
+                        <div class="price-group">
+                            <span class="price-current">S/ 10.00</span>
+                        </div>
+                        <button class="add-to-cart-button">Agregar al pedido</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-card">
+                <div class="product-image-wrapper">
+                    <img src="imagenes/hamburguesa de chorizo.jpg" alt="Hamburguesa Chorizo" class="product-image">
+                </div>
+                <div class="product-content">
+                    <button class="favorite-btn"><i class="far fa-heart"></i><i class="fas fa-heart"></i></button>
+                    <div class="product-header">
+                        <h3 class="product-title">Hamburguesa Chorizo</h3>
+                    </div>
+                    <p class="product-description">Con chorizo.</p>
+                    <div class="product-price-info">
+                        <div class="price-group">
+                            <span class="price-current">S/ 5.00</span>
+                        </div>
+                        <button class="add-to-cart-button">Agregar al pedido</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-card">
+                <div class="product-image-wrapper">
+                    <img src="imagenes/hamburguesa de huevo.webp" alt="Hamburguesa Hotdog + Huevo"
+                        class="product-image">
+                </div>
+                <div class="product-content">
+                    <button class="favorite-btn"><i class="far fa-heart"></i><i class="fas fa-heart"></i></button>
+                    <div class="product-header">
+                        <h3 class="product-title">Hamburguesa Hotdog + Huevo</h3>
+                    </div>
+                    <p class="product-description">Con hotdog y huevo.</p>
+                    <div class="product-price-info">
+                        <div class="price-group">
+                            <span class="price-current">S/ 5.00</span>
+                        </div>
+                        <button class="add-to-cart-button">Agregar al pedido</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-card">
+                <div class="product-image-wrapper">
+                    <img src="imagenes/hamburguesa de pollo.avif" alt="Hamburguesa de Pollo" class="product-image">
+                </div>
+                <div class="product-content">
+                    <button class="favorite-btn"><i class="far fa-heart"></i><i class="fas fa-heart"></i></button>
+                    <div class="product-header">
+                        <h3 class="product-title">Hamburguesa de Pollo</h3>
+                    </div>
+                    <p class="product-description">Hamburguesa de pollo deshilachado o trozos.</p>
+                    <div class="product-price-info">
+                        <div class="price-group">
+                            <span class="price-current">S/ 6.00</span>
+                        </div>
+                        <button class="add-to-cart-button">Agregar al pedido</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="category-title" id="criollos">Criollos</h2>
+        <div class="products-grid">
+
+            <div class="product-card">
+                <div class="product-image-wrapper">
+                    <img src="imagenes/Lomo Saltado de Pollo.webp" alt="Lomo Saltado de Pollo" class="product-image">
+                </div>
+                <div class="product-content">
+                    <button class="favorite-btn"><i class="far fa-heart"></i><i class="fas fa-heart"></i></button>
+                    <div class="product-header">
+                        <h3 class="product-title">Lomo Saltado de Pollo</h3>
+                    </div>
+                    <p class="product-description">Plato criollo con pollo, papas y arroz.</p>
+                    <div class="product-price-info">
+                        <div class="price-group">
+                            <span class="price-current">S/ 15.00</span>
+                        </div>
+                        <button class="add-to-cart-button">Agregar al pedido</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-card">
+                <div class="product-image-wrapper">
+                    <img src="imagenes/tallarin Saltado de Pollo.webp" alt="Tallarín Saltado de Pollo"
+                        class="product-image">
+                </div>
+                <div class="product-content">
+                    <button class="favorite-btn"><i class="far fa-heart"></i><i class="fas fa-heart"></i></button>
+                    <div class="product-header">
+                        <h3 class="product-title">Tallarín Saltado de Pollo</h3>
+                    </div>
+                    <p class="product-description">Plato criollo con fideos y pollo.</p>
+                    <div class="product-price-info">
+                        <div class="price-group">
+                            <span class="price-current">S/ 15.00</span>
+                        </div>
+                        <button class="add-to-cart-button">Agregar al pedido</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-card">
+                <div class="product-image-wrapper">
+                    <img src="imagenes/chaufa con alita.webp" alt="Chaufa de Pollo" class="product-image">
+                </div>
+                <div class="product-content">
+                    <button class="favorite-btn"><i class="far fa-heart"></i><i class="fas fa-heart"></i></button>
+                    <div class="product-header">
+                        <h3 class="product-title">Chaufa de Pollo</h3>
+                    </div>
+                    <p class="product-description">Arroz chaufa clásico con pollo.</p>
+                    <div class="product-price-info">
+                        <div class="price-group">
+                            <span class="price-current">S/ 12.00</span>
+                        </div>
+                        <button class="add-to-cart-button">Agregar al pedido</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-card">
+                <div class="product-image-wrapper">
+                    <img src="imagenes/caldo de gallina.webp" alt="Caldo de Gallina" class="product-image">
+                </div>
+                <div class="product-content">
+                    <button class="favorite-btn"><i class="far fa-heart"></i><i class="fas fa-heart"></i></button>
+                    <div class="product-header">
+                        <h3 class="product-title">Caldo de Gallina</h3>
+                    </div>
+                    <p class="product-description">Reconfortante caldo de gallina.</p>
+                    <div class="product-price-info">
+                        <div class="price-group">
+                            <span class="price-current">S/ 13.00</span>
+                        </div>
+                        <button class="add-to-cart-button">Agregar al pedido</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="category-title" id="combos">Combos</h2>
+        <div class="products-grid">
+
+            <div class="product-card">
+                <div class="product-image-wrapper">
+                    <img src="imagenes/combo.jpg" alt="Combo 01" class="product-image">
+                </div>
+                <div class="product-content">
+                    <button class="favorite-btn"><i class="far fa-heart"></i><i class="fas fa-heart"></i></button>
+                    <div class="product-header">
+                        <h3 class="product-title">Combo 01 "El Clásico No Falta"</h3>
+                    </div>
+                    <p class="product-description">1 1/2 pollo, 1 porción de papas familiar, 1 ensalada de casa, 1
+                        gaseosa Inca Kola 1.5 Lt.</p>
+                    <div class="product-price-info">
+                        <div class="price-group">
+                            <span class="price-current">S/ 95.00</span>
+                        </div>
+                        <button class="add-to-cart-button">Agregar al pedido</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-card">
+                <div class="product-image-wrapper">
+                    <img src="imagenes/combo2.webp" alt="Combo 02" class="product-image">
+                </div>
+                <div class="product-content">
+                    <button class="favorite-btn"><i class="far fa-heart"></i><i class="fas fa-heart"></i></button>
+                    <div class="product-header">
+                        <h3 class="product-title">Combo 02 "Criollo de Corazón"</h3>
+                    </div>
+                    <p class="product-description">1 1/4 pollo, 1 porción de papas familiar, 1 ensalada de casa, 1
+                        porción de arroz chaufa.</p>
+                    <div class="product-price-info">
+                        <div class="price-group">
+                            <span class="price-current">S/ 76.00</span>
+                        </div>
+                        <button class="add-to-cart-button">Agregar al pedido</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-card">
+                <div class="product-image-wrapper">
+                    <img src="imagenes/combo3.webp" alt="Combo 03" class="product-image">
+                </div>
+                <div class="product-content">
+                    <button class="favorite-btn"><i class="far fa-heart"></i><i class="fas fa-heart"></i></button>
+                    <div class="product-header">
+                        <h3 class="product-title">Combo 03 Familiar</h3>
+                    </div>
+                    <p class="product-description">1 pollo entero, 2 papas familiares, 2 ensaladas, 1 gaseosa 2L.</p>
+                    <div class="product-price-info">
+                        <div class="price-group">
+                            <span class="price-current">S/ 130.00</span>
+                        </div>
+                        <button class="add-to-cart-button">Agregar al pedido</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+<footer class="bg-light pt-5 pb-3">
+    <div class="container-fluid px-4">
+        <div class="row">
+            <!-- Columna del Logo y Conectividad -->
+            <div class="col-md-3 mb-4">
+                <div class="d-flex flex-column align-items-md-start align-items-center">
+                    <img th:src="@{/archivos/logo.jpg}" alt="Logo" style="height: 70px;" class="mb-3">
+                    <h5 class="fw-bold mb-2 text-md-start text-center">Conéctate con nosotros</h5>
+                    <div class="d-flex gap-2">
+                        <a th:href="@{https://www.instagram.com}" target="_blank"
+                           class="btn btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center"
+                           style="width: 40px; height: 40px;">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a th:href="@{https://www.facebook.com}" target="_blank"
+                           class="btn btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center"
+                           style="width: 40px; height: 40px;">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- En la sección de Productos del footer -->
+            <div class="col-md-3 mb-4">
+                <h5 class="fw-bold mb-3">Nuestros Productos</h5>
+                <ul class="list-unstyled">
+
+                    <li><a th:href="@{/menu#pollos}" class="text-decoration-none text-dark">Pollo a la brasa</a></li>
+                    <li><a th:href="@{/menu#parrillas}" class="text-decoration-none text-dark">Parrillas</a></li>
+                    <li><a th:href="@{/menu#chicharron}" class="text-decoration-none text-dark">Chicharrón</a></li>
+                    <li><a th:href="@{/menu#broaster}" class="text-decoration-none text-dark">Broster</a></li>
+                    <li><a th:href="@{/menu#hamburguesas}" class="text-decoration-none text-dark">Hamburguesas</a></li>
+                    <li><a th:href="@{/menu#criollos}" class="text-decoration-none text-dark">Criollos</a></li>
+                    <li><a th:href="@{/menu#combos}" class="text-decoration-none text-dark">Combos</a></li>
+
+                </ul>
+            </div>
+
+            <!-- Columna de Ayuda -->
+            <div class="col-md-3 mb-4">
+                <h5 class="fw-bold mb-3">Ayuda</h5>
+                <ul class="list-unstyled">
+                    <li><a th:href="@{/politica-datos}" class="text-decoration-none text-dark">Política de Datos Personales</a></li>
+                    <li><a th:href="@{/terminos}" class="text-decoration-none text-dark">Términos y Condiciones</a></li>
+                    <li><a th:href="@{/nuestros-locales}" class="text-decoration-none text-dark">Nuestro Local</a></li>
+                    <li><a th:href="@{/politica-cookies}" class="text-decoration-none text-dark">Política de cookies</a></li>
+                </ul>
+            </div>
+
+            <!-- Columna de Reclamaciones y Pagos -->
+            <div class="col-md-3 mb-4">
+                <h5 class="fw-bold mb-3">Libro de reclamaciones</h5>
+                <a th:href="@{/libro-reclamaciones}">
+                    <img th:src="@{/archivos/libro.png}" alt="Libro de Reclamaciones" style="width: 120px;" class="mb-3">
+                </a>
+                <h5 class="fw-bold mb-3">Métodos de Pago</h5>
+                <div class="d-flex gap-2 align-items-center">
+                    <img th:src="@{/archivos/visa_PNG30.png}" alt="Visa" style="width: 50px; border-radius: 10px;">
+                    <img th:src="@{/archivos/mastercard-og-image.png}" alt="Mastercard" style="width: 50px; border-radius: 10px;">
+                </div>
+            </div>
+        </div>
+
+        <!-- Separador y Copyright -->
+        <hr class="my-4">
+        <div class="d-flex justify-content-center text-center">
+            <small>&copy; 2024 D'LurenChicken. Todos los derechos reservados.</small>
+        </div>
+    </div>
+</footer>
+
+<script th:src="@{/script/menu.js}"></script>
+<script th:src="@{/js/script.js}"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+
+</body>
+
+</html>

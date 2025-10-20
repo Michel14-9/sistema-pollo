@@ -1,0 +1,39 @@
+/* Colores */
+.bg-custom {
+  background-color: #074C22; /* Header */
+}
+.text-custom {
+  color: #8EA938;
+}
+.btn-custom {
+  background-color: #8EA938;
+  border: none;
+  color: #fff;
+}
+.btn-custom:hover {
+  background-color: #6f882b;
+}
+
+/* Card de registro */
+.registration-card {
+  border-radius: 12px;
+}
+
+/* Footer */
+.footer-luren {
+  background-color: #074C22;
+}
+.footer-luren a:hover {
+  color: #8EA938;
+}
+.social-icons a {
+  font-size: 1.2rem;
+  margin-right: 10px;
+  color: #fff;
+}
+.social-icons a:hover {
+  color: #8EA938;
+}
+
+
+

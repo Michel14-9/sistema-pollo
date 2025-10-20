@@ -1,5 +1,4 @@
 package com.sistemaapollo.sistema_apollo.controller;
-
 import com.sistemaapollo.sistema_apollo.model.Usuario;
 import com.sistemaapollo.sistema_apollo.repository.UsuarioRepository;
 import com.sistemaapollo.sistema_apollo.service.CaptchaService;
@@ -11,6 +10,8 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
 import java.util.Optional;
+
+import static org.springframework.http.ResponseEntity.*;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -56,11 +57,11 @@ public class RegistroController {
             response.setFechaNacimiento(usuario.getFechaNacimiento());
 
             System.out.println(" Datos enviados para: " + usuario.getNombres() + " " + usuario.getApellidos());
-            return ResponseEntity.ok(response);
+            return ok(response);
 
         } catch (Exception e) {
             System.out.println(" Error obteniendo datos del usuario: " + e.getMessage());
-            return ResponseEntity.badRequest().body("Error al obtener datos del usuario: " + e.getMessage());
+            return badRequest().body("Error al obtener datos del usuario: " + e.getMessage());
         }
     }
 
@@ -96,12 +97,12 @@ public class RegistroController {
 
                 // Verificar que se proporcionó la contraseña actual
                 if (request.getPasswordActual() == null || request.getPasswordActual().isEmpty()) {
-                    return ResponseEntity.badRequest().body("Debes ingresar tu contraseña actual para cambiarla");
+                    return badRequest().body("Debes ingresar tu contraseña actual para cambiarla");
                 }
 
                 // Verificar que la contraseña actual sea correcta
                 if (!passwordEncoder.matches(request.getPasswordActual(), usuario.getPassword())) {
-                    return ResponseEntity.badRequest().body("La contraseña actual es incorrecta");
+                    return badRequest().body("La contraseña actual es incorrecta");
                 }
 
                 // Actualizar contraseña
@@ -123,11 +124,11 @@ public class RegistroController {
             userRepository.save(usuario);
 
             System.out.println(" Datos actualizados correctamente para: " + usuario.getNombres());
-            return ResponseEntity.ok("Datos actualizados correctamente");
+            return ok("Datos actualizados correctamente");
 
         } catch (Exception e) {
             System.out.println(" Error actualizando datos: " + e.getMessage());
-            return ResponseEntity.badRequest().body("Error al actualizar los datos: " + e.getMessage());
+            return badRequest().body("Error al actualizar los datos: " + e.getMessage());
         }
     }
 
@@ -173,7 +174,7 @@ public class RegistroController {
         // 1. Validación de reCAPTCHA
         if (captchaResponse == null || captchaResponse.trim().isEmpty()) {
             System.out.println(" ERROR: reCAPTCHA response está vacío");
-            return ResponseEntity.badRequest().body("Error de verificación de seguridad. El token reCAPTCHA es requerido.");
+            return badRequest().body("Error de verificación de seguridad. El token reCAPTCHA es requerido.");
         }
 
         String remoteIp = request.getRemoteAddr();
@@ -182,20 +183,20 @@ public class RegistroController {
 
         if (!captchaValido) {
             System.out.println("reCAPTCHA inválido");
-            return ResponseEntity.badRequest().body(" Verificación de seguridad fallida. Intente de nuevo.");
+            return badRequest().body(" Verificación de seguridad fallida. Intente de nuevo.");
         }
 
         // 2. Validación de usuario existente (por email/username)
         if (userRepository.findByUsername(email).isPresent()) {
-            return ResponseEntity.badRequest().body(" El correo ya está registrado");
+            return badRequest().body(" El correo ya está registrado");
         }
 
         // 3. Validación de longitud de documento
         if ("DNI".equalsIgnoreCase(tipoDocumento) && numeroDocumento.length() != 8) {
-            return ResponseEntity.badRequest().body("El DNI debe tener 8 dígitos");
+            return badRequest().body("El DNI debe tener 8 dígitos");
         }
         if ("Pasaporte".equalsIgnoreCase(tipoDocumento) && numeroDocumento.length() < 6) {
-            return ResponseEntity.badRequest().body("El Pasaporte debe tener al menos 6 caracteres");
+            return badRequest().body("El Pasaporte debe tener al menos 6 caracteres");
         }
 
         // 4. Conversión y validación de fecha de nacimiento
@@ -203,7 +204,7 @@ public class RegistroController {
         try {
             fechaNac = LocalDate.parse(fechaNacimiento);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(" Formato de fecha inválido. Use yyyy-MM-dd");
+            return badRequest().body(" Formato de fecha inválido. Use yyyy-MM-dd");
         }
 
         // 5. Creación y guardado del usuario
@@ -220,7 +221,7 @@ public class RegistroController {
 
         userRepository.save(usuario);
         System.out.println(" === REGISTRO EXITOSO ===");
-        return ResponseEntity.ok(" Registro exitoso de: " + nombres + " " + apellidos);
+        return ok(" Registro exitoso de: " + nombres + " " + apellidos);
     }
 
 
@@ -244,16 +245,16 @@ public class RegistroController {
 
         if (optionalUsuario.isEmpty()) {
             System.out.println(" Usuario no encontrado: " + username);
-            return ResponseEntity.badRequest().body("⚠️ Usuario o contraseña incorrecta");
+            return badRequest().body("⚠️ Usuario o contraseña incorrecta");
         }
 
         Usuario usuario = optionalUsuario.get();
         if (passwordEncoder.matches(password, usuario.getPassword())) {
             System.out.println(" Login exitoso para: " + username);
-            return ResponseEntity.ok(" Bienvenido " + usuario.getNombres() + " (Rol: " + usuario.getRol() + ")");
+            return ok(" Bienvenido " + usuario.getNombres() + " (Rol: " + usuario.getRol() + ")");
         } else {
             System.out.println(" Contraseña incorrecta para: " + username);
-            return ResponseEntity.badRequest().body("⚠️ Usuario o contraseña incorrecta");
+            return badRequest().body("⚠️ Usuario o contraseña incorrecta");
         }
     }
 

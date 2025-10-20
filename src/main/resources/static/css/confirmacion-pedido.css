@@ -1,0 +1,204 @@
+/* Estilos específicos para la página de confirmación */
+.confirmacion-page {
+    background-color: #f8f9fa;
+    min-height: calc(100vh - 200px);
+}
+
+/* Icono de confirmación */
+.confirmacion-icono {
+    font-size: 5rem;
+    color: #28a745;
+    animation: bounceIn 1s ease-out;
+}
+
+@keyframes bounceIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.3);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.05);
+    }
+    70% {
+        transform: scale(0.9);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Título de confirmación */
+.confirmacion-titulo {
+    color: #333;
+    font-weight: 700;
+    font-size: 2.5rem;
+    animation: fadeInUp 0.8s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Número de pedido */
+.numero-pedido-card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    animation: slideIn 0.8s ease-out 0.3s both;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.numero-pedido {
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+}
+
+/* Información del pedido */
+.info-pedido {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    animation: slideIn 0.8s ease-out 0.5s both;
+}
+
+.info-pedido .card-body {
+    padding: 1.5rem;
+}
+
+.producto-item {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.producto-item:last-child {
+    border-bottom: none;
+}
+
+.total-item {
+    padding: 1rem 0 0 0;
+}
+
+/* Tiempo de entrega */
+.tiempo-entrega {
+    border-radius: 10px;
+    border: none;
+    animation: slideIn 0.8s ease-out 0.7s both;
+}
+
+/* Botones de acción */
+.botones-accion {
+    animation: slideIn 0.8s ease-out 0.9s both;
+}
+
+.btn-seguimiento {
+    background: linear-gradient(135deg, #ff6b00, #ff8c00);
+    border: none;
+    border-radius: 25px;
+    color: white;
+    font-weight: 700;
+    padding: 1rem 2rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(255, 107, 0, 0.3);
+}
+
+.btn-seguimiento:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 107, 0, 0.4);
+    background: linear-gradient(135deg, #ff8c00, #ff6b00);
+    color: white;
+}
+
+.btn-seguir-comprando {
+    background: white;
+    border: 2px solid #ff6b00;
+    border-radius: 25px;
+    color: #ff6b00;
+    font-weight: 700;
+    padding: 1rem 2rem;
+    transition: all 0.3s ease;
+}
+
+.btn-seguir-comprando:hover {
+    background: #ff6b00;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(255, 107, 0, 0.3);
+}
+
+/* Texto naranja */
+.text-orange {
+    color: #ff6b00 !important;
+}
+
+/* Información adicional */
+.info-adicional {
+    animation: fadeIn 1s ease-out 1.1s both;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Cards generales */
+.card {
+    border: none;
+}
+
+.card-header {
+    border-radius: 15px 15px 0 0 !important;
+    border: none;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .confirmacion-titulo {
+        font-size: 2rem;
+    }
+
+    .numero-pedido {
+        font-size: 1.5rem;
+    }
+
+    .confirmacion-icono {
+        font-size: 4rem;
+    }
+
+    .btn-seguimiento,
+    .btn-seguir-comprando {
+        padding: 0.75rem 1.5rem;
+        font-size: 1rem;
+    }
+}
+
+/* Efectos de hover para cards */
+.numero-pedido-card:hover,
+.info-pedido:hover {
+    transform: translateY(-5px);
+    transition: transform 0.3s ease;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}

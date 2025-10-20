@@ -1,0 +1,225 @@
+/* Estilos específicos para la página de mis datos */
+.text-orange {
+    color: #ff6600 !important;
+}
+
+.bg-orange {
+    background-color: #ff6600 !important;
+}
+
+.datos-container {
+    min-height: 60vh;
+    padding: 2rem 0;
+}
+
+.datos-title {
+    color: #333;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    font-size: 2.5rem;
+}
+
+.menu-lateral {
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    padding: 1.5rem;
+    height: fit-content;
+}
+
+.menu-lateral ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.menu-lateral li {
+    margin-bottom: 0.8rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.menu-lateral li:last-child {
+    border-bottom: none;
+}
+
+.menu-lateral a {
+    color: #333;
+    text-decoration: none;
+    font-weight: 500;
+    display: block;
+    transition: all 0.3s;
+}
+
+.menu-lateral a:hover {
+    color: #ff6600;
+    padding-left: 5px;
+}
+
+.menu-lateral a.active {
+    color: #ff6600;
+    font-weight: bold;
+    border-left: 3px solid #ff6600;
+    padding-left: 10px;
+}
+
+.contenido-datos {
+    padding: 1.5rem;
+}
+
+.volver-btn {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    padding: 8px 15px;
+    color: #333;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 1.5rem;
+    transition: all 0.3s;
+}
+
+.volver-btn:hover {
+    background-color: #e9ecef;
+    color: #ff6600;
+}
+
+/* Estados de sesión */
+.estado-sesion .alert {
+    border-radius: 10px;
+}
+
+/* Tarjetas */
+.card {
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+}
+
+.card-header {
+    border-radius: 10px 10px 0 0 !important;
+}
+
+/* Información actual */
+.info-item {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.info-item:last-child {
+    border-bottom: none;
+}
+
+.info-item strong {
+    color: #333;
+    min-width: 180px;
+    display: inline-block;
+}
+
+/* Botones */
+.btn-guardar {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: all 0.3s;
+}
+
+.btn-guardar:hover {
+    background-color: #218838;
+    transform: translateY(-1px);
+}
+
+.btn-cancelar {
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    margin-left: 10px;
+    transition: all 0.3s;
+}
+
+.btn-cancelar:hover {
+    background-color: #5a6268;
+}
+
+.btn-editar {
+    background-color: #ff6600;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: all 0.3s;
+}
+
+.btn-editar:hover {
+    background-color: #e55a00;
+    transform: translateY(-1px);
+}
+
+/* Sección de contraseña */
+.cambiar-password-section {
+    background-color: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border-left: 4px solid #ff6600;
+}
+
+.cambiar-password-section h5 {
+    color: #333;
+    margin-bottom: 1rem;
+}
+
+/* Fortaleza de contraseña */
+.password-strength {
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+.strength-weak { color: #dc3545; }
+.strength-medium { color: #ffc107; }
+.strength-strong { color: #28a745; }
+
+/* Formularios */
+.form-control:focus, .form-select:focus {
+    border-color: #ff6600;
+    box-shadow: 0 0 0 0.2rem rgba(255, 102, 0, 0.25);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .menu-lateral {
+        margin-bottom: 2rem;
+    }
+
+    .datos-title {
+        font-size: 2rem;
+    }
+
+    .acciones-formulario, .acciones-informacion {
+        text-align: center;
+    }
+
+    .btn-cancelar {
+        margin-left: 0;
+        margin-top: 10px;
+    }
+
+    .info-item strong {
+        min-width: 140px;
+    }
+}
+
+/* Animaciones */
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}

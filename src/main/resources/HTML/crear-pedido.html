@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,364 +15,386 @@
 
 <body>
 
-<!-- HEADER -->
-<header>
-    <nav class="navbar navbar-expand-lg navbar-light">
-        <div class="container-fluid">
-            <!-- Logo -->
-            <a class="navbar-brand" th:href="@{/}">
-                <img th:src="@{/archivos/logo.jpg}" alt="Logo" style="width: 3rem;">
-            </a>
-
-            <!-- Botón móvil -->
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                    data-bs-target="#navbarLuren" aria-controls="navbarLuren"
-                    aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <!-- Links -->
-            <div class="collapse navbar-collapse" id="navbarLuren">
-                <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-3 justify-content-center align-items-center">
-                    <li class="nav-item">
-                        <a class="nav-link" th:href="@{/menu}">Menú</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" th:href="@{/nuestros-locales}">Local</a>
-                    </li>
-                    <li class="nav-item d-flex align-items-center">
-                        <i class="fa-solid fa-magnifying-glass"></i>
-                    </li>
-                    <!-- Enlaces móviles -->
-                    <li class="nav-item d-lg-none">
-                        <a th:href="@{/favoritos}" class="nav-link">
-                            <i class="fa-solid fa-star"></i> Mis favoritos
-                        </a>
-                    </li>
-                    <li class="nav-item d-lg-none">
-                        <a th:href="@{/carrito}" class="nav-link">Carrito</a> <!-- Cambiado aquí -->
-                    </li>
-                    <li class="nav-item d-lg-none">
-                        <a th:href="@{/sigue-tu-pedido}" class="nav-link">Sigue tu pedido</a>
-                    </li>
-                </ul>
-
-                <!-- Lado derecho (escritorio) -->
-                <ul class="navbar-nav ms-auto gap-3 align-items-center">
-                    <li class="nav-item d-flex align-items-center" style="font-weight: bold; font-size: 14px; gap: 0.2rem;">
-                        <i class="fa-brands fa-whatsapp" style="font-size: 1.8rem;"></i>
-                        <div>Pide por <br><span class="text-orange">WHATSAPP</span></div>
-                    </li>
-                    <li class="nav-item d-flex align-items-center" style="font-weight: bold; font-size: 14px; gap: 0.2rem;">
-                        <i class="fa-solid fa-phone" style="font-size: 1.5rem;"></i>
-                        <div>Llámanos <br><span class="text-orange">123-456-7890</span></div>
-                    </li>
-                    <!---->
-                    <li class="nav-item d-flex align-items-center" style="font-weight: bold; font-size: 14px;">
-                        <i class="fa-solid fa-user" style="font-size: 1.5rem;"></i>
-                        <div>
-                            <!-- Usuario NO logueado -->
-                            <div th:if="${#authorization.expression('!isAuthenticated()')}">
-                                Hola, <br>
-                                <a th:href="@{/login}" class="text-orange text-decoration-none">Iniciar sesión</a>
-                            </div>
-
-                            <!-- Usuario SÍ logueado -->
-                            <div th:if="${#authorization.expression('isAuthenticated()')}">
-                                <span th:text="'Hola, ' + ${#authentication.principal.username}"></span>
-                                <br>
-                                <a th:href="@{/logout}" class="text-decoration-none text-muted small">Cerrar sesión</a>
-                            </div>
-                        </div>
-                    </li>
-
-                    <li class="nav-item">
-                        <!--  button  a -->
-                        <a th:href="@{/carrito}" class="btn btn-success" style="border-radius: 20px; text-decoration: none;">
-                            <i class="fa-solid fa-cart-shopping"></i> S/. 0.00
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Links rápidos escritorio -->
-    <div class="bg-light py-2 px-3 border-bottom d-none d-lg-block">
-        <div class="container-fluid d-flex justify-content-end gap-4 small">
-            <a th:href="@{/favoritos}" class="text-decoration-none text-reset">
-                <i class="fa-solid fa-star"></i> Mis favoritos
-            </a>
-            <a th:href="@{/sigue-tu-pedido}" class="text-decoration-none text-reset">
-                <i class="fa-solid fa-truck"></i> Sigue tu pedido
-            </a>
-        </div>
-    </div>
-</header>
-
-<!-- CONTENIDO PRINCIPAL -->
-<main class="crear-pedido">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-10 col-md-12">
-
-                <!-- Banner -->
-                <div class="pedido-banner text-center mb-4">
-                    <h1 class="pedido-title">Crea tu Pedido</h1>
-                </div>
-
-                <!-- Contenido principal -->
-                <div class="pedido-container">
-                    <div class="row">
-                        <!-- Sección de selección de productos -->
-                        <div class="col-md-8">
-                            <div class="seleccion-productos">
-
-                                <!-- MAS PAPAS -->
-                                <div class="categoria-producto mb-4">
-                                    <div class="categoria-header">
-                                        <h3 class="categoria-titulo">MAS PAPAS</h3>
-                                        <button class="btn-agregar" data-categoria="papas">AGREGAR</button>
-                                    </div>
-                                </div>
-
-                                <!-- MAS CREMAS -->
-                                <div class="categoria-producto mb-4">
-                                    <div class="categoria-header">
-                                        <h3 class="categoria-titulo">MAS CREMAS</h3>
-                                    </div>
-                                    <div class="opciones-cremas">
-                                        <button class="btn-opcion" data-opcion="aji">AJI</button>
-                                        <button class="btn-opcion" data-opcion="tomate">TOMATE</button>
-                                        <button class="btn-opcion" data-opcion="mostaza">MOSTAZA</button>
-                                        <button class="btn-opcion" data-opcion="mayonesa">MAYONESA</button>
-                                    </div>
-                                </div>
-
-                                <!-- MAS ENSALADA -->
-                                <div class="categoria-producto mb-4">
-                                    <div class="categoria-header">
-                                        <h3 class="categoria-titulo">MAS ENSALADA</h3>
-                                        <button class="btn-agregar" data-categoria="ensalada">AGREGAR</button>
-                                    </div>
-                                </div>
-
-                                <!-- TIPO DE POLLO -->
-                                <div class="categoria-producto mb-4">
-                                    <div class="categoria-header">
-                                        <h3 class="categoria-titulo">TIPO DE POLLO</h3>
-                                    </div>
-                                    <div class="opciones-pollo">
-                                        <div class="fila-opciones">
-                                            <button class="btn-opcion" data-opcion="pierna">PIERNA</button>
-                                            <button class="btn-opcion" data-opcion="alita">ALITA</button>
-                                            <button class="btn-opcion" data-opcion="pechuga">PECHUGA</button>
-                                        </div>
-                                        <div class="fila-opciones">
-                                            <button class="btn-opcion" data-opcion="chicharron">CHICHARRON</button>
-                                            <button class="btn-opcion" data-opcion="encuentro">ENCUENTRO</button>
-                                            <button class="btn-opcion" data-opcion="entero">ENTERO</button>
-                                        </div>
-                                        <div class="fila-opciones">
-                                            <button class="btn-opcion btn-especial" data-opcion="parrilla">PARRILLA</button>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- GASEOSA -->
-                                <div class="categoria-producto mb-4">
-                                    <div class="categoria-header">
-                                        <h3 class="categoria-titulo">GASEOSA</h3>
-                                    </div>
-                                    <div class="opciones-gaseosa">
-                                        <div class="fila-opciones">
-                                            <button class="btn-opcion" data-opcion="coca-cola">COCA COLA</button>
-                                            <button class="btn-opcion" data-opcion="pepsi">PEPSI</button>
-                                            <button class="btn-opcion" data-opcion="guarana">GUARANA</button>
-                                        </div>
-                                        <div class="fila-opciones">
-                                            <button class="btn-opcion" data-opcion="inka-cola">INKA COLA</button>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- MAS ARROZ -->
-                                <div class="categoria-producto mb-4">
-                                    <div class="categoria-header">
-                                        <h3 class="categoria-titulo">MAS ARROZ</h3>
-                                    </div>
-                                    <div class="opciones-arroz">
-                                        <button class="btn-opcion" data-opcion="arroz-blanco">BLANCO</button>
-                                        <button class="btn-opcion" data-opcion="arroz-chaufa">CHAUFA</button>
-                                    </div>
-                                </div>
-
-                                <!-- HAMBURGUESA -->
-                                <div class="categoria-producto mb-4">
-                                    <div class="categoria-header">
-                                        <h3 class="categoria-titulo">HAMBURGUESA</h3>
-                                    </div>
-                                    <div class="opciones-hamburguesa">
-                                        <div class="fila-opciones">
-                                            <button class="btn-opcion" data-opcion="huevo">HUEVO</button>
-                                            <button class="btn-opcion" data-opcion="carne">CARNE</button>
-                                            <button class="btn-opcion" data-opcion="salchicha">SALCHICHA</button>
-                                        </div>
-                                        <div class="fila-opciones">
-                                            <button class="btn-opcion" data-opcion="chorizo">CHORIZO</button>
-                                            <button class="btn-opcion" data-opcion="pollo">POLLO</button>
-                                            <button class="btn-opcion" data-opcion="papas">PAPAS</button>
-                                        </div>
-                                        <div class="fila-opciones">
-                                            <button class="btn-opcion" data-opcion="ensalada">ENSALADA</button>
-                                            <button class="btn-opcion" data-opcion="milanesa">MILANESA</button>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- CRIOLLO -->
-                                <div class="categoria-producto mb-4">
-                                    <div class="categoria-header">
-                                        <h3 class="categoria-titulo">CRIOLLO</h3>
-                                    </div>
-                                    <div class="opciones-criollo">
-                                        <div class="fila-opciones">
-                                            <button class="btn-opcion" data-opcion="lomo-saltado">LOMO SALTADO</button>
-                                            <button class="btn-opcion" data-opcion="tallarin-saltado">TALLARIN SALTADO</button>
-                                        </div>
-                                        <div class="fila-opciones">
-                                            <button class="btn-opcion" data-opcion="arroz-chaufa-pollo">ARROZ CHAUFA DE POLLO</button>
-                                        </div>
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
-
-                        <!-- Resumen del pedido -->
-                        <div class="col-md-4">
-                            <div class="resumen-pedido">
-                                <div class="resumen-header">
-                                    <h4>Tu Pedido</h4>
-                                    <span class="badge bg-secondary" id="contador-items">0 items</span>
-                                </div>
-
-                                <div class="resumen-lista" id="resumen-lista">
-                                    <!-- Los productos seleccionados aparecerán aquí -->
-                                    <div class="resumen-vacio text-center py-4">
-                                        <i class="fas fa-shopping-cart" style="font-size: 2rem; color: #ddd;"></i>
-                                        <p class="text-muted mt-2">No hay productos en tu pedido</p>
-                                    </div>
-                                </div>
-
-                                <div class="resumen-total">
-                                    <div class="total-linea">
-                                        <span>Subtotal:</span>
-                                        <span id="subtotal">S/. 0.00</span>
-                                    </div>
-                                    <div class="total-linea">
-                                        <span>Envío:</span>
-                                        <span id="envio">S/. 0.00</span>
-                                    </div>
-                                    <div class="total-linea total-final">
-                                        <strong>Total:</strong>
-                                        <strong id="total-final">S/. 0.00</strong>
-                                    </div>
-                                </div>
-
-                                <div class="resumen-acciones">
-                                    <button class="btn btn-secondary btn-limpiar" id="btnLimpiar">
-                                        <i class="fas fa-trash"></i> Limpiar
-                                    </button>
-                                    <button class="btn btn-luren btn-confirmar" id="btnConfirmar">
-                                        <i class="fas fa-check"></i> Confirmar Pedido
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </div>
-</main>
-
-<!-- FOOTER -->
-<footer class="bg-light pt-5 pb-3">
-    <div class="container-fluid px-4">
-        <div class="row">
-            <!-- Columna del Logo y Conectividad -->
-            <div class="col-md-3 mb-4">
-                <div class="d-flex flex-column align-items-md-start align-items-center">
-                    <img th:src="@{/archivos/logo.jpg}" alt="Logo" style="height: 70px;" class="mb-3">
-                    <h5 class="fw-bold mb-2 text-md-start text-center">Conéctate con nosotros</h5>
-                    <div class="d-flex gap-2">
-                        <a th:href="@{https://www.instagram.com}" target="_blank"
-                           class="btn btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center"
-                           style="width: 40px; height: 40px;">
-                            <i class="fab fa-instagram"></i>
-                        </a>
-                        <a th:href="@{https://www.facebook.com}" target="_blank"
-                           class="btn btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center"
-                           style="width: 40px; height: 40px;">
-                            <i class="fab fa-facebook-f"></i>
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- En la sección de Productos del footer -->
-            <div class="col-md-3 mb-4">
-                <h5 class="fw-bold mb-3">Nuestros Productos</h5>
-                <ul class="list-unstyled">
-
-                    <li><a th:href="@{/menu#pollos}" class="text-decoration-none text-dark">Pollo a la brasa</a></li>
-                    <li><a th:href="@{/menu#parrillas}" class="text-decoration-none text-dark">Parrillas</a></li>
-                    <li><a th:href="@{/menu#chicharron}" class="text-decoration-none text-dark">Chicharrón</a></li>
-                    <li><a th:href="@{/menu#broaster}" class="text-decoration-none text-dark">Broster</a></li>
-                    <li><a th:href="@{/menu#hamburguesas}" class="text-decoration-none text-dark">Hamburguesas</a></li>
-                    <li><a th:href="@{/menu#criollos}" class="text-decoration-none text-dark">Criollos</a></li>
-                    <li><a th:href="@{/menu#combos}" class="text-decoration-none text-dark">Combos</a></li>
-
-                </ul>
-            </div>
-
-            <!-- Columna de Ayuda -->
-            <div class="col-md-3 mb-4">
-                <h5 class="fw-bold mb-3">Ayuda</h5>
-                <ul class="list-unstyled">
-                    <li><a th:href="@{/politica-datos}" class="text-decoration-none text-dark">Política de Datos Personales</a></li>
-                    <li><a th:href="@{/terminos}" class="text-decoration-none text-dark">Términos y Condiciones</a></li>
-                    <li><a th:href="@{/nuestros-locales}" class="text-decoration-none text-dark">Nuestro Local</a></li>
-                    <li><a th:href="@{/politica-cookies}" class="text-decoration-none text-dark">Política de cookies</a></li>
-                </ul>
-            </div>
-
-            <!-- Columna de Reclamaciones y Pagos -->
-            <div class="col-md-3 mb-4">
-                <h5 class="fw-bold mb-3">Libro de reclamaciones</h5>
-                <a th:href="@{/libro-reclamaciones}">
-                    <img th:src="@{/archivos/libro.png}" alt="Libro de Reclamaciones" style="width: 120px;" class="mb-3">
+    <!-- HEADER -->
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-light">
+            <div class="container-fluid">
+                <!-- Logo -->
+                <a class="navbar-brand" th:href="@{/}">
+                    <img th:src="@{/archivos/logo.jpg}" alt="Logo" style="width: 3rem;">
                 </a>
-                <h5 class="fw-bold mb-3">Métodos de Pago</h5>
-                <div class="d-flex gap-2 align-items-center">
-                    <img th:src="@{/archivos/visa_PNG30.png}" alt="Visa" style="width: 50px; border-radius: 10px;">
-                    <img th:src="@{/archivos/mastercard-og-image.png}" alt="Mastercard" style="width: 50px; border-radius: 10px;">
+
+                <!-- Botón móvil -->
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarLuren"
+                    aria-controls="navbarLuren" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Links -->
+                <div class="collapse navbar-collapse" id="navbarLuren">
+                    <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-3 justify-content-center align-items-center">
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{/menu}">Menú</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{/nuestros-locales}">Local</a>
+                        </li>
+                        <li class="nav-item d-flex align-items-center">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </li>
+                        <!-- Enlaces móviles -->
+                        <li class="nav-item d-lg-none">
+                            <a th:href="@{/favoritos}" class="nav-link">
+                                <i class="fa-solid fa-star"></i> Mis favoritos
+                            </a>
+                        </li>
+                        <li class="nav-item d-lg-none">
+                            <a th:href="@{/carrito}" class="nav-link">Carrito</a> <!-- Cambiado aquí -->
+                        </li>
+                        <li class="nav-item d-lg-none">
+                            <a th:href="@{/sigue-tu-pedido}" class="nav-link">Sigue tu pedido</a>
+                        </li>
+                    </ul>
+
+                    <!-- Lado derecho (escritorio) -->
+                    <ul class="navbar-nav ms-auto gap-3 align-items-center">
+                        <li class="nav-item d-flex align-items-center"
+                            style="font-weight: bold; font-size: 14px; gap: 0.2rem;">
+                            <a href="https://wa.me/51945819908?text=Hola,%20me%20gustaría%20hacer%20un%20pedido%20por%20WhatsApp%20de%20D'LurenChicken."
+                                target="_blank" class="text-decoration-none text-reset d-flex align-items-center"
+                                style="gap: 0.2rem;">
+                                <i class="fa-brands fa-whatsapp" style="font-size: 1.8rem;"></i>
+                                <div>Pide por <br><span class="text-orange">WHATSAPP</span></div>
+                        </li>
+                        <li class="nav-item d-flex align-items-center"
+                            style="font-weight: bold; font-size: 14px; gap: 0.2rem;">
+                            <i class="fa-solid fa-phone" style="font-size: 1.5rem;"></i>
+                            <a href="tel:+511234567890" class="text-decoration-none text-reset"
+                                aria-label="Llamar por teléfono">
+                                <div>Llámanos <br><span class="text-orange">123-456-7890</span></div>
+                            </a>
+                        </li>
+                        <!---->
+                        <li class="nav-item d-flex align-items-center" style="font-weight: bold; font-size: 14px;">
+                            <i class="fa-solid fa-user" style="font-size: 1.5rem;"></i>
+                            <div>
+                                <!-- Usuario NO logueado -->
+                                <div th:if="${#authorization.expression('!isAuthenticated()')}">
+                                    Hola, <br>
+                                    <a th:href="@{/login}" class="text-orange text-decoration-none">Iniciar sesión</a>
+                                </div>
+
+                                <!-- Usuario SÍ logueado -->
+                                <div th:if="${#authorization.expression('isAuthenticated()')}">
+                                    <span th:text="'Hola, ' + ${#authentication.principal.username}"></span>
+                                    <br>
+                                    <a th:href="@{/logout}" class="text-decoration-none text-muted small">Cerrar
+                                        sesión</a>
+                                </div>
+                            </div>
+                        </li>
+
+                        <li class="nav-item">
+                            <!--  button  a -->
+                            <a th:href="@{/carrito}" class="btn btn-success"
+                                style="border-radius: 20px; text-decoration: none;">
+                                <i class="fa-solid fa-cart-shopping"></i> S/. 0.00
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Links rápidos escritorio -->
+        <div class="bg-light py-2 px-3 border-bottom d-none d-lg-block">
+            <div class="container-fluid d-flex justify-content-end gap-4 small">
+                <a th:href="@{/favoritos}" class="text-decoration-none text-reset">
+                    <i class="fa-solid fa-star"></i> Mis favoritos
+                </a>
+                <a th:href="@{/sigue-tu-pedido}" class="text-decoration-none text-reset">
+                    <i class="fa-solid fa-truck"></i> Sigue tu pedido
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="crear-pedido">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-10 col-md-12">
+
+                    <!-- Banner -->
+                    <div class="pedido-banner text-center mb-4">
+                        <h1 class="pedido-title">Crea tu Pedido</h1>
+                    </div>
+
+                    <!-- Contenido principal -->
+                    <div class="pedido-container">
+                        <div class="row">
+                            <!-- Sección de selección de productos -->
+                            <div class="col-md-8">
+                                <div class="seleccion-productos">
+
+                                    <!-- MAS PAPAS -->
+                                    <div class="categoria-producto mb-4">
+                                        <div class="categoria-header">
+                                            <h3 class="categoria-titulo">MAS PAPAS</h3>
+                                            <button class="btn-agregar" data-categoria="papas">AGREGAR</button>
+                                        </div>
+                                    </div>
+
+                                    <!-- MAS CREMAS -->
+                                    <div class="categoria-producto mb-4">
+                                        <div class="categoria-header">
+                                            <h3 class="categoria-titulo">MAS CREMAS</h3>
+                                        </div>
+                                        <div class="opciones-cremas">
+                                            <button class="btn-opcion" data-opcion="aji">AJI</button>
+                                            <button class="btn-opcion" data-opcion="tomate">TOMATE</button>
+                                            <button class="btn-opcion" data-opcion="mostaza">MOSTAZA</button>
+                                            <button class="btn-opcion" data-opcion="mayonesa">MAYONESA</button>
+                                        </div>
+                                    </div>
+
+                                    <!-- MAS ENSALADA -->
+                                    <div class="categoria-producto mb-4">
+                                        <div class="categoria-header">
+                                            <h3 class="categoria-titulo">MAS ENSALADA</h3>
+                                            <button class="btn-agregar" data-categoria="ensalada">AGREGAR</button>
+                                        </div>
+                                    </div>
+
+                                    <!-- TIPO DE POLLO -->
+                                    <div class="categoria-producto mb-4">
+                                        <div class="categoria-header">
+                                            <h3 class="categoria-titulo">TIPO DE POLLO</h3>
+                                        </div>
+                                        <div class="opciones-pollo">
+                                            <div class="fila-opciones">
+                                                <button class="btn-opcion" data-opcion="pierna">PIERNA</button>
+                                                <button class="btn-opcion" data-opcion="alita">ALITA</button>
+                                                <button class="btn-opcion" data-opcion="pechuga">PECHUGA</button>
+                                            </div>
+                                            <div class="fila-opciones">
+                                                <button class="btn-opcion" data-opcion="chicharron">CHICHARRON</button>
+                                                <button class="btn-opcion" data-opcion="encuentro">ENCUENTRO</button>
+                                                <button class="btn-opcion" data-opcion="entero">ENTERO</button>
+                                            </div>
+                                            <div class="fila-opciones">
+                                                <button class="btn-opcion btn-especial"
+                                                    data-opcion="parrilla">PARRILLA</button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- GASEOSA -->
+                                    <div class="categoria-producto mb-4">
+                                        <div class="categoria-header">
+                                            <h3 class="categoria-titulo">GASEOSA</h3>
+                                        </div>
+                                        <div class="opciones-gaseosa">
+                                            <div class="fila-opciones">
+                                                <button class="btn-opcion" data-opcion="coca-cola">COCA COLA</button>
+                                                <button class="btn-opcion" data-opcion="pepsi">PEPSI</button>
+                                                <button class="btn-opcion" data-opcion="guarana">GUARANA</button>
+                                            </div>
+                                            <div class="fila-opciones">
+                                                <button class="btn-opcion" data-opcion="inka-cola">INKA COLA</button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- MAS ARROZ -->
+                                    <div class="categoria-producto mb-4">
+                                        <div class="categoria-header">
+                                            <h3 class="categoria-titulo">MAS ARROZ</h3>
+                                        </div>
+                                        <div class="opciones-arroz">
+                                            <button class="btn-opcion" data-opcion="arroz-blanco">BLANCO</button>
+                                            <button class="btn-opcion" data-opcion="arroz-chaufa">CHAUFA</button>
+                                        </div>
+                                    </div>
+
+                                    <!-- HAMBURGUESA -->
+                                    <div class="categoria-producto mb-4">
+                                        <div class="categoria-header">
+                                            <h3 class="categoria-titulo">HAMBURGUESA</h3>
+                                        </div>
+                                        <div class="opciones-hamburguesa">
+                                            <div class="fila-opciones">
+                                                <button class="btn-opcion" data-opcion="huevo">HUEVO</button>
+                                                <button class="btn-opcion" data-opcion="carne">CARNE</button>
+                                                <button class="btn-opcion" data-opcion="salchicha">SALCHICHA</button>
+                                            </div>
+                                            <div class="fila-opciones">
+                                                <button class="btn-opcion" data-opcion="chorizo">CHORIZO</button>
+                                                <button class="btn-opcion" data-opcion="pollo">POLLO</button>
+                                                <button class="btn-opcion" data-opcion="papas">PAPAS</button>
+                                            </div>
+                                            <div class="fila-opciones">
+                                                <button class="btn-opcion" data-opcion="ensalada">ENSALADA</button>
+                                                <button class="btn-opcion" data-opcion="milanesa">MILANESA</button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- CRIOLLO -->
+                                    <div class="categoria-producto mb-4">
+                                        <div class="categoria-header">
+                                            <h3 class="categoria-titulo">CRIOLLO</h3>
+                                        </div>
+                                        <div class="opciones-criollo">
+                                            <div class="fila-opciones">
+                                                <button class="btn-opcion" data-opcion="lomo-saltado">LOMO
+                                                    SALTADO</button>
+                                                <button class="btn-opcion" data-opcion="tallarin-saltado">TALLARIN
+                                                    SALTADO</button>
+                                            </div>
+                                            <div class="fila-opciones">
+                                                <button class="btn-opcion" data-opcion="arroz-chaufa-pollo">ARROZ CHAUFA
+                                                    DE POLLO</button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            <!-- Resumen del pedido -->
+                            <div class="col-md-4">
+                                <div class="resumen-pedido">
+                                    <div class="resumen-header">
+                                        <h4>Tu Pedido</h4>
+                                        <span class="badge bg-secondary" id="contador-items">0 items</span>
+                                    </div>
+
+                                    <div class="resumen-lista" id="resumen-lista">
+                                        <!-- Los productos seleccionados aparecerán aquí -->
+                                        <div class="resumen-vacio text-center py-4">
+                                            <i class="fas fa-shopping-cart" style="font-size: 2rem; color: #ddd;"></i>
+                                            <p class="text-muted mt-2">No hay productos en tu pedido</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="resumen-total">
+                                        <div class="total-linea">
+                                            <span>Subtotal:</span>
+                                            <span id="subtotal">S/. 0.00</span>
+                                        </div>
+                                        <div class="total-linea">
+                                            <span>Envío:</span>
+                                            <span id="envio">S/. 0.00</span>
+                                        </div>
+                                        <div class="total-linea total-final">
+                                            <strong>Total:</strong>
+                                            <strong id="total-final">S/. 0.00</strong>
+                                        </div>
+                                    </div>
+
+                                    <div class="resumen-acciones">
+                                        <button class="btn btn-secondary btn-limpiar" id="btnLimpiar">
+                                            <i class="fas fa-trash"></i> Limpiar
+                                        </button>
+                                        <button class="btn btn-luren btn-confirmar" id="btnConfirmar">
+                                            <i class="fas fa-check"></i> Confirmar Pedido
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
+    </main>
 
-        <!-- Separador y Copyright -->
-        <hr class="my-4">
-        <div class="d-flex justify-content-center text-center">
-            <small>&copy; 2024 D'LurenChicken. Todos los derechos reservados.</small>
+    <!-- FOOTER -->
+    <footer class="bg-light pt-5 pb-3">
+        <div class="container-fluid px-4">
+            <div class="row">
+                <!-- Columna del Logo y Conectividad -->
+                <div class="col-md-3 mb-4">
+                    <div class="d-flex flex-column align-items-md-start align-items-center">
+                        <img th:src="@{/archivos/logo.jpg}" alt="Logo" style="height: 70px;" class="mb-3">
+                        <h5 class="fw-bold mb-2 text-md-start text-center">Conéctate con nosotros</h5>
+                        <div class="d-flex gap-2">
+                            <a th:href="@{https://www.instagram.com}" target="_blank"
+                                class="btn btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center"
+                                style="width: 40px; height: 40px;">
+                                <i class="fab fa-instagram"></i>
+                            </a>
+                            <a th:href="@{https://www.facebook.com}" target="_blank"
+                                class="btn btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center"
+                                style="width: 40px; height: 40px;">
+                                <i class="fab fa-facebook-f"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- En la sección de Productos del footer -->
+                <div class="col-md-3 mb-4">
+                    <h5 class="fw-bold mb-3">Nuestros Productos</h5>
+                    <ul class="list-unstyled">
+
+                        <li><a th:href="@{/menu#pollos}" class="text-decoration-none text-dark">Pollo a la brasa</a>
+                        </li>
+                        <li><a th:href="@{/menu#parrillas}" class="text-decoration-none text-dark">Parrillas</a></li>
+                        <li><a th:href="@{/menu#chicharron}" class="text-decoration-none text-dark">Chicharrón</a></li>
+                        <li><a th:href="@{/menu#broaster}" class="text-decoration-none text-dark">Broster</a></li>
+                        <li><a th:href="@{/menu#hamburguesas}" class="text-decoration-none text-dark">Hamburguesas</a>
+                        </li>
+                        <li><a th:href="@{/menu#criollos}" class="text-decoration-none text-dark">Criollos</a></li>
+                        <li><a th:href="@{/menu#combos}" class="text-decoration-none text-dark">Combos</a></li>
+
+                    </ul>
+                </div>
+
+                <!-- Columna de Ayuda -->
+                <div class="col-md-3 mb-4">
+                    <h5 class="fw-bold mb-3">Ayuda</h5>
+                    <ul class="list-unstyled">
+                        <li><a th:href="@{/politica-datos}" class="text-decoration-none text-dark">Política de Datos
+                                Personales</a></li>
+                        <li><a th:href="@{/terminos}" class="text-decoration-none text-dark">Términos y Condiciones</a>
+                        </li>
+                        <li><a th:href="@{/nuestros-locales}" class="text-decoration-none text-dark">Nuestro Local</a>
+                        </li>
+                        <li><a th:href="@{/politica-cookies}" class="text-decoration-none text-dark">Política de
+                                cookies</a></li>
+                    </ul>
+                </div>
+
+                <!-- Columna de Reclamaciones y Pagos -->
+                <div class="col-md-3 mb-4">
+                    <h5 class="fw-bold mb-3">Libro de reclamaciones</h5>
+                    <a th:href="@{/libro-reclamaciones}">
+                        <img th:src="@{/archivos/libro.png}" alt="Libro de Reclamaciones" style="width: 120px;"
+                            class="mb-3">
+                    </a>
+                    <h5 class="fw-bold mb-3">Métodos de Pago</h5>
+                    <div class="d-flex gap-2 align-items-center">
+                        <img th:src="@{/archivos/visa_PNG30.png}" alt="Visa" style="width: 50px; border-radius: 10px;">
+                        <img th:src="@{/archivos/mastercard-og-image.png}" alt="Mastercard"
+                            style="width: 50px; border-radius: 10px;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Separador y Copyright -->
+            <hr class="my-4">
+            <div class="d-flex justify-content-center text-center">
+                <small>&copy; 2024 D'LurenChicken. Todos los derechos reservados.</small>
+            </div>
         </div>
-    </div>
-</footer>
+    </footer>
 
-<!-- Scripts -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-<script type="module" th:src="@{/script/crear-pedido.js}"></script>
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module" th:src="@{/script/crear-pedido.js}"></script>
 </body>
+
 </html>

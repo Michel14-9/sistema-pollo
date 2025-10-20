@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,318 +15,344 @@
 
 <body>
 
-<!-- HEADER (Mismo que todas las páginas) -->
-<header>
-    <nav class="navbar navbar-expand-lg navbar-light">
-        <div class="container-fluid">
-            <!-- Logo -->
-            <a class="navbar-brand" th:href="@{/}">
-                <img th:src="@{/archivos/logo.jpg}" alt="Logo" style="width: 3rem;">
-            </a>
-
-            <!-- Botón móvil -->
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                    data-bs-target="#navbarLuren" aria-controls="navbarLuren"
-                    aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <!-- Links -->
-            <div class="collapse navbar-collapse" id="navbarLuren">
-                <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-3 justify-content-center align-items-center">
-                    <li class="nav-item">
-                        <a class="nav-link" th:href="@{/menu}">Menú</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" th:href="@{/nuestros-locales}">Local</a>
-                    </li>
-                    <li class="nav-item d-flex align-items-center">
-                        <i class="fa-solid fa-magnifying-glass"></i>
-                    </li>
-                    <!-- Enlaces móviles -->
-                    <li class="nav-item d-lg-none">
-                        <a th:href="@{/favoritos}" class="nav-link">
-                            <i class="fa-solid fa-star"></i> Mis favoritos
-                        </a>
-                    </li>
-                    <li class="nav-item d-lg-none">
-                        <a th:href="@{/carrito}" class="nav-link">Carrito</a> <!-- Cambiado aquí -->
-                    </li>
-                    <li class="nav-item d-lg-none">
-                        <a th:href="@{/sigue-tu-pedido}" class="nav-link">Sigue tu pedido</a>
-                    </li>
-                </ul>
-
-                <!-- Lado derecho (escritorio) -->
-                <ul class="navbar-nav ms-auto gap-3 align-items-center">
-                    <li class="nav-item d-flex align-items-center" style="font-weight: bold; font-size: 14px; gap: 0.2rem;">
-                        <i class="fa-brands fa-whatsapp" style="font-size: 1.8rem;"></i>
-                        <div>Pide por <br><span class="text-orange">WHATSAPP</span></div>
-                    </li>
-                    <li class="nav-item d-flex align-items-center" style="font-weight: bold; font-size: 14px; gap: 0.2rem;">
-                        <i class="fa-solid fa-phone" style="font-size: 1.5rem;"></i>
-                        <div>Llámanos <br><span class="text-orange">123-456-7890</span></div>
-                    </li>
-                    <!---->
-                    <li class="nav-item d-flex align-items-center" style="font-weight: bold; font-size: 14px;">
-                        <i class="fa-solid fa-user" style="font-size: 1.5rem;"></i>
-                        <div>
-                            <!-- Usuario NO logueado -->
-                            <div th:if="${#authorization.expression('!isAuthenticated()')}">
-                                Hola, <br>
-                                <a th:href="@{/login}" class="text-orange text-decoration-none">Iniciar sesión</a>
-                            </div>
-
-                            <!-- Usuario SÍ logueado -->
-                            <div th:if="${#authorization.expression('isAuthenticated()')}">
-                                <span th:text="'Hola, ' + ${#authentication.principal.username}"></span>
-                                <br>
-                                <a th:href="@{/logout}" class="text-decoration-none text-muted small">Cerrar sesión</a>
-                            </div>
-                        </div>
-                    </li>
-
-                    <li class="nav-item">
-                        <!--  button  a -->
-                        <a th:href="@{/carrito}" class="btn btn-success" style="border-radius: 20px; text-decoration: none;">
-                            <i class="fa-solid fa-cart-shopping"></i> S/. 0.00
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Links rápidos escritorio -->
-    <div class="bg-light py-2 px-3 border-bottom d-none d-lg-block">
-        <div class="container-fluid d-flex justify-content-end gap-4 small">
-            <a th:href="@{/favoritos}" class="text-decoration-none text-reset">
-                <i class="fa-solid fa-star"></i> Mis favoritos
-            </a>
-            <a th:href="@{/sigue-tu-pedido}" class="text-decoration-none text-reset">
-                <i class="fa-solid fa-truck"></i> Sigue tu pedido
-            </a>
-        </div>
-    </div>
-</header>
-
-<!-- CONTENIDO PRINCIPAL -->
-<main class="locales">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-10 col-md-12">
-
-                <!-- Banner -->
-                <div class="locales-banner text-center mb-5">
-                    <h1 class="locales-title">Encuentra el local Luren Chicken más rápido</h1>
-                </div>
-
-                <!-- Información del local -->
-                <div class="local-info mb-5">
-                    <div class="row align-items-center">
-                        <div class="col-md-8">
-                            <h3 class="local-address mb-3">(1114) Calle La Mar</h3>
-                            <div class="local-options mb-4">
-                                <div class="d-flex flex-wrap gap-3">
-                                    <div class="option-item">
-                                        <span class="fw-bold">Tipo de Despacho</span>
-                                    </div>
-                                </div>
-                                <div class="despacho-options mt-2">
-                                    <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="radio" name="despacho" id="comerTienda" checked>
-                                        <label class="form-check-label" for="comerTienda">Comer en tienda</label>
-                                    </div>
-                                    <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="radio" name="despacho" id="retiroTienda">
-                                        <label class="form-check-label" for="retiroTienda">Retiro en tienda</label>
-                                    </div>
-                                </div>
-                            </div>
-                            <button class="btn btn-luren btn-ver-direccion">
-                                VER DIRECCIÓN
-                            </button>
-                        </div>
-                        <div class="col-md-4 text-center">
-                            <div class="local-horario">
-                                <h5 class="mb-3">Horario de atención</h5>
-                                <p class="mb-1"><strong>Lunes - Domingo</strong></p>
-                                <p class="mb-0">10:00 AM - 10:00 PM</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Mapa -->
-                <div class="mapa-container mb-5">
-                    <div class="card shadow-sm">
-                        <div class="card-body p-0">
-                            <div id="mapa" class="mapa-google"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Separador -->
-                <hr class="my-5">
-
-                <!-- Preguntas frecuentes -->
-                <div class="preguntas-locales mb-5">
-                    <h3 class="text-center mb-4">Preguntas sobre los locales de Luren Chicken</h3>
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-preguntas">
-                            <tbody>
-                            <tr>
-                                <td class="pregunta-item" data-bs-toggle="collapse" data-bs-target="#pregunta1">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <span>¿Cuáles son los horarios de atención?</span>
-                                        <i class="fas fa-chevron-down"></i>
-                                    </div>
-                                    <div id="pregunta1" class="collapse mt-2">
-                                        <div class="pregunta-respuesta">
-                                            Todos nuestros locales atienden de lunes a domingo de 10:00 AM a 10:00 PM.
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="pregunta-item" data-bs-toggle="collapse" data-bs-target="#pregunta2">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <span>¿Hacen delivery a domicilio?</span>
-                                        <i class="fas fa-chevron-down"></i>
-                                    </div>
-                                    <div id="pregunta2" class="collapse mt-2">
-                                        <div class="pregunta-respuesta">
-                                            Sí, realizamos delivery en un radio de 5km alrededor de cada local.
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="pregunta-item" data-bs-toggle="collapse" data-bs-target="#pregunta3">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <span>¿Aceptan tarjetas de crédito?</span>
-                                        <i class="fas fa-chevron-down"></i>
-                                    </div>
-                                    <div id="pregunta3" class="collapse mt-2">
-                                        <div class="pregunta-respuesta">
-                                            Sí, aceptamos todas las tarjetas de crédito y débito, además de Yape y Plin.
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="pregunta-item" data-bs-toggle="collapse" data-bs-target="#pregunta4">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <span>¿Tienen estacionamiento?</span>
-                                        <i class="fas fa-chevron-down"></i>
-                                    </div>
-                                    <div id="pregunta4" class="collapse mt-2">
-                                        <div class="pregunta-respuesta">
-                                            Algunos locales cuentan con estacionamiento propio. Consulta con el local específico.
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- Newsletter -->
-                <div class="newsletter-locales text-center mb-5">
-                    <div class="card bg-light">
-                        <div class="card-body py-4">
-                            <h5 class="card-title mb-3">¿Quieres ser el primero en enterarte de nuestras promociones?</h5>
-                            <p class="card-text mb-3">Introduce tu dirección de correo electrónico</p>
-                            <div class="row justify-content-center">
-                                <div class="col-md-6">
-                                    <div class="input-group">
-                                        <input type="email" class="form-control" placeholder="tu@email.com">
-                                        <button class="btn btn-orange" type="button">
-                                            REGISTRATE
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </div>
-</main>
-
-<!-- FOOTER (Mismo que todas las páginas) -->
-<footer class="bg-light pt-5 pb-3">
-    <div class="container-fluid px-4">
-        <div class="row">
-            <!-- Columna del Logo y Conectividad -->
-            <div class="col-md-3 mb-4">
-                <div class="d-flex flex-column align-items-md-start align-items-center">
-                    <img th:src="@{/archivos/logo.jpg}" alt="Logo" style="height: 70px;" class="mb-3">
-                    <h5 class="fw-bold mb-2 text-md-start text-center">Conéctate con nosotros</h5>
-                    <div class="d-flex gap-2">
-                        <a th:href="@{https://www.instagram.com}" target="_blank"
-                           class="btn btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center"
-                           style="width: 40px; height: 40px;">
-                            <i class="fab fa-instagram"></i>
-                        </a>
-                        <a th:href="@{https://www.facebook.com}" target="_blank"
-                           class="btn btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center"
-                           style="width: 40px; height: 40px;">
-                            <i class="fab fa-facebook-f"></i>
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Sección de Productos -->
-            <div class="col-md-3 mb-4">
-                <h5 class="fw-bold mb-3">Nuestros Productos</h5>
-                <ul class="list-unstyled">
-                    <li><a th:href="@{/menu#pollos}" class="text-decoration-none text-dark">Pollo a la brasa</a></li>
-                    <li><a th:href="@{/menu#parrillas}" class="text-decoration-none text-dark">Parrillas</a></li>
-                    <li><a th:href="@{/menu#chicharron}" class="text-decoration-none text-dark">Chicharrón</a></li>
-                    <li><a th:href="@{/menu#broaster}" class="text-decoration-none text-dark">Broaster</a></li>
-                    <li><a th:href="@{/menu#hamburguesas}" class="text-decoration-none text-dark">Hamburguesas</a></li>
-                    <li><a th:href="@{/menu#criollos}" class="text-decoration-none text-dark">Criollos</a></li>
-                    <li><a th:href="@{/menu#combos}" class="text-decoration-none text-dark">Combos</a></li>
-                </ul>
-            </div>
-
-            <!-- Columna de Ayuda -->
-            <div class="col-md-3 mb-4">
-                <h5 class="fw-bold mb-3">Ayuda</h5>
-                <ul class="list-unstyled">
-                    <li><a th:href="@{/politica-datos}" class="text-decoration-none text-dark">Política de Datos Personales</a></li>
-                    <li><a th:href="@{/terminos}" class="text-decoration-none text-dark">Términos y Condiciones</a></li>
-                    <li><a th:href="@{/nuestros-locales}" class="text-decoration-none text-dark">Nuestro Local</a></li>
-                    <li><a th:href="@{/politica-cookies}" class="text-decoration-none text-dark">Política de cookies</a></li>
-                </ul>
-            </div>
-
-            <!-- Columna de Reclamaciones y Pagos -->
-            <div class="col-md-3 mb-4">
-                <h5 class="fw-bold mb-3">Libro de reclamaciones</h5>
-                <a th:href="@{/libro-reclamaciones}">
-                    <img th:src="@{/archivos/libro.png}" alt="Libro de Reclamaciones" style="width: 120px;" class="mb-3">
+    <!-- HEADER (Mismo que todas las páginas) -->
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-light">
+            <div class="container-fluid">
+                <!-- Logo -->
+                <a class="navbar-brand" th:href="@{/}">
+                    <img th:src="@{/archivos/logo.jpg}" alt="Logo" style="width: 3rem;">
                 </a>
-                <h5 class="fw-bold mb-3">Métodos de Pago</h5>
-                <div class="d-flex gap-2 align-items-center">
-                    <img th:src="@{/archivos/visa_PNG30.png}" alt="Visa" style="width: 50px; border-radius: 10px;">
-                    <img th:src="@{/archivos/mastercard-og-image.png}" alt="Mastercard" style="width: 50px; border-radius: 10px;">
+
+                <!-- Botón móvil -->
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarLuren"
+                    aria-controls="navbarLuren" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Links -->
+                <div class="collapse navbar-collapse" id="navbarLuren">
+                    <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-3 justify-content-center align-items-center">
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{/menu}">Menú</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{/nuestros-locales}">Local</a>
+                        </li>
+                        <li class="nav-item d-flex align-items-center">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </li>
+                        <!-- Enlaces móviles -->
+                        <li class="nav-item d-lg-none">
+                            <a th:href="@{/favoritos}" class="nav-link">
+                                <i class="fa-solid fa-star"></i> Mis favoritos
+                            </a>
+                        </li>
+                        <li class="nav-item d-lg-none">
+                            <a th:href="@{/carrito}" class="nav-link">Carrito</a> <!-- Cambiado aquí -->
+                        </li>
+                        <li class="nav-item d-lg-none">
+                            <a th:href="@{/sigue-tu-pedido}" class="nav-link">Sigue tu pedido</a>
+                        </li>
+                    </ul>
+
+                    <!-- Lado derecho (escritorio) -->
+                    <ul class="navbar-nav ms-auto gap-3 align-items-center">
+                        <li class="nav-item d-flex align-items-center"
+                            style="font-weight: bold; font-size: 14px; gap: 0.2rem;">
+                            <a href="https://wa.me/51945819908?text=Hola,%20me%20gustaría%20hacer%20un%20pedido%20por%20WhatsApp%20de%20D'LurenChicken."
+                                target="_blank" class="text-decoration-none text-reset d-flex align-items-center"
+                                style="gap: 0.2rem;">
+                                <i class="fa-brands fa-whatsapp" style="font-size: 1.8rem;"></i>
+                                <div>Pide por <br><span class="text-orange">WHATSAPP</span></div>
+                        </li>
+                        <li class="nav-item d-flex align-items-center"
+                            style="font-weight: bold; font-size: 14px; gap: 0.2rem;">
+                            <i class="fa-solid fa-phone" style="font-size: 1.5rem;"></i>
+                            <a href="tel:+511234567890" class="text-decoration-none text-reset"
+                                aria-label="Llamar por teléfono">
+                                <div>Llámanos <br><span class="text-orange">123-456-7890</span></div>
+                            </a>
+                        </li>
+                        <!---->
+                        <li class="nav-item d-flex align-items-center" style="font-weight: bold; font-size: 14px;">
+                            <i class="fa-solid fa-user" style="font-size: 1.5rem;"></i>
+                            <div>
+                                <!-- Usuario NO logueado -->
+                                <div th:if="${#authorization.expression('!isAuthenticated()')}">
+                                    Hola, <br>
+                                    <a th:href="@{/login}" class="text-orange text-decoration-none">Iniciar sesión</a>
+                                </div>
+
+                                <!-- Usuario SÍ logueado -->
+                                <div th:if="${#authorization.expression('isAuthenticated()')}">
+                                    <span th:text="'Hola, ' + ${#authentication.principal.username}"></span>
+                                    <br>
+                                    <a th:href="@{/logout}" class="text-decoration-none text-muted small">Cerrar
+                                        sesión</a>
+                                </div>
+                            </div>
+                        </li>
+
+                        <li class="nav-item">
+                            <!--  button  a -->
+                            <a th:href="@{/carrito}" class="btn btn-success"
+                                style="border-radius: 20px; text-decoration: none;">
+                                <i class="fa-solid fa-cart-shopping"></i> S/. 0.00
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Links rápidos escritorio -->
+        <div class="bg-light py-2 px-3 border-bottom d-none d-lg-block">
+            <div class="container-fluid d-flex justify-content-end gap-4 small">
+                <a th:href="@{/favoritos}" class="text-decoration-none text-reset">
+                    <i class="fa-solid fa-star"></i> Mis favoritos
+                </a>
+                <a th:href="@{/sigue-tu-pedido}" class="text-decoration-none text-reset">
+                    <i class="fa-solid fa-truck"></i> Sigue tu pedido
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="locales">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-10 col-md-12">
+
+                    <!-- Banner -->
+                    <div class="locales-banner text-center mb-5">
+                        <h1 class="locales-title">Encuentra el local Luren Chicken más rápido</h1>
+                    </div>
+
+                    <!-- Información del local -->
+                    <div class="local-info mb-5">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <h3 class="local-address mb-3">(1114) Calle La Mar</h3>
+                                <div class="local-options mb-4">
+                                    <div class="d-flex flex-wrap gap-3">
+                                        <div class="option-item">
+                                            <span class="fw-bold">Tipo de Despacho</span>
+                                        </div>
+                                    </div>
+                                    <div class="despacho-options mt-2">
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="despacho"
+                                                id="comerTienda" checked>
+                                            <label class="form-check-label" for="comerTienda">Comer en tienda</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="despacho"
+                                                id="retiroTienda">
+                                            <label class="form-check-label" for="retiroTienda">Retiro en tienda</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button class="btn btn-luren btn-ver-direccion">
+                                    VER DIRECCIÓN
+                                </button>
+                            </div>
+                            <div class="col-md-4 text-center">
+                                <div class="local-horario">
+                                    <h5 class="mb-3">Horario de atención</h5>
+                                    <p class="mb-1"><strong>Lunes - Domingo</strong></p>
+                                    <p class="mb-0">10:00 AM - 10:00 PM</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mapa -->
+                    <div class="mapa-container mb-5">
+                        <div class="card shadow-sm">
+                            <div class="card-body p-0">
+                                <div id="mapa" class="mapa-google"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Separador -->
+                    <hr class="my-5">
+
+                    <!-- Preguntas frecuentes -->
+                    <div class="preguntas-locales mb-5">
+                        <h3 class="text-center mb-4">Preguntas sobre los locales de Luren Chicken</h3>
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-preguntas">
+                                <tbody>
+                                    <tr>
+                                        <td class="pregunta-item" data-bs-toggle="collapse" data-bs-target="#pregunta1">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <span>¿Cuáles son los horarios de atención?</span>
+                                                <i class="fas fa-chevron-down"></i>
+                                            </div>
+                                            <div id="pregunta1" class="collapse mt-2">
+                                                <div class="pregunta-respuesta">
+                                                    Todos nuestros locales atienden de lunes a domingo de 10:00 AM a
+                                                    10:00 PM.
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="pregunta-item" data-bs-toggle="collapse" data-bs-target="#pregunta2">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <span>¿Hacen delivery a domicilio?</span>
+                                                <i class="fas fa-chevron-down"></i>
+                                            </div>
+                                            <div id="pregunta2" class="collapse mt-2">
+                                                <div class="pregunta-respuesta">
+                                                    Sí, realizamos delivery en un radio de 5km alrededor de cada local.
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="pregunta-item" data-bs-toggle="collapse" data-bs-target="#pregunta3">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <span>¿Aceptan tarjetas de crédito?</span>
+                                                <i class="fas fa-chevron-down"></i>
+                                            </div>
+                                            <div id="pregunta3" class="collapse mt-2">
+                                                <div class="pregunta-respuesta">
+                                                    Sí, aceptamos todas las tarjetas de crédito y débito, además de Yape
+                                                    y Plin.
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="pregunta-item" data-bs-toggle="collapse" data-bs-target="#pregunta4">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <span>¿Tienen estacionamiento?</span>
+                                                <i class="fas fa-chevron-down"></i>
+                                            </div>
+                                            <div id="pregunta4" class="collapse mt-2">
+                                                <div class="pregunta-respuesta">
+                                                    Algunos locales cuentan con estacionamiento propio. Consulta con el
+                                                    local específico.
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Newsletter -->
+                    <div class="newsletter-locales text-center mb-5">
+                        <div class="card bg-light">
+                            <div class="card-body py-4">
+                                <h5 class="card-title mb-3">¿Quieres ser el primero en enterarte de nuestras
+                                    promociones?</h5>
+                                <p class="card-text mb-3">Introduce tu dirección de correo electrónico</p>
+                                <div class="row justify-content-center">
+                                    <div class="col-md-6">
+                                        <div class="input-group">
+                                            <input type="email" class="form-control" placeholder="tu@email.com">
+                                            <button class="btn btn-orange" type="button">
+                                                REGISTRATE
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
+    </main>
 
-        <!-- Separador y Copyright -->
-        <hr class="my-4">
-        <div class="d-flex justify-content-center text-center">
-            <small>&copy; 2024 D'LurenChicken. Todos los derechos reservados.</small>
+    <!-- FOOTER (Mismo que todas las páginas) -->
+    <footer class="bg-light pt-5 pb-3">
+        <div class="container-fluid px-4">
+            <div class="row">
+                <!-- Columna del Logo y Conectividad -->
+                <div class="col-md-3 mb-4">
+                    <div class="d-flex flex-column align-items-md-start align-items-center">
+                        <img th:src="@{/archivos/logo.jpg}" alt="Logo" style="height: 70px;" class="mb-3">
+                        <h5 class="fw-bold mb-2 text-md-start text-center">Conéctate con nosotros</h5>
+                        <div class="d-flex gap-2">
+                            <a th:href="@{https://www.instagram.com}" target="_blank"
+                                class="btn btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center"
+                                style="width: 40px; height: 40px;">
+                                <i class="fab fa-instagram"></i>
+                            </a>
+                            <a th:href="@{https://www.facebook.com}" target="_blank"
+                                class="btn btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center"
+                                style="width: 40px; height: 40px;">
+                                <i class="fab fa-facebook-f"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sección de Productos -->
+                <div class="col-md-3 mb-4">
+                    <h5 class="fw-bold mb-3">Nuestros Productos</h5>
+                    <ul class="list-unstyled">
+                        <li><a th:href="@{/menu#pollos}" class="text-decoration-none text-dark">Pollo a la brasa</a>
+                        </li>
+                        <li><a th:href="@{/menu#parrillas}" class="text-decoration-none text-dark">Parrillas</a></li>
+                        <li><a th:href="@{/menu#chicharron}" class="text-decoration-none text-dark">Chicharrón</a></li>
+                        <li><a th:href="@{/menu#broaster}" class="text-decoration-none text-dark">Broaster</a></li>
+                        <li><a th:href="@{/menu#hamburguesas}" class="text-decoration-none text-dark">Hamburguesas</a>
+                        </li>
+                        <li><a th:href="@{/menu#criollos}" class="text-decoration-none text-dark">Criollos</a></li>
+                        <li><a th:href="@{/menu#combos}" class="text-decoration-none text-dark">Combos</a></li>
+                    </ul>
+                </div>
+
+                <!-- Columna de Ayuda -->
+                <div class="col-md-3 mb-4">
+                    <h5 class="fw-bold mb-3">Ayuda</h5>
+                    <ul class="list-unstyled">
+                        <li><a th:href="@{/politica-datos}" class="text-decoration-none text-dark">Política de Datos
+                                Personales</a></li>
+                        <li><a th:href="@{/terminos}" class="text-decoration-none text-dark">Términos y Condiciones</a>
+                        </li>
+                        <li><a th:href="@{/nuestros-locales}" class="text-decoration-none text-dark">Nuestro Local</a>
+                        </li>
+                        <li><a th:href="@{/politica-cookies}" class="text-decoration-none text-dark">Política de
+                                cookies</a></li>
+                    </ul>
+                </div>
+
+                <!-- Columna de Reclamaciones y Pagos -->
+                <div class="col-md-3 mb-4">
+                    <h5 class="fw-bold mb-3">Libro de reclamaciones</h5>
+                    <a th:href="@{/libro-reclamaciones}">
+                        <img th:src="@{/archivos/libro.png}" alt="Libro de Reclamaciones" style="width: 120px;"
+                            class="mb-3">
+                    </a>
+                    <h5 class="fw-bold mb-3">Métodos de Pago</h5>
+                    <div class="d-flex gap-2 align-items-center">
+                        <img th:src="@{/archivos/visa_PNG30.png}" alt="Visa" style="width: 50px; border-radius: 10px;">
+                        <img th:src="@{/archivos/mastercard-og-image.png}" alt="Mastercard"
+                            style="width: 50px; border-radius: 10px;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Separador y Copyright -->
+            <hr class="my-4">
+            <div class="d-flex justify-content-center text-center">
+                <small>&copy; 2024 D'LurenChicken. Todos los derechos reservados.</small>
+            </div>
         </div>
-    </div>
-</footer>
+    </footer>
 
-<!-- Scripts -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-<script th:src="@{/script/locales.js}"></script>
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBcouSs5H6BzDc2v0gILuk73S_QOwQTOkY&callback=initMap&loading=async&libraries=marker" async defer></script>
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:src="@{/script/locales.js}"></script>
+    <script
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBcouSs5H6BzDc2v0gILuk73S_QOwQTOkY&callback=initMap&loading=async&libraries=marker"
+        async defer></script>
 </body>
+
 </html>

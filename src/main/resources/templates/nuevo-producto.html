@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuevo Producto - Panel Admin | Luren Chicken</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body>
+<!-- CSRF Token para Spring Security -->
+<input type="hidden" id="csrfToken" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+<!-- Navigation -->
+<nav class="navbar navbar-expand-lg navbar-dark luren-navbar">
+    <div class="container">
+        <a class="navbar-brand d-flex align-items-center" th:href="@{/admin-menu}">
+            <img th:src="@{/archivos/logo.jpg}" alt="Luren Chicken" class="me-2" style="width: 40px; height: 40px; border-radius: 50%;">
+            <span class="fw-bold">Panel Admin</span>
+        </a>
+
+        <div class="navbar-nav ms-auto">
+            <div class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button"
+                   data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-user-shield me-2"></i>
+                    <span th:text="${#authentication.principal.username}">Admin</span>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li>
+                        <form th:action="@{/logout}" method="post" class="dropdown-item">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                            <button type="submit" class="btn btn-link p-0 text-decoration-none text-dark">
+                                <i class="fas fa-sign-out-alt me-2"></i> Cerrar Sesión
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- Main Content -->
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a th:href="@{/admin-menu}" class="text-decoration-none">
+                            <i class="fas fa-tachometer-alt me-1"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">
+                        <i class="fas fa-plus-circle me-1"></i>
+                        <span th:if="${producto?.id != null}">Editar Producto</span>
+                        <span th:if="${producto?.id == null}">Nuevo Producto</span>
+                    </li>
+                </ol>
+            </nav>
+
+            <!-- Alertas -->
+            <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <span th:text="${success}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <span th:text="${error}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <!-- Main Card -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white py-3">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-utensils fa-2x me-3"></i>
+                        <div>
+                            <h3 class="mb-0" th:text="${producto?.id != null} ? 'Editar Producto' : 'Agregar Nuevo Producto'"></h3>
+                            <small class="opacity-75">Completa la información del producto</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body p-4">
+                    <!-- Formulario para NUEVO producto -->
+                    <form id="productForm" th:if="${producto?.id == null}" th:action="@{/admin-menu/guardar}" method="post">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+                        <!-- Nombre y Tipo -->
+                        <div class="row">
+                            <div class="col-md-8 mb-3">
+                                <label for="nombre" class="form-label required-field">Nombre del Producto</label>
+                                <input type="text" class="form-control" id="nombre" name="nombre"
+                                       placeholder="Ej: Pollo a la Brasa Familiar" required>
+                                <div class="invalid-feedback">El nombre del producto es requerido</div>
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label for="tipo" class="form-label required-field">Tipo/Categoría</label>
+                                <select class="form-select" id="tipo" name="tipo" required>
+                                    <option value="">Seleccionar tipo</option>
+                                    <option value="Pollos"> Pollo a la Brasa</option>
+                                    <option value="Parrillas"> Parrillas</option>
+                                    <option value="Chicharrón"> Chicharrón</option>
+                                    <option value="Broaster"> Broaster</option>
+                                    <option value="Hamburguesas"> Hamburguesas</option>
+                                    <option value="Criollos">🇵🇪 Platos Criollos</option>
+                                    <option value="Combos"> Combos</option>
+                                </select>
+                                <div class="invalid-feedback">El tipo/categoría es requerido</div>
+                            </div>
+                        </div>
+
+                        <!-- Descripción -->
+                        <div class="mb-3">
+                            <label for="descripcion" class="form-label">Descripción del Producto</label>
+                            <textarea class="form-control" id="descripcion" name="descripcion"
+                                      rows="3" placeholder="Describe el producto, ingredientes, porciones..."></textarea>
+                            <div class="form-text"><span id="descripcionCounter">0</span>/500 caracteres</div>
+                        </div>
+
+                        <!-- Precio -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="precio" class="form-label required-field">Precio (S/.)</label>
+                                <input type="number" class="form-control" id="precio" name="precio"
+                                       step="0.01" min="0" placeholder="0.00" required>
+                                <div class="invalid-feedback">El precio debe ser mayor a 0</div>
+                            </div>
+                        </div>
+
+                        <!-- URL de Imagen -->
+                        <div class="mb-4">
+                            <label for="imagenUrl" class="form-label">URL de la Imagen</label>
+                            <input type="text" class="form-control" id="imagenUrl" name="imagenUrl"
+                                   placeholder="Ej: /imagenes/pollo-brasa.jpg">
+                            <div class="form-text">
+                                Ingresa la ruta de la imagen. Ej: /imagenes/pollo-brasa.jpg
+                                <br>Si se deja vacío, se usará: <code>/imagenes/default-product.jpg</code>
+                            </div>
+
+                            <!-- Preview de imagen -->
+                            <div class="mt-3 text-center">
+                                <img id="imagePreview" class="img-thumbnail" alt="Vista previa" style="max-width: 200px; max-height: 200px; display: none;">
+                            </div>
+                        </div>
+
+                        <!-- Botones de Acción -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end border-top pt-4">
+                            <a th:href="@{/admin-menu}" class="btn btn-secondary me-md-2">
+                                <i class="fas fa-arrow-left me-2"></i> Volver al Panel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i> Guardar Producto
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Formulario para EDITAR producto -->
+                    <form id="productFormEdit" th:if="${producto?.id != null}" th:action="@{/admin-menu/actualizar/{id}(id=${producto.id})}" method="post">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+                        <!-- Nombre y Tipo -->
+                        <div class="row">
+                            <div class="col-md-8 mb-3">
+                                <label for="nombreEdit" class="form-label required-field">Nombre del Producto</label>
+                                <input type="text" class="form-control" id="nombreEdit" name="nombre"
+                                       placeholder="Ej: Pollo a la Brasa Familiar" required
+                                       th:value="${producto.nombre}">
+                                <div class="invalid-feedback">El nombre del producto es requerido</div>
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label for="tipoEdit" class="form-label required-field">Tipo/Categoría</label>
+                                <select class="form-select" id="tipoEdit" name="tipo" required>
+                                    <option value="">Seleccionar tipo</option>
+                                    <option value="Pollos" th:selected="${producto.tipo == 'Pollos'}"> Pollo a la Brasa</option>
+                                    <option value="Parrillas" th:selected="${producto.tipo == 'Parrillas'}"> Parrillas</option>
+                                    <option value="Chicharrón" th:selected="${producto.tipo == 'Chicharrón'}"> Chicharrón</option>
+                                    <option value="Broaster" th:selected="${producto.tipo == 'Broaster'}"> Broaster</option>
+                                    <option value="Hamburguesas" th:selected="${producto.tipo == 'Hamburguesas'}"> Hamburguesas</option>
+                                    <option value="Criollos" th:selected="${producto.tipo == 'Criollos'}">🇵🇪 Platos Criollos</option>
+                                    <option value="Combos" th:selected="${producto.tipo == 'Combos'}"> Combos</option>
+                                </select>
+                                <div class="invalid-feedback">El tipo/categoría es requerido</div>
+                            </div>
+                        </div>
+
+                        <!-- Descripción -->
+                        <div class="mb-3">
+                            <label for="descripcionEdit" class="form-label">Descripción del Producto</label>
+                            <textarea class="form-control" id="descripcionEdit" name="descripcion"
+                                      rows="3" placeholder="Describe el producto, ingredientes, porciones..."
+                                      th:text="${producto.descripcion}"></textarea>
+                            <div class="form-text"><span id="descripcionCounterEdit">0</span>/500 caracteres</div>
+                        </div>
+
+                        <!-- Precio -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="precioEdit" class="form-label required-field">Precio (S/.)</label>
+                                <input type="number" class="form-control" id="precioEdit" name="precio"
+                                       step="0.01" min="0" placeholder="0.00" required
+                                       th:value="${producto.precio}">
+                                <div class="invalid-feedback">El precio debe ser mayor a 0</div>
+                            </div>
+                        </div>
+
+                        <!-- URL de Imagen -->
+                        <div class="mb-4">
+                            <label for="imagenUrlEdit" class="form-label">URL de la Imagen</label>
+                            <input type="text" class="form-control" id="imagenUrlEdit" name="imagenUrl"
+                                   placeholder="Ej: /imagenes/pollo-brasa.jpg"
+                                   th:value="${producto.imagenUrl}">
+                            <div class="form-text">
+                                Ingresa la ruta de la imagen. Ej: /imagenes/pollo-brasa.jpg
+                                <br>Si se deja vacío, se mantendrá la imagen actual.
+                            </div>
+
+                            <!-- Preview de imagen -->
+                            <div class="mt-3 text-center">
+                                <img id="imagePreviewEdit" class="img-thumbnail" alt="Vista previa"
+                                     style="max-width: 200px; max-height: 200px;"
+                                     th:src="${producto.imagenUrl != null} ? @{${producto.imagenUrl}} : @{/imagenes/default-product.jpg}">
+                            </div>
+                        </div>
+
+                        <!-- Botones de Acción -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end border-top pt-4">
+                            <a th:href="@{/admin-menu}" class="btn btn-secondary me-md-2">
+                                <i class="fas fa-arrow-left me-2"></i> Volver al Panel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i> Actualizar Producto
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/script/nuevo-producto.js}"></script>
+</body>
+</html>

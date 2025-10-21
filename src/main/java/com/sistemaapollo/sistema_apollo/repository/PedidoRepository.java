@@ -32,10 +32,10 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
     @Query("SELECT p FROM Pedido p WHERE p.estado = :estado ORDER BY p.fecha DESC")
     List<Pedido> findByEstadoOrderByFechaDesc(@Param("estado") String estado);
 
-    //  ELIMINADO: findPedidosRecientes() - Este método estaba causando el error
 
-    //  SIMPLIFICADO: Obtener todos los pedidos ordenados por fecha
+
+
     List<Pedido> findAllByOrderByFechaDesc();
-    //  AGREGAR ESTE MÉTODO A PedidoRepository
+
     Optional<Pedido> findByNumeroPedido(String numeroPedido);
 }

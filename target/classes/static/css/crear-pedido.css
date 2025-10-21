@@ -1,0 +1,335 @@
+/* Estilos específicos para la página de crear pedido */
+.text-orange {
+    color: #ff6600 !important;
+}
+
+.btn-luren {
+    background-color: #ff6600;
+    border-color: #ff6600;
+    color: white;
+}
+
+.btn-luren:hover {
+    background-color: #e55a00;
+    border-color: #e55a00;
+    color: white;
+}
+
+.pedido-container {
+    min-height: 60vh;
+    padding: 2rem 0;
+}
+
+.pedido-title {
+    color: #333;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+    font-size: 2.5rem;
+    text-align: center;
+}
+
+/* Categorías de productos */
+.categoria-producto {
+    background-color: #fff;
+    border: 2px solid #e9ecef;
+    border-radius: 15px;
+    padding: 1.5rem;
+    transition: all 0.3s;
+}
+
+.categoria-producto:hover {
+    border-color: #ff6600;
+    box-shadow: 0 4px 12px rgba(255, 102, 0, 0.1);
+}
+
+.categoria-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.categoria-titulo {
+    color: #333;
+    font-weight: bold;
+    font-size: 1.4rem;
+    margin: 0;
+}
+
+/* Botones */
+.btn-agregar {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 25px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-agregar:hover {
+    background-color: #218838;
+    transform: translateY(-2px);
+}
+
+.btn-opcion {
+    background-color: #f8f9fa;
+    border: 2px solid #dee2e6;
+    color: #333;
+    padding: 10px 20px;
+    border-radius: 10px;
+    margin: 5px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-weight: 500;
+    flex: 1;
+    min-width: 120px;
+}
+
+.btn-opcion:hover {
+    border-color: #ff6600;
+    color: #ff6600;
+    transform: translateY(-2px);
+}
+
+.btn-opcion.active {
+    background-color: #ff6600;
+    border-color: #ff6600;
+    color: white;
+}
+
+.btn-opcion.btn-especial {
+    background-color: #ff6600;
+    border-color: #ff6600;
+    color: white;
+    font-weight: bold;
+}
+
+.btn-opcion.btn-especial:hover {
+    background-color: #e55a00;
+    border-color: #e55a00;
+}
+
+/* Layout de opciones */
+.opciones-cremas,
+.opciones-pollo,
+.opciones-gaseosa,
+.opciones-arroz,
+.opciones-hamburguesa,
+.opciones-criollo {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.fila-opciones {
+    display: flex;
+    width: 100%;
+    gap: 10px;
+    justify-content: space-between;
+}
+
+/* Resumen del pedido */
+.resumen-pedido {
+    background-color: #f8f9fa;
+    border-radius: 15px;
+    padding: 1.5rem;
+    position: sticky;
+    top: 20px;
+    height: fit-content;
+}
+
+.resumen-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #ff6600;
+}
+
+.resumen-header h4 {
+    color: #333;
+    font-weight: bold;
+    margin: 0;
+}
+
+.resumen-lista {
+    max-height: 400px;
+    overflow-y: auto;
+    margin-bottom: 1.5rem;
+}
+
+.item-pedido {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: white;
+    border-radius: 8px;
+    border-left: 4px solid #ff6600;
+}
+
+.item-info {
+    flex: 1;
+}
+
+.item-nombre {
+    font-weight: 500;
+    margin: 0;
+    color: #333;
+}
+
+.item-precio {
+    font-weight: bold;
+    color: #ff6600;
+}
+
+.item-cantidad {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn-cantidad {
+    background-color: #e9ecef;
+    border: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-cantidad:hover {
+    background-color: #ff6600;
+    color: white;
+}
+
+.btn-eliminar-item {
+    background: none;
+    border: none;
+    color: #dc3545;
+    cursor: pointer;
+    padding: 5px;
+    margin-left: 10px;
+}
+
+.btn-eliminar-item:hover {
+    color: #c82333;
+}
+
+.resumen-vacio {
+    color: #6c757d;
+}
+
+.resumen-total {
+    border-top: 2px solid #dee2e6;
+    padding-top: 1rem;
+}
+
+.total-linea {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.total-final {
+    font-size: 1.2rem;
+    color: #ff6600;
+    border-top: 1px solid #dee2e6;
+    padding-top: 10px;
+    margin-top: 10px;
+}
+
+.resumen-acciones {
+    display: flex;
+    gap: 10px;
+    margin-top: 1.5rem;
+}
+
+.resumen-acciones .btn {
+    flex: 1;
+    padding: 10px;
+}
+
+.btn-limpiar {
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+.btn-limpiar:hover {
+    background-color: #5a6268;
+    border-color: #545b62;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .pedido-title {
+        font-size: 2rem;
+    }
+
+    .categoria-header {
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+    }
+
+    .fila-opciones {
+        flex-direction: column;
+    }
+
+    .btn-opcion {
+        min-width: 100%;
+    }
+
+    .resumen-pedido {
+        position: static;
+        margin-top: 2rem;
+    }
+
+    .resumen-acciones {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 576px) {
+    .categoria-producto {
+        padding: 1rem;
+    }
+
+    .categoria-titulo {
+        font-size: 1.2rem;
+    }
+
+    .btn-opcion {
+        padding: 8px 15px;
+        font-size: 0.9rem;
+    }
+}
+
+/* Animaciones */
+.fade-in {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.bounce {
+    animation: bounce 0.5s;
+}
+
+@keyframes bounce {
+    0%, 20%, 60%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-10px); }
+    80% { transform: translateY(-5px); }
+}

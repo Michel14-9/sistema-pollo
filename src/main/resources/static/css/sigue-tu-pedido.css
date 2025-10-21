@@ -1,0 +1,340 @@
+/* Estilos específicos para la página de seguimiento de pedido */
+.seguimiento-pedido {
+    background-color: #f8f9fa;
+    min-height: calc(100vh - 200px);
+    padding: 2rem 0;
+}
+
+/* Banner del pedido */
+.pedido-banner {
+    padding: 2rem 0;
+}
+
+.pedido-title {
+    color: #333;
+    font-weight: 700;
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.pedido-subtitle {
+    color: #666;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Formulario de búsqueda */
+.pedido-form-container .card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.pedido-form-container .card-body {
+    padding: 2rem;
+}
+
+.form-label {
+    color: #333;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.form-control, .form-select {
+    border-radius: 10px;
+    border: 2px solid #e9ecef;
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #ff6b00;
+    box-shadow: 0 0 0 0.2rem rgba(255, 107, 0, 0.25);
+}
+
+/* Botón de búsqueda */
+.btn-luren {
+    background: linear-gradient(135deg, #ff6b00, #ff8c00);
+    border: none;
+    border-radius: 25px;
+    color: white;
+    font-weight: 700;
+    padding: 0.75rem 2rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(255, 107, 0, 0.3);
+}
+
+.btn-luren:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 107, 0, 0.4);
+    background: linear-gradient(135deg, #ff8c00, #ff6b00);
+    color: white;
+}
+
+.btn-luren:disabled {
+    background: #6c757d;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Resultados del pedido */
+.pedido-resultado {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    padding: 2rem;
+    animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.estado-pedido {
+    margin-bottom: 2rem;
+}
+
+.estado-pedido h3 {
+    color: #333;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+/* Timeline del pedido */
+.timeline-pedido {
+    position: relative;
+    padding-left: 2rem;
+    margin: 2rem 0;
+}
+
+.timeline-pedido::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #e9ecef;
+}
+
+.etapa-pedido {
+    position: relative;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+}
+
+.etapa-pedido:last-child {
+    margin-bottom: 0;
+}
+
+.etapa-icono {
+    position: absolute;
+    left: -2rem;
+    top: 0;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    font-size: 0.8rem;
+}
+
+.etapa-pedido.activo .etapa-icono {
+    background: #ff6b00;
+    color: white;
+}
+
+.etapa-pedido.completado .etapa-icono {
+    background: #28a745;
+    color: white;
+}
+
+.etapa-contenido h5 {
+    color: #333;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.etapa-contenido p {
+    color: #666;
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.etapa-pedido.activo .etapa-contenido h5 {
+    color: #ff6b00;
+}
+
+.etapa-pedido.completado .etapa-contenido h5 {
+    color: #28a745;
+}
+
+/* Información del pedido */
+.info-pedido {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-top: 1rem;
+}
+
+.info-pedido h5 {
+    color: #333;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.info-item:last-child {
+    border-bottom: none;
+}
+
+.info-label {
+    color: #666;
+    font-weight: 500;
+}
+
+.info-valor {
+    color: #333;
+    font-weight: 600;
+}
+
+/* Contacto info */
+.contacto-info {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.contacto-info a {
+    color: #ff6b00;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.contacto-info a:hover {
+    color: #e55a00;
+    text-decoration: underline;
+}
+
+/* Estados del pedido */
+.estado-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.estado-recibido {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.estado-preparacion {
+    background: #cce7ff;
+    color: #004085;
+}
+
+.estado-listo {
+    background: #d4edda;
+    color: #155724;
+}
+
+.estado-entregado {
+    background: #d1ecf1;
+    color: #0c5460;
+}
+
+/* Mensajes de error y éxito */
+.alert {
+    border: none;
+    border-radius: 10px;
+    padding: 1rem 1.5rem;
+}
+
+.alert-danger {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.alert-success {
+    background: #d4edda;
+    color: #155724;
+}
+
+/* Texto naranja */
+.text-orange {
+    color: #ff6b00 !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .pedido-title {
+        font-size: 2rem;
+    }
+
+    .pedido-subtitle {
+        font-size: 1rem;
+    }
+
+    .pedido-form-container .card-body {
+        padding: 1.5rem;
+    }
+
+    .pedido-resultado {
+        padding: 1.5rem;
+    }
+
+    .timeline-pedido {
+        padding-left: 1.5rem;
+    }
+
+    .etapa-icono {
+        left: -1.5rem;
+        width: 25px;
+        height: 25px;
+    }
+}
+
+@media (max-width: 576px) {
+    .seguimiento-pedido {
+        padding: 1rem 0;
+    }
+
+    .pedido-title {
+        font-size: 1.5rem;
+    }
+
+    .pedido-banner {
+        padding: 1rem 0;
+    }
+
+    .pedido-form-container .card-body {
+        padding: 1rem;
+    }
+
+    .row.mb-4 {
+        margin-bottom: 1rem !important;
+    }
+
+    .col-md-6 {
+        margin-bottom: 1rem;
+    }
+}

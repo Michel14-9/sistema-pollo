@@ -96,7 +96,7 @@ public class DireccionController {
     }
 
 
-    // ACTUALIZAR DIRECCIÓN (CON DTOs)
+    // ACTUALIZAR DIRECCIÓN
 
     @PutMapping("/{id}")
     public ResponseEntity<?> actualizarDireccion(@PathVariable Long id,
@@ -122,9 +122,9 @@ public class DireccionController {
         }
     }
 
-    // ==========================
-    // ELIMINAR DIRECCIÓN (SIN CAMBIOS)
-    // ==========================
+
+    // ELIMINAR DIRECCIÓN
+
     @DeleteMapping("/{id}")
     public ResponseEntity<?> eliminarDireccion(@PathVariable Long id, Authentication authentication) {
         try {
@@ -166,9 +166,9 @@ public class DireccionController {
         }
     }
 
-    // ==========================
-    // OBTENER DIRECCIÓN PREDETERMINADA (CON DTO)
-    // ==========================
+
+    // OBTENER DIRECCIÓN PREDETERMINADA
+
     @GetMapping("/predeterminada")
     public ResponseEntity<?> obtenerDireccionPredeterminada(Authentication authentication) {
         try {

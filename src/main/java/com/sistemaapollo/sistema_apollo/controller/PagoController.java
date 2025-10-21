@@ -111,7 +111,7 @@ public class PagoController {
             return "pago";
 
         } catch (Exception e) {
-            System.err.println("❌ ERROR en PagoController: " + e.getMessage());
+            System.err.println(" ERROR en PagoController: " + e.getMessage());
             e.printStackTrace();
             return "redirect:/carrito?error=pago_error";
         }

@@ -79,10 +79,10 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
 
-                //  LOGIN FORM CON REDIRECCIÓN PERSONALIZADA
+                //  LOGIN
                 .formLogin(form -> form
                         .loginPage("/login")
-                        .successHandler(customAuthenticationSuccessHandler()) // ✅ CLAVE: Handler personalizado
+                        .successHandler(customAuthenticationSuccessHandler())
                         .failureUrl("/login?error=true")
                         .permitAll()
                 )

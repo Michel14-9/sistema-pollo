@@ -96,7 +96,7 @@ public class PedidoController {
                                       Authentication authentication,
                                       Model model) {
         try {
-            System.out.println("=== 📄 CARGANDO PÁGINA DE CONFIRMACIÓN ===");
+            System.out.println("===  CARGANDO PÁGINA DE CONFIRMACIÓN ===");
 
             if (authentication == null || !authentication.isAuthenticated()) {
                 return "redirect:/login?redirect=/confirmacion-pedido";
@@ -197,7 +197,7 @@ public class PedidoController {
     public String buscarPedido(@RequestParam String canalPedido,
                                @RequestParam String numeroPedido,
                                Model model) {
-        System.out.println("🔍 Buscando pedido - Número: " + numeroPedido);
+        System.out.println(" Buscando pedido - Número: " + numeroPedido);
 
 
 

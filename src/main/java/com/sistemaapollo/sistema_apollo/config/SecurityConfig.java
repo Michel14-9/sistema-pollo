@@ -56,7 +56,7 @@ public class SecurityConfig {
                                 "/locales", "/nuestros-locales",
                                 "/login", "/registrate", "/registro",
                                 "/api/auth/**",
-                                "/css/**", "/script/**", "/imagenes/**", "/archivos/**",
+                                "/css/**", "/static/css/script/**", "/imagenes/**", "/archivos/**",
                                 "/error", "/libro-reclamaciones", "/terminos",
                                 "/politica-datos", "/politica-cookies",
                                 "/menu", "/menu/**"
@@ -79,10 +79,10 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
 
-                //  LOGIN FORM CON REDIRECCIÓN PERSONALIZADA
+                //  LOGIN
                 .formLogin(form -> form
                         .loginPage("/login")
-                        .successHandler(customAuthenticationSuccessHandler()) // ✅ CLAVE: Handler personalizado
+                        .successHandler(customAuthenticationSuccessHandler())
                         .failureUrl("/login?error=true")
                         .permitAll()
                 )

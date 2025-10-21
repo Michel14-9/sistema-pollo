@@ -1,0 +1,182 @@
+/* Estilos específicos para la página de mis cuentas */
+.text-orange {
+    color: #ff6600 !important;
+}
+
+.cuentas-container {
+    min-height: 60vh;
+    padding: 2rem 0;
+}
+
+.cuentas-title {
+    color: #333;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+    font-size: 2.5rem;
+}
+
+.menu-lateral {
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    padding: 1.5rem;
+    height: fit-content;
+}
+
+.menu-lateral ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.menu-lateral li {
+    margin-bottom: 0.8rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.menu-lateral li:last-child {
+    border-bottom: none;
+}
+
+.menu-lateral a {
+    color: #333;
+    text-decoration: none;
+    font-weight: 500;
+    display: block;
+    transition: all 0.3s;
+}
+
+.menu-lateral a:hover {
+    color: #ff6600;
+    padding-left: 5px;
+}
+
+.menu-lateral a.active {
+    color: #ff6600;
+    font-weight: bold;
+    border-left: 3px solid #ff6600;
+    padding-left: 10px;
+}
+
+.contenido-cuentas {
+    padding: 1.5rem;
+}
+
+.volver-btn {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    padding: 8px 15px;
+    color: #333;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 1.5rem;
+    transition: all 0.3s;
+}
+
+.volver-btn:hover {
+    background-color: #e9ecef;
+    color: #ff6600;
+}
+
+.seccion-titulo {
+    color: #333;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid #ff6600;
+    padding-bottom: 0.5rem;
+}
+
+.estadistica-cuenta {
+    text-align: center;
+    padding: 1rem;
+}
+
+.estadistica-valor {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #ff6600;
+    margin: 0;
+}
+
+.datos-usuario {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 5px;
+}
+
+.dato-item {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.dato-item:last-child {
+    border-bottom: none;
+}
+
+.acciones-datos {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.btn-outline-primary {
+    border-color: #ff6600;
+    color: #ff6600;
+}
+
+.btn-outline-primary:hover {
+    background-color: #ff6600;
+    border-color: #ff6600;
+}
+
+/* Estados de sesión */
+.estado-sesion .alert {
+    border-radius: 10px;
+}
+
+/* Tarjetas de direcciones */
+.card {
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+}
+
+.card-title {
+    color: #333;
+    font-weight: bold;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .menu-lateral {
+        margin-bottom: 2rem;
+    }
+
+    .cuentas-title {
+        font-size: 2rem;
+    }
+
+    .acciones-datos {
+        flex-direction: column;
+    }
+
+    .acciones-datos .btn {
+        width: 100%;
+    }
+
+    .estadistica-valor {
+        font-size: 1.5rem;
+    }
+}
+
+/* Animaciones */
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}

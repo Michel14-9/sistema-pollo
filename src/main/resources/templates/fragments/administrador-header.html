@@ -1,0 +1,13 @@
+<!-- Navbar Admin -->
+<nav th:fragment="administrador-header" class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+        <a class="navbar-brand" href="#">
+            <i class="fas fa-utensils me-2"></i>Admin Luren Chicken
+        </a>
+        <div class="navbar-nav ms-auto">
+            <a class="nav-link" th:href="@{/menu}">Ver Menú Público</a>
+            <a class="nav-link" th:href="@{/admin-menu}">Dashboard</a>
+            <a class="nav-link" th:href="@{/logout}">Cerrar Sesión</a>
+        </div>
+    </div>
+</nav>

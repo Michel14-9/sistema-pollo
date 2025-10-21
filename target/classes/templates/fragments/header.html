@@ -1,0 +1,98 @@
+<header th:fragment="header-nav">
+        <nav class="navbar navbar-expand-lg navbar-light">
+            <div class="container-fluid">
+                <!-- Logo -->
+                <a class="navbar-brand" th:href="@{/}">
+                    <img th:src="@{/archivos/logo.jpg}" alt="Logo" style="width: 3rem;">
+                </a>
+
+                <!-- Botón móvil -->
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#navbarLuren" aria-controls="navbarLuren"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Links -->
+                <div class="collapse navbar-collapse" id="navbarLuren">
+                    <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-3 justify-content-center align-items-center">
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{/menu}">Menú</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{/nuestros-locales}">Local</a>
+                        </li>
+                        <li class="nav-item d-flex align-items-center">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </li>
+                        <!-- Enlaces móviles -->
+                        <li class="nav-item d-lg-none">
+                            <a th:href="@{/favoritos}" class="nav-link">
+                                <i class="fa-solid fa-star"></i> Mis favoritos
+                            </a>
+                        </li>
+                        <li class="nav-item d-lg-none">
+                            <a th:href="@{/carrito}" class="nav-link">Carrito</a>
+                        </li>
+                        <li class="nav-item d-lg-none">
+                            <a th:href="@{/sigue-tu-pedido}" class="nav-link">Sigue tu pedido</a>
+                        </li>
+                    </ul>
+
+                    <!-- Lado derecho (escritorio) -->
+                    <ul class="navbar-nav ms-auto gap-3 align-items-center">
+                        <li class="nav-item d-flex align-items-center" style="font-weight: bold; font-size: 14px; gap: 0.2rem;">
+                            <i class="fa-brands fa-whatsapp" style="font-size: 1.8rem;"></i>
+                            <div>Pide por <br><span class="text-orange">WHATSAPP</span></div>
+                        </li>
+                        <li class="nav-item d-flex align-items-center" style="font-weight: bold; font-size: 14px; gap: 0.2rem;">
+                            <i class="fa-solid fa-phone" style="font-size: 1.5rem;"></i>
+                            <div>Llámanos <br><span class="text-orange">123-456-7890</span></div>
+                        </li>
+
+                        <li class="nav-item d-flex align-items-center" style="font-weight: bold; font-size: 14px;">
+                            <i class="fa-solid fa-user" style="font-size: 1.5rem;"></i>
+                            <div>
+                                <!-- Usuario NO logueado -->
+                                <div th:if="${#authorization.expression('!isAuthenticated()')}">
+                                    Hola, <br>
+                                    <a th:href="@{/login}" class="text-orange text-decoration-none">Iniciar sesión</a>
+                                </div>
+
+                                <!-- Usuario SÍ logueado -->
+                                <div th:if="${#authorization.expression('isAuthenticated()')}">
+                                    <span th:text="'Hola, ' + ${#authentication.principal.username}"></span>
+                                    <br>
+                                    <a th:href="@{/logout}" class="text-decoration-none text-muted small">Cerrar sesión</a>
+                                </div>
+                            </div>
+                        </li>
+
+                        <li class="nav-item">
+                            <a th:href="@{/carrito}" class="btn btn-success position-relative"
+                               style="border-radius: 20px; text-decoration: none;">
+                                <i class="fa-solid fa-cart-shopping"></i>
+                                S/. <span th:text="${total != null ? #numbers.formatDecimal(total, 1, 2) : '0.00'}">0.00</span>
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                                      th:text="${carrito != null ? #lists.size(carrito) : 0}">
+                                0
+                            </span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Links rápidos escritorio -->
+        <div class="bg-light py-2 px-3 border-bottom d-none d-lg-block">
+            <div class="container-fluid d-flex justify-content-end gap-4 small">
+                <a th:href="@{/favoritos}" class="text-decoration-none text-reset">
+                    <i class="fa-solid fa-star"></i> Mis favoritos
+                </a>
+                <a th:href="@{/sigue-tu-pedido}" class="text-decoration-none text-reset">
+                    <i class="fa-solid fa-truck"></i> Sigue tu pedido
+                </a>
+            </div>
+        </div>
+    </header>

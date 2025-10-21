@@ -11,19 +11,10 @@
 <body>
 <!-- CSRF Token para Spring Security -->
 <input type="hidden" id="csrfToken" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-<!-- Navbar Admin -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container">
-        <a class="navbar-brand" href="#">
-            <i class="fas fa-utensils me-2"></i>Admin Luren Chicken
-        </a>
-        <div class="navbar-nav ms-auto">
-            <a class="nav-link" th:href="@{/menu}">Ver Menú Público</a>
-            <a class="nav-link" th:href="@{/admin-menu}">Dashboard</a>
-            <a class="nav-link" th:href="@{/logout}">Cerrar Sesión</a>
-        </div>
-    </div>
-</nav>
+
+<!--Fragment para el header-->
+<div th:insert="~{/fragments/administrador-header.html :: administrador-header}"></div>
+<!--FIN Fragment para el header-->
 
 <div class="container mt-4">
     <!-- Alertas -->

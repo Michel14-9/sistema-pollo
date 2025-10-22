@@ -1,14 +1,12 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Admin - Luren Chicken</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" re l="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link th:href="@{/css/admin-menu.css}" rel="stylesheet">
-
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --primary-color: #0d6efd;
@@ -20,13 +18,13 @@
             --light-color: #f8f9fa;
             --dark-color: #212529;
         }
-
+        
         body {
             background-color: #f5f5f5;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             overflow-x: hidden;
         }
-
+        
         .sidebar {
             background-color: var(--dark-color);
             color: white;
@@ -37,7 +35,7 @@
             width: 250px;
             z-index: 1000;
         }
-
+        
         .sidebar .nav-link {
             color: rgba(255, 255, 255, 0.8);
             padding: 10px 15px;
@@ -45,50 +43,49 @@
             border-radius: 5px;
             transition: all 0.3s;
         }
-
-        .sidebar .nav-link:hover,
-        .sidebar .nav-link.active {
+        
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
             background-color: var(--primary-color);
             color: white;
         }
-
+        
         .sidebar .nav-link i {
             margin-right: 10px;
             width: 20px;
             text-align: center;
         }
-
+        
         .main-content {
             margin-left: 250px;
             padding: 20px;
             transition: all 0.3s;
             min-height: 100vh;
         }
-
+        
         .collapsed .sidebar {
             width: 70px;
         }
-
+        
         .collapsed .main-content {
             margin-left: 70px;
         }
-
+        
         .collapsed .sidebar .nav-link span {
             display: none;
         }
-
+        
         .collapsed .sidebar .logo-text {
             display: none;
         }
-
+        
         .collapsed .sidebar .logo-icon {
             display: block;
         }
-
+        
         .sidebar .logo-icon {
             display: none;
         }
-
+        
         .card {
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -96,36 +93,36 @@
             margin-bottom: 20px;
             transition: transform 0.3s;
         }
-
+        
         .card:hover {
             transform: translateY(-5px);
         }
-
+        
         .stat-card {
             text-align: center;
             padding: 20px;
         }
-
+        
         .stat-card i {
             font-size: 2rem;
             margin-bottom: 10px;
         }
-
+        
         .stat-card .number {
             font-size: 2rem;
             font-weight: bold;
         }
-
+        
         .stat-card .label {
             font-size: 0.9rem;
             color: var(--secondary-color);
         }
-
+        
         .product-card img {
             height: 200px;
             object-fit: cover;
         }
-
+        
         .user-avatar {
             width: 40px;
             height: 40px;
@@ -137,11 +134,11 @@
             justify-content: center;
             font-weight: bold;
         }
-
+        
         .table-actions .btn {
             margin-right: 5px;
         }
-
+        
         .toggle-sidebar {
             background: none;
             border: none;
@@ -149,7 +146,7 @@
             font-size: 1.2rem;
             cursor: pointer;
         }
-
+        
         .logout-btn {
             background: none;
             border: none;
@@ -161,286 +158,633 @@
             text-align: left;
             width: 100%;
         }
-
+        
         .logout-btn:hover {
             background-color: var(--danger-color);
             color: white;
         }
-
+        
         @media (max-width: 768px) {
             .sidebar {
                 width: 70px;
             }
-
+            
             .main-content {
                 margin-left: 70px;
             }
-
+            
             .sidebar .nav-link span {
                 display: none;
             }
-
+            
             .sidebar .logo-text {
                 display: none;
             }
-
+            
             .sidebar .logo-icon {
                 display: block;
             }
         }
-
-        /* Estilos para el menú público */
-        .navbar-brand img {
-            width: 3rem;
+        
+        /* Estilos para gráficos */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
         }
 
-        .text-orange {
-            color: #f7931e !important;
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
         }
 
-        .carrito-btn {
-            border-radius: 20px;
-            text-decoration: none;
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
         }
 
-        .categories-nav .btn-group {
-            flex-wrap: wrap;
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
-        .category-title {
-            border-bottom: 2px solid #f7931e;
-            padding-bottom: 10px;
-            margin-top: 30px;
-        }
-
-        .product-card {
-            transition: transform 0.3s;
-        }
-
-        .product-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .agregar-carrito-btn {
-            transition: all 0.3s;
-        }
-
-        .agregar-carrito-btn:hover {
-            background-color: #0b5ed7;
-        }
-
-        /* Estilos para mostrar estado de sesión */
-        .user-not-logged {
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
             color: #6c757d;
-            font-style: italic;
         }
 
-        .user-avatar.not-logged {
-            background-color: var(--secondary-color);
-        }
-
-        /* Animaciones */
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
         }
 
         .fade-in {
             animation: fadeIn 0.5s ease-in;
         }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
-
 <body>
-    <!-- CSRF Token para Spring Security -->
-    <input type="hidden" id="csrfToken" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+<!-- CSRF Token para Spring Security -->
+<input type="hidden" id="csrfToken" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
 
-    <div id="app" class="d-flex">
-        <!-- Sidebar -->
-        <div class="sidebar">
-            <div class="d-flex align-items-center justify-content-center mb-4">
-                <div class="logo-icon">
-                    <i class="fas fa-utensils fa-2x"></i>
-                </div>
-                <div class="logo-text">
-                    <h4 class="mb-0">Luren Chicken</h4>
-                    <small class="text-muted">Panel Admin</small>
-                </div>
+<div id="app" class="d-flex">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="d-flex align-items-center justify-content-center mb-4">
+            <div class="logo-icon">
+                <i class="fas fa-utensils fa-2x"></i>
             </div>
-
-            <ul class="nav flex-column">
-                <li class="nav-item">
-                    <a class="nav-link" th:href="@{/admin-menu}">Dashboard</a>
+            <div class="logo-text">
+                <h4 class="mb-0">Luren Chicken</h4>
+                <small class="text-muted">Panel Admin</small>
+            </div>
+        </div>
+        
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link active" th:href="@{/admin-menu}">
                     <i class="fas fa-tachometer-alt"></i>
                     <span>Dashboard</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#" data-section="menu">
-                        <i class="fas fa-concierge-bell"></i>
-                        <span>Gestionar Menú</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#" data-section="users">
-                        <i class="fas fa-users"></i>
-                        <span>Gestionar Usuarios</span>
-                    </a>
-                </li>
-                <li class="nav-item mt-4">
-                    <a class="nav-link" th:href="@{/menu}">Ver Menú Público</a>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-section="menu">
+                    <i class="fas fa-concierge-bell"></i>
+                    <span>Gestionar Menú</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-section="users">
+                    <i class="fas fa-users"></i>
+                    <span>Gestionar Usuarios</span>
+                </a>
+            </li>
+            <li class="nav-item mt-4">
+                <a class="nav-link" th:href="@{/menu}">
                     <i class="fas fa-eye"></i>
                     <span>Ver Menú Público</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <!-- Botón de cierre de sesión CORREGIDO con Thymeleaf -->
-                    <a class="nav-link logout-btn" th:href="@{/logout}">
-                        <i class="fas fa-sign-out-alt"></i>
-                        <span>Cerrar Sesión</span>
-                    </a>
-                </li>
-            </ul>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link logout-btn" th:href="@{/logout}">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Cerrar Sesión</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content flex-grow-1">
+        <!-- Top Bar -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <button class="toggle-sidebar">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h2 class="d-inline-block ms-3 mb-0" id="sectionTitle">Dashboard</h2>
+            </div>
+            <div class="d-flex align-items-center">
+                <div class="user-avatar me-2" id="userAvatar">AD</div>
+                <span id="userDisplayName">Administrador</span>
+            </div>
         </div>
-
-        <!-- Main Content -->
-        <div class="main-content flex-grow-1">
-            <!-- Top Bar -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <button class="toggle-sidebar">
-                        <i class="fas fa-bars"></i>
-                    </button>
-                    <h2 class="d-inline-block ms-3 mb-0" id="sectionTitle">Dashboard</h2>
+        
+        <!-- Alertas Dinámicas -->
+        <div id="dynamicAlerts"></div>
+        
+        <!-- Dashboard Section -->
+        <div id="dashboard-section" class="section-content">
+            <!-- Estadísticas Principales -->
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="card stat-card text-primary">
+                        <i class="fas fa-concierge-bell"></i>
+                        <div class="number" id="totalProductos">0</div>
+                        <div class="label">Productos Activos</div>
+                    </div>
                 </div>
-                <div class="d-flex align-items-center">
-                    <div class="user-avatar me-2" id="userAvatar">AD</div>
-                    <span id="userDisplayName">Administrador</span>
+                <div class="col-md-3">
+                    <div class="card stat-card text-success">
+                        <i class="fas fa-users"></i>
+                        <div class="number" id="totalUsuarios">0</div>
+                        <div class="label">Usuarios Registrados</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stat-card text-warning">
+                        <i class="fas fa-shopping-cart"></i>
+                        <div class="number" id="pedidosHoy">0</div>
+                        <div class="label">Pedidos Hoy</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stat-card text-info">
+                        <i class="fas fa-dollar-sign"></i>
+                        <div class="number" id="ingresosHoy">S/ 0.00</div>
+                        <div class="label">Ingresos Hoy</div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Alertas Dinámicas -->
-            <div id="dynamicAlerts"></div>
-
-            <!-- Alertas Thymeleaf -->
-            <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
-                <span th:text="${success}"></span>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-            <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
-                <span th:text="${error}"></span>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-
-            <!-- Dashboard Section -->
-            <div id="dashboard-section" class="section-content">
-                <div class="row">
-                    <div class="col-md-3">
-                        <div class="card stat-card text-primary">
-                            <i class="fas fa-concierge-bell"></i>
-                            <div class="number" id="totalProductos">0</div>
-                            <div class="label">Productos Activos</div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card stat-card text-success">
-                            <i class="fas fa-users"></i>
-                            <div class="number" id="totalUsuarios">0</div>
-                            <div class="label">Usuarios Registrados</div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card stat-card text-warning">
-                            <i class="fas fa-shopping-cart"></i>
-                            <div class="number" id="pedidosHoy">42</div>
-                            <div class="label">Pedidos Hoy</div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card stat-card text-info">
-                            <i class="fas fa-dollar-sign"></i>
-                            <div class="number" id="ingresosHoy">S/ 1,240</div>
-                            <div class="label">Ingresos Hoy</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row mt-4">
-                    <div class="col-md-8">
-                        <div class="card">
-                            <div class="card-header d-flex justify-content-between align-items-center">
-                                <h5 class="card-title mb-0">Ventas Recientes</h5>
+            <!-- Ventas Recientes ARRIBA -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">Ventas Recientes</h5>
+                            <div>
                                 <button class="btn btn-sm btn-outline-primary" id="refreshSales">
                                     <i class="fas fa-sync-alt"></i> Actualizar
                                 </button>
-                            </div>
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                    <table class="table table-hover">
-                                        <thead>
-                                            <tr>
-                                                <th>Pedido ID</th>
-                                                <th>Cliente</th>
-                                                <th>Productos</th>
-                                                <th>Total</th>
-                                                <th>Estado</th>
-                                                <th>Acciones</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="salesTableBody">
-                                            <!-- Se llenará dinámicamente -->
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card">
-                            <div class="card-header d-flex justify-content-between align-items-center">
-                                <h5 class="card-title mb-0">Productos Más Vendidos</h5>
-                                <button class="btn btn-sm btn-outline-success" id="refreshPopular">
-                                    <i class="fas fa-sync-alt"></i>
+                                <button class="btn btn-sm btn-success" id="exportSales">
+                                    <i class="fas fa-download"></i> Exportar
                                 </button>
                             </div>
-                            <div class="card-body">
-                                <ul class="list-group list-group-flush" id="productosPopulares">
-                                    <!-- Se llenará dinámicamente -->
-                                </ul>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Pedido ID</th>
+                                            <th>Cliente</th>
+                                            <th>Productos</th>
+                                            <th>Total</th>
+                                            <th>Fecha</th>
+                                            <th>Estado</th>
+                                            <th>Tipo</th>
+                                            <th>Cajero</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="salesTableBody">
+                                        <!-- Se llenará dinámicamente desde la base de datos -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div id="noSalesMessage" class="text-center py-5">
+                                <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
+                                <h4 class="text-muted">No hay ventas registradas</h4>
+                                <p class="text-muted">Las ventas aparecerán aquí cuando los cajeros comiencen a registrar pedidos.</p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Menu Management Section -->
-            <div id="menu-section" class="section-content d-none">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h1><i class="fas fa-concierge-bell me-2"></i>Gestionar Menú</h1>
-                    <button class="btn btn-success" id="addProductBtn">
-                        <i class="fas fa-plus me-2"></i>Agregar Producto
-                    </button>
-                </div>
-
-                <!-- Filtros -->
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title">Filtros</h5>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <input type="text" class="form-control" id="searchInput"
-                                    placeholder="Buscar producto...">
+            <!-- Gráficos Estadísticos DEBAJO -->
+            <div class="row mt-4">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">Estadísticas de Ventas</h5>
+                            <div>
+                                <select class="form-select form-select-sm" id="chartPeriod">
+                                    <option value="7">Últimos 7 días</option>
+                                    <option value="30" selected>Últimos 30 días</option>
+                                    <option value="90">Últimos 3 meses</option>
+                                </select>
                             </div>
-                            <div class="col-md-6">
-                                <select class="form-select" id="categoriaFilter">
-                                    <option value="">Todas las categorías</option>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-container">
+                                <canvas id="salesChart"></canvas>
+                            </div>
+                            <div id="emptyChartMessage" class="empty-state">
+                                <i class="fas fa-chart-line"></i>
+                                <h4>No hay datos de ventas</h4>
+                                <p>El gráfico se actualizará cuando se registren las primeras ventas.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">Resumen de Ventas</h5>
+                            <button class="btn btn-sm btn-outline-info" id="refreshSummary">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <small class="text-muted">Ventas Totales del Mes</small>
+                                <h4 id="ventasMesTotal">S/ 0.00</h4>
+                            </div>
+                            <div class="mb-3">
+                                <small class="text-muted">Promedio Diario</small>
+                                <h4 id="promedioDiario">S/ 0.00</h4>
+                            </div>
+                            <div class="mb-3">
+                                <small class="text-muted">Venta Más Alta</small>
+                                <h4 id="ventaMaxima">S/ 0.00</h4>
+                            </div>
+                            <div>
+                                <small class="text-muted">Total de Pedidos</small>
+                                <h4 id="totalPedidos">0</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Menu Management Section -->
+        <div id="menu-section" class="section-content d-none">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="fas fa-concierge-bell me-2"></i>Gestionar Menú</h1>
+                <button class="btn btn-success" id="addProductBtn">
+                    <i class="fas fa-plus me-2"></i>Agregar Producto
+                </button>
+            </div>
+
+            <!-- Filtros -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Filtros</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <input type="text" class="form-control" id="searchInput" placeholder="Buscar producto...">
+                        </div>
+                        <div class="col-md-6">
+                            <select class="form-select" id="categoriaFilter">
+                                <option value="">Todas las categorías</option>
+                                <option value="Pollos">Pollos</option>
+                                <option value="Parrillas">Parrillas</option>
+                                <option value="Chicharrón">Chicharrón</option>
+                                <option value="Broaster">Broaster</option>
+                                <option value="Hamburguesas">Hamburguesas</option>
+                                <option value="Criollos">Criollos</option>
+                                <option value="Combos">Combos</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-12">
+                            <button class="btn btn-outline-secondary btn-sm" onclick="limpiarFiltros()">
+                                <i class="fas fa-times me-1"></i>Limpiar Filtros
+                            </button>
+                            <span class="text-muted ms-2" id="filterResults"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lista de Productos -->
+            <div class="row" id="productosContainer">
+                <!-- Los productos se cargarán dinámicamente -->
+            </div>
+
+            <!-- Mensaje cuando no hay productos -->
+            <div id="emptyProducts" class="text-center py-5 d-none">
+                <i class="fas fa-concierge-bell fa-3x text-muted mb-3"></i>
+                <h3 class="text-muted">No hay productos en el menú</h3>
+                <p class="text-muted">Comienza agregando tu primer producto al menú.</p>
+                <button class="btn btn-success" id="addFirstProductBtn">
+                    <i class="fas fa-plus me-2"></i>Agregar Primer Producto
+                </button>
+            </div>
+        </div>
+        
+        <!-- Users Management Section -->
+        <div id="users-section" class="section-content d-none">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="fas fa-users me-2"></i>Gestionar Usuarios</h1>
+                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                    <i class="fas fa-plus me-2"></i>Agregar Usuario
+                </button>
+            </div>
+
+            <!-- Filtros de Usuarios -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Filtros de Usuarios</h5>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <input type="text" class="form-control" id="userSearchInput" placeholder="Buscar usuario...">
+                        </div>
+                        <div class="col-md-4">
+                            <select class="form-select" id="userRoleFilter">
+                                <option value="">Todos los roles</option>
+                                <option value="cajero">Cajero</option>
+                                <option value="delivery">Delivery</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <select class="form-select" id="userStatusFilter">
+                                <option value="">Todos los estados</option>
+                                <option value="active">Activo</option>
+                                <option value="inactive">Inactivo</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nombre</th>
+                                    <th>Email</th>
+                                    <th>Rol</th>
+                                    <th>Estado</th>
+                                    <th>Fecha Registro</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody">
+                                <!-- Los usuarios se cargarán dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Public Menu Section -->
+        <div id="public-menu-section" class="section-content d-none">
+            <header>
+                <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                    <div class="container-fluid">
+                        <a class="navbar-brand" th:href="@{/}">
+                            <img th:src="@{/archivos/logo.jpg}" alt="Logo" style="width: 3rem;">
+                        </a>
+                        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#navbarLuren" aria-controls="navbarLuren"
+                                aria-expanded="false" aria-label="Toggle navigation">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                        <div class="collapse navbar-collapse" id="navbarLuren">
+                            <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-3 justify-content-center align-items-center">
+                                <li class="nav-item">
+                                    <a class="nav-link" th:href="@{/menu}">Menú</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" th:href="@{/nuestros-locales}">Local</a>
+                                </li>
+                            </ul>
+
+                            <ul class="navbar-nav ms-auto gap-3 align-items-center">
+                                <li class="nav-item d-flex align-items-center" style="font-weight: bold; font-size: 14px; gap: 0.2rem;">
+                                    <i class="fa-brands fa-whatsapp" style="font-size: 1.8rem;"></i>
+                                    <div>Pide por <br><span class="text-orange">WHATSAPP</span></div>
+                                </li>
+                                <li class="nav-item d-flex align-items-center" style="font-weight: bold; font-size: 14px; gap: 0.2rem;">
+                                    <i class="fa-solid fa-phone" style="font-size: 1.5rem;"></i>
+                                    <div>Llámanos <br><span class="text-orange">123-456-7890</span></div>
+                                </li>
+
+                                <li class="nav-item d-flex align-items-center" style="font-weight: bold; font-size: 14px;">
+                                    <i class="fa-solid fa-user" style="font-size: 1.5rem;"></i>
+                                    <div>
+                                        <span id="publicUserGreeting">Hola, Administrador</span>
+                                        <br>
+                                        <a th:href="@{/logout}" class="btn btn-link p-0 text-decoration-none text-muted small border-0">
+                                            Cerrar sesión
+                                        </a>
+                                    </div>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a th:href="@{/carrito}" class="btn btn-success carrito-btn"
+                                       style="border-radius: 20px; text-decoration: none;">
+                                        <i class="fa-solid fa-cart-shopping"></i>
+                                        S/. <span id="cartTotal">0.00</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </nav>
+            </header>
+
+            <main class="container my-4">
+                <!-- Categorías -->
+                <section class="categories-nav text-center mb-4">
+                    <div class="btn-group" role="group" id="categoryTabs">
+                        <a href="#pollos" class="btn btn-outline-dark category-tab active">Pollos</a>
+                        <a href="#parrillas" class="btn btn-outline-dark category-tab">Parrillas</a>
+                        <a href="#chicharron" class="btn btn-outline-dark category-tab">Chicharrón</a>
+                        <a href="#broaster" class="btn btn-outline-dark category-tab">Broaster</a>
+                        <a href="#hamburguesas" class="btn btn-outline-dark category-tab">Hamburguesas</a>
+                        <a href="#criollos" class="btn btn-outline-dark category-tab">Criollos</a>
+                        <a href="#combos" class="btn btn-outline-dark category-tab">Combos</a>
+                    </div>
+                </section>
+
+                <!-- Secciones de productos se cargarán dinámicamente -->
+                <div id="public-menu-content">
+                    <!-- El contenido del menú público se cargará aquí -->
+                </div>
+            </main>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Confirmación de Eliminación -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmar Eliminación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                ¿Estás seguro de que quieres eliminar el producto "<span id="productoNombreModal"></span>"?
+                Esta acción no se puede deshacer.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Eliminar Usuario -->
+<div class="modal fade" id="deleteUserModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmar Eliminación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                ¿Estás seguro de que quieres eliminar al usuario "<span id="userNameModal"></span>"?
+                Esta acción no se puede deshacer.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteUserBtn">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add User Modal -->
+<div class="modal fade" id="addUserModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Agregar Nuevo Usuario</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addUserForm">
+                    <div class="mb-3">
+                        <label for="userName" class="form-label">Nombre Completo</label>
+                        <input type="text" class="form-control" id="userName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="userEmail" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="userEmail" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="userPassword" class="form-label">Contraseña</label>
+                        <input type="password" class="form-control" id="userPassword" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="userRole" class="form-label">Rol</label>
+                        <select class="form-select" id="userRole" required>
+                            <option value="">Seleccionar rol</option>
+                            <option value="cajero">Cajero</option>
+                            <option value="delivery">Delivery</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="saveUserBtn">Guardar Usuario</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit User Modal -->
+<div class="modal fade" id="editUserModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Editar Usuario</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editUserForm">
+                    <input type="hidden" id="editUserId">
+                    <div class="mb-3">
+                        <label for="editUserName" class="form-label">Nombre Completo</label>
+                        <input type="text" class="form-control" id="editUserName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editUserEmail" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="editUserEmail" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editUserRole" class="form-label">Rol</label>
+                        <select class="form-select" id="editUserRole" required>
+                            <option value="">Seleccionar rol</option>
+                            <option value="cajero">Cajero</option>
+                            <option value="delivery">Delivery</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editUserStatus" class="form-label">Estado</label>
+                        <select class="form-select" id="editUserStatus" required>
+                            <option value="active">Activo</option>
+                            <option value="inactive">Inactivo</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="updateUserBtn">Actualizar Usuario</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add/Edit Product Modal -->
+<div class="modal fade" id="productModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="productModalTitle">Agregar Producto</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="productForm">
+                    <input type="hidden" id="productId">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="productName" class="form-label">Nombre del Producto</label>
+                                <input type="text" class="form-control" id="productName" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="productCategory" class="form-label">Categoría</label>
+                                <select class="form-select" id="productCategory" required>
+                                    <option value="">Seleccionar categoría</option>
                                     <option value="Pollos">Pollos</option>
                                     <option value="Parrillas">Parrillas</option>
                                     <option value="Chicharrón">Chicharrón</option>
@@ -450,1207 +794,101 @@
                                     <option value="Combos">Combos</option>
                                 </select>
                             </div>
+                            <div class="mb-3">
+                                <label for="productPrice" class="form-label">Precio (S/)</label>
+                                <input type="number" class="form-control" id="productPrice" step="0.01" min="0" required>
+                            </div>
                         </div>
-                        <div class="row mt-2">
-                            <div class="col-12">
-                                <button class="btn btn-outline-secondary btn-sm" onclick="limpiarFiltros()">
-                                    <i class="fas fa-times me-1"></i>Limpiar Filtros
-                                </button>
-                                <span class="text-muted ms-2" id="filterResults"></span>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="productDescription" class="form-label">Descripción</label>
+                                <textarea class="form-control" id="productDescription" rows="4"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="productImage" class="form-label">URL de la Imagen</label>
+                                <input type="url" class="form-control" id="productImage" placeholder="https://ejemplo.com/imagen.jpg">
                             </div>
                         </div>
                     </div>
-                </div>
-
-                <!-- Lista de Productos -->
-                <div class="row" id="productosContainer">
-                    <!-- Los productos se cargarán dinámicamente -->
-                </div>
-
-                <!-- Mensaje cuando no hay productos -->
-                <div id="emptyProducts" class="text-center py-5 d-none">
-                    <i class="fas fa-concierge-bell fa-3x text-muted mb-3"></i>
-                    <h3 class="text-muted">No hay productos en el menú</h3>
-                    <p class="text-muted">Comienza agregando tu primer producto al menú.</p>
-                    <button class="btn btn-success" id="addFirstProductBtn">
-                        <i class="fas fa-plus me-2"></i>Agregar Primer Producto
-                    </button>
-                </div>
+                </form>
             </div>
-
-            <!-- Users Management Section -->
-            <div id="users-section" class="section-content d-none">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h1><i class="fas fa-users me-2"></i>Gestionar Usuarios</h1>
-                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addUserModal">
-                        <i class="fas fa-plus me-2"></i>Agregar Usuario
-                    </button>
-                </div>
-
-                <!-- Filtros de Usuarios -->
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title">Filtros de Usuarios</h5>
-                        <div class="row">
-                            <div class="col-md-4">
-                                <input type="text" class="form-control" id="userSearchInput"
-                                    placeholder="Buscar usuario...">
-                            </div>
-                            <div class="col-md-4">
-                                <select class="form-select" id="userRoleFilter">
-                                    <option value="">Todos los roles</option>
-                                    <option value="admin">Administrador</option>
-                                    <option value="moderator">Moderador</option>
-                                    <option value="user">Usuario</option>
-                                </select>
-                            </div>
-                            <div class="col-md-4">
-                                <select class="form-select" id="userStatusFilter">
-                                    <option value="">Todos los estados</option>
-                                    <option value="active">Activo</option>
-                                    <option value="inactive">Inactivo</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Nombre</th>
-                                        <th>Email</th>
-                                        <th>Rol</th>
-                                        <th>Estado</th>
-                                        <th>Fecha Registro</th>
-                                        <th>Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="usersTableBody">
-                                    <!-- Los usuarios se cargarán dinámicamente -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Public Menu Section -->
-            <div id="public-menu-section" class="section-content d-none">
-                <header>
-                    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-                        <div class="container-fluid">
-                            <a class="navbar-brand" th:href="@{/}">
-                                <img th:src="@{/archivos/logo.jpg}" alt="Logo" style="width: 3rem;">
-                            </a>
-                            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                                data-bs-target="#navbarLuren" aria-controls="navbarLuren" aria-expanded="false"
-                                aria-label="Toggle navigation">
-                                <span class="navbar-toggler-icon"></span>
-                            </button>
-                            <div class="collapse navbar-collapse" id="navbarLuren">
-                                <ul
-                                    class="navbar-nav mx-auto mb-2 mb-lg-0 gap-3 justify-content-center align-items-center">
-                                    <li class="nav-item">
-                                        <a class="nav-link" th:href="@{/menu}">Menú</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link" th:href="@{/nuestros-locales}">Local</a>
-                                    </li>
-                                </ul>
-
-                                <ul class="navbar-nav ms-auto gap-3 align-items-center">
-                                    <li class="nav-item d-flex align-items-center"
-                                        style="font-weight: bold; font-size: 14px; gap: 0.2rem;">
-                                        <i class="fa-brands fa-whatsapp" style="font-size: 1.8rem;"></i>
-                                        <div>Pide por <br><span class="text-orange">WHATSAPP</span></div>
-                                    </li>
-                                    <li class="nav-item d-flex align-items-center"
-                                        style="font-weight: bold; font-size: 14px; gap: 0.2rem;">
-                                        <i class="fa-solid fa-phone" style="font-size: 1.5rem;"></i>
-                                        <div>Llámanos <br><span class="text-orange">123-456-7890</span></div>
-                                    </li>
-
-                                    <li class="nav-item d-flex align-items-center"
-                                        style="font-weight: bold; font-size: 14px;">
-                                        <i class="fa-solid fa-user" style="font-size: 1.5rem;"></i>
-                                        <div>
-                                            <span id="publicUserGreeting">Hola, Administrador</span>
-                                            <br>
-                                            <a th:href="@{/logout}"
-                                                class="btn btn-link p-0 text-decoration-none text-muted small border-0">
-                                                Cerrar sesión
-                                            </a>
-                                        </div>
-                                    </li>
-
-                                    <li class="nav-item">
-                                        <a th:href="@{/carrito}" class="btn btn-success carrito-btn"
-                                            style="border-radius: 20px; text-decoration: none;">
-                                            <i class="fa-solid fa-cart-shopping"></i>
-                                            S/. <span id="cartTotal">0.00</span>
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </nav>
-                </header>
-
-                <main class="container my-4">
-                    <!-- Categorías -->
-                    <section class="categories-nav text-center mb-4">
-                        <div class="btn-group" role="group" id="categoryTabs">
-                            <a href="#pollos" class="btn btn-outline-dark category-tab active">Pollos</a>
-                            <a href="#parrillas" class="btn btn-outline-dark category-tab">Parrillas</a>
-                            <a href="#chicharron" class="btn btn-outline-dark category-tab">Chicharrón</a>
-                            <a href="#broaster" class="btn btn-outline-dark category-tab">Broaster</a>
-                            <a href="#hamburguesas" class="btn btn-outline-dark category-tab">Hamburguesas</a>
-                            <a href="#criollos" class="btn btn-outline-dark category-tab">Criollos</a>
-                            <a href="#combos" class="btn btn-outline-dark category-tab">Combos</a>
-                        </div>
-                    </section>
-
-                    <!-- Secciones de productos se cargarán dinámicamente -->
-                    <div id="public-menu-content">
-                        <!-- El contenido del menú público se cargará aquí -->
-                    </div>
-                </main>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="saveProductBtn">Guardar Producto</button>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Modal de Confirmación de Eliminación -->
-    <div class="modal fade" id="confirmDeleteModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Confirmar Eliminación</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    ¿Estás seguro de que quieres eliminar el producto "<span id="productoNombreModal"></span>"?
-                    Esta acción no se puede deshacer.
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Eliminar</button>
-                </div>
-            </div>
-        </div>
-    </div>
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Variables globales
+    let salesChart = null;
+    let productos = [];
+    let usuarios = [];
+    let ventas = [];
 
-    <!-- Modal para Eliminar Usuario -->
-    <div class="modal fade" id="deleteUserModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Confirmar Eliminación</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    ¿Estás seguro de que quieres eliminar al usuario "<span id="userNameModal"></span>"?
-                    Esta acción no se puede deshacer.
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-danger" id="confirmDeleteUserBtn">Eliminar</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Add User Modal -->
-    <div class="modal fade" id="addUserModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Agregar Nuevo Usuario</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="addUserForm">
-                        <div class="mb-3">
-                            <label for="userName" class="form-label">Nombre Completo</label>
-                            <input type="text" class="form-control" id="userName" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="userEmail" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="userEmail" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="userPassword" class="form-label">Contraseña</label>
-                            <input type="password" class="form-control" id="userPassword" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="userRole" class="form-label">Rol</label>
-                            <select class="form-select" id="userRole" required>
-                                <option value="">Seleccionar rol</option>
-                                <option value="admin">Administrador</option>
-                                <option value="moderator">Moderador</option>
-                                <option value="user">Usuario</option>
-                            </select>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary" id="saveUserBtn">Guardar Usuario</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Edit User Modal -->
-    <div class="modal fade" id="editUserModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Editar Usuario</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="editUserForm">
-                        <input type="hidden" id="editUserId">
-                        <div class="mb-3">
-                            <label for="editUserName" class="form-label">Nombre Completo</label>
-                            <input type="text" class="form-control" id="editUserName" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="editUserEmail" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="editUserEmail" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="editUserRole" class="form-label">Rol</label>
-                            <select class="form-select" id="editUserRole" required>
-                                <option value="">Seleccionar rol</option>
-                                <option value="admin">Administrador</option>
-                                <option value="moderator">Moderador</option>
-                                <option value="user">Usuario</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="editUserStatus" class="form-label">Estado</label>
-                            <select class="form-select" id="editUserStatus" required>
-                                <option value="active">Activo</option>
-                                <option value="inactive">Inactivo</option>
-                            </select>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary" id="updateUserBtn">Actualizar Usuario</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Add/Edit Product Modal -->
-    <div class="modal fade" id="productModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="productModalTitle">Agregar Producto</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="productForm">
-                        <input type="hidden" id="productId">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="productName" class="form-label">Nombre del Producto</label>
-                                    <input type="text" class="form-control" id="productName" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="productCategory" class="form-label">Categoría</label>
-                                    <select class="form-select" id="productCategory" required>
-                                        <option value="">Seleccionar categoría</option>
-                                        <option value="Pollos">Pollos</option>
-                                        <option value="Parrillas">Parrillas</option>
-                                        <option value="Chicharrón">Chicharrón</option>
-                                        <option value="Broaster">Broaster</option>
-                                        <option value="Hamburguesas">Hamburguesas</option>
-                                        <option value="Criollos">Criollos</option>
-                                        <option value="Combos">Combos</option>
-                                    </select>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="productPrice" class="form-label">Precio (S/)</label>
-                                    <input type="number" class="form-control" id="productPrice" step="0.01" min="0"
-                                        required>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="productDescription" class="form-label">Descripción</label>
-                                    <textarea class="form-control" id="productDescription" rows="4"></textarea>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="productImage" class="form-label">URL de la Imagen</label>
-                                    <input type="url" class="form-control" id="productImage"
-                                        placeholder="https://ejemplo.com/imagen.jpg">
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary" id="saveProductBtn">Guardar Producto</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Base de datos simulada en localStorage
-        let productos = JSON.parse(localStorage.getItem('productos')) || [
-            {
-                id: 1,
-                nombre: "Pollo a la Brasa Familiar",
-                tipo: "Pollos",
-                descripcion: "Pollo entero con papas fritas y ensalada fresca",
-                precio: 42.00,
-                imagenUrl: "/imagenes/pollo-brasa.jpg",
-                activo: true
-            },
-            {
-                id: 2,
-                nombre: "Combo Familiar",
-                tipo: "Combos",
-                descripcion: "2 pollos + papas + ensalada + 4 gaseosas",
-                precio: 85.00,
-                imagenUrl: "/imagenes/combo-familiar.jpg",
-                activo: true
-            },
-            {
-                id: 3,
-                nombre: "Chicharrón Especial",
-                tipo: "Chicharrón",
-                descripcion: "Chicharrón crocante con yuca y salsa criolla",
-                precio: 35.00,
-                imagenUrl: "/imagenes/chicharron.jpg",
-                activo: true
-            },
-            {
-                id: 4,
-                nombre: "Hamburguesa Clásica",
-                tipo: "Hamburguesas",
-                descripcion: "Hamburguesa con carne, queso, lechuga y tomate",
-                precio: 18.00,
-                imagenUrl: "/imagenes/hamburguesa.jpg",
-                activo: true
-            },
-            {
-                id: 5,
-                nombre: "Parrilla Mixta",
-                tipo: "Parrillas",
-                descripcion: "Carne, pollo y chorizo a la parrilla",
-                precio: 65.00,
-                imagenUrl: "/imagenes/parrilla.jpg",
-                activo: true
-            }
-        ];
-
-        let usuarios = JSON.parse(localStorage.getItem('usuarios')) || [
-            {
-                id: 1,
-                nombre: "Juan Pérez",
-                email: "juan.perez@example.com",
-                rol: "admin",
-                estado: "active",
-                fechaRegistro: "15/03/2023"
-            },
-            {
-                id: 2,
-                nombre: "María García",
-                email: "maria.garcia@example.com",
-                rol: "user",
-                estado: "active",
-                fechaRegistro: "22/04/2023"
-            },
-            {
-                id: 3,
-                nombre: "Carlos López",
-                email: "carlos.lopez@example.com",
-                rol: "user",
-                estado: "inactive",
-                fechaRegistro: "05/05/2023"
-            },
-            {
-                id: 4,
-                nombre: "Ana Martínez",
-                email: "ana.martinez@example.com",
-                rol: "moderator",
-                estado: "active",
-                fechaRegistro: "12/06/2023"
-            }
-        ];
-
-        let pedidos = JSON.parse(localStorage.getItem('pedidos')) || [
-            {
-                id: "ORD-00125",
-                cliente: "Juan Pérez",
-                productos: "Pollo a la Brasa (2)",
-                total: 52.00,
-                estado: "completado",
-                fecha: "2024-01-15"
-            },
-            {
-                id: "ORD-00124",
-                cliente: "María García",
-                productos: "Combo Familiar",
-                total: 85.00,
-                estado: "proceso",
-                fecha: "2024-01-15"
-            },
-            {
-                id: "ORD-00123",
-                cliente: "Carlos López",
-                productos: "Chicharrón (1), Gaseosa (2)",
-                total: 38.00,
-                estado: "completado",
-                fecha: "2024-01-14"
-            },
-            {
-                id: "ORD-00122",
-                cliente: "Ana Martínez",
-                productos: "Hamburguesa Clásica (2)",
-                total: 36.00,
-                estado: "pendiente",
-                fecha: "2024-01-14"
-            }
-        ];
-
-        let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
-
-        // Función para guardar datos en localStorage
-        function guardarDatos() {
-            localStorage.setItem('productos', JSON.stringify(productos));
-            localStorage.setItem('usuarios', JSON.stringify(usuarios));
-            localStorage.setItem('pedidos', JSON.stringify(pedidos));
-            localStorage.setItem('carrito', JSON.stringify(carrito));
-        }
-
-        // Función para mostrar alertas dinámicas
-        function mostrarAlerta(mensaje, tipo = 'success') {
-            const alerta = document.createElement('div');
-            alerta.className = `alert alert-${tipo} alert-dismissible fade show`;
-            alerta.innerHTML = `
+    // Función para mostrar alertas dinámicas
+    function mostrarAlerta(mensaje, tipo = 'success') {
+        const alerta = document.createElement('div');
+        alerta.className = `alert alert-${tipo} alert-dismissible fade show`;
+        alerta.innerHTML = `
             ${mensaje}
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         `;
+        
+        const dynamicAlerts = document.getElementById('dynamicAlerts');
+        dynamicAlerts.appendChild(alerta);
+        
+        setTimeout(() => {
+            if (alerta.parentNode) {
+                alerta.remove();
+            }
+        }, 5000);
+    }
 
-            const dynamicAlerts = document.getElementById('dynamicAlerts');
-            dynamicAlerts.appendChild(alerta);
+    // Función para cargar datos iniciales
+    async function cargarDatosIniciales() {
+        try {
+            // Simular carga de datos desde la base de datos
+            const [productosData, usuariosData, ventasData] = await Promise.all([
+                fetch('/api/productos').then(r => r.json()),
+                fetch('/api/usuarios').then(r => r.json()),
+                fetch('/api/ventas').then(r => r.json())
+            ]);
 
-            setTimeout(() => {
-                if (alerta.parentNode) {
-                    alerta.remove();
-                }
-            }, 5000);
-        }
+            productos = productosData;
+            usuarios = usuariosData;
+            ventas = ventasData;
 
-        // Función para cargar el dashboard
-        function cargarDashboard() {
-            // Actualizar estadísticas
-            document.getElementById('totalProductos').textContent = productos.filter(p => p.activo).length;
-            document.getElementById('totalUsuarios').textContent = usuarios.filter(u => u.estado === 'active').length;
-
-            const pedidosHoy = pedidos.filter(p => p.fecha === new Date().toISOString().split('T')[0]).length;
-            document.getElementById('pedidosHoy').textContent = pedidosHoy;
-
-            const ingresosHoy = pedidos
-                .filter(p => p.fecha === new Date().toISOString().split('T')[0] && p.estado === 'completado')
-                .reduce((sum, p) => sum + p.total, 0);
-            document.getElementById('ingresosHoy').textContent = `S/ ${ingresosHoy.toFixed(2)}`;
-
-            // Cargar ventas recientes
+            // Actualizar interfaz
+            actualizarEstadisticasPrincipales();
             cargarVentasRecientes();
-
-            // Cargar productos populares
-            cargarProductosPopulares();
-        }
-
-        function cargarVentasRecientes() {
-            const tbody = document.getElementById('salesTableBody');
-            tbody.innerHTML = '';
-
-            pedidos.slice(0, 5).forEach(pedido => {
-                const tr = document.createElement('tr');
-                const estadoClass = {
-                    'completado': 'bg-success',
-                    'proceso': 'bg-warning',
-                    'pendiente': 'bg-secondary'
-                }[pedido.estado] || 'bg-secondary';
-
-                const estadoText = {
-                    'completado': 'Completado',
-                    'proceso': 'En Proceso',
-                    'pendiente': 'Pendiente'
-                }[pedido.estado] || 'Pendiente';
-
-                tr.innerHTML = `
-                <td>${pedido.id}</td>
-                <td>${pedido.cliente}</td>
-                <td>${pedido.productos}</td>
-                <td>S/ ${pedido.total.toFixed(2)}</td>
-                <td><span class="badge ${estadoClass}">${estadoText}</span></td>
-                <td>
-                    <button class="btn btn-sm btn-outline-primary" onclick="verDetallePedido('${pedido.id}')">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                </td>
-            `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        function cargarProductosPopulares() {
-            const container = document.getElementById('productosPopulares');
-            container.innerHTML = '';
-
-            // Simular productos populares (en una app real esto vendría de estadísticas)
-            const productosPopulares = productos.slice(0, 5).map((producto, index) => ({
-                ...producto,
-                ventas: Math.floor(Math.random() * 50) + 10
-            })).sort((a, b) => b.ventas - a.ventas);
-
-            productosPopulares.forEach(producto => {
-                const li = document.createElement('li');
-                li.className = 'list-group-item d-flex justify-content-between align-items-center fade-in';
-                li.innerHTML = `
-                <span>${producto.nombre}</span>
-                <span class="badge bg-primary rounded-pill">${producto.ventas}</span>
-            `;
-                container.appendChild(li);
-            });
-        }
-
-        // Funciones para la gestión del menú
-        function cargarMenuGestion() {
-            const container = document.getElementById('productosContainer');
-            const emptyMessage = document.getElementById('emptyProducts');
-
-            container.innerHTML = '';
-
-            const productosActivos = productos.filter(p => p.activo);
-
-            if (productosActivos.length === 0) {
-                emptyMessage.classList.remove('d-none');
-                return;
-            }
-
-            emptyMessage.classList.add('d-none');
-
-            productosActivos.forEach(producto => {
-                const col = document.createElement('div');
-                col.className = 'col-md-6 col-lg-4 mb-4 producto-item fade-in';
-                col.setAttribute('data-categoria', producto.tipo);
-                col.setAttribute('data-nombre', producto.nombre.toLowerCase());
-
-                col.innerHTML = `
-                <div class="card h-100 product-card">
-                    <img src="${producto.imagenUrl || '/imagenes/default-product.jpg'}" 
-                         class="card-img-top" alt="${producto.nombre}" 
-                         style="height: 200px; object-fit: cover;"
-                         onerror="this.src='/imagenes/default-product.jpg'">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <h5 class="card-title">${producto.nombre}</h5>
-                            <span class="badge bg-primary categoria-badge">${producto.tipo}</span>
-                        </div>
-                        <p class="card-text text-muted small">${producto.descripcion || 'Sin descripción'}</p>
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <strong class="text-success">S/ ${producto.precio.toFixed(2)}</strong>
-                            <span class="badge bg-success">Disponible</span>
-                        </div>
-                        <div class="btn-group w-100" role="group">
-                            <button class="btn btn-outline-primary btn-sm btn-editar" data-id="${producto.id}">
-                                <i class="fas fa-edit"></i> Editar
-                            </button>
-                            <button class="btn btn-outline-danger btn-sm btn-eliminar"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#confirmDeleteModal"
-                                    data-producto-id="${producto.id}"
-                                    data-producto-nombre="${producto.nombre}">
-                                <i class="fas fa-trash"></i> Eliminar
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `;
-
-                container.appendChild(col);
-            });
-
-            configurarEventosProductos();
-            actualizarResultadosFiltro();
-        }
-
-        function configurarEventosProductos() {
-            // Eventos para editar productos
-            document.querySelectorAll('.btn-editar').forEach(btn => {
-                btn.addEventListener('click', function () {
-                    const productId = this.getAttribute('data-id');
-                    editarProducto(productId);
-                });
-            });
-
-            // Eventos para eliminar productos
-            document.querySelectorAll('.btn-eliminar').forEach(btn => {
-                btn.addEventListener('click', function () {
-                    const productId = this.getAttribute('data-producto-id');
-                    const productName = this.getAttribute('data-producto-nombre');
-
-                    document.getElementById('productoNombreModal').textContent = productName;
-
-                    // Configurar el evento de eliminación
-                    document.getElementById('confirmDeleteBtn').onclick = function () {
-                        eliminarProducto(productId);
-                        const modal = bootstrap.Modal.getInstance(document.getElementById('confirmDeleteModal'));
-                        modal.hide();
-                    };
-                });
-            });
-        }
-
-        function editarProducto(id) {
-            const producto = productos.find(p => p.id == id);
-            if (!producto) return;
-
-            document.getElementById('productModalTitle').textContent = 'Editar Producto';
-            document.getElementById('productId').value = producto.id;
-            document.getElementById('productName').value = producto.nombre;
-            document.getElementById('productCategory').value = producto.tipo;
-            document.getElementById('productPrice').value = producto.precio;
-            document.getElementById('productDescription').value = producto.descripcion || '';
-            document.getElementById('productImage').value = producto.imagenUrl || '';
-
-            const modal = new bootstrap.Modal(document.getElementById('productModal'));
-            modal.show();
-        }
-
-        function eliminarProducto(id) {
-            productos = productos.filter(p => p.id != id);
-            guardarDatos();
-            cargarMenuGestion();
-            cargarDashboard();
-            mostrarAlerta('Producto eliminado correctamente', 'success');
-        }
-
-        // Funciones para la gestión de usuarios
-        function cargarUsuarios() {
-            const tbody = document.getElementById('usersTableBody');
-            tbody.innerHTML = '';
-
-            usuarios.forEach(usuario => {
-                const tr = document.createElement('tr');
-                tr.className = 'fade-in';
-                tr.innerHTML = `
-                <td>${usuario.id}</td>
-                <td>
-                    <div class="d-flex align-items-center">
-                        <div class="user-avatar me-2">${usuario.nombre.split(' ').map(n => n[0]).join('')}</div>
-                        ${usuario.nombre}
-                    </div>
-                </td>
-                <td>${usuario.email}</td>
-                <td><span class="badge ${getBadgeClass(usuario.rol)}">${usuario.rol}</span></td>
-                <td><span class="badge ${usuario.estado === 'active' ? 'bg-success' : 'bg-warning'}">${usuario.estado === 'active' ? 'Activo' : 'Inactivo'}</span></td>
-                <td>${usuario.fechaRegistro}</td>
-                <td class="table-actions">
-                    <button class="btn btn-sm btn-outline-primary btn-edit-user" data-id="${usuario.id}">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="btn btn-sm btn-outline-danger btn-delete-user" 
-                            data-bs-toggle="modal" 
-                            data-bs-target="#deleteUserModal"
-                            data-user-id="${usuario.id}"
-                            data-user-name="${usuario.nombre}">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </td>
-            `;
-                tbody.appendChild(tr);
-            });
-
-            configurarEventosUsuarios();
-        }
-
-        function getBadgeClass(rol) {
-            switch (rol) {
-                case 'admin': return 'bg-primary';
-                case 'moderator': return 'bg-info';
-                default: return 'bg-secondary';
-            }
-        }
-
-        function configurarEventosUsuarios() {
-            // Editar usuario
-            document.querySelectorAll('.btn-edit-user').forEach(btn => {
-                btn.addEventListener('click', function () {
-                    const userId = this.getAttribute('data-id');
-                    const usuario = usuarios.find(u => u.id == userId);
-
-                    if (usuario) {
-                        document.getElementById('editUserId').value = usuario.id;
-                        document.getElementById('editUserName').value = usuario.nombre;
-                        document.getElementById('editUserEmail').value = usuario.email;
-                        document.getElementById('editUserRole').value = usuario.rol;
-                        document.getElementById('editUserStatus').value = usuario.estado;
-
-                        const modal = new bootstrap.Modal(document.getElementById('editUserModal'));
-                        modal.show();
-                    }
-                });
-            });
-
-            // Eliminar usuario
-            document.querySelectorAll('.btn-delete-user').forEach(btn => {
-                btn.addEventListener('click', function () {
-                    const userId = this.getAttribute('data-user-id');
-                    const userName = this.getAttribute('data-user-name');
-
-                    document.getElementById('userNameModal').textContent = userName;
-
-                    document.getElementById('confirmDeleteUserBtn').onclick = function () {
-                        usuarios = usuarios.filter(u => u.id != userId);
-                        guardarDatos();
-                        cargarUsuarios();
-                        cargarDashboard();
-
-                        const modal = bootstrap.Modal.getInstance(document.getElementById('deleteUserModal'));
-                        modal.hide();
-
-                        mostrarAlerta('Usuario eliminado correctamente', 'success');
-                    };
-                });
-            });
-        }
-
-        // Funciones para el menú público
-        function cargarMenuPublico() {
-            const container = document.getElementById('public-menu-content');
-            container.innerHTML = '';
-
-            // Agrupar productos por categoría
-            const productosPorCategoria = {};
-            productos.forEach(producto => {
-                if (producto.activo) {
-                    if (!productosPorCategoria[producto.tipo]) {
-                        productosPorCategoria[producto.tipo] = [];
-                    }
-                    productosPorCategoria[producto.tipo].push(producto);
-                }
-            });
-
-            // Generar HTML para cada categoría
-            Object.keys(productosPorCategoria).forEach(categoria => {
-                const section = document.createElement('div');
-                section.className = 'fade-in';
-                section.innerHTML = `
-                <h2 class="category-title" id="${categoria.toLowerCase()}">${categoria}</h2>
-                <div class="row g-3 mb-5" id="row-${categoria.toLowerCase()}">
-                    <!-- Los productos se insertarán aquí -->
-                </div>
-            `;
-                container.appendChild(section);
-
-                const row = document.getElementById(`row-${categoria.toLowerCase()}`);
-                productosPorCategoria[categoria].forEach(producto => {
-                    const col = document.createElement('div');
-                    col.className = 'col-md-4';
-                    col.innerHTML = `
-                    <div class="card h-100 product-card">
-                        <img src="${producto.imagenUrl || '/imagenes/default-product.jpg'}" 
-                             class="card-img-top" alt="${producto.nombre}"
-                             style="height: 200px; object-fit: cover;"
-                             onerror="this.src='/imagenes/default-product.jpg'">
-                        <div class="card-body">
-                            <h5 class="card-title product-title">${producto.nombre}</h5>
-                            <p class="card-text product-description">${producto.descripcion || 'Sin descripción'}</p>
-                            <p class="fw-bold text-success price-current">S/ ${producto.precio.toFixed(2)}</p>
-                            <button class="btn btn-primary w-100 agregar-carrito-btn" data-producto-id="${producto.id}">
-                                <i class="fa-solid fa-cart-plus"></i> Agregar al carrito
-                            </button>
-                        </div>
-                    </div>
-                `;
-                    row.appendChild(col);
-                });
-            });
-
-            configurarEventosCarrito();
-            configurarNavegacionCategorias();
-        }
-
-        function configurarEventosCarrito() {
-            document.querySelectorAll('.agregar-carrito-btn').forEach(btn => {
-                btn.addEventListener('click', function () {
-                    const productId = this.getAttribute('data-producto-id');
-                    const producto = productos.find(p => p.id == productId);
-
-                    if (producto) {
-                        // Buscar si el producto ya está en el carrito
-                        const itemExistente = carrito.find(item => item.id == productId);
-
-                        if (itemExistente) {
-                            itemExistente.cantidad += 1;
-                        } else {
-                            carrito.push({
-                                id: producto.id,
-                                nombre: producto.nombre,
-                                precio: producto.precio,
-                                cantidad: 1,
-                                imagen: producto.imagenUrl
-                            });
-                        }
-
-                        guardarDatos();
-                        actualizarCarrito();
-                        mostrarAlerta(`${producto.nombre} agregado al carrito`, 'success');
-                    }
-                });
-            });
-        }
-
-        function actualizarCarrito() {
-            const total = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
-            document.getElementById('cartTotal').textContent = total.toFixed(2);
-        }
-
-        function configurarNavegacionCategorias() {
-            document.querySelectorAll('.category-tab').forEach(tab => {
-                tab.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    const targetId = this.getAttribute('href').substring(1);
-
-                    // Remover active de todos los tabs
-                    document.querySelectorAll('.category-tab').forEach(t => {
-                        t.classList.remove('active');
-                    });
-
-                    // Agregar active al tab clickeado
-                    this.classList.add('active');
-
-                    // Scroll a la categoría
-                    const targetElement = document.getElementById(targetId);
-                    if (targetElement) {
-                        targetElement.scrollIntoView({ behavior: 'smooth' });
-                    }
-                });
-            });
-        }
-
-        // Funciones de filtrado
-        function configurarFiltros() {
-            const searchInput = document.getElementById('searchInput');
-            const categoriaFilter = document.getElementById('categoriaFilter');
-
-            if (searchInput && categoriaFilter) {
-                searchInput.addEventListener('input', filtrarProductos);
-                categoriaFilter.addEventListener('change', filtrarProductos);
-            }
-
-            // Filtros de usuarios
-            const userSearchInput = document.getElementById('userSearchInput');
-            const userRoleFilter = document.getElementById('userRoleFilter');
-            const userStatusFilter = document.getElementById('userStatusFilter');
-
-            if (userSearchInput && userRoleFilter && userStatusFilter) {
-                userSearchInput.addEventListener('input', filtrarUsuarios);
-                userRoleFilter.addEventListener('change', filtrarUsuarios);
-                userStatusFilter.addEventListener('change', filtrarUsuarios);
-            }
-        }
-
-        function filtrarProductos() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const categoriaSeleccionada = document.getElementById('categoriaFilter').value;
-            const productosItems = document.querySelectorAll('.producto-item');
-
-            let productosVisibles = 0;
-
-            productosItems.forEach(item => {
-                const nombre = item.getAttribute('data-nombre');
-                const categoria = item.getAttribute('data-categoria');
-
-                const coincideNombre = nombre.includes(searchTerm);
-                const coincideCategoria = !categoriaSeleccionada || categoria === categoriaSeleccionada;
-
-                if (coincideNombre && coincideCategoria) {
-                    item.style.display = 'block';
-                    productosVisibles++;
-                } else {
-                    item.style.display = 'none';
-                }
-            });
-
-            actualizarResultadosFiltro(productosVisibles);
-        }
-
-        function filtrarUsuarios() {
-            const searchTerm = document.getElementById('userSearchInput').value.toLowerCase();
-            const rolSeleccionado = document.getElementById('userRoleFilter').value;
-            const estadoSeleccionado = document.getElementById('userStatusFilter').value;
-            const filasUsuarios = document.querySelectorAll('#usersTableBody tr');
-
-            filasUsuarios.forEach(fila => {
-                const nombre = fila.cells[1].textContent.toLowerCase();
-                const rol = fila.cells[3].querySelector('.badge').textContent;
-                const estado = fila.cells[4].querySelector('.badge').textContent.toLowerCase();
-
-                const coincideNombre = nombre.includes(searchTerm);
-                const coincideRol = !rolSeleccionado || rol === rolSeleccionado;
-                const coincideEstado = !estadoSeleccionado ||
-                    (estadoSeleccionado === 'active' && estado === 'activo') ||
-                    (estadoSeleccionado === 'inactive' && estado === 'inactivo');
-
-                if (coincideNombre && coincideRol && coincideEstado) {
-                    fila.style.display = '';
-                } else {
-                    fila.style.display = 'none';
-                }
-            });
-        }
-
-        function actualizarResultadosFiltro(visibles = null) {
-            const filterResults = document.getElementById('filterResults');
-            if (!filterResults) return;
-
-            if (visibles === null) {
-                visibles = document.querySelectorAll('.producto-item[style="display: block"]').length;
-            }
-
-            const total = document.querySelectorAll('.producto-item').length;
-            filterResults.textContent = `Mostrando ${visibles} de ${total} productos`;
-        }
-
-        // Función global para limpiar filtros
-        window.limpiarFiltros = function () {
-            document.getElementById('searchInput').value = '';
-            document.getElementById('categoriaFilter').value = '';
-            filtrarProductos();
-        };
-
-        // Funciones para los modales y formularios
-        function configurarFormularios() {
-            // Guardar nuevo usuario
-            document.getElementById('saveUserBtn').addEventListener('click', function () {
-                const nombre = document.getElementById('userName').value;
-                const email = document.getElementById('userEmail').value;
-                const password = document.getElementById('userPassword').value;
-                const rol = document.getElementById('userRole').value;
-
-                if (!nombre || !email || !password || !rol) {
-                    mostrarAlerta('Por favor complete todos los campos', 'danger');
-                    return;
-                }
-
-                const nuevoUsuario = {
-                    id: Date.now(),
-                    nombre: nombre,
-                    email: email,
-                    rol: rol,
-                    estado: 'active',
-                    fechaRegistro: new Date().toLocaleDateString('es-PE')
-                };
-
-                usuarios.push(nuevoUsuario);
-                guardarDatos();
-                cargarUsuarios();
-                cargarDashboard();
-
-                // Cerrar modal y limpiar formulario
-                const modal = bootstrap.Modal.getInstance(document.getElementById('addUserModal'));
-                modal.hide();
-                document.getElementById('addUserForm').reset();
-
-                mostrarAlerta('Usuario agregado correctamente', 'success');
-            });
-
-            // Actualizar usuario
-            document.getElementById('updateUserBtn').addEventListener('click', function () {
-                const userId = document.getElementById('editUserId').value;
-                const usuario = usuarios.find(u => u.id == userId);
-
-                if (usuario) {
-                    usuario.nombre = document.getElementById('editUserName').value;
-                    usuario.email = document.getElementById('editUserEmail').value;
-                    usuario.rol = document.getElementById('editUserRole').value;
-                    usuario.estado = document.getElementById('editUserStatus').value;
-
-                    guardarDatos();
-                    cargarUsuarios();
-
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('editUserModal'));
-                    modal.hide();
-
-                    mostrarAlerta('Usuario actualizado correctamente', 'success');
-                }
-            });
-
-            // Guardar producto
-            document.getElementById('saveProductBtn').addEventListener('click', function () {
-                const id = document.getElementById('productId').value;
-                const nombre = document.getElementById('productName').value;
-                const tipo = document.getElementById('productCategory').value;
-                const precio = parseFloat(document.getElementById('productPrice').value);
-                const descripcion = document.getElementById('productDescription').value;
-                const imagenUrl = document.getElementById('productImage').value;
-
-                if (!nombre || !tipo || !precio) {
-                    mostrarAlerta('Por favor complete los campos obligatorios', 'danger');
-                    return;
-                }
-
-                if (id) {
-                    // Editar producto existente
-                    const producto = productos.find(p => p.id == id);
-                    if (producto) {
-                        producto.nombre = nombre;
-                        producto.tipo = tipo;
-                        producto.precio = precio;
-                        producto.descripcion = descripcion;
-                        producto.imagenUrl = imagenUrl;
-                    }
-                } else {
-                    // Agregar nuevo producto
-                    const nuevoProducto = {
-                        id: Date.now(),
-                        nombre: nombre,
-                        tipo: tipo,
-                        descripcion: descripcion,
-                        precio: precio,
-                        imagenUrl: imagenUrl,
-                        activo: true
-                    };
-                    productos.push(nuevoProducto);
-                }
-
-                guardarDatos();
-                cargarMenuGestion();
-                cargarDashboard();
-
-                const modal = bootstrap.Modal.getInstance(document.getElementById('productModal'));
-                modal.hide();
-                document.getElementById('productForm').reset();
-
-                mostrarAlerta(`Producto ${id ? 'actualizado' : 'agregado'} correctamente`, 'success');
-            });
-
-            // Botón para agregar producto
-            document.getElementById('addProductBtn').addEventListener('click', function () {
-                document.getElementById('productModalTitle').textContent = 'Agregar Producto';
-                document.getElementById('productForm').reset();
-                document.getElementById('productId').value = '';
-
-                const modal = new bootstrap.Modal(document.getElementById('productModal'));
-                modal.show();
-            });
-
-            document.getElementById('addFirstProductBtn').addEventListener('click', function () {
-                document.getElementById('productModalTitle').textContent = 'Agregar Producto';
-                document.getElementById('productForm').reset();
-                document.getElementById('productId').value = '';
-
-                const modal = new bootstrap.Modal(document.getElementById('productModal'));
-                modal.show();
-            });
-        }
-
-        // Funciones de utilidad
-        window.verDetallePedido = function (pedidoId) {
-            const pedido = pedidos.find(p => p.id === pedidoId);
-            if (pedido) {
-                alert(`Detalles del Pedido:\n\nID: ${pedido.id}\nCliente: ${pedido.cliente}\nProductos: ${pedido.productos}\nTotal: S/ ${pedido.total.toFixed(2)}\nEstado: ${pedido.estado}\nFecha: ${pedido.fecha}`);
-            }
-        };
-
-        // Inicialización cuando el DOM está listo
-        document.addEventListener('DOMContentLoaded', function () {
-            // Guardar datos iniciales si no existen
-            guardarDatos();
-
-            // Cargar datos iniciales
-            cargarDashboard();
+            cargarGraficos();
             cargarMenuGestion();
             cargarUsuarios();
+            cargarMenuPublico();
 
-            // Configurar eventos
-            configurarFiltros();
-            configurarFormularios();
+        } catch (error) {
+            console.error('Error cargando datos:', error);
+            // Cargar datos de ejemplo para desarrollo
+            cargarDatosEjemplo();
+        }
+    }
 
-            // Toggle sidebar
-            const toggleSidebarBtn = document.querySelector('.toggle-sidebar');
-            const app = document.getElementById('app');
+    // Función para cargar datos de ejemplo
+    function cargarDatosEjemplo() {
+        productos = [];
+        usuarios = [];
+        ventas = [];
 
-            toggleSidebarBtn.addEventListener('click', function () {
-                app.classList.toggle('collapsed');
-            });
+        actualizarEstadisticasPrincipales();
+        cargarVentasRecientes();
+        cargarGraficos();
+        cargarMenuGestion();
+        cargarUsuarios();
+        cargarMenuPublico();
 
-            // Navigation between sections
-            const navLinks = document.querySelectorAll('.sidebar .nav-link');
-            const sectionContents = document.querySelectorAll('.section-content');
-            const sectionTitle = document.getElementById('sectionTitle');
-
-            navLinks.forEach(link => {
-                link.addEventListener('click', function (e) {
-                    if (this.getAttribute('href') === '#' || this.getAttribute('data-section')) {
-                        e.preventDefault();
-
-                        // Remove active class from all links
-                        navLinks.forEach(navLink => {
-                            navLink.classList.remove('active');
-                        });
-
-                        // Add active class to clicked link
-                        this.classList.add('active');
-
-                        // Hide all sections
-                        sectionContents.forEach(section => {
-                            section.classList.add('d-none');
-                        });
-
-                        // Show selected section
-                        const sectionId = this.getAttribute('data-section') + '-section';
-                        const selectedSection = document.getElementById(sectionId);
-                        if (selectedSection) {
-                            selectedSection.classList.remove('d-none');
-
-                            // Update section title
-                            const linkText = this.querySelector('span').textContent;
-                            sectionTitle.textContent = linkText;
-
-                            // Cargar datos específicos de la sección
-                            if (sectionId === 'public-menu-section') {
-                                cargarMenuPublico();
-                            }
-                        }
-                    }
-                });
-            });
-
-            // Botones de actualización
-            document.getElementById('refreshSales').addEventListener('click', cargarVentasRecientes);
-            document.getElementById('refreshPopular').addEventListener('click', cargarProductosPopulares);
-
-            console.log('Dashboard cargado correctamente');
-        });
-
-        // Hacer funciones globales
-        window.limpiarFiltros = limpiarFiltros;
-        window.verDetallePedido = verDetallePedido;
-    </script>
-</body>
-
-</html>
+        mostrarAlerta('Usando datos de ejemplo - Sin ventas registradas', 'info');
+    }

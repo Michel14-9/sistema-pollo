@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -25,13 +26,13 @@
 
         <nav class="cajero-nav">
             <div class="estado-caja">
-                <span class="estado">Caja #4 - Abierta</span>
+                <span class="estado">Caja - Abierta</span>
                 <span class="fecha" id="header-fecha-actual"></span>
             </div>
             <div class="acciones-rapidas">
-                <button class="btn-accion" id="btn-suspender">⏸️ Suspender</button>
-                <button class="btn-accion" id="btn-corte">📊 Corte Parcial</button>
-                <button class="btn-accion" id="btn-cierre">🔒 Cierre Caja</button>
+                <button class="btn-accion" id="btn-suspender">Suspender</button>
+                <button class="btn-accion" id="btn-corte">Corte Parcial</button>
+                <button class="btn-accion" id="btn-cierre">Cierre Caja</button>
             </div>
         </nav>
     </header>
@@ -77,25 +78,20 @@
                 <div id="content-delivery" class="mb-4">
                     <h5 class="mt-4 mb-2">Número de Teléfono</h5>
                     <div class="input-group mb-3">
-                        <input type="text" class="form-control" id="phoneNumberInput"
-                            placeholder="Ej: +51 987654321" maxlength="12">
+                        <input type="text" class="form-control" id="phoneNumberInput" placeholder="Ej: +51 987654321"
+                            maxlength="12">
                     </div>
                     <small class="text-muted">Se enviará el comprobante por **WhatsApp** a este número.</small>
                 </div>
-                
+
                 <div id="content-pickup" class="mb-4" style="display: none;">
-                    <h5 class="mt-4 mb-2">Datos para Factura</h5>
+                    <h5 class="mt-4 mb-2">Datos para Boleta</h5>
                     <div class="mb-3">
                         <label for="customerName" class="form-label">Nombre o Razón Social</label>
-                        <input type="text" class="form-control" id="customerName" 
-                               placeholder="Ej: HUACHIN OJEDA DENIS ABEL">
+                        <input type="text" class="form-control" id="customerName"
+                            placeholder="Ej: HUACHIN OJEDA DENIS ABEL">
                     </div>
-                    <div class="mb-3">
-                        <label for="customerRuc" class="form-label">RUC</label>
-                        <input type="text" class="form-control" id="customerRuc" 
-                               placeholder="Ej: 10214939300" maxlength="11">
-                    </div>
-                    <small class="text-muted">Se generará factura electrónica con estos datos.</small>
+                    <small class="text-muted">Se generará boleta electrónica con estos datos.</small>
                 </div>
 
                 <div id="content-pickup-info" class="card shadow-sm mb-4 p-3" style="display: none;">
@@ -141,8 +137,16 @@
                         <div id="receipt-pickup" style="display: none;">
                             <button id="btn-generate-payment-receipt-pickup" class="btn btn-primary btn-lg">Generar
                                 Comprobante de Pago</button>
-                            <button id="btn-generate-pickup-invoice" class="btn btn-success btn-lg mt-2">Generar Factura
-                                para Recojo</button>
+                            <button id="btn-generate-pickup-invoice" class="btn btn-success btn-lg mt-2 dropdown-toggle"
+                                type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Generar Boleta para Recojo
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#" id="btn-download-boleta-pdf">Descargar PDF</a>
+                                </li>
+                                <li><a class="dropdown-item" href="#" id="btn-download-boleta-excel">Descargar Excel</a>
+                                </li>
+                            </ul>
                         </div>
                     </div>
                 </div>
@@ -456,7 +460,7 @@
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="pickupInvoiceModalLabel">Factura Electrónica para Recojo</h5>
+                    <h5 class="modal-title" id="pickupInvoiceModalLabel">Boleta Electrónica para Recojo</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-0" id="invoice-to-download">
@@ -468,9 +472,9 @@
                                 <p class="mb-0">ICA - ICA - ICA</p>
                             </div>
                             <div class="invoice-header text-center border p-2">
-                                <h4 class="mb-1">FACTURA ELECTRÓNICA</h4>
+                                <h4 class="mb-1">BOLETA ELECTRÓNICA</h4>
                                 <h5 class="mb-1">RUC: 10214242236</h5>
-                                <h5 class="mb-0" id="invoice-series">E001-58</h5>
+                                <h5 class="mb-0" id="invoice-series">B001-58</h5>
                             </div>
                         </div>
 
@@ -481,8 +485,8 @@
                                             id="invoice-fecha-emision"></span></p>
                                     <p class="mb-1"><strong>Hora de Emisión</strong> : <span
                                             id="invoice-hora-emision"></span></p>
-                                    <p class="mb-1"><strong>Señor(es)</strong> : <span id="invoice-customer-name">Consumidor Final</span></p>
-                                    <p class="mb-1"><strong>RUC</strong> : <span id="invoice-customer-ruc">00000000</span></p>
+                                    <p class="mb-1"><strong>Señor(es)</strong> : <span
+                                            id="invoice-customer-name">Consumidor Final</span></p>
                                     <p class="mb-1"><strong>Establecimiento del Emisor</strong> : CAL. JUNIN 617 ALTURA
                                         DEL PARQUE LUREN ICA-ICA-ICA</p>
                                     <p class="mb-1"><strong>Tipo de Moneda</strong> : SOLES (S)</p>
@@ -528,14 +532,16 @@
                             </div>
                         </div>
                         <p class="mt-3 text-center fst-italic border-top pt-2">
-                            Esta es una representación impresa de la factura electrónica.
+                            Esta es una representación impresa de la boleta electrónica.
                         </p>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                    <button type="button" class="btn btn-success" id="btn-download-invoice"><i
-                            class="bi bi-file-earmark-pdf me-2"></i>Descargar Factura (PDF)</button>
+                    <button type="button" class="btn btn-success" id="btn-download-boleta-pdf-modal"><i
+                            class="bi bi-file-earmark-pdf me-2"></i>Descargar Boleta (PDF)</button>
+                    <button type="button" class="btn btn-info" id="btn-download-boleta-excel-modal"><i
+                            class="bi bi-file-earmark-spreadsheet me-2"></i>Descargar Boleta (Excel)</button>
                 </div>
             </div>
         </div>
@@ -628,14 +634,15 @@
     <footer class="cajero-footer">
         <div class="footer-info">
             <div class="controles-cajero">
-                <button class="btn-control" id="btn-devolucion">↩️ Devolución</button>
-                <button class="btn-control" id="btn-ayuda">❓ Ayuda</button>
+                <button class="btn-control" id="btn-devolucion"> Devolución</button>
+                <button class="btn-control" id="btn-ayuda"> Ayuda</button>
             </div>
         </div>
     </footer>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="/src/main/resources/static/script/cajero.js"></script>
 </body>
 

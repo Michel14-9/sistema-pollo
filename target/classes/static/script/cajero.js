@@ -127,6 +127,9 @@ function updateInterface(type) {
         receiptDelivery.style.display = 'none';
         receiptPickup.style.display = 'block';
         if (step4Text) step4Text.textContent = 'Listo para Recojo';
+
+        // Limpiar el campo de teléfono cuando se selecciona recoger en tienda
+        document.getElementById('phoneNumberInput').value = '';
     }
 }
 
@@ -266,28 +269,22 @@ function printReceipt() {
     window.print();
 }
 
-function downloadInvoicePDF() {
+function downloadBoletaPDF() {
     if (!isPaymentProcessed) {
-        alert('El pago debe estar confirmado para descargar la factura.');
+        alert('El pago debe estar confirmado para descargar la boleta.');
         return;
     }
 
-    // Validar datos de factura
+    // Validar datos de boleta
     const customerName = document.getElementById('customerName').value.trim();
-    const customerRuc = document.getElementById('customerRuc').value.trim();
 
-    if (!customerName || !customerRuc) {
-        alert('Por favor, complete los datos de factura (Nombre y RUC) antes de generar la factura.');
-        return;
-    }
-
-    if (customerRuc.length !== 11) {
-        alert('El RUC debe tener exactamente 11 dígitos.');
+    if (!customerName) {
+        alert('Por favor, complete el nombre para generar la boleta.');
         return;
     }
 
     const element = document.getElementById('invoice-to-download');
-    const filename = `FACTURA_${orderNumber}.pdf`;
+    const filename = `BOLETA_${orderNumber}.pdf`;
 
     const options = {
         margin: 0.5,
@@ -298,6 +295,64 @@ function downloadInvoicePDF() {
     };
 
     html2pdf().set(options).from(element).save();
+}
+
+function downloadBoletaExcel() {
+    if (!isPaymentProcessed) {
+        alert('El pago debe estar confirmado para descargar la boleta.');
+        return;
+    }
+
+    // Validar datos de boleta
+    const customerName = document.getElementById('customerName').value.trim();
+
+    if (!customerName) {
+        alert('Por favor, complete el nombre para generar la boleta.');
+        return;
+    }
+
+    // Crear datos para Excel
+    const wb = XLSX.utils.book_new();
+
+    // Hoja de datos de la boleta
+    const boletaData = [
+        ['BOLETA ELECTRÓNICA'],
+        [''],
+        ['EMISOR: VELARDE CIPRIAN TEODORO'],
+        ['DIRECCIÓN: CAL. JUNIN 617 ALTURA DEL PARQUE LUREN'],
+        ['RUC: 10214242236'],
+        [''],
+        ['CLIENTE:', customerName],
+        ['ORDEN:', orderNumber],
+        ['FECHA:', new Date().toLocaleDateString('es-ES')],
+        [''],
+        ['DETALLE DE PRODUCTOS'],
+        ['Cantidad', 'Descripción', 'Precio Unit.', 'Total']
+    ];
+
+    // Agregar items
+    orderData.items.forEach(item => {
+        boletaData.push([
+            item.qty,
+            item.description,
+            item.unitPrice.toFixed(2),
+            item.total.toFixed(2)
+        ]);
+    });
+
+    // Agregar totales
+    boletaData.push(['']);
+    boletaData.push(['SUBTOTAL:', '', '', orderData.subtotal.toFixed(2)]);
+    boletaData.push(['IGV (18%):', '', '', orderData.tax.toFixed(2)]);
+    boletaData.push(['TOTAL:', '', '', orderData.total.toFixed(2)]);
+    boletaData.push(['']);
+    boletaData.push(['TOTAL EN LETRAS:', orderData.totalInWords]);
+
+    const ws = XLSX.utils.aoa_to_sheet(boletaData);
+    XLSX.utils.book_append_sheet(wb, ws, "Boleta");
+
+    // Descargar archivo
+    XLSX.writeFile(wb, `BOLETA_${orderNumber}.xlsx`);
 }
 
 function convertNumberToWords(number) {
@@ -361,19 +416,6 @@ function formatPhoneInput(event) {
     // Limitar a +51 seguido de máximo 9 dígitos
     if (value.startsWith('+51') && value.length > 12) {
         value = value.substring(0, 12);
-    }
-
-    input.value = value;
-}
-
-// Validación de RUC (solo 11 dígitos)
-function validateRucInput(event) {
-    const input = event.target;
-    let value = input.value.replace(/\D/g, ''); // Remover todo excepto números
-
-    // Limitar a 11 dígitos
-    if (value.length > 11) {
-        value = value.substring(0, 11);
     }
 
     input.value = value;
@@ -506,7 +548,10 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('btn-send-whatsapp-receipt').addEventListener('click', checkCancelledWrapper(handleSendWhatsappReceipt));
     document.getElementById('btn-add-item').addEventListener('click', checkCancelledWrapper(handleAddItem));
     document.getElementById('btn-update-status').addEventListener('click', checkCancelledWrapper(handleUpdateStatus));
-    document.getElementById('btn-download-invoice').addEventListener('click', checkCancelledWrapper(downloadInvoicePDF));
+    document.getElementById('btn-download-boleta-pdf').addEventListener('click', checkCancelledWrapper(downloadBoletaPDF));
+    document.getElementById('btn-download-boleta-excel').addEventListener('click', checkCancelledWrapper(downloadBoletaExcel));
+    document.getElementById('btn-download-boleta-pdf-modal').addEventListener('click', checkCancelledWrapper(downloadBoletaPDF));
+    document.getElementById('btn-download-boleta-excel-modal').addEventListener('click', checkCancelledWrapper(downloadBoletaExcel));
     document.getElementById('btn-print-receipt').addEventListener('click', checkCancelledWrapper(printReceipt));
 
     // Configurar eventos para generar comprobantes
@@ -539,17 +584,11 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        // Validar datos de factura
+        // Validar datos de boleta
         const customerName = document.getElementById('customerName').value.trim();
-        const customerRuc = document.getElementById('customerRuc').value.trim();
 
-        if (!customerName || !customerRuc) {
-            alert('Por favor, complete los datos de factura (Nombre y RUC) antes de generar la factura.');
-            return;
-        }
-
-        if (customerRuc.length !== 11) {
-            alert('El RUC debe tener exactamente 11 dígitos.');
+        if (!customerName) {
+            alert('Por favor, complete el nombre para generar la boleta.');
             return;
         }
 
@@ -558,7 +597,6 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('invoice-hora-emision').textContent = now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
         document.getElementById('invoice-observation').textContent = orderData.descriptionSoles;
         document.getElementById('invoice-customer-name').textContent = customerName;
-        document.getElementById('invoice-customer-ruc').textContent = customerRuc;
 
         const tbody = document.getElementById('invoice-items-body');
         tbody.innerHTML = '';
@@ -585,9 +623,6 @@ document.addEventListener('DOMContentLoaded', function () {
     // Configurar validaciones de entrada
     document.getElementById('phoneNumberInput').addEventListener('keydown', validateNumericInput);
     document.getElementById('phoneNumberInput').addEventListener('input', formatPhoneInput);
-
-    document.getElementById('customerRuc').addEventListener('keydown', validateNumericInput);
-    document.getElementById('customerRuc').addEventListener('input', validateRucInput);
 
     // Inicializar
     actualizarHora();

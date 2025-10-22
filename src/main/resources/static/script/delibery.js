@@ -7,7 +7,7 @@ const restaurantLocation = {
 };
 
 // Datos de ejemplo para pedidos de delivery en Ica
-const deliveryOrders = [
+let deliveryOrders = [
     {
         id: 1,
         orderNumber: "ORD-2024-001234",
@@ -23,7 +23,9 @@ const deliveryOrders = [
             { name: "Papas Fritas Familiares", quantity: 1, price: "S/ 12.00" },
             { name: "Gaseosa 1L", quantity: 1, price: "S/ 4.50" }
         ],
-        coordinates: { lat: -14.065, lng: -75.730 } // Cerca de la pollería
+        coordinates: { lat: -14.065, lng: -75.730 }, // Cerca de la pollería
+        driverPosition: null,
+        progress: 0
     },
     {
         id: 2,
@@ -38,7 +40,9 @@ const deliveryOrders = [
         items: [
             { name: "1/4 de Pollo + Papas", quantity: 2, price: "S/ 28.00" }
         ],
-        coordinates: { lat: -14.068, lng: -75.725 }
+        coordinates: { lat: -14.068, lng: -75.725 },
+        driverPosition: { lat: -14.069, lng: -75.726 },
+        progress: 30
     },
     {
         id: 3,
@@ -53,7 +57,9 @@ const deliveryOrders = [
         items: [
             { name: "Pollo a la Brasa Entero", quantity: 2, price: "S/ 64.00" }
         ],
-        coordinates: { lat: -14.073, lng: -75.732 }
+        coordinates: { lat: -14.073, lng: -75.732 },
+        driverPosition: null,
+        progress: 0
     },
     {
         id: 4,
@@ -70,7 +76,9 @@ const deliveryOrders = [
             { name: "Ensalada César", quantity: 1, price: "S/ 10.00" },
             { name: "Gaseosa 1L", quantity: 1, price: "S/ 6.50" }
         ],
-        coordinates: { lat: -14.075, lng: -75.720 }
+        coordinates: { lat: -14.075, lng: -75.720 },
+        driverPosition: null,
+        progress: 100
     },
     {
         id: 5,
@@ -86,7 +94,9 @@ const deliveryOrders = [
             { name: "Pollo a la Brasa Entero", quantity: 1, price: "S/ 32.00" },
             { name: "Ensalada César", quantity: 1, price: "S/ 10.00" }
         ],
-        coordinates: { lat: -14.072, lng: -75.728 }
+        coordinates: { lat: -14.072, lng: -75.728 },
+        driverPosition: null,
+        progress: 0
     },
     {
         id: 6,
@@ -104,7 +114,9 @@ const deliveryOrders = [
             { name: "Gaseosa 1L", quantity: 1, price: "S/ 4.50" },
             { name: "Papas Fritas", quantity: 1, price: "S/ 5.00" }
         ],
-        coordinates: { lat: -14.066, lng: -75.735 }
+        coordinates: { lat: -14.066, lng: -75.735 },
+        driverPosition: { lat: -14.067, lng: -75.733 },
+        progress: 60
     }
 ];
 
@@ -113,12 +125,21 @@ let map;
 let currentMarkers = [];
 let currentOrderId = null;
 let restaurantMarker;
+let driverMarker;
+let driverInterval;
+let routeLine;
+let driverPosition;
+let driverTarget;
+let currentOrder;
 
 // Inicializar la aplicación
 document.addEventListener('DOMContentLoaded', function () {
     renderDeliveryList();
     setupEventListeners();
     updateStats();
+
+    // Iniciar simulación de movimiento para pedidos en progreso
+    startAllDriverSimulations();
 });
 
 // Renderizar la lista de pedidos
@@ -150,6 +171,19 @@ function renderDeliveryList(filter = 'all') {
                     </div>`
         ).join('');
 
+        // Barra de progreso para pedidos en camino
+        const progressBar = order.status === 'in-progress' ?
+            `<div class="progress-container mt-2">
+                        <div class="d-flex justify-content-between mb-1">
+                            <small>Restaurante</small>
+                            <small>${order.progress}%</small>
+                            <small>Destino</small>
+                        </div>
+                        <div class="progress" style="height: 6px;">
+                            <div class="progress-bar" role="progressbar" style="width: ${order.progress}%"></div>
+                        </div>
+                    </div>` : '';
+
         return `
                     <div class="card delivery-card mb-3 ${order.status === 'delivered' ? 'entregado' : ''}" data-order-id="${order.id}">
                         <div class="card-body">
@@ -167,6 +201,7 @@ function renderDeliveryList(filter = 'all') {
                                         <i class="bi bi-telephone-fill me-1"></i>${order.phone}
                                     </p>
                                     <span class="location-badge">${order.district}</span>
+                                    ${progressBar}
                                     <div class="order-items mt-3">
                                         ${itemsList}
                                     </div>
@@ -259,6 +294,7 @@ function showMapModal(orderId) {
     if (!order) return;
 
     currentOrderId = orderId;
+    currentOrder = order;
 
     // Actualizar información del modal
     document.getElementById('modalOrderNumber').textContent = order.orderNumber;
@@ -268,12 +304,17 @@ function showMapModal(orderId) {
     document.getElementById('modalOrderTotal').textContent = order.total;
     document.getElementById('modalOrderTime').textContent = `Orden: ${order.orderTime}`;
 
+    // Actualizar barra de progreso
+    document.getElementById('deliveryProgress').style.width = `${order.progress}%`;
+    document.getElementById('progressPercentage').textContent = `${order.progress}%`;
+
     // Inicializar mapa si no existe
     if (!map) {
         initMap();
     } else {
         // Limpiar marcadores existentes
         clearMarkers();
+        clearDriverSimulation();
     }
 
     // Agregar marcador para la pollería (restaurante)
@@ -287,6 +328,15 @@ function showMapModal(orderId) {
 
     // Calcular y mostrar información de ruta
     calculateRouteInfo(restaurantLocation, order.coordinates);
+
+    // Iniciar simulación del repartidor si el pedido está en camino
+    if (order.status === 'in-progress') {
+        startDriverSimulation(restaurantLocation, order.coordinates, order.progress);
+    } else if (order.status === 'pending') {
+        // Mostrar botón para iniciar entrega
+        document.getElementById('routeStatus').textContent = 'Pendiente';
+        document.getElementById('routeStatus').className = 'badge bg-warning';
+    }
 
     // Mostrar modal
     const mapModal = new bootstrap.Modal(document.getElementById('mapModal'));
@@ -377,6 +427,178 @@ function calculateRouteInfo(start, end) {
     document.getElementById('routeTime').textContent = timeMinutes + ' min';
 }
 
+// Iniciar simulación del repartidor en movimiento
+function startDriverSimulation(start, end, initialProgress = 0) {
+    // Limpiar simulación anterior si existe
+    clearDriverSimulation();
+
+    // Calcular posición inicial basada en el progreso
+    const progressFactor = initialProgress / 100;
+    driverPosition = {
+        lat: start.lat + (end.lat - start.lat) * progressFactor,
+        lng: start.lng + (end.lng - start.lng) * progressFactor
+    };
+
+    // Destino del repartidor
+    driverTarget = end;
+
+    // Crear marcador del repartidor
+    driverMarker = L.marker([driverPosition.lat, driverPosition.lng])
+        .addTo(map);
+
+    // Icono personalizado para el repartidor
+    driverMarker.setIcon(
+        L.divIcon({
+            html: '<div class="driver-marker"></div>',
+            iconSize: [20, 20],
+            className: 'driver-marker-icon'
+        })
+    );
+
+    // Crear línea de ruta
+    routeLine = L.polyline([start, driverPosition, end], {
+        color: '#d32f2f',
+        weight: 4,
+        opacity: 0.7,
+        dashArray: '10'
+    }).addTo(map);
+
+    // Iniciar intervalo para mover al repartidor
+    driverInterval = setInterval(() => moveDriver(start, end), 1000);
+}
+
+// Mover al repartidor hacia el destino
+function moveDriver(start, end) {
+    if (!driverPosition || !driverTarget || !currentOrder) return;
+
+    // Calcular dirección hacia el destino
+    const latDiff = driverTarget.lat - driverPosition.lat;
+    const lngDiff = driverTarget.lng - driverPosition.lng;
+
+    // Mover un pequeño paso hacia el destino
+    const stepSize = 0.0001; // Ajustar para controlar la velocidad
+    driverPosition.lat += latDiff * stepSize;
+    driverPosition.lng += lngDiff * stepSize;
+
+    // Actualizar posición del marcador
+    driverMarker.setLatLng([driverPosition.lat, driverPosition.lng]);
+
+    // Actualizar línea de ruta
+    routeLine.setLatLngs([restaurantLocation, driverPosition, driverTarget]);
+
+    // Calcular progreso actual
+    const totalLatDiff = end.lat - start.lat;
+    const totalLngDiff = end.lng - start.lng;
+    const currentLatDiff = driverPosition.lat - start.lat;
+    const currentLngDiff = driverPosition.lng - start.lng;
+
+    const progress = Math.min(100, Math.max(0,
+        Math.sqrt(Math.pow(currentLatDiff, 2) + Math.pow(currentLngDiff, 2)) /
+        Math.sqrt(Math.pow(totalLatDiff, 2) + Math.pow(totalLngDiff, 2)) * 100
+    ));
+
+    // Actualizar progreso en el pedido actual
+    currentOrder.progress = Math.round(progress);
+    currentOrder.driverPosition = { ...driverPosition };
+
+    // Actualizar UI
+    document.getElementById('deliveryProgress').style.width = `${progress}%`;
+    document.getElementById('progressPercentage').textContent = `${Math.round(progress)}%`;
+
+    // Verificar si el repartidor ha llegado cerca del destino
+    const distanceToTarget = Math.sqrt(
+        Math.pow(driverTarget.lat - driverPosition.lat, 2) +
+        Math.pow(driverTarget.lng - driverPosition.lng, 2)
+    );
+
+    if (distanceToTarget < 0.0005) { // Umbral de llegada
+        clearInterval(driverInterval);
+        document.getElementById('routeStatus').textContent = 'Llegando';
+        document.getElementById('routeStatus').className = 'badge bg-success';
+
+        // Cambiar estilo del marcador del repartidor
+        driverMarker.setIcon(
+            L.divIcon({
+                html: '<div class="driver-marker driver-arrived"></div>',
+                iconSize: [20, 20],
+                className: 'driver-marker-icon'
+            })
+        );
+
+        // Actualizar estado del pedido
+        currentOrder.progress = 100;
+    }
+
+    // Actualizar la lista de pedidos si está visible
+    const activeFilter = document.querySelector('.filter-buttons .btn.active').getAttribute('data-filter');
+    renderDeliveryList(activeFilter);
+}
+
+// Iniciar todas las simulaciones de repartidores
+function startAllDriverSimulations() {
+    deliveryOrders.forEach(order => {
+        if (order.status === 'in-progress' && order.progress < 100) {
+            // Simular movimiento progresivo
+            const interval = setInterval(() => {
+                const orderIndex = deliveryOrders.findIndex(o => o.id === order.id);
+                if (orderIndex === -1 || deliveryOrders[orderIndex].status !== 'in-progress' || deliveryOrders[orderIndex].progress >= 100) {
+                    clearInterval(interval);
+                    return;
+                }
+
+                // Incrementar progreso
+                deliveryOrders[orderIndex].progress += 1;
+
+                // Actualizar posición del repartidor
+                if (!deliveryOrders[orderIndex].driverPosition) {
+                    deliveryOrders[orderIndex].driverPosition = { ...restaurantLocation };
+                }
+
+                const start = restaurantLocation;
+                const end = deliveryOrders[orderIndex].coordinates;
+                const progressFactor = deliveryOrders[orderIndex].progress / 100;
+
+                deliveryOrders[orderIndex].driverPosition = {
+                    lat: start.lat + (end.lat - start.lat) * progressFactor,
+                    lng: start.lng + (end.lng - start.lng) * progressFactor
+                };
+
+                // Si llegó al 100%, marcar como listo para entrega
+                if (deliveryOrders[orderIndex].progress >= 100) {
+                    clearInterval(interval);
+                }
+
+                // Actualizar UI si el filtro actual muestra este pedido
+                const activeFilter = document.querySelector('.filter-buttons .btn.active').getAttribute('data-filter');
+                if (activeFilter === 'all' || activeFilter === 'in-progress') {
+                    renderDeliveryList(activeFilter);
+                }
+            }, 3000); // Actualizar cada 3 segundos
+        }
+    });
+}
+
+// Limpiar simulación del repartidor
+function clearDriverSimulation() {
+    if (driverInterval) {
+        clearInterval(driverInterval);
+        driverInterval = null;
+    }
+
+    if (driverMarker) {
+        map.removeLayer(driverMarker);
+        driverMarker = null;
+    }
+
+    if (routeLine) {
+        map.removeLayer(routeLine);
+        routeLine = null;
+    }
+
+    driverPosition = null;
+    driverTarget = null;
+}
+
 // Limpiar marcadores
 function clearMarkers() {
     currentMarkers.forEach(marker => {
@@ -388,6 +610,8 @@ function clearMarkers() {
         map.removeLayer(restaurantMarker);
         restaurantMarker = null;
     }
+
+    clearDriverSimulation();
 }
 
 // Marcar pedido como entregado
@@ -397,6 +621,7 @@ function markAsDelivered(orderId) {
 
     // Actualizar estado del pedido
     deliveryOrders[orderIndex].status = 'delivered';
+    deliveryOrders[orderIndex].progress = 100;
 
     // Encontrar el elemento del pedido en el DOM
     const orderElement = document.querySelector(`.delivery-card[data-order-id="${orderId}"]`);

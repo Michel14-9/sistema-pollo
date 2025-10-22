@@ -200,7 +200,7 @@ function handleOrderCancellation() {
 
     setTimeout(() => {
         lockInterfaceAfterCancellation();
-        alert(`✅ Pedido ${orderNumber} CANCELADO. Razón: ${reason || 'No especificada'}. El sistema ha revertido la orden.`);
+        alert(`Pedido ${orderNumber} CANCELADO. Razón: ${reason || 'No especificada'}. El sistema ha revertido la orden.`);
         const cancelOrderModal = bootstrap.Modal.getInstance(document.getElementById('cancelOrderModal'));
         cancelOrderModal.hide();
         btnConfirmCancel.disabled = false;
@@ -382,7 +382,7 @@ function handleSendWhatsappReceipt() {
     }
     document.getElementById('phoneNumberInput').classList.remove('is-invalid');
 
-    alert(`✅ Comprobante de la Orden ${orderNumber} enviado exitosamente por WhatsApp al número: ${phoneNumber}`);
+    alert(`Comprobante de la Orden ${orderNumber} enviado exitosamente por WhatsApp al número: ${phoneNumber}`);
 }
 
 // Wrapper para verificar si el pedido está cancelado
@@ -489,13 +489,13 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        alert(`✅ Caja suspendida por ${tiempo} minutos.\nMotivo: ${motivo}`);
-        document.querySelector('.estado').textContent = '⏸️ Caja #4 - Suspendida';
+        alert(`Caja suspendida por ${tiempo} minutos.\nMotivo: ${motivo}`);
+        document.querySelector('.estado').textContent = 'Caja #4 - Suspendida';
         cerrarModal('modalSuspender');
     });
 
     document.getElementById('confirmarCorte').addEventListener('click', function () {
-        alert('✅ Corte parcial impreso correctamente.\nEl reporte ha sido guardado en el sistema.');
+        alert('Corte parcial impreso correctamente.\nEl reporte ha sido guardado en el sistema.');
         cerrarModal('modalCorte');
     });
 
@@ -508,8 +508,8 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        alert('✅ Caja cerrada correctamente.\nEl reporte de cierre ha sido generado.');
-        document.querySelector('.estado').textContent = '🔒 Caja #4 - Cerrada';
+        alert('Caja cerrada correctamente.\nEl reporte de cierre ha sido generado.');
+        document.querySelector('.estado').textContent = 'Caja #4 - Cerrada';
         cerrarModal('modalCierre');
     });
 
@@ -522,7 +522,7 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        alert('✅ Devolución procesada correctamente.\nEl reembolso ha sido aplicado.');
+        alert('Devolución procesada correctamente.\nEl reembolso ha sido aplicado.');
         cerrarModal('modalDevolucion');
     });
 
@@ -535,7 +535,7 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        alert('✅ Solicitud de ayuda enviada.\nEl personal de soporte se contactará pronto.');
+        alert('Solicitud de ayuda enviada.\nEl personal de soporte se contactará pronto.');
         cerrarModal('modalAyuda');
     });
 

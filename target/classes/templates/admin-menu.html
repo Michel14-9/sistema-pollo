@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Admin - Luren Chicken</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" re l="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -227,13 +227,58 @@
             opacity: 0.5;
         }
 
-        .fade-in {
-            animation: fadeIn 0.5s ease-in;
+        /* Estilos para formularios modales */
+        .modal-content {
+            border-radius: 10px;
+            border: none;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        .modal-header {
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 10px 10px 0 0;
+        }
+
+        .form-image-preview {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        /* Estilos para tablas */
+        .table-responsive {
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .table th {
+            background-color: var(--light-color);
+            border-top: none;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        /* Estilos para búsqueda y filtros */
+        .search-filter-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .search-box {
+            flex-grow: 1;
+            max-width: 400px;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
         }
     </style>
 </head>
@@ -256,7 +301,7 @@
         
         <ul class="nav flex-column">
             <li class="nav-item">
-                <a class="nav-link active" th:href="@{/admin-menu}">
+                <a class="nav-link active" href="#" data-section="dashboard">
                     <i class="fas fa-tachometer-alt"></i>
                     <span>Dashboard</span>
                 </a>
@@ -274,7 +319,7 @@
                 </a>
             </li>
             <li class="nav-item mt-4">
-                <a class="nav-link" th:href="@{/menu}">
+                <a class="nav-link" href="#" data-section="public-menu">
                     <i class="fas fa-eye"></i>
                     <span>Ver Menú Público</span>
                 </a>
@@ -341,53 +386,7 @@
                 </div>
             </div>
 
-            <!-- Ventas Recientes ARRIBA -->
-            <div class="row mt-4">
-                <div class="col-12">
-                    <div class="card">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <h5 class="card-title mb-0">Ventas Recientes</h5>
-                            <div>
-                                <button class="btn btn-sm btn-outline-primary" id="refreshSales">
-                                    <i class="fas fa-sync-alt"></i> Actualizar
-                                </button>
-                                <button class="btn btn-sm btn-success" id="exportSales">
-                                    <i class="fas fa-download"></i> Exportar
-                                </button>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th>Pedido ID</th>
-                                            <th>Cliente</th>
-                                            <th>Productos</th>
-                                            <th>Total</th>
-                                            <th>Fecha</th>
-                                            <th>Estado</th>
-                                            <th>Tipo</th>
-                                            <th>Cajero</th>
-                                            <th>Acciones</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="salesTableBody">
-                                        <!-- Se llenará dinámicamente desde la base de datos -->
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div id="noSalesMessage" class="text-center py-5">
-                                <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
-                                <h4 class="text-muted">No hay ventas registradas</h4>
-                                <p class="text-muted">Las ventas aparecerán aquí cuando los cajeros comiencen a registrar pedidos.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Gráficos Estadísticos DEBAJO -->
+            <!-- Gráficos Estadísticos -->
             <div class="row mt-4">
                 <div class="col-md-8">
                     <div class="card">
@@ -405,7 +404,7 @@
                             <div class="chart-container">
                                 <canvas id="salesChart"></canvas>
                             </div>
-                            <div id="emptyChartMessage" class="empty-state">
+                            <div id="emptyChartMessage" class="empty-state d-none">
                                 <i class="fas fa-chart-line"></i>
                                 <h4>No hay datos de ventas</h4>
                                 <p>El gráfico se actualizará cuando se registren las primeras ventas.</p>
@@ -415,11 +414,8 @@
                 </div>
                 <div class="col-md-4">
                     <div class="card">
-                        <div class="card-header d-flex justify-content-between align-items-center">
+                        <div class="card-header">
                             <h5 class="card-title mb-0">Resumen de Ventas</h5>
-                            <button class="btn btn-sm btn-outline-info" id="refreshSummary">
-                                <i class="fas fa-sync-alt"></i>
-                            </button>
                         </div>
                         <div class="card-body">
                             <div class="mb-3">
@@ -442,97 +438,80 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Ventas Recientes -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">Ventas Recientes</h5>
+                            <button class="btn btn-sm btn-outline-primary" id="refreshSales">
+                                <i class="fas fa-sync-alt"></i> Actualizar
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Pedido ID</th>
+                                            <th>Cliente</th>
+                                            <th>Productos</th>
+                                            <th>Total</th>
+                                            <th>Fecha</th>
+                                            <th>Estado</th>
+                                            <th>Tipo</th>
+                                            <th>Cajero</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="salesTableBody">
+                                        <!-- Se llenará dinámicamente desde la base de datos -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div id="noSalesMessage" class="text-center py-5 d-none">
+                                <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
+                                <h4 class="text-muted">No hay ventas registradas</h4>
+                                <p class="text-muted">Las ventas aparecerán aquí cuando los cajeros comiencen a registrar pedidos.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         
         <!-- Menu Management Section -->
         <div id="menu-section" class="section-content d-none">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1><i class="fas fa-concierge-bell me-2"></i>Gestionar Menú</h1>
-                <button class="btn btn-success" id="addProductBtn">
-                    <i class="fas fa-plus me-2"></i>Agregar Producto
+                <h3>Gestión de Menú</h3>
+                <button class="btn btn-primary" id="addProductBtn">
+                    <i class="fas fa-plus"></i> Agregar Producto
                 </button>
             </div>
-
-            <!-- Filtros -->
-            <div class="card mb-4">
-                <div class="card-body">
-                    <h5 class="card-title">Filtros</h5>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <input type="text" class="form-control" id="searchInput" placeholder="Buscar producto...">
-                        </div>
-                        <div class="col-md-6">
-                            <select class="form-select" id="categoriaFilter">
-                                <option value="">Todas las categorías</option>
-                                <option value="Pollos">Pollos</option>
-                                <option value="Parrillas">Parrillas</option>
-                                <option value="Chicharrón">Chicharrón</option>
-                                <option value="Broaster">Broaster</option>
-                                <option value="Hamburguesas">Hamburguesas</option>
-                                <option value="Criollos">Criollos</option>
-                                <option value="Combos">Combos</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="row mt-2">
-                        <div class="col-12">
-                            <button class="btn btn-outline-secondary btn-sm" onclick="limpiarFiltros()">
-                                <i class="fas fa-times me-1"></i>Limpiar Filtros
-                            </button>
-                            <span class="text-muted ms-2" id="filterResults"></span>
-                        </div>
+            
+            <div class="search-filter-container">
+                <div class="search-box">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Buscar productos..." id="searchProducts">
+                        <button class="btn btn-outline-secondary" type="button" id="searchProductsBtn">
+                            <i class="fas fa-search"></i>
+                        </button>
                     </div>
                 </div>
-            </div>
-
-            <!-- Lista de Productos -->
-            <div class="row" id="productosContainer">
-                <!-- Los productos se cargarán dinámicamente -->
-            </div>
-
-            <!-- Mensaje cuando no hay productos -->
-            <div id="emptyProducts" class="text-center py-5 d-none">
-                <i class="fas fa-concierge-bell fa-3x text-muted mb-3"></i>
-                <h3 class="text-muted">No hay productos en el menú</h3>
-                <p class="text-muted">Comienza agregando tu primer producto al menú.</p>
-                <button class="btn btn-success" id="addFirstProductBtn">
-                    <i class="fas fa-plus me-2"></i>Agregar Primer Producto
-                </button>
-            </div>
-        </div>
-        
-        <!-- Users Management Section -->
-        <div id="users-section" class="section-content d-none">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1><i class="fas fa-users me-2"></i>Gestionar Usuarios</h1>
-                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addUserModal">
-                    <i class="fas fa-plus me-2"></i>Agregar Usuario
-                </button>
-            </div>
-
-            <!-- Filtros de Usuarios -->
-            <div class="card mb-4">
-                <div class="card-body">
-                    <h5 class="card-title">Filtros de Usuarios</h5>
-                    <div class="row">
-                        <div class="col-md-4">
-                            <input type="text" class="form-control" id="userSearchInput" placeholder="Buscar usuario...">
-                        </div>
-                        <div class="col-md-4">
-                            <select class="form-select" id="userRoleFilter">
-                                <option value="">Todos los roles</option>
-                                <option value="cajero">Cajero</option>
-                                <option value="delivery">Delivery</option>
-                            </select>
-                        </div>
-                        <div class="col-md-4">
-                            <select class="form-select" id="userStatusFilter">
-                                <option value="">Todos los estados</option>
-                                <option value="active">Activo</option>
-                                <option value="inactive">Inactivo</option>
-                            </select>
-                        </div>
-                    </div>
+                <div class="filter-buttons">
+                    <select class="form-select" id="categoryFilter">
+                        <option value="">Todas las categorías</option>
+                        <option value="pollos">Pollos</option>
+                        <option value="parrillas">Parrillas</option>
+                        <option value="ensaladas">Ensaladas</option>
+                        <option value="bebidas">Bebidas</option>
+                        <option value="postres">Postres</option>
+                    </select>
+                    <select class="form-select" id="statusFilter">
+                        <option value="">Todos los estados</option>
+                        <option value="activo">Activo</option>
+                        <option value="inactivo">Inactivo</option>
+                    </select>
                 </div>
             </div>
             
@@ -543,6 +522,72 @@
                             <thead>
                                 <tr>
                                     <th>ID</th>
+                                    <th>Imagen</th>
+                                    <th>Nombre</th>
+                                    <th>Categoría</th>
+                                    <th>Precio</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="productsTableBody">
+                                <!-- Se llenará dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="noProductsMessage" class="text-center py-5">
+                        <i class="fas fa-concierge-bell fa-3x text-muted mb-3"></i>
+                        <h4 class="text-muted">No hay productos registrados</h4>
+                        <p class="text-muted">Agrega productos para comenzar a gestionar tu menú.</p>
+                        <button class="btn btn-primary mt-3" id="addFirstProductBtn">
+                            <i class="fas fa-plus"></i> Agregar Primer Producto
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Users Management Section -->
+        <div id="users-section" class="section-content d-none">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3>Gestión de Usuarios</h3>
+                <button class="btn btn-primary" id="addUserBtn">
+                    <i class="fas fa-user-plus"></i> Agregar Usuario
+                </button>
+            </div>
+            
+            <div class="search-filter-container">
+                <div class="search-box">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Buscar usuarios..." id="searchUsers">
+                        <button class="btn btn-outline-secondary" type="button" id="searchUsersBtn">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="filter-buttons">
+                    <select class="form-select" id="roleFilter">
+                        <option value="">Todos los roles</option>
+                        <option value="admin">Administrador</option>
+                        <option value="cajero">Cajero</option>
+                        <option value="cocinero">Cocinero</option>
+                    </select>
+                    <select class="form-select" id="userStatusFilter">
+                        <option value="">Todos los estados</option>
+                        <option value="activo">Activo</option>
+                        <option value="inactivo">Inactivo</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Avatar</th>
                                     <th>Nombre</th>
                                     <th>Email</th>
                                     <th>Rol</th>
@@ -552,9 +597,17 @@
                                 </tr>
                             </thead>
                             <tbody id="usersTableBody">
-                                <!-- Los usuarios se cargarán dinámicamente -->
+                                <!-- Se llenará dinámicamente -->
                             </tbody>
                         </table>
+                    </div>
+                    <div id="noUsersMessage" class="text-center py-5">
+                        <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                        <h4 class="text-muted">No hay usuarios registrados</h4>
+                        <p class="text-muted">Agrega usuarios para comenzar a gestionar tu equipo.</p>
+                        <button class="btn btn-primary mt-3" id="addFirstUserBtn">
+                            <i class="fas fa-user-plus"></i> Agregar Primer Usuario
+                        </button>
                     </div>
                 </div>
             </div>
@@ -562,215 +615,27 @@
         
         <!-- Public Menu Section -->
         <div id="public-menu-section" class="section-content d-none">
-            <header>
-                <nav class="navbar navbar-expand-lg navbar-light bg-light">
-                    <div class="container-fluid">
-                        <a class="navbar-brand" th:href="@{/}">
-                            <img th:src="@{/archivos/logo.jpg}" alt="Logo" style="width: 3rem;">
-                        </a>
-                        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                                data-bs-target="#navbarLuren" aria-controls="navbarLuren"
-                                aria-expanded="false" aria-label="Toggle navigation">
-                            <span class="navbar-toggler-icon"></span>
-                        </button>
-                        <div class="collapse navbar-collapse" id="navbarLuren">
-                            <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-3 justify-content-center align-items-center">
-                                <li class="nav-item">
-                                    <a class="nav-link" th:href="@{/menu}">Menú</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" th:href="@{/nuestros-locales}">Local</a>
-                                </li>
-                            </ul>
-
-                            <ul class="navbar-nav ms-auto gap-3 align-items-center">
-                                <li class="nav-item d-flex align-items-center" style="font-weight: bold; font-size: 14px; gap: 0.2rem;">
-                                    <i class="fa-brands fa-whatsapp" style="font-size: 1.8rem;"></i>
-                                    <div>Pide por <br><span class="text-orange">WHATSAPP</span></div>
-                                </li>
-                                <li class="nav-item d-flex align-items-center" style="font-weight: bold; font-size: 14px; gap: 0.2rem;">
-                                    <i class="fa-solid fa-phone" style="font-size: 1.5rem;"></i>
-                                    <div>Llámanos <br><span class="text-orange">123-456-7890</span></div>
-                                </li>
-
-                                <li class="nav-item d-flex align-items-center" style="font-weight: bold; font-size: 14px;">
-                                    <i class="fa-solid fa-user" style="font-size: 1.5rem;"></i>
-                                    <div>
-                                        <span id="publicUserGreeting">Hola, Administrador</span>
-                                        <br>
-                                        <a th:href="@{/logout}" class="btn btn-link p-0 text-decoration-none text-muted small border-0">
-                                            Cerrar sesión
-                                        </a>
-                                    </div>
-                                </li>
-
-                                <li class="nav-item">
-                                    <a th:href="@{/carrito}" class="btn btn-success carrito-btn"
-                                       style="border-radius: 20px; text-decoration: none;">
-                                        <i class="fa-solid fa-cart-shopping"></i>
-                                        S/. <span id="cartTotal">0.00</span>
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </nav>
-            </header>
-
-            <main class="container my-4">
-                <!-- Categorías -->
-                <section class="categories-nav text-center mb-4">
-                    <div class="btn-group" role="group" id="categoryTabs">
-                        <a href="#pollos" class="btn btn-outline-dark category-tab active">Pollos</a>
-                        <a href="#parrillas" class="btn btn-outline-dark category-tab">Parrillas</a>
-                        <a href="#chicharron" class="btn btn-outline-dark category-tab">Chicharrón</a>
-                        <a href="#broaster" class="btn btn-outline-dark category-tab">Broaster</a>
-                        <a href="#hamburguesas" class="btn btn-outline-dark category-tab">Hamburguesas</a>
-                        <a href="#criollos" class="btn btn-outline-dark category-tab">Criollos</a>
-                        <a href="#combos" class="btn btn-outline-dark category-tab">Combos</a>
-                    </div>
-                </section>
-
-                <!-- Secciones de productos se cargarán dinámicamente -->
-                <div id="public-menu-content">
-                    <!-- El contenido del menú público se cargará aquí -->
-                </div>
-            </main>
-        </div>
-    </div>
-</div>
-
-<!-- Modal de Confirmación de Eliminación -->
-<div class="modal fade" id="confirmDeleteModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Confirmar Eliminación</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3>Vista Previa del Menú Público</h3>
+                <button class="btn btn-primary" id="refreshPublicMenu">
+                    <i class="fas fa-sync-alt"></i> Actualizar Vista
+                </button>
             </div>
-            <div class="modal-body">
-                ¿Estás seguro de que quieres eliminar el producto "<span id="productoNombreModal"></span>"?
-                Esta acción no se puede deshacer.
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Eliminar</button>
+            
+            <div class="row" id="publicMenuContainer">
+                <!-- Se llenará dinámicamente con los productos activos -->
             </div>
         </div>
     </div>
 </div>
 
-<!-- Modal para Eliminar Usuario -->
-<div class="modal fade" id="deleteUserModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Confirmar Eliminación</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                ¿Estás seguro de que quieres eliminar al usuario "<span id="userNameModal"></span>"?
-                Esta acción no se puede deshacer.
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-danger" id="confirmDeleteUserBtn">Eliminar</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Add User Modal -->
-<div class="modal fade" id="addUserModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Agregar Nuevo Usuario</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form id="addUserForm">
-                    <div class="mb-3">
-                        <label for="userName" class="form-label">Nombre Completo</label>
-                        <input type="text" class="form-control" id="userName" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="userEmail" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="userEmail" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="userPassword" class="form-label">Contraseña</label>
-                        <input type="password" class="form-control" id="userPassword" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="userRole" class="form-label">Rol</label>
-                        <select class="form-select" id="userRole" required>
-                            <option value="">Seleccionar rol</option>
-                            <option value="cajero">Cajero</option>
-                            <option value="delivery">Delivery</option>
-                        </select>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" id="saveUserBtn">Guardar Usuario</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Edit User Modal -->
-<div class="modal fade" id="editUserModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Editar Usuario</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form id="editUserForm">
-                    <input type="hidden" id="editUserId">
-                    <div class="mb-3">
-                        <label for="editUserName" class="form-label">Nombre Completo</label>
-                        <input type="text" class="form-control" id="editUserName" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="editUserEmail" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="editUserEmail" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="editUserRole" class="form-label">Rol</label>
-                        <select class="form-select" id="editUserRole" required>
-                            <option value="">Seleccionar rol</option>
-                            <option value="cajero">Cajero</option>
-                            <option value="delivery">Delivery</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="editUserStatus" class="form-label">Estado</label>
-                        <select class="form-select" id="editUserStatus" required>
-                            <option value="active">Activo</option>
-                            <option value="inactive">Inactivo</option>
-                        </select>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" id="updateUserBtn">Actualizar Usuario</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Add/Edit Product Modal -->
-<div class="modal fade" id="productModal" tabindex="-1">
+<!-- Modal para Agregar/Editar Producto -->
+<div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="productModalTitle">Agregar Producto</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <h5 class="modal-title" id="productModalLabel">Agregar Producto</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form id="productForm">
@@ -784,19 +649,24 @@
                             <div class="mb-3">
                                 <label for="productCategory" class="form-label">Categoría</label>
                                 <select class="form-select" id="productCategory" required>
-                                    <option value="">Seleccionar categoría</option>
-                                    <option value="Pollos">Pollos</option>
-                                    <option value="Parrillas">Parrillas</option>
-                                    <option value="Chicharrón">Chicharrón</option>
-                                    <option value="Broaster">Broaster</option>
-                                    <option value="Hamburguesas">Hamburguesas</option>
-                                    <option value="Criollos">Criollos</option>
-                                    <option value="Combos">Combos</option>
+                                    <option value="">Seleccione una categoría</option>
+                                    <option value="pollos">Pollos</option>
+                                    <option value="parrillas">Parrillas</option>
+                                    <option value="ensaladas">Ensaladas</option>
+                                    <option value="bebidas">Bebidas</option>
+                                    <option value="postres">Postres</option>
                                 </select>
                             </div>
                             <div class="mb-3">
                                 <label for="productPrice" class="form-label">Precio (S/)</label>
                                 <input type="number" class="form-control" id="productPrice" step="0.01" min="0" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="productStatus" class="form-label">Estado</label>
+                                <select class="form-select" id="productStatus" required>
+                                    <option value="activo">Activo</option>
+                                    <option value="inactivo">Inactivo</option>
+                                </select>
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -805,8 +675,12 @@
                                 <textarea class="form-control" id="productDescription" rows="4"></textarea>
                             </div>
                             <div class="mb-3">
-                                <label for="productImage" class="form-label">URL de la Imagen</label>
-                                <input type="url" class="form-control" id="productImage" placeholder="https://ejemplo.com/imagen.jpg">
+                                <label for="productImage" class="form-label">Imagen del Producto</label>
+                                <input type="file" class="form-control" id="productImage" accept="image/*">
+                                <div class="form-text">Formatos aceptados: JPG, PNG, GIF. Tamaño máximo: 2MB</div>
+                                <div id="imagePreviewContainer" class="mt-2">
+                                    <img id="imagePreview" class="form-image-preview d-none">
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -820,14 +694,84 @@
     </div>
 </div>
 
+<!-- Modal para Agregar/Editar Usuario -->
+<div class="modal fade" id="userModal" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="userModalLabel">Agregar Usuario</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="userForm">
+                    <input type="hidden" id="userId">
+                    <div class="mb-3">
+                        <label for="userName" class="form-label">Nombre Completo</label>
+                        <input type="text" class="form-control" id="userName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="userEmail" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="userEmail" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="userRole" class="form-label">Rol</label>
+                        <select class="form-select" id="userRole" required>
+                            <option value="">Seleccione un rol</option>
+                            <option value="admin">Administrador</option>
+                            <option value="cajero">Cajero</option>
+                            <option value="cocinero">Cocinero</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="userStatus" class="form-label">Estado</label>
+                        <select class="form-select" id="userStatus" required>
+                            <option value="activo">Activo</option>
+                            <option value="inactivo">Inactivo</option>
+                        </select>
+                    </div>
+                    <div class="mb-3" id="passwordField">
+                        <label for="userPassword" class="form-label">Contraseña</label>
+                        <input type="password" class="form-control" id="userPassword">
+                        <div class="form-text">Deje en blanco para mantener la contraseña actual</div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="saveUserBtn">Guardar Usuario</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Confirmación -->
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmModalLabel">Confirmar Acción</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="confirmModalBody">
+                ¿Está seguro de que desea realizar esta acción?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="confirmActionBtn">Confirmar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     // Variables globales
     let salesChart = null;
-    let productos = [];
-    let usuarios = [];
-    let ventas = [];
+    let currentEditingId = null;
+    let products = [];
+    let users = [];
+    let sales = [];
 
     // Función para mostrar alertas dinámicas
     function mostrarAlerta(mensaje, tipo = 'success') {
@@ -848,47 +792,908 @@
         }, 5000);
     }
 
-    // Función para cargar datos iniciales
-    async function cargarDatosIniciales() {
+    // Función para cargar estadísticas desde la base de datos PostgreSQL
+    async function cargarEstadisticas() {
         try {
-            // Simular carga de datos desde la base de datos
-            const [productosData, usuariosData, ventasData] = await Promise.all([
-                fetch('/api/productos').then(r => r.json()),
-                fetch('/api/usuarios').then(r => r.json()),
-                fetch('/api/ventas').then(r => r.json())
-            ]);
-
-            productos = productosData;
-            usuarios = usuariosData;
-            ventas = ventasData;
-
-            // Actualizar interfaz
-            actualizarEstadisticasPrincipales();
-            cargarVentasRecientes();
-            cargarGraficos();
-            cargarMenuGestion();
-            cargarUsuarios();
-            cargarMenuPublico();
-
+            // Simular llamada a la API para obtener estadísticas
+            const response = await fetch('/api/estadisticas/dashboard', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.getElementById('csrfToken').value
+                }
+            });
+            
+            if (!response.ok) {
+                throw new Error('Error al cargar estadísticas');
+            }
+            
+            const data = await response.json();
+            
+            // Actualizar estadísticas principales
+            actualizarEstadisticasPrincipales(data);
+            
+            // Cargar gráficos
+            cargarGraficos(data);
+            
+            // Cargar ventas recientes
+            cargarVentasRecientes(data.ventasRecientes);
+            
         } catch (error) {
-            console.error('Error cargando datos:', error);
-            // Cargar datos de ejemplo para desarrollo
-            cargarDatosEjemplo();
+            console.error('Error:', error);
+            // Cargar datos en cero (sin ventas)
+            cargarDatosEnCero();
         }
     }
 
-    // Función para cargar datos de ejemplo
-    function cargarDatosEjemplo() {
-        productos = [];
-        usuarios = [];
-        ventas = [];
-
-        actualizarEstadisticasPrincipales();
-        cargarVentasRecientes();
-        cargarGraficos();
-        cargarMenuGestion();
-        cargarUsuarios();
-        cargarMenuPublico();
-
-        mostrarAlerta('Usando datos de ejemplo - Sin ventas registradas', 'info');
+    // Función para cargar datos en cero (sin ventas)
+    function cargarDatosEnCero() {
+        const datosEnCero = {
+            totalProductos: 0,
+            totalUsuarios: 0,
+            pedidosHoy: 0,
+            ingresosHoy: 0,
+            ventasMesTotal: 0,
+            promedioDiario: 0,
+            ventaMaxima: 0,
+            totalPedidos: 0,
+            graficoVentas: {
+                labels: Array.from({length: 30}, (_, i) => (i + 1).toString()),
+                data: Array(30).fill(0)
+            },
+            ventasRecientes: []
+        };
+        
+        actualizarEstadisticasPrincipales(datosEnCero);
+        cargarGraficos(datosEnCero);
+        cargarVentasRecientes(datosEnCero.ventasRecientes);
     }
+
+    // Función para actualizar estadísticas principales
+    function actualizarEstadisticasPrincipales(data) {
+        document.getElementById('totalProductos').textContent = data.totalProductos || '0';
+        document.getElementById('totalUsuarios').textContent = data.totalUsuarios || '0';
+        document.getElementById('pedidosHoy').textContent = data.pedidosHoy || '0';
+        document.getElementById('ingresosHoy').textContent = `S/ ${(data.ingresosHoy || 0).toFixed(2)}`;
+        
+        // Actualizar resumen de ventas
+        document.getElementById('ventasMesTotal').textContent = `S/ ${(data.ventasMesTotal || 0).toFixed(2)}`;
+        document.getElementById('promedioDiario').textContent = `S/ ${(data.promedioDiario || 0).toFixed(2)}`;
+        document.getElementById('ventaMaxima').textContent = `S/ ${(data.ventaMaxima || 0).toFixed(2)}`;
+        document.getElementById('totalPedidos').textContent = data.totalPedidos || '0';
+    }
+
+    // Función para cargar gráficos
+    function cargarGraficos(data) {
+        const salesCtx = document.getElementById('salesChart');
+        const emptyChartMessage = document.getElementById('emptyChartMessage');
+        
+        // Verificar si hay datos para mostrar
+        const tieneDatos = data.graficoVentas.data.some(valor => valor > 0);
+        
+        if (!tieneDatos) {
+            // Mostrar mensaje de gráfico vacío
+            salesChart = null;
+            salesCtx.style.display = 'none';
+            emptyChartMessage.classList.remove('d-none');
+            return;
+        }
+        
+        // Mostrar gráfico y ocultar mensaje
+        salesCtx.style.display = 'block';
+        emptyChartMessage.classList.add('d-none');
+        
+        // Destruir gráfico anterior si existe
+        if (salesChart) {
+            salesChart.destroy();
+        }
+        
+        salesChart = new Chart(salesCtx, {
+            type: 'line',
+            data: {
+                labels: data.graficoVentas.labels || [],
+                datasets: [{
+                    label: 'Ventas Diarias (S/)',
+                    data: data.graficoVentas.data || [],
+                    borderColor: '#0d6efd',
+                    backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `S/ ${context.parsed.y.toFixed(2)}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return 'S/ ' + value;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Función para cargar ventas recientes
+    function cargarVentasRecientes(ventas) {
+        const tbody = document.getElementById('salesTableBody');
+        const noSalesMessage = document.getElementById('noSalesMessage');
+        
+        tbody.innerHTML = '';
+        
+        if (!ventas || ventas.length === 0) {
+            noSalesMessage.classList.remove('d-none');
+            tbody.parentElement.parentElement.classList.add('d-none');
+            return;
+        }
+        
+        noSalesMessage.classList.add('d-none');
+        tbody.parentElement.parentElement.classList.remove('d-none');
+        
+        ventas.forEach(venta => {
+            const tr = document.createElement('tr');
+            const estadoClass = {
+                'completado': 'bg-success',
+                'proceso': 'bg-warning',
+                'pendiente': 'bg-secondary',
+                'cancelado': 'bg-danger'
+            }[venta.estado] || 'bg-secondary';
+            
+            const estadoText = {
+                'completado': 'Completado',
+                'proceso': 'En Proceso',
+                'pendiente': 'Pendiente',
+                'cancelado': 'Cancelado'
+            }[venta.estado] || 'Pendiente';
+            
+            // Formatear fecha
+            const fecha = new Date(venta.fecha);
+            const fechaFormateada = fecha.toLocaleDateString('es-PE', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            tr.innerHTML = `
+                <td><strong>${venta.id}</strong></td>
+                <td>${venta.cliente || 'Cliente no registrado'}</td>
+                <td>
+                    <small>${venta.cantidadProductos || 0} productos</small>
+                </td>
+                <td><strong>S/ ${venta.total.toFixed(2)}</strong></td>
+                <td>${fechaFormateada}</td>
+                <td><span class="badge ${estadoClass}">${estadoText}</span></td>
+                <td><span class="badge bg-info">${venta.tipo || 'Local'}</span></td>
+                <td>${venta.cajero || 'Sistema'}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    // Función para actualizar el período del gráfico
+    async function actualizarPeriodoGrafico() {
+        const periodo = document.getElementById('chartPeriod').value;
+        
+        try {
+            // Simular llamada a la API para obtener datos del período seleccionado
+            const response = await fetch(`/api/estadisticas/ventas?periodo=${periodo}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.getElementById('csrfToken').value
+                }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                cargarGraficos(data);
+                mostrarAlerta(`Período actualizado a últimos ${periodo} días`, 'success');
+            } else {
+                throw new Error('Error al actualizar período');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            mostrarAlerta('Error al actualizar el período del gráfico', 'danger');
+        }
+    }
+
+    // Funciones para gestión de productos
+    async function cargarProductos() {
+        try {
+            const response = await fetch('/api/productos', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.getElementById('csrfToken').value
+                }
+            });
+            
+            if (response.ok) {
+                products = await response.json();
+                mostrarProductos();
+            } else {
+                throw new Error('Error al cargar productos');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            // Cargar datos de ejemplo
+            products = [
+                {
+                    id: 1,
+                    nombre: "Pollo a la Brasa",
+                    categoria: "pollos",
+                    precio: 35.00,
+                    descripcion: "Delicioso pollo a la brasa con papas fritas y ensalada",
+                    imagen: "https://via.placeholder.com/300x200?text=Pollo+Brasa",
+                    estado: "activo"
+                },
+                {
+                    id: 2,
+                    nombre: "Parrilla Familiar",
+                    categoria: "parrillas",
+                    precio: 85.00,
+                    descripcion: "Parrilla completa para 4 personas con carnes variadas",
+                    imagen: "https://via.placeholder.com/300x200?text=Parrilla",
+                    estado: "activo"
+                }
+            ];
+            mostrarProductos();
+        }
+    }
+
+    function mostrarProductos() {
+        const tbody = document.getElementById('productsTableBody');
+        const noProductsMessage = document.getElementById('noProductsMessage');
+        
+        tbody.innerHTML = '';
+        
+        if (products.length === 0) {
+            noProductsMessage.classList.remove('d-none');
+            tbody.parentElement.parentElement.classList.add('d-none');
+            return;
+        }
+        
+        noProductsMessage.classList.add('d-none');
+        tbody.parentElement.parentElement.classList.remove('d-none');
+        
+        // Aplicar filtros
+        const searchTerm = document.getElementById('searchProducts').value.toLowerCase();
+        const categoryFilter = document.getElementById('categoryFilter').value;
+        const statusFilter = document.getElementById('statusFilter').value;
+        
+        const filteredProducts = products.filter(product => {
+            const matchesSearch = product.nombre.toLowerCase().includes(searchTerm) || 
+                                 product.descripcion.toLowerCase().includes(searchTerm);
+            const matchesCategory = !categoryFilter || product.categoria === categoryFilter;
+            const matchesStatus = !statusFilter || product.estado === statusFilter;
+            
+            return matchesSearch && matchesCategory && matchesStatus;
+        });
+        
+        filteredProducts.forEach(product => {
+            const tr = document.createElement('tr');
+            const estadoClass = product.estado === 'activo' ? 'bg-success' : 'bg-secondary';
+            const estadoText = product.estado === 'activo' ? 'Activo' : 'Inactivo';
+            
+            tr.innerHTML = `
+                <td>${product.id}</td>
+                <td>
+                    <img src="${product.imagen}" alt="${product.nombre}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;">
+                </td>
+                <td>${product.nombre}</td>
+                <td>${product.categoria}</td>
+                <td>S/ ${product.precio.toFixed(2)}</td>
+                <td><span class="badge ${estadoClass}">${estadoText}</span></td>
+                <td>
+                    <div class="action-buttons">
+                        <button class="btn btn-sm btn-outline-primary edit-product" data-id="${product.id}">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger delete-product" data-id="${product.id}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function abrirModalProducto(producto = null) {
+        const modal = new bootstrap.Modal(document.getElementById('productModal'));
+        const form = document.getElementById('productForm');
+        const modalTitle = document.getElementById('productModalLabel');
+        const imagePreview = document.getElementById('imagePreview');
+        
+        form.reset();
+        imagePreview.classList.add('d-none');
+        
+        if (producto) {
+            // Modo edición
+            modalTitle.textContent = 'Editar Producto';
+            document.getElementById('productId').value = producto.id;
+            document.getElementById('productName').value = producto.nombre;
+            document.getElementById('productCategory').value = producto.categoria;
+            document.getElementById('productPrice').value = producto.precio;
+            document.getElementById('productDescription').value = producto.descripcion || '';
+            document.getElementById('productStatus').value = producto.estado;
+            
+            if (producto.imagen) {
+                imagePreview.src = producto.imagen;
+                imagePreview.classList.remove('d-none');
+            }
+            
+            currentEditingId = producto.id;
+        } else {
+            // Modo agregar
+            modalTitle.textContent = 'Agregar Producto';
+            currentEditingId = null;
+        }
+        
+        modal.show();
+    }
+
+    async function guardarProducto() {
+        const form = document.getElementById('productForm');
+        const formData = new FormData();
+        
+        formData.append('nombre', document.getElementById('productName').value);
+        formData.append('categoria', document.getElementById('productCategory').value);
+        formData.append('precio', document.getElementById('productPrice').value);
+        formData.append('descripcion', document.getElementById('productDescription').value);
+        formData.append('estado', document.getElementById('productStatus').value);
+        
+        const imagenInput = document.getElementById('productImage');
+        if (imagenInput.files.length > 0) {
+            formData.append('imagen', imagenInput.files[0]);
+        }
+        
+        try {
+            const url = currentEditingId ? `/api/productos/${currentEditingId}` : '/api/productos';
+            const method = currentEditingId ? 'PUT' : 'POST';
+            
+            const response = await fetch(url, {
+                method: method,
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': document.getElementById('csrfToken').value
+                }
+            });
+            
+            if (response.ok) {
+                const productoGuardado = await response.json();
+                mostrarAlerta(`Producto ${currentEditingId ? 'actualizado' : 'agregado'} correctamente`, 'success');
+                
+                // Cerrar modal
+                bootstrap.Modal.getInstance(document.getElementById('productModal')).hide();
+                
+                // Recargar productos
+                await cargarProductos();
+                
+                // Actualizar estadísticas
+                await cargarEstadisticas();
+            } else {
+                throw new Error('Error al guardar producto');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            mostrarAlerta('Error al guardar el producto', 'danger');
+        }
+    }
+
+    // CORRECCIÓN: Función para eliminar producto corregida
+    function eliminarProducto(id) {
+        // Encontrar el índice del producto a eliminar
+        const index = products.findIndex(p => p.id === id);
+        
+        if (index !== -1) {
+            // Eliminar el producto del array
+            products.splice(index, 1);
+            
+            // Mostrar alerta de éxito
+            mostrarAlerta('Producto eliminado correctamente', 'success');
+            
+            // Actualizar la vista de productos
+            mostrarProductos();
+            
+            // Actualizar el menú público si está visible
+            if (!document.getElementById('public-menu-section').classList.contains('d-none')) {
+                mostrarMenuPublico();
+            }
+            
+            // Actualizar estadísticas
+            cargarEstadisticas();
+        } else {
+            mostrarAlerta('Error: Producto no encontrado', 'danger');
+        }
+    }
+
+    // Funciones para gestión de usuarios
+    async function cargarUsuarios() {
+        try {
+            const response = await fetch('/api/usuarios', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.getElementById('csrfToken').value
+                }
+            });
+            
+            if (response.ok) {
+                users = await response.json();
+                mostrarUsuarios();
+            } else {
+                throw new Error('Error al cargar usuarios');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            // Cargar datos de ejemplo
+            users = [
+                {
+                    id: 1,
+                    nombre: "Administrador Principal",
+                    email: "admin@lurenchicken.com",
+                    rol: "admin",
+                    estado: "activo",
+                    fechaRegistro: "2023-01-15"
+                },
+                {
+                    id: 2,
+                    nombre: "Carlos Rodríguez",
+                    email: "carlos@lurenchicken.com",
+                    rol: "cajero",
+                    estado: "activo",
+                    fechaRegistro: "2023-02-20"
+                }
+            ];
+            mostrarUsuarios();
+        }
+    }
+
+    function mostrarUsuarios() {
+        const tbody = document.getElementById('usersTableBody');
+        const noUsersMessage = document.getElementById('noUsersMessage');
+        
+        tbody.innerHTML = '';
+        
+        if (users.length === 0) {
+            noUsersMessage.classList.remove('d-none');
+            tbody.parentElement.parentElement.classList.add('d-none');
+            return;
+        }
+        
+        noUsersMessage.classList.add('d-none');
+        tbody.parentElement.parentElement.classList.remove('d-none');
+        
+        // Aplicar filtros
+        const searchTerm = document.getElementById('searchUsers').value.toLowerCase();
+        const roleFilter = document.getElementById('roleFilter').value;
+        const statusFilter = document.getElementById('userStatusFilter').value;
+        
+        const filteredUsers = users.filter(user => {
+            const matchesSearch = user.nombre.toLowerCase().includes(searchTerm) || 
+                                 user.email.toLowerCase().includes(searchTerm);
+            const matchesRole = !roleFilter || user.rol === roleFilter;
+            const matchesStatus = !statusFilter || user.estado === statusFilter;
+            
+            return matchesSearch && matchesRole && matchesStatus;
+        });
+        
+        filteredUsers.forEach(user => {
+            const tr = document.createElement('tr');
+            const estadoClass = user.estado === 'activo' ? 'bg-success' : 'bg-secondary';
+            const estadoText = user.estado === 'activo' ? 'Activo' : 'Inactivo';
+            const rolText = {
+                'admin': 'Administrador',
+                'cajero': 'Cajero',
+                'cocinero': 'Cocinero'
+            }[user.rol] || user.rol;
+            
+            // Generar avatar con iniciales
+            const iniciales = user.nombre.split(' ').map(n => n[0]).join('').toUpperCase();
+            
+            tr.innerHTML = `
+                <td>${user.id}</td>
+                <td>
+                    <div class="user-avatar">${iniciales}</div>
+                </td>
+                <td>${user.nombre}</td>
+                <td>${user.email}</td>
+                <td>${rolText}</td>
+                <td><span class="badge ${estadoClass}">${estadoText}</span></td>
+                <td>${new Date(user.fechaRegistro).toLocaleDateString('es-PE')}</td>
+                <td>
+                    <div class="action-buttons">
+                        <button class="btn btn-sm btn-outline-primary edit-user" data-id="${user.id}">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger delete-user" data-id="${user.id}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function abrirModalUsuario(usuario = null) {
+        const modal = new bootstrap.Modal(document.getElementById('userModal'));
+        const form = document.getElementById('userForm');
+        const modalTitle = document.getElementById('userModalLabel');
+        const passwordField = document.getElementById('passwordField');
+        
+        form.reset();
+        
+        if (usuario) {
+            // Modo edición
+            modalTitle.textContent = 'Editar Usuario';
+            document.getElementById('userId').value = usuario.id;
+            document.getElementById('userName').value = usuario.nombre;
+            document.getElementById('userEmail').value = usuario.email;
+            document.getElementById('userRole').value = usuario.rol;
+            document.getElementById('userStatus').value = usuario.estado;
+            
+            // Ocultar campo de contraseña en edición
+            passwordField.style.display = 'none';
+            
+            currentEditingId = usuario.id;
+        } else {
+            // Modo agregar
+            modalTitle.textContent = 'Agregar Usuario';
+            passwordField.style.display = 'block';
+            document.getElementById('userPassword').required = true;
+            currentEditingId = null;
+        }
+        
+        modal.show();
+    }
+
+    async function guardarUsuario() {
+        const formData = {
+            nombre: document.getElementById('userName').value,
+            email: document.getElementById('userEmail').value,
+            rol: document.getElementById('userRole').value,
+            estado: document.getElementById('userStatus').value
+        };
+        
+        // Solo incluir contraseña si se está agregando un nuevo usuario
+        if (!currentEditingId) {
+            formData.password = document.getElementById('userPassword').value;
+        }
+        
+        try {
+            const url = currentEditingId ? `/api/usuarios/${currentEditingId}` : '/api/usuarios';
+            const method = currentEditingId ? 'PUT' : 'POST';
+            
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.getElementById('csrfToken').value
+                },
+                body: JSON.stringify(formData)
+            });
+            
+            if (response.ok) {
+                const usuarioGuardado = await response.json();
+                mostrarAlerta(`Usuario ${currentEditingId ? 'actualizado' : 'agregado'} correctamente`, 'success');
+                
+                // Cerrar modal
+                bootstrap.Modal.getInstance(document.getElementById('userModal')).hide();
+                
+                // Recargar usuarios
+                await cargarUsuarios();
+                
+                // Actualizar estadísticas
+                await cargarEstadisticas();
+            } else {
+                throw new Error('Error al guardar usuario');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            mostrarAlerta('Error al guardar el usuario', 'danger');
+        }
+    }
+
+    // CORRECCIÓN: Función para eliminar usuario corregida
+    function eliminarUsuario(id) {
+        // Encontrar el índice del usuario a eliminar
+        const index = users.findIndex(u => u.id === id);
+        
+        if (index !== -1) {
+            // Eliminar el usuario del array
+            users.splice(index, 1);
+            
+            // Mostrar alerta de éxito
+            mostrarAlerta('Usuario eliminado correctamente', 'success');
+            
+            // Actualizar la vista de usuarios
+            mostrarUsuarios();
+            
+            // Actualizar estadísticas
+            cargarEstadisticas();
+        } else {
+            mostrarAlerta('Error: Usuario no encontrado', 'danger');
+        }
+    }
+
+    // Función para mostrar menú público
+    function mostrarMenuPublico() {
+        const container = document.getElementById('publicMenuContainer');
+        container.innerHTML = '';
+        
+        const productosActivos = products.filter(p => p.estado === 'activo');
+        
+        if (productosActivos.length === 0) {
+            container.innerHTML = `
+                <div class="col-12">
+                    <div class="empty-state">
+                        <i class="fas fa-concierge-bell"></i>
+                        <h4>No hay productos disponibles</h4>
+                        <p>Agrega productos activos para que aparezcan en el menú público.</p>
+                    </div>
+                </div>
+            `;
+            return;
+        }
+        
+        productosActivos.forEach(producto => {
+            const col = document.createElement('div');
+            col.className = 'col-md-4 mb-4';
+            
+            col.innerHTML = `
+                <div class="card product-card h-100">
+                    <img src="${producto.imagen}" class="card-img-top" alt="${producto.nombre}">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title">${producto.nombre}</h5>
+                        <p class="card-text flex-grow-1">${producto.descripcion || 'Sin descripción'}</p>
+                        <div class="d-flex justify-content-between align-items-center mt-auto">
+                            <span class="h5 mb-0 text-primary">S/ ${producto.precio.toFixed(2)}</span>
+                            <span class="badge bg-secondary">${producto.categoria}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            container.appendChild(col);
+        });
+    }
+
+    // Función para mostrar modal de confirmación
+    function mostrarConfirmacion(mensaje, accionConfirmar) {
+        const modalBody = document.getElementById('confirmModalBody');
+        const confirmBtn = document.getElementById('confirmActionBtn');
+        
+        modalBody.textContent = mensaje;
+        
+        // Remover event listeners anteriores
+        const nuevoConfirmBtn = confirmBtn.cloneNode(true);
+        confirmBtn.parentNode.replaceChild(nuevoConfirmBtn, confirmBtn);
+        
+        // Agregar nuevo event listener
+        document.getElementById('confirmActionBtn').addEventListener('click', function() {
+            accionConfirmar();
+            bootstrap.Modal.getInstance(document.getElementById('confirmModal')).hide();
+        });
+        
+        // Mostrar modal
+        const modal = new bootstrap.Modal(document.getElementById('confirmModal'));
+        modal.show();
+    }
+
+    // Inicialización cuando el DOM está listo
+    document.addEventListener('DOMContentLoaded', function() {
+        // Cargar datos iniciales
+        cargarDatosEnCero();
+        cargarProductos();
+        cargarUsuarios();
+        
+        // Configurar eventos del dashboard
+        document.getElementById('refreshSales').addEventListener('click', function() {
+            cargarEstadisticas();
+            mostrarAlerta('Datos actualizados', 'info');
+        });
+        
+        document.getElementById('chartPeriod').addEventListener('change', actualizarPeriodoGrafico);
+        
+        // Configurar auto-actualización cada 2 minutos
+        setInterval(cargarEstadisticas, 120000);
+        
+        // Toggle sidebar
+        const toggleSidebarBtn = document.querySelector('.toggle-sidebar');
+        const app = document.getElementById('app');
+        
+        if (toggleSidebarBtn && app) {
+            toggleSidebarBtn.addEventListener('click', function() {
+                app.classList.toggle('collapsed');
+            });
+        }
+        
+        // Navigation between sections
+        const navLinks = document.querySelectorAll('.sidebar .nav-link');
+        const sectionContents = document.querySelectorAll('.section-content');
+        const sectionTitle = document.getElementById('sectionTitle');
+        
+        navLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                if (this.getAttribute('href') === '#' || this.getAttribute('data-section')) {
+                    e.preventDefault();
+                    
+                    // Remove active class from all links
+                    navLinks.forEach(navLink => {
+                        navLink.classList.remove('active');
+                    });
+                    
+                    // Add active class to clicked link
+                    this.classList.add('active');
+                    
+                    // Hide all sections
+                    sectionContents.forEach(section => {
+                        section.classList.add('d-none');
+                    });
+                    
+                    // Show selected section
+                    const sectionId = this.getAttribute('data-section') + '-section';
+                    const selectedSection = document.getElementById(sectionId);
+                    if (selectedSection) {
+                        selectedSection.classList.remove('d-none');
+                        
+                        // Update section title
+                        const linkText = this.querySelector('span').textContent;
+                        sectionTitle.textContent = linkText;
+                        
+                        // Cargar datos específicos de la sección
+                        if (sectionId === 'menu-section') {
+                            cargarProductos();
+                        } else if (sectionId === 'users-section') {
+                            cargarUsuarios();
+                        } else if (sectionId === 'public-menu-section') {
+                            mostrarMenuPublico();
+                        }
+                    }
+                }
+            });
+        });
+        
+        // Eventos para gestión de productos
+        document.getElementById('addProductBtn').addEventListener('click', () => abrirModalProducto());
+        document.getElementById('addFirstProductBtn').addEventListener('click', () => abrirModalProducto());
+        document.getElementById('saveProductBtn').addEventListener('click', guardarProducto);
+        
+        // Eventos para búsqueda y filtros de productos
+        document.getElementById('searchProducts').addEventListener('input', mostrarProductos);
+        document.getElementById('searchProductsBtn').addEventListener('click', mostrarProductos);
+        document.getElementById('categoryFilter').addEventListener('change', mostrarProductos);
+        document.getElementById('statusFilter').addEventListener('change', mostrarProductos);
+        
+        // Eventos para gestión de usuarios
+        document.getElementById('addUserBtn').addEventListener('click', () => abrirModalUsuario());
+        document.getElementById('addFirstUserBtn').addEventListener('click', () => abrirModalUsuario());
+        document.getElementById('saveUserBtn').addEventListener('click', guardarUsuario);
+        
+        // Eventos para búsqueda y filtros de usuarios
+        document.getElementById('searchUsers').addEventListener('input', mostrarUsuarios);
+        document.getElementById('searchUsersBtn').addEventListener('click', mostrarUsuarios);
+        document.getElementById('roleFilter').addEventListener('change', mostrarUsuarios);
+        document.getElementById('userStatusFilter').addEventListener('change', mostrarUsuarios);
+        
+        // Evento para actualizar menú público
+        document.getElementById('refreshPublicMenu').addEventListener('click', mostrarMenuPublico);
+        
+        // Eventos delegados para acciones en tablas
+        document.addEventListener('click', function(e) {
+            // Editar producto
+            if (e.target.closest('.edit-product')) {
+                const id = parseInt(e.target.closest('.edit-product').getAttribute('data-id'));
+                const producto = products.find(p => p.id === id);
+                if (producto) abrirModalProducto(producto);
+            }
+            
+            // Eliminar producto
+            if (e.target.closest('.delete-product')) {
+                const id = parseInt(e.target.closest('.delete-product').getAttribute('data-id'));
+                const producto = products.find(p => p.id === id);
+                if (producto) {
+                    mostrarConfirmacion(
+                        `¿Está seguro de que desea eliminar el producto "${producto.nombre}"?`,
+                        () => eliminarProducto(id)
+                    );
+                }
+            }
+            
+            // Editar usuario
+            if (e.target.closest('.edit-user')) {
+                const id = parseInt(e.target.closest('.edit-user').getAttribute('data-id'));
+                const usuario = users.find(u => u.id === id);
+                if (usuario) abrirModalUsuario(usuario);
+            }
+            
+            // Eliminar usuario
+            if (e.target.closest('.delete-user')) {
+                const id = parseInt(e.target.closest('.delete-user').getAttribute('data-id'));
+                const usuario = users.find(u => u.id === id);
+                if (usuario) {
+                    mostrarConfirmacion(
+                        `¿Está seguro de que desea eliminar al usuario "${usuario.nombre}"?`,
+                        () => eliminarUsuario(id)
+                    );
+                }
+            }
+        });
+        
+        // Vista previa de imagen en formulario de producto
+        document.getElementById('productImage').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const preview = document.getElementById('imagePreview');
+            
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.classList.remove('d-none');
+                };
+                reader.readAsDataURL(file);
+            } else {
+                preview.classList.add('d-none');
+            }
+        });
+        
+        console.log('Dashboard Luren Chicken - Inicializado correctamente');
+    });
+
+    // Simulación de endpoints API para PostgreSQL - Respuesta con datos en cero
+    window.fetch = window.fetch || function(url, options) {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                // Simular respuesta de la base de datos PostgreSQL con datos en cero
+                if (url === '/api/estadisticas/dashboard') {
+                    resolve({
+                        ok: true,
+                        json: () => Promise.resolve({
+                            totalProductos: 0,
+                            totalUsuarios: 0,
+                            pedidosHoy: 0,
+                            ingresosHoy: 0,
+                            ventasMesTotal: 0,
+                            promedioDiario: 0,
+                            ventaMaxima: 0,
+                            totalPedidos: 0,
+                            graficoVentas: {
+                                labels: Array.from({length: 30}, (_, i) => (i + 1).toString()),
+                                data: Array(30).fill(0)
+                            },
+                            ventasRecientes: []
+                        })
+                    });
+                }
+                
+                // Para otras URLs, simular error
+                resolve({
+                    ok: false,
+                    status: 500
+                });
+            }, 1000);
+        });
+    };
+</script>
+</body>
+</html>

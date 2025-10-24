@@ -562,11 +562,9 @@ function guardarProducto() {
         // Recargar productos
         mostrarProductos();
 
-        // Actualizar dashboard y menú público
+        // Actualizar dashboard y menú público automáticamente
         actualizarEstadisticasDashboard();
-        if (!document.getElementById('public-menu-section').classList.contains('d-none')) {
-            mostrarMenuPublico();
-        }
+        actualizarMenuPublico();
 
     } catch (error) {
         console.error('Error:', error);
@@ -595,10 +593,8 @@ function eliminarProducto(id) {
         // Actualizar dashboard
         actualizarEstadisticasDashboard();
 
-        // Actualizar el menú público si está visible
-        if (!document.getElementById('public-menu-section').classList.contains('d-none')) {
-            mostrarMenuPublico();
-        }
+        // Actualizar el menú público automáticamente
+        actualizarMenuPublico();
     } else {
         mostrarAlerta('Error: Producto no encontrado', 'danger');
     }
@@ -778,9 +774,20 @@ function eliminarUsuario(id) {
     }
 }
 
-// Función para mostrar menú público
+// Función para mostrar menú público (sincronizado)
 function mostrarMenuPublico() {
     const container = document.getElementById('publicMenuContainer');
+    actualizarMenuPublico(container);
+}
+
+// Función para actualizar el menú público (se llama automáticamente)
+function actualizarMenuPublico(container = null) {
+    if (!container) {
+        container = document.getElementById('publicMenuContainer');
+    }
+    
+    if (!container) return;
+    
     container.innerHTML = '';
 
     const productosActivos = products.filter(p => p.estado === 'activo');
@@ -818,6 +825,8 @@ function mostrarMenuPublico() {
 
         container.appendChild(col);
     });
+    
+    console.log('Menú público actualizado:', productosActivos.length, 'productos activos');
 }
 
 // Función para mostrar modal de confirmación
@@ -1017,6 +1026,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     console.log('Dashboard Luren Chicken - Inicializado correctamente con todas las funcionalidades');
+    console.log('Sincronización en tiempo real activada entre gestión de menú y menú público');
 });
 
 // Simulación de endpoints API para PostgreSQL

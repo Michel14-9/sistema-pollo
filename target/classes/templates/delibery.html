@@ -8,83 +8,161 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-    <link th:href="@{/css/delibery.css}" rel="stylesheet">
-
+    <link th:href="@{/css/delivery.css}" rel="stylesheet">
 </head>
 
 <body>
-    <!-- Header -->
-    <header class="delivery-header">
-        <div class="container">
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="d-flex align-items-center">
-                    <div class="bg-white rounded-circle d-flex align-items-center justify-content-center me-3"
-                        style="width: 40px; height: 40px;">
-                        <span class="text-danger fw-bold">LC</span>
-                    </div>
-                    <div>
-                        <h1 class="h4 mb-0">Luren Chicken Delivery</h1>
-                        <small class="text-white-50">Ica, Perú</small>
-                    </div>
+    <!-- Layout principal con sidebar -->
+    <div class="app-container">
+        <!-- Sidebar oscuro -->
+        <div class="delivery-sidebar">
+            <div class="sidebar-header">
+                <div class="company-logo">
+                    <!-- Imagen de la empresa - usar Thymeleaf para la ruta -->
+                    <img th:src="@{/imagenes/LurenChicken.jpg}" alt="Luren Chicken" class="logo-image">
                 </div>
-                <div class="text-end">
+                <div class="company-info">
+                    <h1 class="company-name">Luren Chicken</h1>
+                    <small class="company-location">Ica, Perú</small>
+                </div>
+            </div>
+            
+            <!-- Información del repartidor -->
+            <div class="driver-info-sidebar">
+                <div class="driver-avatar">CR</div>
+                <div class="driver-details">
                     <div class="text-white-50">Repartidor</div>
-                    <div class="fw-bold">Carlos Rodríguez</div>
+                    <div class="fw-bold" th:text="${driverName ?: 'Carlos Rodríguez'}">Carlos Rodríguez</div>
                 </div>
             </div>
-        </div>
-    </header>
-
-    <div class="container my-4">
-        <!-- Estadísticas -->
-        <div class="row mb-4">
-            <div class="col-md-3 mb-3">
-                <div class="stats-card">
-                    <div class="stats-number" id="pendingCount">5</div>
-                    <div class="stats-label">Pendientes</div>
-                </div>
-            </div>
-            <div class="col-md-3 mb-3">
-                <div class="stats-card">
-                    <div class="stats-number" id="inProgressCount">2</div>
-                    <div class="stats-label">En Camino</div>
-                </div>
-            </div>
-            <div class="col-md-3 mb-3">
-                <div class="stats-card">
-                    <div class="stats-number" id="deliveredCount">12</div>
-                    <div class="stats-label">Entregados Hoy</div>
-                </div>
-            </div>
-            <div class="col-md-3 mb-3">
-                <div class="stats-card">
-                    <div class="stats-number" id="totalCount">19</div>
-                    <div class="stats-label">Total Pedidos</div>
-                </div>
+            
+            <!-- Navegación si es necesaria -->
+            <div class="sidebar-nav">
+                <a href="#" class="nav-item active">
+                    <i class="bi bi-house-door"></i>
+                    <span>Inicio</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="bi bi-clock-history"></i>
+                    <span>Historial</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="bi bi-gear"></i>
+                    <span>Configuración</span>
+                </a>
             </div>
         </div>
 
-        <!-- Filtros -->
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="h4 mb-0">Pedidos de Delivery - Ica</h2>
-            <div class="filter-buttons">
-                <button class="btn btn-outline-primary active" data-filter="all">Todos</button>
-                <button class="btn btn-outline-warning" data-filter="pending">Pendientes</button>
-                <button class="btn btn-outline-info" data-filter="in-progress">En Camino</button>
-                <button class="btn btn-outline-success" data-filter="delivered">Entregados</button>
+        <!-- Contenido principal -->
+        <div class="main-content">
+            <div class="container-fluid my-4">
+                <!-- Estadísticas -->
+                <div class="row mb-4">
+                    <div class="col-md-3 mb-3">
+                        <div class="stats-card">
+                            <div class="stats-number" id="pendingCount" th:text="${pendingCount ?: 5}">5</div>
+                            <div class="stats-label">Pendientes</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="stats-card">
+                            <div class="stats-number" id="inProgressCount" th:text="${inProgressCount ?: 2}">2</div>
+                            <div class="stats-label">En Camino</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="stats-card">
+                            <div class="stats-number" id="deliveredCount" th:text="${deliveredCount ?: 12}">12</div>
+                            <div class="stats-label">Entregados Hoy</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="stats-card">
+                            <div class="stats-number" id="totalCount" th:text="${totalCount ?: 19}">19</div>
+                            <div class="stats-label">Total Pedidos</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filtros -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="h4 mb-0">Pedidos de Delivery - Ica</h2>
+                    <div class="filter-buttons">
+                        <button class="btn btn-outline-primary active" data-filter="all">Todos</button>
+                        <button class="btn btn-outline-warning" data-filter="pending">Pendientes</button>
+                        <button class="btn btn-outline-info" data-filter="in-progress">En Camino</button>
+                        <button class="btn btn-outline-success" data-filter="delivered">Entregados</button>
+                    </div>
+                </div>
+
+                <!-- Lista de Pedidos -->
+                <div id="deliveryList">
+                    <!-- Los pedidos se cargarán aquí dinámicamente -->
+                    <!-- Ejemplo de cómo se podría usar Thymeleaf para iterar sobre pedidos -->
+                    <!--
+                    <div th:each="order : ${orders}" class="card delivery-card mb-3" th:classappend="${order.status == 'delivered'} ? 'entregado' : ''" th:attr="data-order-id=${order.id}">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <span class="order-number" th:text="${order.orderNumber}">ORD-2024-001234</span>
+                                        <span th:class="'badge status-badge ' + ${order.status == 'pending'} ? 'bg-warning' : ${order.status == 'in-progress'} ? 'bg-info' : 'bg-success'" 
+                                              th:text="${order.status == 'pending'} ? 'Pendiente' : ${order.status == 'in-progress'} ? 'En Camino' : 'Entregado'">Pendiente</span>
+                                    </div>
+                                    <h5 class="customer-name" th:text="${order.customerName}">María González</h5>
+                                    <p class="delivery-address mb-2">
+                                        <i class="bi bi-geo-alt-fill me-1"></i><span th:text="${order.address}">Av. Los Maestros 234, Urb. San Isidro, Ica</span>
+                                    </p>
+                                    <p class="phone-number mb-2">
+                                        <i class="bi bi-telephone-fill me-1"></i><span th:text="${order.phone}">+51 987 654 321</span>
+                                    </p>
+                                    <span class="location-badge" th:text="${order.district}">Ica</span>
+                                    <div th:if="${order.status == 'in-progress'}" class="progress-container mt-2">
+                                        <div class="d-flex justify-content-between mb-1">
+                                            <small>Restaurante</small>
+                                            <small th:text="${order.progress} + '%'">30%</small>
+                                            <small>Destino</small>
+                                        </div>
+                                        <div class="progress" style="height: 6px;">
+                                            <div class="progress-bar" role="progressbar" th:style="'width: ' + ${order.progress} + '%'"></div>
+                                        </div>
+                                    </div>
+                                    <div class="order-items mt-3">
+                                        <div th:each="item : ${order.items}" class="d-flex justify-content-between">
+                                            <span th:text="${item.name} + ' x' + ${item.quantity}">Pollo a la Brasa Entero x1</span>
+                                            <span th:text="${item.price}">S/ 32.00</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="d-flex flex-column h-100">
+                                        <div class="mt-auto text-end">
+                                            <div class="order-total mb-2" th:text="${order.total}">S/ 48.50</div>
+                                            <div class="order-time mb-3" th:text="'Orden: ' + ${order.orderTime}">Orden: 12:30 PM</div>
+                                            <div class="d-grid gap-2">
+                                                <button class="btn btn-view-map view-map-btn" th:attr="data-order-id=${order.id}">
+                                                    <i class="bi bi-map me-1"></i>Ver Mapa
+                                                </button>
+                                                <button th:if="${order.status != 'delivered'}" class="btn btn-delivered mark-delivered-btn" th:attr="data-order-id=${order.id}">
+                                                    <i class="bi bi-check-circle me-1"></i>Marcar Entregado
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    -->
+                </div>
+
+                <!-- Estado vacío -->
+                <div id="emptyState" class="empty-state d-none">
+                    <i class="bi bi-check-circle"></i>
+                    <h3>¡No hay pedidos!</h3>
+                    <p>No tienes pedidos pendientes en este momento.</p>
+                </div>
             </div>
-        </div>
-
-        <!-- Lista de Pedidos -->
-        <div id="deliveryList">
-            <!-- Los pedidos se cargarán aquí dinámicamente -->
-        </div>
-
-        <!-- Estado vacío -->
-        <div id="emptyState" class="empty-state d-none">
-            <i class="bi bi-check-circle"></i>
-            <h3>¡No hay pedidos!</h3>
-            <p>No tienes pedidos pendientes en este momento.</p>
         </div>
     </div>
 
@@ -138,7 +216,7 @@
                                 <div class="driver-info">
                                     <div class="driver-avatar">CR</div>
                                     <div class="driver-details">
-                                        <h6 class="mb-0">Carlos Rodríguez</h6>
+                                        <h6 class="mb-0" th:text="${driverName ?: 'Carlos Rodríguez'}">Carlos Rodríguez</h6>
                                         <p class="mb-1 text-muted">Repartidor</p>
                                         <div class="driver-rating">
                                             <i class="bi bi-star-fill"></i>
@@ -164,8 +242,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script th:src="@{/script/delibery.js}"></script>
-
+    <script th:src="@{/js/delivery.js}"></script>
 </body>
 
 </html>

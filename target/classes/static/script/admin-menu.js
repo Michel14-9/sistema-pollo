@@ -4,6 +4,39 @@ let currentEditingId = null;
 let products = [];
 let users = [];
 let sales = [];
+let isPublicMenuVisible = false;
+
+// Sistema de Eventos Mejorado para sincronización en tiempo real
+const EventSystem = {
+    events: {},
+    
+    on(event, callback) {
+        if (!this.events[event]) {
+            this.events[event] = [];
+        }
+        this.events[event].push(callback);
+    },
+    
+    emit(event, data) {
+        console.log(`🎯 Emitiendo evento: ${event}`, data);
+        if (this.events[event]) {
+            this.events[event].forEach(callback => {
+                try {
+                    callback(data);
+                } catch (error) {
+                    console.error(`Error en evento ${event}:`, error);
+                }
+            });
+        }
+    },
+    
+    // Nuevo: Limpiar eventos específicos
+    off(event, callback) {
+        if (this.events[event]) {
+            this.events[event] = this.events[event].filter(cb => cb !== callback);
+        }
+    }
+};
 
 // Funciones para exportación
 function exportarVentasPDF() {
@@ -95,71 +128,122 @@ function exportarVentasExcel() {
     }
 }
 
-// Funciones para persistencia de datos en localStorage
+// Funciones para persistencia de datos en localStorage - MEJORADO
 function guardarDatosEnLocalStorage() {
-    localStorage.setItem('lurenProducts', JSON.stringify(products));
-    localStorage.setItem('lurenUsers', JSON.stringify(users));
-    console.log('Datos guardados en localStorage');
+    try {
+        const datosCompletos = {
+            products: products,
+            users: users,
+            lastSave: new Date().toISOString(),
+            version: '1.0'
+        };
+        
+        localStorage.setItem('lurenData', JSON.stringify(datosCompletos));
+        console.log('💾 Datos guardados en localStorage:', {
+            productos: products.length,
+            usuarios: users.length,
+            hora: new Date().toLocaleTimeString()
+        });
+    } catch (error) {
+        console.error('❌ Error al guardar en localStorage:', error);
+        mostrarAlerta('Error al guardar los datos', 'danger');
+    }
 }
 
 function cargarDatosDesdeLocalStorage() {
-    const productosGuardados = localStorage.getItem('lurenProducts');
-    const usuariosGuardados = localStorage.getItem('lurenUsers');
-
-    if (productosGuardados) {
-        products = JSON.parse(productosGuardados);
-    } else {
-        // Datos de ejemplo si no hay nada en localStorage
-        products = [
-            {
-                id: 1,
-                nombre: "Pollo a la Brasa",
-                categoria: "pollos",
-                precio: 35.00,
-                descripcion: "Delicioso pollo a la brasa con papas fritas y ensalada",
-                imagen: "https://via.placeholder.com/300x200?text=Pollo+Brasa",
-                estado: "activo"
-            },
-            {
-                id: 2,
-                nombre: "Parrilla Familiar",
-                categoria: "parrillas",
-                precio: 85.00,
-                descripcion: "Parrilla completa para 4 personas con carnes variadas",
-                imagen: "https://via.placeholder.com/300x200?text=Parrilla",
-                estado: "activo"
+    try {
+        const datosGuardados = localStorage.getItem('lurenData');
+        
+        if (datosGuardados) {
+            const datos = JSON.parse(datosGuardados);
+            products = datos.products || [];
+            users = datos.users || [];
+            
+            console.log('📦 Datos cargados:', {
+                productos: products.length,
+                usuarios: users.length,
+                version: datos.version || 'N/A'
+            });
+            
+            if (datos.lastSave) {
+                console.log('🕒 Última sincronización:', new Date(datos.lastSave).toLocaleString());
             }
-        ];
+        } else {
+            // Datos iniciales por defecto
+            inicializarDatosPorDefecto();
+        }
+        
+        // Verificar integridad de datos
+        verificarIntegridadDatos();
+        
+    } catch (error) {
+        console.error('❌ Error al cargar datos:', error);
+        mostrarAlerta('Error al cargar los datos guardados', 'warning');
+        inicializarDatosPorDefecto();
     }
+}
 
-    if (usuariosGuardados) {
-        users = JSON.parse(usuariosGuardados);
-    } else {
-        // Datos de ejemplo si no hay nada en localStorage
-        users = [
-            {
-                id: 1,
-                nombre: "Administrador Principal",
-                email: "admin@lurenchicken.com",
-                rol: "admin",
-                estado: "activo",
-                fechaRegistro: "2023-01-15"
-            },
-            {
-                id: 2,
-                nombre: "Carlos Rodríguez",
-                email: "carlos@lurenchicken.com",
-                rol: "cajero",
-                estado: "activo",
-                fechaRegistro: "2023-02-20"
-            }
-        ];
-    }
+function inicializarDatosPorDefecto() {
+    console.log('🆕 Inicializando datos por defecto...');
+    
+    products = [
+        {
+            id: 1,
+            nombre: "Pollo a la Brasa Familiar",
+            categoria: "pollos",
+            precio: 35.00,
+            descripcion: "Delicioso pollo a la brasa con papas fritas y ensalada fresca",
+            imagen: "https://images.unsplash.com/photo-1586190848861-99aa4a171e90?w=300&h=200&fit=crop",
+            estado: "activo",
+            fechaCreacion: new Date().toISOString()
+        },
+        {
+            id: 2,
+            nombre: "Parrilla Especial",
+            categoria: "parrillas",
+            precio: 85.00,
+            descripcion: "Parrilla completa para 4 personas con carnes variadas y guarniciones",
+            imagen: "https://images.unsplash.com/photo-1558036117-15e82a2c9a9a?w=300&h=200&fit=crop",
+            estado: "activo",
+            fechaCreacion: new Date().toISOString()
+        },
+        {
+            id: 3,
+            nombre: "Chicharrón de Pollo",
+            categoria: "chicharron",
+            precio: 25.00,
+            descripcion: "Crujiente chicharrón de pollo con yuca frita y salsa criolla",
+            imagen: "https://images.unsplash.com/photo-1562967914-608f82629710?w=300&h=200&fit=crop",
+            estado: "activo",
+            fechaCreacion: new Date().toISOString()
+        }
+    ];
 
-    console.log('Datos cargados desde localStorage:', {
-        productos: products.length,
-        usuarios: users.length
-    });
+    users = [
+        {
+            id: 1,
+            nombre: "Administrador Principal",
+            email: "admin@lurenchicken.com",
+            rol: "admin",
+            estado: "activo",
+            fechaRegistro: "2023-01-15"
+        }
+    ];
+    
+    guardarDatosEnLocalStorage();
+}
+
+function verificarIntegridadDatos() {
+    // Verificar que todos los productos tengan los campos requeridos
+    products = products.filter(producto => 
+        producto && 
+        producto.id && 
+        producto.nombre && 
+        producto.categoria && 
+        producto.precio
+    );
+    
+    console.log('🔍 Integridad de datos verificada:', products.length, 'productos válidos');
 }
 
 // Función para mostrar alertas dinámicas
@@ -167,13 +251,17 @@ function mostrarAlerta(mensaje, tipo = 'success') {
     const alerta = document.createElement('div');
     alerta.className = `alert alert-${tipo} alert-dismissible fade show`;
     alerta.innerHTML = `
-            ${mensaje}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        `;
+        <div class="d-flex align-items-center">
+            <i class="fas ${tipo === 'success' ? 'fa-check-circle' : tipo === 'warning' ? 'fa-exclamation-triangle' : 'fa-exclamation-circle'} me-2"></i>
+            <span>${mensaje}</span>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
 
     const dynamicAlerts = document.getElementById('dynamicAlerts');
     dynamicAlerts.appendChild(alerta);
 
+    // Auto-eliminar después de 5 segundos
     setTimeout(() => {
         if (alerta.parentNode) {
             alerta.remove();
@@ -183,23 +271,49 @@ function mostrarAlerta(mensaje, tipo = 'success') {
 
 // Función para actualizar estadísticas del dashboard
 function actualizarEstadisticasDashboard() {
-    // Actualizar contador de productos activos
     const productosActivos = products.filter(p => p.estado === 'activo').length;
     document.getElementById('totalProductos').textContent = productosActivos;
-
-    // Actualizar contador de usuarios
     document.getElementById('totalUsuarios').textContent = users.length;
-
-    console.log('Estadísticas actualizadas:', {
-        productos: productosActivos,
-        usuarios: users.length
-    });
 }
 
-// Función para cargar estadísticas desde la base de datos PostgreSQL
+// SISTEMA DE SINCRONIZACIÓN MEJORADO
+function sincronizarMenuPublico(accion, producto = null) {
+    console.log(`🔄 Sincronizando menú público - Acción: ${accion}`, producto);
+    
+    // Emitir evento para sincronización en tiempo real
+    EventSystem.emit('menuChanged', { 
+        accion, 
+        producto, 
+        timestamp: new Date().toISOString(),
+        totalProductos: products.length,
+        productosActivos: products.filter(p => p.estado === 'activo').length
+    });
+    
+    // Actualizar estadísticas inmediatamente
+    actualizarEstadisticasDashboard();
+    
+    // Si el menú público está visible, actualizarlo inmediatamente
+    if (isPublicMenuVisible) {
+        console.log('🎯 Menú público visible - Actualizando...');
+        actualizarMenuPublico();
+    } else {
+        console.log('👁️ Menú público no visible - Sincronización diferida');
+    }
+    
+    // Guardar cambios en localStorage
+    guardarDatosEnLocalStorage();
+    
+    // Forzar actualización del DOM
+    setTimeout(() => {
+        if (isPublicMenuVisible) {
+            actualizarMenuPublico();
+        }
+    }, 100);
+}
+
+// Función para cargar estadísticas
 async function cargarEstadisticas() {
     try {
-        // Simular llamada a la API para obtener estadísticas
         const response = await fetch('/api/estadisticas/dashboard', {
             method: 'GET',
             headers: {
@@ -208,33 +322,24 @@ async function cargarEstadisticas() {
             }
         });
 
-        if (!response.ok) {
-            throw new Error('Error al cargar estadísticas');
-        }
+        if (!response.ok) throw new Error('Error al cargar estadísticas');
 
         const data = await response.json();
-
-        // Actualizar estadísticas principales
         actualizarEstadisticasPrincipales(data);
-
-        // Cargar gráficos
         cargarGraficos(data);
-
-        // Cargar ventas recientes
         cargarVentasRecientes(data.ventasRecientes);
 
     } catch (error) {
         console.error('Error:', error);
-        // Cargar datos en cero (sin ventas)
         cargarDatosEnCero();
     }
 }
 
-// Función para cargar datos en cero (sin ventas)
+// Función para cargar datos en cero
 function cargarDatosEnCero() {
     const datosEnCero = {
-        totalProductos: 0,
-        totalUsuarios: 0,
+        totalProductos: products.filter(p => p.estado === 'activo').length,
+        totalUsuarios: users.length,
         pedidosHoy: 0,
         ingresosHoy: 0,
         ventasMesTotal: 0,
@@ -255,7 +360,6 @@ function cargarDatosEnCero() {
 
 // Función para actualizar estadísticas principales
 function actualizarEstadisticasPrincipales(data) {
-    // Usar datos reales de productos y usuarios
     const productosActivos = products.filter(p => p.estado === 'activo').length;
 
     document.getElementById('totalProductos').textContent = productosActivos;
@@ -263,7 +367,6 @@ function actualizarEstadisticasPrincipales(data) {
     document.getElementById('pedidosHoy').textContent = data.pedidosHoy || '0';
     document.getElementById('ingresosHoy').textContent = `S/ ${(data.ingresosHoy || 0).toFixed(2)}`;
 
-    // Actualizar resumen de ventas
     document.getElementById('ventasMesTotal').textContent = `S/ ${(data.ventasMesTotal || 0).toFixed(2)}`;
     document.getElementById('promedioDiario').textContent = `S/ ${(data.promedioDiario || 0).toFixed(2)}`;
     document.getElementById('ventaMaxima').textContent = `S/ ${(data.ventaMaxima || 0).toFixed(2)}`;
@@ -275,11 +378,9 @@ function cargarGraficos(data) {
     const salesCtx = document.getElementById('salesChart');
     const emptyChartMessage = document.getElementById('emptyChartMessage');
 
-    // Verificar si hay datos para mostrar
     const tieneDatos = data.graficoVentas && data.graficoVentas.data.some(valor => valor > 0);
 
     if (!tieneDatos) {
-        // Mostrar mensaje de gráfico vacío
         if (salesChart) {
             salesChart.destroy();
             salesChart = null;
@@ -289,11 +390,9 @@ function cargarGraficos(data) {
         return;
     }
 
-    // Mostrar gráfico y ocultar mensaje
     salesCtx.style.display = 'block';
     emptyChartMessage.classList.add('d-none');
 
-    // Destruir gráfico anterior si existe
     if (salesChart) {
         salesChart.destroy();
     }
@@ -315,9 +414,7 @@ function cargarGraficos(data) {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: {
-                    display: true
-                },
+                legend: { display: true },
                 tooltip: {
                     callbacks: {
                         label: function (context) {
@@ -346,8 +443,6 @@ function cargarVentasRecientes(ventas) {
     const noSalesMessage = document.getElementById('noSalesMessage');
 
     tbody.innerHTML = '';
-
-    // Guardar ventas en variable global para exportación
     sales = ventas || [];
 
     if (!ventas || ventas.length === 0) {
@@ -375,7 +470,6 @@ function cargarVentasRecientes(ventas) {
             'cancelado': 'Cancelado'
         }[venta.estado] || 'Pendiente';
 
-        // Formatear fecha
         const fecha = new Date(venta.fecha);
         const fechaFormateada = fecha.toLocaleDateString('es-PE', {
             day: '2-digit',
@@ -386,17 +480,15 @@ function cargarVentasRecientes(ventas) {
         });
 
         tr.innerHTML = `
-                <td><strong>${venta.id}</strong></td>
-                <td>${venta.cliente || 'Cliente no registrado'}</td>
-                <td>
-                    <small>${venta.cantidadProductos || 0} productos</small>
-                </td>
-                <td><strong>S/ ${venta.total.toFixed(2)}</strong></td>
-                <td>${fechaFormateada}</td>
-                <td><span class="badge ${estadoClass}">${estadoText}</span></td>
-                <td><span class="badge bg-info">${venta.tipo || 'Local'}</span></td>
-                <td>${venta.cajero || 'Sistema'}</td>
-            `;
+            <td><strong>${venta.id}</strong></td>
+            <td>${venta.cliente || 'Cliente no registrado'}</td>
+            <td><small>${venta.cantidadProductos || 0} productos</small></td>
+            <td><strong>S/ ${venta.total.toFixed(2)}</strong></td>
+            <td>${fechaFormateada}</td>
+            <td><span class="badge ${estadoClass}">${estadoText}</span></td>
+            <td><span class="badge bg-info">${venta.tipo || 'Local'}</span></td>
+            <td>${venta.cajero || 'Sistema'}</td>
+        `;
         tbody.appendChild(tr);
     });
 }
@@ -406,7 +498,6 @@ async function actualizarPeriodoGrafico() {
     const periodo = document.getElementById('chartPeriod').value;
 
     try {
-        // Simular llamada a la API para obtener datos del período seleccionado
         const response = await fetch(`/api/estadisticas/ventas?periodo=${periodo}`, {
             method: 'GET',
             headers: {
@@ -428,7 +519,7 @@ async function actualizarPeriodoGrafico() {
     }
 }
 
-// Funciones para gestión de productos
+// GESTIÓN DE PRODUCTOS - SISTEMA MEJORADO
 function cargarProductos() {
     mostrarProductos();
 }
@@ -437,21 +528,30 @@ function mostrarProductos() {
     const tbody = document.getElementById('productsTableBody');
     const noProductsMessage = document.getElementById('noProductsMessage');
 
-    tbody.innerHTML = '';
-
-    if (products.length === 0) {
-        noProductsMessage.classList.remove('d-none');
-        tbody.parentElement.parentElement.classList.add('d-none');
+    if (!tbody) {
+        console.error('❌ No se encontró el tbody de productos');
         return;
     }
 
-    noProductsMessage.classList.add('d-none');
-    tbody.parentElement.parentElement.classList.remove('d-none');
+    tbody.innerHTML = '';
+
+    if (products.length === 0) {
+        if (noProductsMessage) {
+            noProductsMessage.classList.remove('d-none');
+            tbody.parentElement.parentElement.classList.add('d-none');
+        }
+        return;
+    }
+
+    if (noProductsMessage) {
+        noProductsMessage.classList.add('d-none');
+        tbody.parentElement.parentElement.classList.remove('d-none');
+    }
 
     // Aplicar filtros
-    const searchTerm = document.getElementById('searchProducts').value.toLowerCase();
-    const categoryFilter = document.getElementById('categoryFilter').value;
-    const statusFilter = document.getElementById('statusFilter').value;
+    const searchTerm = document.getElementById('searchProducts')?.value.toLowerCase() || '';
+    const categoryFilter = document.getElementById('categoryFilter')?.value || '';
+    const statusFilter = document.getElementById('statusFilter')?.value || '';
 
     const filteredProducts = products.filter(product => {
         const matchesSearch = product.nombre.toLowerCase().includes(searchTerm) ||
@@ -468,27 +568,38 @@ function mostrarProductos() {
         const estadoText = product.estado === 'activo' ? 'Activo' : 'Inactivo';
 
         tr.innerHTML = `
-                <td>${product.id}</td>
-                <td>
-                    <img src="${product.imagen}" alt="${product.nombre}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;">
-                </td>
-                <td>${product.nombre}</td>
-                <td>${product.categoria}</td>
-                <td>S/ ${product.precio.toFixed(2)}</td>
-                <td><span class="badge ${estadoClass}">${estadoText}</span></td>
-                <td>
-                    <div class="action-buttons">
-                        <button class="btn btn-sm btn-outline-primary edit-product" data-id="${product.id}">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="btn btn-sm btn-outline-danger delete-product" data-id="${product.id}">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                </td>
-            `;
+            <td>${product.id}</td>
+            <td>
+                <img src="${product.imagen}" alt="${product.nombre}" 
+                     style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;"
+                     onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=300&h=200&fit=crop'">
+            </td>
+            <td>
+                <strong>${product.nombre}</strong>
+                ${product.descripcion ? `<br><small class="text-muted">${product.descripcion}</small>` : ''}
+            </td>
+            <td>
+                <span class="badge bg-primary text-capitalize">${product.categoria}</span>
+            </td>
+            <td><strong>S/ ${product.precio.toFixed(2)}</strong></td>
+            <td><span class="badge ${estadoClass}">${estadoText}</span></td>
+            <td>
+                <div class="action-buttons">
+                    <button class="btn btn-sm btn-outline-primary edit-product" data-id="${product.id}" 
+                            title="Editar producto">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger delete-product" data-id="${product.id}"
+                            title="Eliminar producto">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </td>
+        `;
         tbody.appendChild(tr);
     });
+
+    console.log(`📊 Mostrando ${filteredProducts.length} productos filtrados de ${products.length} totales`);
 }
 
 function abrirModalProducto(producto = null) {
@@ -497,11 +608,15 @@ function abrirModalProducto(producto = null) {
     const modalTitle = document.getElementById('productModalLabel');
     const imagePreview = document.getElementById('imagePreview');
 
+    if (!form || !modalTitle || !imagePreview) {
+        console.error('❌ Elementos del modal no encontrados');
+        return;
+    }
+
     form.reset();
     imagePreview.classList.add('d-none');
 
     if (producto) {
-        // Modo edición
         modalTitle.textContent = 'Editar Producto';
         document.getElementById('productId').value = producto.id;
         document.getElementById('productName').value = producto.nombre;
@@ -517,7 +632,6 @@ function abrirModalProducto(producto = null) {
 
         currentEditingId = producto.id;
     } else {
-        // Modo agregar
         modalTitle.textContent = 'Agregar Producto';
         currentEditingId = null;
     }
@@ -526,81 +640,110 @@ function abrirModalProducto(producto = null) {
 }
 
 function guardarProducto() {
-    // Generar ID único para nuevo producto
-    const nuevoId = currentEditingId || Math.max(...products.map(p => p.id), 0) + 1;
+    const nombre = document.getElementById('productName')?.value.trim();
+    const categoria = document.getElementById('productCategory')?.value;
+    const precio = parseFloat(document.getElementById('productPrice')?.value);
+    const descripcion = document.getElementById('productDescription')?.value.trim();
+    const estado = document.getElementById('productStatus')?.value;
+    const imagen = document.getElementById('imagePreview')?.src || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=300&h=200&fit=crop";
 
-    const productoData = {
-        id: nuevoId,
-        nombre: document.getElementById('productName').value,
-        categoria: document.getElementById('productCategory').value,
-        precio: parseFloat(document.getElementById('productPrice').value),
-        descripcion: document.getElementById('productDescription').value,
-        estado: document.getElementById('productStatus').value,
-        imagen: document.getElementById('imagePreview').src || "https://via.placeholder.com/300x200?text=Producto"
-    };
+    // Validaciones
+    if (!nombre) {
+        mostrarAlerta('El nombre del producto es requerido', 'warning');
+        return;
+    }
+
+    if (!categoria) {
+        mostrarAlerta('Debe seleccionar una categoría', 'warning');
+        return;
+    }
+
+    if (isNaN(precio) || precio <= 0) {
+        mostrarAlerta('El precio debe ser un número mayor a 0', 'warning');
+        return;
+    }
 
     try {
+        let productoData;
+        let accion = 'actualizado';
+
         if (currentEditingId) {
             // Actualizar producto existente
             const index = products.findIndex(p => p.id === currentEditingId);
             if (index !== -1) {
-                products[index] = { ...products[index], ...productoData };
+                productoData = {
+                    ...products[index],
+                    nombre,
+                    categoria,
+                    precio,
+                    descripcion,
+                    estado,
+                    imagen,
+                    fechaActualizacion: new Date().toISOString()
+                };
+                products[index] = productoData;
+                console.log(`✏️ Producto actualizado: ${productoData.nombre}`);
             }
         } else {
             // Agregar nuevo producto
+            const nuevoId = Math.max(0, ...products.map(p => p.id)) + 1;
+            productoData = {
+                id: nuevoId,
+                nombre,
+                categoria,
+                precio,
+                descripcion,
+                estado,
+                imagen,
+                fechaCreacion: new Date().toISOString()
+            };
             products.push(productoData);
+            accion = 'agregado';
+            console.log(`🆕 Producto agregado: ${productoData.nombre} (ID: ${nuevoId})`);
         }
 
-        // Guardar en localStorage
-        guardarDatosEnLocalStorage();
+        // Sincronizar inmediatamente
+        sincronizarMenuPublico(accion, productoData);
 
-        mostrarAlerta(`Producto ${currentEditingId ? 'actualizado' : 'agregado'} correctamente`, 'success');
+        mostrarAlerta(`Producto "${nombre}" ${accion} correctamente`, 'success');
 
-        // Cerrar modal
-        bootstrap.Modal.getInstance(document.getElementById('productModal')).hide();
-
-        // Recargar productos
+        // Cerrar modal y actualizar vista
+        const modalInstance = bootstrap.Modal.getInstance(document.getElementById('productModal'));
+        if (modalInstance) {
+            modalInstance.hide();
+        }
+        
         mostrarProductos();
 
-        // Actualizar dashboard y menú público automáticamente
-        actualizarEstadisticasDashboard();
-        actualizarMenuPublico();
-
     } catch (error) {
-        console.error('Error:', error);
+        console.error('Error al guardar producto:', error);
         mostrarAlerta('Error al guardar el producto', 'danger');
     }
 }
 
-// Función para eliminar producto
 function eliminarProducto(id) {
-    // Encontrar el índice del producto a eliminar
-    const index = products.findIndex(p => p.id === id);
-
-    if (index !== -1) {
-        // Eliminar el producto del array
-        products.splice(index, 1);
-
-        // Guardar en localStorage
-        guardarDatosEnLocalStorage();
-
-        // Mostrar alerta de éxito
-        mostrarAlerta('Producto eliminado correctamente', 'success');
-
-        // Actualizar la vista de productos
-        mostrarProductos();
-
-        // Actualizar dashboard
-        actualizarEstadisticasDashboard();
-
-        // Actualizar el menú público automáticamente
-        actualizarMenuPublico();
-    } else {
+    const producto = products.find(p => p.id === id);
+    if (!producto) {
         mostrarAlerta('Error: Producto no encontrado', 'danger');
+        return;
+    }
+
+    const index = products.findIndex(p => p.id === id);
+    if (index !== -1) {
+        // Eliminar producto
+        const productoEliminado = products.splice(index, 1)[0];
+        
+        // Sincronizar inmediatamente
+        sincronizarMenuPublico('eliminado', productoEliminado);
+        
+        mostrarAlerta(`Producto "${productoEliminado.nombre}" eliminado correctamente`, 'success');
+        mostrarProductos();
+        
+        console.log(`🗑️ Producto eliminado: ${productoEliminado.nombre}`);
     }
 }
 
-// Funciones para gestión de usuarios
+// GESTIÓN DE USUARIOS
 function cargarUsuarios() {
     mostrarUsuarios();
 }
@@ -609,21 +752,26 @@ function mostrarUsuarios() {
     const tbody = document.getElementById('usersTableBody');
     const noUsersMessage = document.getElementById('noUsersMessage');
 
+    if (!tbody) return;
+
     tbody.innerHTML = '';
 
     if (users.length === 0) {
-        noUsersMessage.classList.remove('d-none');
-        tbody.parentElement.parentElement.classList.add('d-none');
+        if (noUsersMessage) {
+            noUsersMessage.classList.remove('d-none');
+            tbody.parentElement.parentElement.classList.add('d-none');
+        }
         return;
     }
 
-    noUsersMessage.classList.add('d-none');
-    tbody.parentElement.parentElement.classList.remove('d-none');
+    if (noUsersMessage) {
+        noUsersMessage.classList.add('d-none');
+        tbody.parentElement.parentElement.classList.remove('d-none');
+    }
 
-    // Aplicar filtros
-    const searchTerm = document.getElementById('searchUsers').value.toLowerCase();
-    const roleFilter = document.getElementById('roleFilter').value;
-    const statusFilter = document.getElementById('userStatusFilter').value;
+    const searchTerm = document.getElementById('searchUsers')?.value.toLowerCase() || '';
+    const roleFilter = document.getElementById('roleFilter')?.value || '';
+    const statusFilter = document.getElementById('userStatusFilter')?.value || '';
 
     const filteredUsers = users.filter(user => {
         const matchesSearch = user.nombre.toLowerCase().includes(searchTerm) ||
@@ -644,30 +792,29 @@ function mostrarUsuarios() {
             'cocinero': 'Cocinero'
         }[user.rol] || user.rol;
 
-        // Generar avatar con iniciales
-        const iniciales = user.nombre.split(' ').map(n => n[0]).join('').toUpperCase();
+        const iniciales = user.nombre.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
 
         tr.innerHTML = `
-                <td>${user.id}</td>
-                <td>
-                    <div class="user-avatar">${iniciales}</div>
-                </td>
-                <td>${user.nombre}</td>
-                <td>${user.email}</td>
-                <td>${rolText}</td>
-                <td><span class="badge ${estadoClass}">${estadoText}</span></td>
-                <td>${new Date(user.fechaRegistro).toLocaleDateString('es-PE')}</td>
-                <td>
-                    <div class="action-buttons">
-                        <button class="btn btn-sm btn-outline-primary edit-user" data-id="${user.id}">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="btn btn-sm btn-outline-danger delete-user" data-id="${user.id}">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                </td>
-            `;
+            <td>${user.id}</td>
+            <td>
+                <div class="user-avatar">${iniciales}</div>
+            </td>
+            <td>${user.nombre}</td>
+            <td>${user.email}</td>
+            <td>${rolText}</td>
+            <td><span class="badge ${estadoClass}">${estadoText}</span></td>
+            <td>${new Date(user.fechaRegistro).toLocaleDateString('es-PE')}</td>
+            <td>
+                <div class="action-buttons">
+                    <button class="btn btn-sm btn-outline-primary edit-user" data-id="${user.id}">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger delete-user" data-id="${user.id}">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </td>
+        `;
         tbody.appendChild(tr);
     });
 }
@@ -678,26 +825,25 @@ function abrirModalUsuario(usuario = null) {
     const modalTitle = document.getElementById('userModalLabel');
     const passwordField = document.getElementById('passwordField');
 
+    if (!form || !modalTitle) return;
+
     form.reset();
 
     if (usuario) {
-        // Modo edición
         modalTitle.textContent = 'Editar Usuario';
         document.getElementById('userId').value = usuario.id;
         document.getElementById('userName').value = usuario.nombre;
         document.getElementById('userEmail').value = usuario.email;
         document.getElementById('userRole').value = usuario.rol;
         document.getElementById('userStatus').value = usuario.estado;
-
-        // Ocultar campo de contraseña en edición
-        passwordField.style.display = 'none';
-
+        if (passwordField) passwordField.style.display = 'none';
         currentEditingId = usuario.id;
     } else {
-        // Modo agregar
         modalTitle.textContent = 'Agregar Usuario';
-        passwordField.style.display = 'block';
-        document.getElementById('userPassword').required = true;
+        if (passwordField) {
+            passwordField.style.display = 'block';
+            document.getElementById('userPassword').required = true;
+        }
         currentEditingId = null;
     }
 
@@ -705,42 +851,43 @@ function abrirModalUsuario(usuario = null) {
 }
 
 function guardarUsuario() {
-    // Generar ID único para nuevo usuario
-    const nuevoId = currentEditingId || Math.max(...users.map(u => u.id), 0) + 1;
+    const nombre = document.getElementById('userName')?.value.trim();
+    const email = document.getElementById('userEmail')?.value.trim();
+    const rol = document.getElementById('userRole')?.value;
+    const estado = document.getElementById('userStatus')?.value;
 
-    const usuarioData = {
-        id: nuevoId,
-        nombre: document.getElementById('userName').value,
-        email: document.getElementById('userEmail').value,
-        rol: document.getElementById('userRole').value,
-        estado: document.getElementById('userStatus').value,
-        fechaRegistro: currentEditingId ? users.find(u => u.id === currentEditingId).fechaRegistro : new Date().toISOString().split('T')[0]
-    };
+    if (!nombre || !email || !rol) {
+        mostrarAlerta('Todos los campos son requeridos', 'warning');
+        return;
+    }
 
     try {
         if (currentEditingId) {
-            // Actualizar usuario existente
             const index = users.findIndex(u => u.id === currentEditingId);
             if (index !== -1) {
-                users[index] = { ...users[index], ...usuarioData };
+                users[index] = { ...users[index], nombre, email, rol, estado };
             }
         } else {
-            // Agregar nuevo usuario
-            users.push(usuarioData);
+            const nuevoId = Math.max(0, ...users.map(u => u.id)) + 1;
+            users.push({
+                id: nuevoId,
+                nombre,
+                email,
+                rol,
+                estado,
+                fechaRegistro: new Date().toISOString().split('T')[0]
+            });
         }
 
-        // Guardar en localStorage
         guardarDatosEnLocalStorage();
-
         mostrarAlerta(`Usuario ${currentEditingId ? 'actualizado' : 'agregado'} correctamente`, 'success');
-
-        // Cerrar modal
-        bootstrap.Modal.getInstance(document.getElementById('userModal')).hide();
-
-        // Recargar usuarios
+        
+        const modalInstance = bootstrap.Modal.getInstance(document.getElementById('userModal'));
+        if (modalInstance) {
+            modalInstance.hide();
+        }
+        
         mostrarUsuarios();
-
-        // Actualizar dashboard
         actualizarEstadisticasDashboard();
 
     } catch (error) {
@@ -749,84 +896,122 @@ function guardarUsuario() {
     }
 }
 
-// Función para eliminar usuario
 function eliminarUsuario(id) {
-    // Encontrar el índice del usuario a eliminar
     const index = users.findIndex(u => u.id === id);
-
     if (index !== -1) {
-        // Eliminar el usuario del array
-        users.splice(index, 1);
-
-        // Guardar en localStorage
+        const usuarioEliminado = users.splice(index, 1)[0];
         guardarDatosEnLocalStorage();
-
-        // Mostrar alerta de éxito
-        mostrarAlerta('Usuario eliminado correctamente', 'success');
-
-        // Actualizar la vista de usuarios
+        mostrarAlerta(`Usuario "${usuarioEliminado.nombre}" eliminado correctamente`, 'success');
         mostrarUsuarios();
-
-        // Actualizar dashboard
         actualizarEstadisticasDashboard();
     } else {
         mostrarAlerta('Error: Usuario no encontrado', 'danger');
     }
 }
 
-// Función para mostrar menú público (sincronizado)
+// SISTEMA DE MENÚ PÚBLICO MEJORADO - CORREGIDO
 function mostrarMenuPublico() {
-    const container = document.getElementById('publicMenuContainer');
-    actualizarMenuPublico(container);
+    isPublicMenuVisible = true;
+    console.log('🔍 Menú público activado - Sincronización ACTIVA');
+    actualizarMenuPublico();
 }
 
-// Función para actualizar el menú público (se llama automáticamente)
-function actualizarMenuPublico(container = null) {
+function actualizarMenuPublico() {
+    const container = document.getElementById('publicMenuContainer');
     if (!container) {
-        container = document.getElementById('publicMenuContainer');
-    }
-    
-    if (!container) return;
-    
-    container.innerHTML = '';
-
-    const productosActivos = products.filter(p => p.estado === 'activo');
-
-    if (productosActivos.length === 0) {
-        container.innerHTML = `
-                <div class="col-12">
-                    <div class="empty-state">
-                        <i class="fas fa-concierge-bell"></i>
-                        <h4>No hay productos disponibles</h4>
-                        <p>Agrega productos activos para que aparezcan en el menú público.</p>
-                    </div>
-                </div>
-            `;
+        console.log('❌ Contenedor del menú público no encontrado');
         return;
     }
 
-    productosActivos.forEach(producto => {
-        const col = document.createElement('div');
-        col.className = 'col-md-4 mb-4';
+    console.log('🎯 Actualizando menú público...');
+    container.innerHTML = '';
 
-        col.innerHTML = `
-                <div class="card product-card h-100">
-                    <img src="${producto.imagen}" class="card-img-top" alt="${producto.nombre}">
+    const productosActivos = products.filter(p => p.estado === 'activo');
+    console.log(`📦 Productos activos encontrados: ${productosActivos.length}`);
+
+    if (productosActivos.length === 0) {
+        container.innerHTML = `
+            <div class="col-12">
+                <div class="empty-state text-center py-5">
+                    <i class="fas fa-concierge-bell fa-3x text-muted mb-3"></i>
+                    <h4 class="text-muted">No hay productos disponibles</h4>
+                    <p class="text-muted">Agrega productos activos para que aparezcan en el menú público.</p>
+                    <button class="btn btn-primary mt-3" onclick="abrirModalProducto()">
+                        <i class="fas fa-plus"></i> Agregar Primer Producto
+                    </button>
+                </div>
+            </div>
+        `;
+        return;
+    }
+
+    // Agrupar por categorías
+    const productosPorCategoria = {};
+    productosActivos.forEach(producto => {
+        if (!productosPorCategoria[producto.categoria]) {
+            productosPorCategoria[producto.categoria] = [];
+        }
+        productosPorCategoria[producto.categoria].push(producto);
+    });
+
+    console.log('🏷️ Categorías encontradas:', Object.keys(productosPorCategoria));
+
+    // Mostrar por categorías
+    Object.keys(productosPorCategoria).forEach(categoria => {
+        const productosCategoria = productosPorCategoria[categoria];
+        
+        // Título de categoría
+        const categoriaTitle = document.createElement('div');
+        categoriaTitle.className = 'col-12 mb-4';
+        categoriaTitle.innerHTML = `
+            <div class="categoria-header">
+                <h4 class="text-capitalize mb-3">
+                    <i class="fas ${getCategoriaIcon(categoria)} me-2"></i>
+                    ${categoria}
+                    <span class="badge bg-secondary ms-2">${productosCategoria.length}</span>
+                </h4>
+                <hr>
+            </div>
+        `;
+        container.appendChild(categoriaTitle);
+
+        // Productos de la categoría
+        productosCategoria.forEach(producto => {
+            const col = document.createElement('div');
+            col.className = 'col-md-4 mb-4';
+            col.innerHTML = `
+                <div class="card product-card h-100 shadow-sm">
+                    <img src="${producto.imagen}" class="card-img-top" alt="${producto.nombre}"
+                         style="height: 200px; object-fit: cover;"
+                         onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=300&h=200&fit=crop'">
                     <div class="card-body d-flex flex-column">
                         <h5 class="card-title">${producto.nombre}</h5>
-                        <p class="card-text flex-grow-1">${producto.descripcion || 'Sin descripción'}</p>
+                        <p class="card-text flex-grow-1 text-muted">${producto.descripcion || 'Descripción no disponible'}</p>
                         <div class="d-flex justify-content-between align-items-center mt-auto">
                             <span class="h5 mb-0 text-primary">S/ ${producto.precio.toFixed(2)}</span>
-                            <span class="badge bg-secondary">${producto.categoria}</span>
+                            <span class="badge bg-secondary text-capitalize">${producto.categoria}</span>
                         </div>
                     </div>
                 </div>
             `;
-
-        container.appendChild(col);
+            container.appendChild(col);
+        });
     });
-    
-    console.log('Menú público actualizado:', productosActivos.length, 'productos activos');
+
+    console.log('✅ Menú público actualizado correctamente');
+}
+
+function getCategoriaIcon(categoria) {
+    const icons = {
+        'pollos': 'fa-drumstick-bite',
+        'parrillas': 'fa-fire',
+        'chicharron': 'fa-bacon',
+        'broaster': 'fa-utensils',
+        'hamburguesas': 'fa-hamburger',
+        'criollos': 'fa-flag',
+        'combos': 'fa-gift'
+    };
+    return icons[categoria] || 'fa-utensils';
 }
 
 // Función para mostrar modal de confirmación
@@ -834,69 +1019,96 @@ function mostrarConfirmacion(mensaje, accionConfirmar) {
     const modalBody = document.getElementById('confirmModalBody');
     const confirmBtn = document.getElementById('confirmActionBtn');
 
+    if (!modalBody || !confirmBtn) {
+        console.error('❌ Elementos del modal de confirmación no encontrados');
+        return;
+    }
+
     modalBody.textContent = mensaje;
 
-    // Remover event listeners anteriores
     const nuevoConfirmBtn = confirmBtn.cloneNode(true);
     confirmBtn.parentNode.replaceChild(nuevoConfirmBtn, confirmBtn);
 
-    // Agregar nuevo event listener
     document.getElementById('confirmActionBtn').addEventListener('click', function () {
         accionConfirmar();
-        bootstrap.Modal.getInstance(document.getElementById('confirmModal')).hide();
+        const modalInstance = bootstrap.Modal.getInstance(document.getElementById('confirmModal'));
+        if (modalInstance) {
+            modalInstance.hide();
+        }
     });
 
-    // Mostrar modal
     const modal = new bootstrap.Modal(document.getElementById('confirmModal'));
     modal.show();
 }
 
-// Inicialización cuando el DOM está listo
+// INICIALIZACIÓN MEJORADA
 document.addEventListener('DOMContentLoaded', function () {
-    // Cargar datos desde localStorage al iniciar
+    console.log('🚀 Iniciando Luren Chicken Admin Dashboard...');
+    
+    // Cargar datos persistentes
     cargarDatosDesdeLocalStorage();
+    
+    // Configurar sistema de eventos para sincronización
+    EventSystem.on('menuChanged', (data) => {
+        console.log('📢 Evento de cambio en menú recibido:', data);
+        if (isPublicMenuVisible) {
+            console.log('🔄 Actualizando menú público por evento...');
+            setTimeout(() => {
+                actualizarMenuPublico();
+            }, 50);
+        }
+    });
 
-    // Cargar datos iniciales
+    // Inicializar datos
     cargarDatosEnCero();
     cargarProductos();
     cargarUsuarios();
-
-    // Actualizar estadísticas del dashboard con datos reales
     actualizarEstadisticasDashboard();
 
-    // Configurar eventos del dashboard
-    document.getElementById('refreshSales').addEventListener('click', function () {
-        cargarEstadisticas();
-        mostrarAlerta('Datos actualizados', 'info');
-    });
+    // Eventos del dashboard
+    const refreshSalesBtn = document.getElementById('refreshSales');
+    if (refreshSalesBtn) {
+        refreshSalesBtn.addEventListener('click', function () {
+            cargarEstadisticas();
+            mostrarAlerta('Datos actualizados correctamente', 'info');
+        });
+    }
 
-    document.getElementById('chartPeriod').addEventListener('change', actualizarPeriodoGrafico);
+    const chartPeriod = document.getElementById('chartPeriod');
+    if (chartPeriod) {
+        chartPeriod.addEventListener('change', actualizarPeriodoGrafico);
+    }
 
     // Eventos para exportación
-    document.getElementById('exportPDF').addEventListener('click', function (e) {
-        e.preventDefault();
-        exportarVentasPDF();
-    });
+    const exportPDF = document.getElementById('exportPDF');
+    if (exportPDF) {
+        exportPDF.addEventListener('click', function (e) {
+            e.preventDefault();
+            exportarVentasPDF();
+        });
+    }
 
-    document.getElementById('exportExcel').addEventListener('click', function (e) {
-        e.preventDefault();
-        exportarVentasExcel();
-    });
+    const exportExcel = document.getElementById('exportExcel');
+    if (exportExcel) {
+        exportExcel.addEventListener('click', function (e) {
+            e.preventDefault();
+            exportarVentasExcel();
+        });
+    }
 
-    // Configurar auto-actualización cada 2 minutos
+    // Auto-actualización
     setInterval(cargarEstadisticas, 120000);
 
     // Toggle sidebar
     const toggleSidebarBtn = document.querySelector('.toggle-sidebar');
     const app = document.getElementById('app');
-
     if (toggleSidebarBtn && app) {
         toggleSidebarBtn.addEventListener('click', function () {
             app.classList.toggle('collapsed');
         });
     }
 
-    // Navigation between sections
+    // Navigation between sections - MEJORADO
     const navLinks = document.querySelectorAll('.sidebar .nav-link');
     const sectionContents = document.querySelectorAll('.section-content');
     const sectionTitle = document.getElementById('sectionTitle');
@@ -906,36 +1118,37 @@ document.addEventListener('DOMContentLoaded', function () {
             if (this.getAttribute('href') === '#' || this.getAttribute('data-section')) {
                 e.preventDefault();
 
-                // Remove active class from all links
-                navLinks.forEach(navLink => {
-                    navLink.classList.remove('active');
-                });
-
-                // Add active class to clicked link
+                navLinks.forEach(navLink => navLink.classList.remove('active'));
                 this.classList.add('active');
 
-                // Hide all sections
-                sectionContents.forEach(section => {
-                    section.classList.add('d-none');
-                });
+                sectionContents.forEach(section => section.classList.add('d-none'));
 
-                // Show selected section
                 const sectionId = this.getAttribute('data-section') + '-section';
                 const selectedSection = document.getElementById(sectionId);
                 if (selectedSection) {
                     selectedSection.classList.remove('d-none');
-
-                    // Update section title
                     const linkText = this.querySelector('span').textContent;
-                    sectionTitle.textContent = linkText;
+                    if (sectionTitle) {
+                        sectionTitle.textContent = linkText;
+                    }
 
-                    // Cargar datos específicos de la sección
+                    // Control de visibilidad del menú público - MEJORADO
+                    if (sectionId === 'public-menu-section') {
+                        isPublicMenuVisible = true;
+                        console.log('🎯 Navegando al menú público - Actualizando...');
+                        setTimeout(() => {
+                            mostrarMenuPublico();
+                        }, 100);
+                    } else {
+                        isPublicMenuVisible = false;
+                        console.log('👁️ Saliendo del menú público');
+                    }
+
+                    // Cargar datos específicos
                     if (sectionId === 'menu-section') {
                         cargarProductos();
                     } else if (sectionId === 'users-section') {
                         cargarUsuarios();
-                    } else if (sectionId === 'public-menu-section') {
-                        mostrarMenuPublico();
                     }
                 }
             }
@@ -943,46 +1156,110 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // Eventos para gestión de productos
-    document.getElementById('addProductBtn').addEventListener('click', () => abrirModalProducto());
-    document.getElementById('addFirstProductBtn').addEventListener('click', () => abrirModalProducto());
-    document.getElementById('saveProductBtn').addEventListener('click', guardarProducto);
+    const addProductBtn = document.getElementById('addProductBtn');
+    if (addProductBtn) {
+        addProductBtn.addEventListener('click', () => abrirModalProducto());
+    }
+
+    const addFirstProductBtn = document.getElementById('addFirstProductBtn');
+    if (addFirstProductBtn) {
+        addFirstProductBtn.addEventListener('click', () => abrirModalProducto());
+    }
+
+    const saveProductBtn = document.getElementById('saveProductBtn');
+    if (saveProductBtn) {
+        saveProductBtn.addEventListener('click', guardarProducto);
+    }
 
     // Eventos para búsqueda y filtros de productos
-    document.getElementById('searchProducts').addEventListener('input', mostrarProductos);
-    document.getElementById('searchProductsBtn').addEventListener('click', mostrarProductos);
-    document.getElementById('categoryFilter').addEventListener('change', mostrarProductos);
-    document.getElementById('statusFilter').addEventListener('change', mostrarProductos);
+    const searchProducts = document.getElementById('searchProducts');
+    if (searchProducts) {
+        searchProducts.addEventListener('input', mostrarProductos);
+    }
+
+    const searchProductsBtn = document.getElementById('searchProductsBtn');
+    if (searchProductsBtn) {
+        searchProductsBtn.addEventListener('click', mostrarProductos);
+    }
+
+    const categoryFilter = document.getElementById('categoryFilter');
+    if (categoryFilter) {
+        categoryFilter.addEventListener('change', mostrarProductos);
+    }
+
+    const statusFilter = document.getElementById('statusFilter');
+    if (statusFilter) {
+        statusFilter.addEventListener('change', mostrarProductos);
+    }
 
     // Eventos para gestión de usuarios
-    document.getElementById('addUserBtn').addEventListener('click', () => abrirModalUsuario());
-    document.getElementById('addFirstUserBtn').addEventListener('click', () => abrirModalUsuario());
-    document.getElementById('saveUserBtn').addEventListener('click', guardarUsuario);
+    const addUserBtn = document.getElementById('addUserBtn');
+    if (addUserBtn) {
+        addUserBtn.addEventListener('click', () => abrirModalUsuario());
+    }
+
+    const addFirstUserBtn = document.getElementById('addFirstUserBtn');
+    if (addFirstUserBtn) {
+        addFirstUserBtn.addEventListener('click', () => abrirModalUsuario());
+    }
+
+    const saveUserBtn = document.getElementById('saveUserBtn');
+    if (saveUserBtn) {
+        saveUserBtn.addEventListener('click', guardarUsuario);
+    }
 
     // Eventos para búsqueda y filtros de usuarios
-    document.getElementById('searchUsers').addEventListener('input', mostrarUsuarios);
-    document.getElementById('searchUsersBtn').addEventListener('click', mostrarUsuarios);
-    document.getElementById('roleFilter').addEventListener('change', mostrarUsuarios);
-    document.getElementById('userStatusFilter').addEventListener('change', mostrarUsuarios);
+    const searchUsers = document.getElementById('searchUsers');
+    if (searchUsers) {
+        searchUsers.addEventListener('input', mostrarUsuarios);
+    }
+
+    const searchUsersBtn = document.getElementById('searchUsersBtn');
+    if (searchUsersBtn) {
+        searchUsersBtn.addEventListener('click', mostrarUsuarios);
+    }
+
+    const roleFilter = document.getElementById('roleFilter');
+    if (roleFilter) {
+        roleFilter.addEventListener('change', mostrarUsuarios);
+    }
+
+    const userStatusFilter = document.getElementById('userStatusFilter');
+    if (userStatusFilter) {
+        userStatusFilter.addEventListener('change', mostrarUsuarios);
+    }
 
     // Evento para actualizar menú público
-    document.getElementById('refreshPublicMenu').addEventListener('click', mostrarMenuPublico);
+    const refreshPublicMenu = document.getElementById('refreshPublicMenu');
+    if (refreshPublicMenu) {
+        refreshPublicMenu.addEventListener('click', function() {
+            mostrarMenuPublico();
+            mostrarAlerta('Menú público actualizado', 'success');
+        });
+    }
 
-    // Eventos delegados para acciones en tablas
+    // Eventos delegados para acciones en tablas - MEJORADO
     document.addEventListener('click', function (e) {
         // Editar producto
         if (e.target.closest('.edit-product')) {
-            const id = parseInt(e.target.closest('.edit-product').getAttribute('data-id'));
+            const btn = e.target.closest('.edit-product');
+            const id = parseInt(btn.getAttribute('data-id'));
             const producto = products.find(p => p.id === id);
-            if (producto) abrirModalProducto(producto);
+            if (producto) {
+                console.log(`✏️ Editando producto: ${producto.nombre}`);
+                abrirModalProducto(producto);
+            }
         }
 
         // Eliminar producto
         if (e.target.closest('.delete-product')) {
-            const id = parseInt(e.target.closest('.delete-product').getAttribute('data-id'));
+            const btn = e.target.closest('.delete-product');
+            const id = parseInt(btn.getAttribute('data-id'));
             const producto = products.find(p => p.id === id);
             if (producto) {
+                console.log(`🗑️ Solicitando eliminación de: ${producto.nombre}`);
                 mostrarConfirmacion(
-                    `¿Está seguro de que desea eliminar el producto "${producto.nombre}"?`,
+                    `¿Está seguro de que desea eliminar el producto "${producto.nombre}"? Esta acción no se puede deshacer.`,
                     () => eliminarProducto(id)
                 );
             }
@@ -990,14 +1267,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Editar usuario
         if (e.target.closest('.edit-user')) {
-            const id = parseInt(e.target.closest('.edit-user').getAttribute('data-id'));
+            const btn = e.target.closest('.edit-user');
+            const id = parseInt(btn.getAttribute('data-id'));
             const usuario = users.find(u => u.id === id);
             if (usuario) abrirModalUsuario(usuario);
         }
 
         // Eliminar usuario
         if (e.target.closest('.delete-user')) {
-            const id = parseInt(e.target.closest('.delete-user').getAttribute('data-id'));
+            const btn = e.target.closest('.delete-user');
+            const id = parseInt(btn.getAttribute('data-id'));
             const usuario = users.find(u => u.id === id);
             if (usuario) {
                 mostrarConfirmacion(
@@ -1008,32 +1287,50 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // Vista previa de imagen en formulario de producto
-    document.getElementById('productImage').addEventListener('change', function (e) {
-        const file = e.target.files[0];
-        const preview = document.getElementById('imagePreview');
+    // Vista previa de imagen
+    const productImage = document.getElementById('productImage');
+    if (productImage) {
+        productImage.addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            const preview = document.getElementById('imagePreview');
 
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                preview.src = e.target.result;
-                preview.classList.remove('d-none');
-            };
-            reader.readAsDataURL(file);
-        } else {
-            preview.classList.add('d-none');
-        }
+            if (file) {
+                if (file.size > 2 * 1024 * 1024) {
+                    mostrarAlerta('La imagen debe ser menor a 2MB', 'warning');
+                    this.value = '';
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    preview.src = e.target.result;
+                    preview.classList.remove('d-none');
+                };
+                reader.readAsDataURL(file);
+            } else {
+                preview.classList.add('d-none');
+            }
+        });
+    }
+
+    // Guardar datos antes de cerrar sesión o recargar - MEJORADO
+    window.addEventListener('beforeunload', function() {
+        console.log('💾 Guardando datos antes de salir...');
+        guardarDatosEnLocalStorage();
     });
 
-    console.log('Dashboard Luren Chicken - Inicializado correctamente con todas las funcionalidades');
-    console.log('Sincronización en tiempo real activada entre gestión de menú y menú público');
+    // Guardar datos periódicamente
+    setInterval(guardarDatosEnLocalStorage, 30000);
+
+    console.log('✅ Dashboard Luren Chicken inicializado correctamente');
+    console.log('🔄 Sistema de sincronización en tiempo real ACTIVADO');
+    console.log('💾 Sistema de persistencia ACTIVADO');
 });
 
-// Simulación de endpoints API para PostgreSQL
+// Simulación de endpoints API
 window.fetch = window.fetch || function (url, options) {
     return new Promise((resolve) => {
         setTimeout(() => {
-            // Simular respuesta de la base de datos PostgreSQL
             if (url === '/api/estadisticas/dashboard') {
                 resolve({
                     ok: true,
@@ -1060,37 +1357,12 @@ window.fetch = window.fetch || function (url, options) {
                                 estado: "completado",
                                 tipo: "Delivery",
                                 cajero: "María García"
-                            },
-                            {
-                                id: 1002,
-                                cliente: "Ana López",
-                                cantidadProductos: 2,
-                                total: 85.00,
-                                fecha: new Date(Date.now() - 3600000).toISOString(),
-                                estado: "proceso",
-                                tipo: "Local",
-                                cajero: "Carlos Rodríguez"
-                            },
-                            {
-                                id: 1003,
-                                cliente: "Roberto Silva",
-                                cantidadProductos: 5,
-                                total: 210.75,
-                                fecha: new Date(Date.now() - 7200000).toISOString(),
-                                estado: "completado",
-                                tipo: "Delivery",
-                                cajero: "María García"
                             }
                         ]
                     })
                 });
             }
-
-            // Para otras URLs, simular error
-            resolve({
-                ok: false,
-                status: 500
-            });
+            resolve({ ok: false, status: 500 });
         }, 1000);
     });
 };

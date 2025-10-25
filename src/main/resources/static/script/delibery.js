@@ -1,13 +1,31 @@
-// Ubicación de la pollería en Ica (coordenadas aproximadas)
-const restaurantLocation = {
-    lat: -14.070617,
-    lng: -75.727120,
-    name: "Luren Chicken",
-    address: "Cerca de Pollería en Ica, Perú"
+// Configuración global
+const CONFIG = {
+    restaurantLocation: {
+        lat: -14.070617,
+        lng: -75.727120,
+        name: "Luren Chicken",
+        address: "Cerca de Pollería en Ica, Perú"
+    },
+    updateInterval: 2000,
+    simulationSpeed: 2
 };
 
-// Datos de ejemplo para pedidos de delivery en Ica
-let deliveryOrders = [
+// Estado de la aplicación
+const APP_STATE = {
+    deliveryOrders: [],
+    map: null,
+    currentMarkers: [],
+    currentOrderId: null,
+    restaurantMarker: null,
+    driverMarker: null,
+    routingControl: null,
+    realTimeInterval: null,
+    currentOrder: null,
+    driverSimulations: new Map()
+};
+
+// Datos iniciales de ejemplo
+const INITIAL_ORDERS = [
     {
         id: 1,
         orderNumber: "ORD-2024-001234",
@@ -23,7 +41,7 @@ let deliveryOrders = [
             { name: "Papas Fritas Familiares", quantity: 1, price: "S/ 12.00" },
             { name: "Gaseosa 1L", quantity: 1, price: "S/ 4.50" }
         ],
-        coordinates: { lat: -14.065, lng: -75.730 }, // Cerca de la pollería
+        coordinates: { lat: -14.065, lng: -75.730 },
         driverPosition: null,
         progress: 0
     },
@@ -60,99 +78,120 @@ let deliveryOrders = [
         coordinates: { lat: -14.073, lng: -75.732 },
         driverPosition: null,
         progress: 0
-    },
-    {
-        id: 4,
-        orderNumber: "ORD-2024-001237",
-        customerName: "Roberto Silva",
-        phone: "+51 987 456 789",
-        address: "Av. La Angostura 456, Ica",
-        district: "Ica",
-        total: "S/ 36.50",
-        status: "delivered",
-        orderTime: "11:20 AM",
-        items: [
-            { name: "1/2 Pollo + Papas", quantity: 1, price: "S/ 20.00" },
-            { name: "Ensalada César", quantity: 1, price: "S/ 10.00" },
-            { name: "Gaseosa 1L", quantity: 1, price: "S/ 6.50" }
-        ],
-        coordinates: { lat: -14.075, lng: -75.720 },
-        driverPosition: null,
-        progress: 100
-    },
-    {
-        id: 5,
-        orderNumber: "ORD-2024-001238",
-        customerName: "Lucía Mendoza",
-        phone: "+51 987 321 654",
-        address: "Psje. Grau 789, Ica",
-        district: "Ica",
-        total: "S/ 42.00",
-        status: "pending",
-        orderTime: "1:45 PM",
-        items: [
-            { name: "Pollo a la Brasa Entero", quantity: 1, price: "S/ 32.00" },
-            { name: "Ensalada César", quantity: 1, price: "S/ 10.00" }
-        ],
-        coordinates: { lat: -14.072, lng: -75.728 },
-        driverPosition: null,
-        progress: 0
-    },
-    {
-        id: 6,
-        orderNumber: "ORD-2024-001239",
-        customerName: "Miguel Torres",
-        phone: "+51 987 654 987",
-        address: "Urb. Luren, Ica",
-        district: "Ica",
-        total: "S/ 55.50",
-        status: "in-progress",
-        orderTime: "2:00 PM",
-        items: [
-            { name: "Pollo a la Brasa Entero", quantity: 1, price: "S/ 32.00" },
-            { name: "1/4 de Pollo + Papas", quantity: 1, price: "S/ 14.00" },
-            { name: "Gaseosa 1L", quantity: 1, price: "S/ 4.50" },
-            { name: "Papas Fritas", quantity: 1, price: "S/ 5.00" }
-        ],
-        coordinates: { lat: -14.066, lng: -75.735 },
-        driverPosition: { lat: -14.067, lng: -75.733 },
-        progress: 60
     }
 ];
 
-// Variables globales
-let map;
-let currentMarkers = [];
-let currentOrderId = null;
-let restaurantMarker;
-let driverMarker;
-let driverInterval;
-let routeLine;
-let driverPosition;
-let driverTarget;
-let currentOrder;
-
 // Inicializar la aplicación
 document.addEventListener('DOMContentLoaded', function () {
-    renderDeliveryList();
-    setupEventListeners();
-    updateStats();
-
-    // Iniciar simulación de movimiento para pedidos en progreso
-    startAllDriverSimulations();
+    initializeApp();
 });
 
-// Renderizar la lista de pedidos
+function initializeApp() {
+    console.log('🚀 Inicializando sistema de delivery...');
+    
+    // Cargar datos iniciales
+    APP_STATE.deliveryOrders = [...INITIAL_ORDERS];
+    
+    // Configurar componentes
+    updateDateTime();
+    setupEventListeners();
+    renderDeliveryList();
+    updateAllStats();
+    
+    // Iniciar servicios en segundo plano
+    setInterval(updateDateTime, 1000);
+    setInterval(updateAllStats, 5000);
+    startAllDriverSimulations();
+    
+    console.log('✅ Sistema de delivery inicializado correctamente');
+}
+
+// Actualizar fecha y hora en tiempo real
+function updateDateTime() {
+    try {
+        const now = new Date();
+        
+        // Formatear fecha
+        const optionsDate = { 
+            weekday: 'long', 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+        };
+        const dateString = now.toLocaleDateString('es-ES', optionsDate);
+        document.getElementById('currentDate').textContent = dateString;
+        
+        // Formatear hora
+        const timeString = now.toLocaleTimeString('es-ES', { 
+            hour: '2-digit', 
+            minute: '2-digit', 
+            second: '2-digit' 
+        });
+        document.getElementById('currentTime').textContent = timeString;
+        document.getElementById('mobileTime').textContent = timeString;
+    } catch (error) {
+        console.error('Error actualizando fecha/hora:', error);
+    }
+}
+
+// Configurar event listeners
+function setupEventListeners() {
+    // Filtros
+    document.querySelectorAll('.filter-buttons .btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+            document.querySelectorAll('.filter-buttons .btn').forEach(b => {
+                b.classList.remove('active');
+            });
+            this.classList.add('active');
+            const filter = this.getAttribute('data-filter');
+            renderDeliveryList(filter);
+        });
+    });
+
+    // Botón de menú móvil
+    document.getElementById('mobileMenuBtn')?.addEventListener('click', function() {
+        document.querySelector('.delivery-sidebar').classList.toggle('mobile-open');
+    });
+
+    // Botones del modal
+    document.getElementById('markDeliveredModal').addEventListener('click', function () {
+        if (APP_STATE.currentOrderId) {
+            markAsDelivered(APP_STATE.currentOrderId);
+            const mapModal = bootstrap.Modal.getInstance(document.getElementById('mapModal'));
+            mapModal.hide();
+        }
+    });
+
+    document.getElementById('startDeliveryBtn').addEventListener('click', function () {
+        if (APP_STATE.currentOrderId) {
+            startDelivery(APP_STATE.currentOrderId);
+            const mapModal = bootstrap.Modal.getInstance(document.getElementById('mapModal'));
+            mapModal.hide();
+        }
+    });
+
+    // Cerrar modal cuando se oculta
+    document.getElementById('mapModal').addEventListener('hidden.bs.modal', function () {
+        clearMap();
+        APP_STATE.currentOrderId = null;
+        APP_STATE.currentOrder = null;
+    });
+}
+
+// Renderizar lista de pedidos
 function renderDeliveryList(filter = 'all') {
     const deliveryList = document.getElementById('deliveryList');
     const emptyState = document.getElementById('emptyState');
 
-    // Filtrar pedidos
-    const filteredOrders = filter === 'all'
-        ? deliveryOrders
-        : deliveryOrders.filter(order => order.status === filter);
+    if (!deliveryList || !emptyState) {
+        console.error('Elementos del DOM no encontrados');
+        return;
+    }
 
-    // Mostrar estado vacío si no hay pedidos
+    const filteredOrders = filter === 'all' 
+        ? APP_STATE.deliveryOrders 
+        : APP_STATE.deliveryOrders.filter(order => order.status === filter);
+
     if (filteredOrders.length === 0) {
         deliveryList.innerHTML = '';
         emptyState.classList.remove('d-none');
@@ -161,77 +200,111 @@ function renderDeliveryList(filter = 'all') {
 
     emptyState.classList.add('d-none');
 
-    // Generar HTML para cada pedido
-    deliveryList.innerHTML = filteredOrders.map(order => {
-        const statusBadge = getStatusBadge(order.status);
-        const itemsList = order.items.map(item =>
-            `<div class="d-flex justify-content-between">
-                        <span>${item.name} x${item.quantity}</span>
-                        <span>${item.price}</span>
-                    </div>`
-        ).join('');
-
-        // Barra de progreso para pedidos en camino
-        const progressBar = order.status === 'in-progress' ?
-            `<div class="progress-container mt-2">
-                        <div class="d-flex justify-content-between mb-1">
-                            <small>Restaurante</small>
-                            <small>${order.progress}%</small>
-                            <small>Destino</small>
+    deliveryList.innerHTML = filteredOrders.map(order => `
+        <div class="card delivery-card mb-3 ${order.status === 'delivered' ? 'entregado' : ''}" data-order-id="${order.id}">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <span class="order-number">${order.orderNumber}</span>
+                            ${getStatusBadge(order.status)}
                         </div>
-                        <div class="progress" style="height: 6px;">
-                            <div class="progress-bar" role="progressbar" style="width: ${order.progress}%"></div>
-                        </div>
-                    </div>` : '';
-
-        return `
-                    <div class="card delivery-card mb-3 ${order.status === 'delivered' ? 'entregado' : ''}" data-order-id="${order.id}">
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-8">
-                                    <div class="d-flex justify-content-between align-items-start mb-2">
-                                        <span class="order-number">${order.orderNumber}</span>
-                                        ${statusBadge}
-                                    </div>
-                                    <h5 class="customer-name">${order.customerName}</h5>
-                                    <p class="delivery-address mb-2">
-                                        <i class="bi bi-geo-alt-fill me-1"></i>${order.address}
-                                    </p>
-                                    <p class="phone-number mb-2">
-                                        <i class="bi bi-telephone-fill me-1"></i>${order.phone}
-                                    </p>
-                                    <span class="location-badge">${order.district}</span>
-                                    ${progressBar}
-                                    <div class="order-items mt-3">
-                                        ${itemsList}
-                                    </div>
+                        <h5 class="customer-name">${order.customerName}</h5>
+                        <p class="delivery-address mb-2">
+                            <i class="bi bi-geo-alt-fill me-1"></i>${order.address}
+                        </p>
+                        <p class="phone-number mb-2">
+                            <i class="bi bi-telephone-fill me-1"></i>${order.phone}
+                        </p>
+                        <span class="location-badge">${order.district}</span>
+                        ${order.status === 'in-progress' ? getProgressBar(order.progress) : ''}
+                        <div class="order-items mt-3">
+                            ${order.items.map(item => `
+                                <div class="d-flex justify-content-between">
+                                    <span>${item.name} x${item.quantity}</span>
+                                    <span>${item.price}</span>
                                 </div>
-                                <div class="col-md-4">
-                                    <div class="d-flex flex-column h-100">
-                                        <div class="mt-auto text-end">
-                                            <div class="order-total mb-2">${order.total}</div>
-                                            <div class="order-time mb-3">Orden: ${order.orderTime}</div>
-                                            <div class="d-grid gap-2">
-                                                <button class="btn btn-view-map view-map-btn" data-order-id="${order.id}">
-                                                    <i class="bi bi-map me-1"></i>Ver Mapa
-                                                </button>
-                                                ${order.status !== 'delivered' ?
-                `<button class="btn btn-delivered mark-delivered-btn" data-order-id="${order.id}">
-                                                        <i class="bi bi-check-circle me-1"></i>Marcar Entregado
-                                                    </button>` :
-                ''
-            }
-                                            </div>
-                                        </div>
-                                    </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-flex flex-column h-100">
+                            <div class="mt-auto text-end">
+                                <div class="order-total mb-2">${order.total}</div>
+                                <div class="order-time mb-3">Orden: ${order.orderTime}</div>
+                                <div class="d-grid gap-2">
+                                    ${getActionButtons(order)}
                                 </div>
                             </div>
                         </div>
                     </div>
-                `;
-    }).join('');
+                </div>
+            </div>
+        </div>
+    `).join('');
 
-    // Agregar event listeners a los botones
+    setupOrderEventListeners();
+}
+
+// Obtener badge de estado
+function getStatusBadge(status) {
+    const config = {
+        'pending': { text: 'Pendiente', class: 'bg-warning' },
+        'in-progress': { text: 'En Camino', class: 'bg-info' },
+        'delivered': { text: 'Entregado', class: 'bg-success' }
+    }[status] || { text: 'Desconocido', class: 'bg-secondary' };
+    
+    return `<span class="badge status-badge ${config.class}">${config.text}</span>`;
+}
+
+// Obtener barra de progreso
+function getProgressBar(progress) {
+    return `
+        <div class="progress-container mt-2">
+            <div class="d-flex justify-content-between mb-1">
+                <small>Restaurante</small>
+                <small>${progress}%</small>
+                <small>Destino</small>
+            </div>
+            <div class="progress" style="height: 6px;">
+                <div class="progress-bar" role="progressbar" style="width: ${progress}%"></div>
+            </div>
+        </div>
+    `;
+}
+
+// Obtener botones de acción
+function getActionButtons(order) {
+    switch (order.status) {
+        case 'pending':
+            return `
+                <button class="btn btn-start-delivery start-delivery-btn" data-order-id="${order.id}">
+                    <i class="bi bi-play-circle me-1"></i>Iniciar Entrega
+                </button>
+                <button class="btn btn-view-map view-map-btn" data-order-id="${order.id}">
+                    <i class="bi bi-map me-1"></i>Ver Mapa
+                </button>
+            `;
+        case 'in-progress':
+            return `
+                <button class="btn btn-view-map view-map-btn" data-order-id="${order.id}">
+                    <i class="bi bi-map me-1"></i>Seguir Ruta
+                </button>
+                <button class="btn btn-delivered mark-delivered-btn" data-order-id="${order.id}">
+                    <i class="bi bi-check-circle me-1"></i>Marcar Entregado
+                </button>
+            `;
+        default:
+            return `
+                <button class="btn btn-view-map view-map-btn" data-order-id="${order.id}">
+                    <i class="bi bi-map me-1"></i>Ver Detalles
+                </button>
+            `;
+    }
+}
+
+// Configurar event listeners de pedidos
+function setupOrderEventListeners() {
     document.querySelectorAll('.view-map-btn').forEach(btn => {
         btn.addEventListener('click', function () {
             const orderId = parseInt(this.getAttribute('data-order-id'));
@@ -245,399 +318,331 @@ function renderDeliveryList(filter = 'all') {
             markAsDelivered(orderId);
         });
     });
-}
 
-// Obtener el badge de estado
-function getStatusBadge(status) {
-    const statusConfig = {
-        'pending': { text: 'Pendiente', class: 'bg-warning' },
-        'in-progress': { text: 'En Camino', class: 'bg-info' },
-        'delivered': { text: 'Entregado', class: 'bg-success' }
-    };
-
-    const config = statusConfig[status];
-    return `<span class="badge status-badge ${config.class}">${config.text}</span>`;
-}
-
-// Configurar event listeners
-function setupEventListeners() {
-    // Filtros
-    document.querySelectorAll('.filter-buttons .btn').forEach(btn => {
+    document.querySelectorAll('.start-delivery-btn').forEach(btn => {
         btn.addEventListener('click', function () {
-            // Remover clase active de todos los botones
-            document.querySelectorAll('.filter-buttons .btn').forEach(b => {
-                b.classList.remove('active');
-            });
-
-            // Agregar clase active al botón clickeado
-            this.classList.add('active');
-
-            // Aplicar filtro
-            const filter = this.getAttribute('data-filter');
-            renderDeliveryList(filter);
+            const orderId = parseInt(this.getAttribute('data-order-id'));
+            startDelivery(orderId);
         });
     });
-
-    // Botón de marcar como entregado en el modal
-    document.getElementById('markDeliveredModal').addEventListener('click', function () {
-        if (currentOrderId) {
-            markAsDelivered(currentOrderId);
-            const mapModal = bootstrap.Modal.getInstance(document.getElementById('mapModal'));
-            mapModal.hide();
-        }
-    });
 }
 
-// Mostrar modal con mapa
+// Mostrar modal del mapa
 function showMapModal(orderId) {
-    const order = deliveryOrders.find(o => o.id === orderId);
-    if (!order) return;
+    const order = APP_STATE.deliveryOrders.find(o => o.id === orderId);
+    if (!order) {
+        showConfirmation('Error', 'Pedido no encontrado');
+        return;
+    }
 
-    currentOrderId = orderId;
-    currentOrder = order;
+    APP_STATE.currentOrderId = orderId;
+    APP_STATE.currentOrder = order;
 
     // Actualizar información del modal
-    document.getElementById('modalOrderNumber').textContent = order.orderNumber;
-    document.getElementById('modalCustomerInfo').textContent = `${order.customerName} - ${order.phone}`;
-    document.getElementById('modalDeliveryAddress').textContent = order.address;
-    document.getElementById('modalDistrict').textContent = order.district;
-    document.getElementById('modalOrderTotal').textContent = order.total;
-    document.getElementById('modalOrderTime').textContent = `Orden: ${order.orderTime}`;
+    updateModalInfo(order);
 
-    // Actualizar barra de progreso
-    document.getElementById('deliveryProgress').style.width = `${order.progress}%`;
-    document.getElementById('progressPercentage').textContent = `${order.progress}%`;
+    // Configurar botones según estado
+    updateModalButtons(order.status);
 
-    // Inicializar mapa si no existe
-    if (!map) {
-        initMap();
-    } else {
-        // Limpiar marcadores existentes
-        clearMarkers();
-        clearDriverSimulation();
-    }
-
-    // Agregar marcador para la pollería (restaurante)
-    addRestaurantMarker();
-
-    // Agregar marcador para la ubicación del cliente
-    addMarker(order.coordinates, order.customerName, order.orderNumber, 'customer');
-
-    // Centrar mapa para mostrar ambos puntos
-    centerMapOnPoints([restaurantLocation, order.coordinates]);
-
-    // Calcular y mostrar información de ruta
-    calculateRouteInfo(restaurantLocation, order.coordinates);
-
-    // Iniciar simulación del repartidor si el pedido está en camino
-    if (order.status === 'in-progress') {
-        startDriverSimulation(restaurantLocation, order.coordinates, order.progress);
-    } else if (order.status === 'pending') {
-        // Mostrar botón para iniciar entrega
-        document.getElementById('routeStatus').textContent = 'Pendiente';
-        document.getElementById('routeStatus').className = 'badge bg-warning';
-    }
+    // Inicializar y configurar mapa
+    initMap();
+    setupMapForOrder(order);
 
     // Mostrar modal
     const mapModal = new bootstrap.Modal(document.getElementById('mapModal'));
     mapModal.show();
 }
 
-// Inicializar mapa centrado en Ica
-function initMap() {
-    map = L.map('deliveryMap').setView([restaurantLocation.lat, restaurantLocation.lng], 14);
+// Actualizar información del modal
+function updateModalInfo(order) {
+    document.getElementById('modalOrderNumber').textContent = order.orderNumber;
+    document.getElementById('modalCustomerInfo').textContent = `${order.customerName} - ${order.phone}`;
+    document.getElementById('modalDeliveryAddress').textContent = order.address;
+    document.getElementById('modalDistrict').textContent = order.district;
+    document.getElementById('modalOrderTotal').textContent = order.total;
+    document.getElementById('modalOrderTime').textContent = `Orden: ${order.orderTime}`;
+    document.getElementById('deliveryProgress').style.width = `${order.progress}%`;
+    document.getElementById('progressPercentage').textContent = `${order.progress}%`;
+}
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}/.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
+// Actualizar botones del modal
+function updateModalButtons(status) {
+    const markDeliveredBtn = document.getElementById('markDeliveredModal');
+    const startDeliveryBtn = document.getElementById('startDeliveryBtn');
+    
+    markDeliveredBtn.style.display = status === 'in-progress' ? 'inline-block' : 'none';
+    startDeliveryBtn.style.display = status === 'pending' ? 'inline-block' : 'none';
+}
+
+// Inicializar mapa
+function initMap() {
+    if (!APP_STATE.map) {
+        APP_STATE.map = L.map('deliveryMap').setView([CONFIG.restaurantLocation.lat, CONFIG.restaurantLocation.lng], 14);
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(APP_STATE.map);
+    } else {
+        APP_STATE.map.setView([CONFIG.restaurantLocation.lat, CONFIG.restaurantLocation.lng], 14);
+    }
+    
+    clearMap();
+}
+
+// Configurar mapa según el pedido
+function setupMapForOrder(order) {
+    addRestaurantMarker();
+    addCustomerMarker(order);
+    
+    if (order.status === 'in-progress') {
+        if (order.driverPosition) {
+            addDriverMarker(order.driverPosition);
+        }
+        calculateRealTimeRoute(order);
+        startRealTimeSimulation(order);
+        document.getElementById('routeStatus').textContent = 'En camino';
+        document.getElementById('routeStatus').className = 'badge bg-info';
+    } else {
+        calculateRouteInfo(CONFIG.restaurantLocation, order.coordinates);
+        document.getElementById('routeStatus').textContent = 'Pendiente';
+        document.getElementById('routeStatus').className = 'badge bg-warning';
+    }
+    
+    centerMapOnPoints([CONFIG.restaurantLocation, order.coordinates]);
 }
 
 // Agregar marcador del restaurante
 function addRestaurantMarker() {
-    restaurantMarker = L.marker([restaurantLocation.lat, restaurantLocation.lng])
-        .addTo(map)
+    APP_STATE.restaurantMarker = L.marker([CONFIG.restaurantLocation.lat, CONFIG.restaurantLocation.lng])
+        .addTo(APP_STATE.map)
         .bindPopup(`
-                    <div class="text-center">
-                        <h6>${restaurantLocation.name}</h6>
-                        <p class="mb-1">Punto de partida</p>
-                        <small>${restaurantLocation.address}</small>
-                    </div>
-                `)
-        .openPopup();
-
-    // Icono personalizado para el restaurante (rojo)
-    restaurantMarker.setIcon(
-        L.divIcon({
-            html: '<i class="bi bi-shop" style="color: #d32f2f; font-size: 24px;"></i>',
-            iconSize: [24, 24],
-            className: 'restaurant-marker'
-        })
-    );
+            <div class="text-center">
+                <h6>${CONFIG.restaurantLocation.name}</h6>
+                <p class="mb-1">Punto de partida</p>
+                <small>${CONFIG.restaurantLocation.address}</small>
+            </div>
+        `)
+        .setIcon(L.divIcon({
+            html: '<div class="marker-icon restaurant-marker"><i class="bi bi-shop"></i></div>',
+            iconSize: [40, 40],
+            className: 'restaurant-marker-icon'
+        }));
 }
 
-// Agregar marcador al mapa
-function addMarker(coords, title, orderNumber, type = 'customer') {
-    const marker = L.marker([coords.lat, coords.lng])
-        .addTo(map)
+// Agregar marcador del cliente
+function addCustomerMarker(order) {
+    const customerMarker = L.marker([order.coordinates.lat, order.coordinates.lng])
+        .addTo(APP_STATE.map)
         .bindPopup(`
-                    <div class="text-center">
-                        <h6>${title}</h6>
-                        <p class="mb-1">${orderNumber}</p>
-                        <small>${type === 'customer' ? 'Ubicación de entrega' : 'Punto de partida'}</small>
-                    </div>
-                `);
+            <div class="text-center">
+                <h6>${order.customerName}</h6>
+                <p class="mb-1">${order.orderNumber}</p>
+                <small>${order.address}</small>
+            </div>
+        `)
+        .setIcon(L.divIcon({
+            html: '<div class="marker-icon customer-marker"><i class="bi bi-house"></i></div>',
+            iconSize: [40, 40],
+            className: 'customer-marker-icon'
+        }));
+    
+    APP_STATE.currentMarkers.push(customerMarker);
+}
 
-    // Icono personalizado para clientes (azul)
-    if (type === 'customer') {
-        marker.setIcon(
-            L.divIcon({
-                html: '<i class="bi bi-house-fill" style="color: #0d6efd; font-size: 24px;"></i>',
-                iconSize: [24, 24],
-                className: 'customer-marker'
-            })
-        );
+// Agregar marcador del repartidor
+function addDriverMarker(position) {
+    APP_STATE.driverMarker = L.marker([position.lat, position.lng])
+        .addTo(APP_STATE.map)
+        .setIcon(L.divIcon({
+            html: '<div class="marker-icon driver-marker"><i class="bi bi-person-bicycle"></i></div>',
+            iconSize: [40, 40],
+            className: 'driver-marker-icon'
+        }));
+    
+    APP_STATE.currentMarkers.push(APP_STATE.driverMarker);
+}
+
+// Calcular ruta en tiempo real
+function calculateRealTimeRoute(order) {
+    if (APP_STATE.routingControl) {
+        APP_STATE.map.removeControl(APP_STATE.routingControl);
     }
 
-    currentMarkers.push(marker);
+    const waypoints = [
+        L.latLng(CONFIG.restaurantLocation.lat, CONFIG.restaurantLocation.lng),
+        L.latLng(order.coordinates.lat, order.coordinates.lng)
+    ];
+
+    APP_STATE.routingControl = L.Routing.control({
+        waypoints: waypoints,
+        routeWhileDragging: false,
+        showAlternatives: false,
+        lineOptions: {
+            styles: [{ color: '#d32f2f', weight: 6, opacity: 0.7 }]
+        },
+        createMarker: function() { return null; }
+    }).addTo(APP_STATE.map);
+
+    APP_STATE.routingControl.on('routesfound', function(e) {
+        const routes = e.routes;
+        if (routes && routes.length > 0) {
+            const route = routes[0];
+            const distance = (route.summary.totalDistance / 1000).toFixed(1);
+            const time = Math.round(route.summary.totalTime / 60);
+            
+            document.getElementById('routeDistance').textContent = distance + ' km';
+            document.getElementById('routeTime').textContent = time + ' min';
+        }
+    });
 }
 
-// Centrar mapa para mostrar múltiples puntos
+// Iniciar simulación en tiempo real
+function startRealTimeSimulation(order) {
+    if (APP_STATE.realTimeInterval) {
+        clearInterval(APP_STATE.realTimeInterval);
+    }
+
+    APP_STATE.realTimeInterval = setInterval(() => {
+        if (order.status !== 'in-progress' || order.progress >= 100) {
+            clearInterval(APP_STATE.realTimeInterval);
+            return;
+        }
+        simulateDriverMovement(order);
+        updateRealTimeUI(order);
+    }, CONFIG.updateInterval);
+}
+
+// Simular movimiento del repartidor
+function simulateDriverMovement(order) {
+    if (!order.driverPosition) {
+        order.driverPosition = { ...CONFIG.restaurantLocation };
+    }
+
+    const start = CONFIG.restaurantLocation;
+    const end = order.coordinates;
+    
+    const latStep = (end.lat - start.lat) / 100;
+    const lngStep = (end.lng - start.lng) / 100;
+    
+    order.driverPosition.lat += latStep * CONFIG.simulationSpeed;
+    order.driverPosition.lng += lngStep * CONFIG.simulationSpeed;
+    
+    const progress = calculateProgress(order.driverPosition, start, end);
+    order.progress = Math.min(100, Math.round(progress));
+    
+    if (APP_STATE.driverMarker) {
+        APP_STATE.driverMarker.setLatLng([order.driverPosition.lat, order.driverPosition.lng]);
+    }
+    
+    if (order.progress >= 100) {
+        order.driverPosition = { ...end };
+        showConfirmation('¡Entrega completada!', 'El pedido ha llegado a su destino.');
+    }
+}
+
+// Calcular progreso
+function calculateProgress(current, start, end) {
+    const totalDistance = Math.sqrt(
+        Math.pow(end.lat - start.lat, 2) + 
+        Math.pow(end.lng - start.lng, 2)
+    );
+    
+    const currentDistance = Math.sqrt(
+        Math.pow(current.lat - start.lat, 2) + 
+        Math.pow(current.lng - start.lng, 2)
+    );
+    
+    return (currentDistance / totalDistance) * 100;
+}
+
+// Actualizar UI en tiempo real
+function updateRealTimeUI(order) {
+    document.getElementById('deliveryProgress').style.width = `${order.progress}%`;
+    document.getElementById('progressPercentage').textContent = `${order.progress}%`;
+    
+    if (order.progress >= 95) {
+        document.getElementById('routeStatus').textContent = 'Llegando';
+        document.getElementById('routeStatus').className = 'badge bg-success';
+    }
+}
+
+// Centrar mapa en puntos
 function centerMapOnPoints(points) {
     const group = new L.featureGroup([
         L.marker([points[0].lat, points[0].lng]),
         L.marker([points[1].lat, points[1].lng])
     ]);
-    map.fitBounds(group.getBounds().pad(0.1));
+    APP_STATE.map.fitBounds(group.getBounds().pad(0.1));
 }
 
-// Calcular información de ruta (simulada)
+// Calcular información de ruta
 function calculateRouteInfo(start, end) {
-    // En una aplicación real, esto se calcularía con una API de rutas
-    // Por ahora, simulamos la información
-
-    // Calcular distancia aproximada (fórmula Haversine simplificada)
     const latDiff = end.lat - start.lat;
     const lngDiff = end.lng - start.lng;
-    const distance = Math.sqrt(latDiff * latDiff + lngDiff * lngDiff) * 111; // Aprox. km
-
-    // Tiempo estimado basado en distancia
-    const timeMinutes = Math.round(distance * 3 + 5); // ~3 min por km + 5 min base
+    const distance = Math.sqrt(latDiff * latDiff + lngDiff * lngDiff) * 111;
+    const timeMinutes = Math.round(distance * 3 + 5);
 
     document.getElementById('routeDistance').textContent = distance.toFixed(1) + ' km';
     document.getElementById('routeTime').textContent = timeMinutes + ' min';
 }
 
-// Iniciar simulación del repartidor en movimiento
-function startDriverSimulation(start, end, initialProgress = 0) {
-    // Limpiar simulación anterior si existe
-    clearDriverSimulation();
-
-    // Calcular posición inicial basada en el progreso
-    const progressFactor = initialProgress / 100;
-    driverPosition = {
-        lat: start.lat + (end.lat - start.lat) * progressFactor,
-        lng: start.lng + (end.lng - start.lng) * progressFactor
-    };
-
-    // Destino del repartidor
-    driverTarget = end;
-
-    // Crear marcador del repartidor
-    driverMarker = L.marker([driverPosition.lat, driverPosition.lng])
-        .addTo(map);
-
-    // Icono personalizado para el repartidor
-    driverMarker.setIcon(
-        L.divIcon({
-            html: '<div class="driver-marker"></div>',
-            iconSize: [20, 20],
-            className: 'driver-marker-icon'
-        })
-    );
-
-    // Crear línea de ruta
-    routeLine = L.polyline([start, driverPosition, end], {
-        color: '#d32f2f',
-        weight: 4,
-        opacity: 0.7,
-        dashArray: '10'
-    }).addTo(map);
-
-    // Iniciar intervalo para mover al repartidor
-    driverInterval = setInterval(() => moveDriver(start, end), 1000);
-}
-
-// Mover al repartidor hacia el destino
-function moveDriver(start, end) {
-    if (!driverPosition || !driverTarget || !currentOrder) return;
-
-    // Calcular dirección hacia el destino
-    const latDiff = driverTarget.lat - driverPosition.lat;
-    const lngDiff = driverTarget.lng - driverPosition.lng;
-
-    // Mover un pequeño paso hacia el destino
-    const stepSize = 0.0001; // Ajustar para controlar la velocidad
-    driverPosition.lat += latDiff * stepSize;
-    driverPosition.lng += lngDiff * stepSize;
-
-    // Actualizar posición del marcador
-    driverMarker.setLatLng([driverPosition.lat, driverPosition.lng]);
-
-    // Actualizar línea de ruta
-    routeLine.setLatLngs([restaurantLocation, driverPosition, driverTarget]);
-
-    // Calcular progreso actual
-    const totalLatDiff = end.lat - start.lat;
-    const totalLngDiff = end.lng - start.lng;
-    const currentLatDiff = driverPosition.lat - start.lat;
-    const currentLngDiff = driverPosition.lng - start.lng;
-
-    const progress = Math.min(100, Math.max(0,
-        Math.sqrt(Math.pow(currentLatDiff, 2) + Math.pow(currentLngDiff, 2)) /
-        Math.sqrt(Math.pow(totalLatDiff, 2) + Math.pow(totalLngDiff, 2)) * 100
-    ));
-
-    // Actualizar progreso en el pedido actual
-    currentOrder.progress = Math.round(progress);
-    currentOrder.driverPosition = { ...driverPosition };
-
-    // Actualizar UI
-    document.getElementById('deliveryProgress').style.width = `${progress}%`;
-    document.getElementById('progressPercentage').textContent = `${Math.round(progress)}%`;
-
-    // Verificar si el repartidor ha llegado cerca del destino
-    const distanceToTarget = Math.sqrt(
-        Math.pow(driverTarget.lat - driverPosition.lat, 2) +
-        Math.pow(driverTarget.lng - driverPosition.lng, 2)
-    );
-
-    if (distanceToTarget < 0.0005) { // Umbral de llegada
-        clearInterval(driverInterval);
-        document.getElementById('routeStatus').textContent = 'Llegando';
-        document.getElementById('routeStatus').className = 'badge bg-success';
-
-        // Cambiar estilo del marcador del repartidor
-        driverMarker.setIcon(
-            L.divIcon({
-                html: '<div class="driver-marker driver-arrived"></div>',
-                iconSize: [20, 20],
-                className: 'driver-marker-icon'
-            })
-        );
-
-        // Actualizar estado del pedido
-        currentOrder.progress = 100;
-    }
-
-    // Actualizar la lista de pedidos si está visible
-    const activeFilter = document.querySelector('.filter-buttons .btn.active').getAttribute('data-filter');
-    renderDeliveryList(activeFilter);
-}
-
-// Iniciar todas las simulaciones de repartidores
-function startAllDriverSimulations() {
-    deliveryOrders.forEach(order => {
-        if (order.status === 'in-progress' && order.progress < 100) {
-            // Simular movimiento progresivo
-            const interval = setInterval(() => {
-                const orderIndex = deliveryOrders.findIndex(o => o.id === order.id);
-                if (orderIndex === -1 || deliveryOrders[orderIndex].status !== 'in-progress' || deliveryOrders[orderIndex].progress >= 100) {
-                    clearInterval(interval);
-                    return;
-                }
-
-                // Incrementar progreso
-                deliveryOrders[orderIndex].progress += 1;
-
-                // Actualizar posición del repartidor
-                if (!deliveryOrders[orderIndex].driverPosition) {
-                    deliveryOrders[orderIndex].driverPosition = { ...restaurantLocation };
-                }
-
-                const start = restaurantLocation;
-                const end = deliveryOrders[orderIndex].coordinates;
-                const progressFactor = deliveryOrders[orderIndex].progress / 100;
-
-                deliveryOrders[orderIndex].driverPosition = {
-                    lat: start.lat + (end.lat - start.lat) * progressFactor,
-                    lng: start.lng + (end.lng - start.lng) * progressFactor
-                };
-
-                // Si llegó al 100%, marcar como listo para entrega
-                if (deliveryOrders[orderIndex].progress >= 100) {
-                    clearInterval(interval);
-                }
-
-                // Actualizar UI si el filtro actual muestra este pedido
-                const activeFilter = document.querySelector('.filter-buttons .btn.active').getAttribute('data-filter');
-                if (activeFilter === 'all' || activeFilter === 'in-progress') {
-                    renderDeliveryList(activeFilter);
-                }
-            }, 3000); // Actualizar cada 3 segundos
-        }
+// Limpiar mapa
+function clearMap() {
+    APP_STATE.currentMarkers.forEach(marker => {
+        APP_STATE.map.removeLayer(marker);
     });
+    APP_STATE.currentMarkers = [];
+
+    if (APP_STATE.restaurantMarker) {
+        APP_STATE.map.removeLayer(APP_STATE.restaurantMarker);
+        APP_STATE.restaurantMarker = null;
+    }
+
+    if (APP_STATE.driverMarker) {
+        APP_STATE.map.removeLayer(APP_STATE.driverMarker);
+        APP_STATE.driverMarker = null;
+    }
+
+    if (APP_STATE.routingControl) {
+        APP_STATE.map.removeControl(APP_STATE.routingControl);
+        APP_STATE.routingControl = null;
+    }
+
+    if (APP_STATE.realTimeInterval) {
+        clearInterval(APP_STATE.realTimeInterval);
+        APP_STATE.realTimeInterval = null;
+    }
 }
 
-// Limpiar simulación del repartidor
-function clearDriverSimulation() {
-    if (driverInterval) {
-        clearInterval(driverInterval);
-        driverInterval = null;
-    }
-
-    if (driverMarker) {
-        map.removeLayer(driverMarker);
-        driverMarker = null;
-    }
-
-    if (routeLine) {
-        map.removeLayer(routeLine);
-        routeLine = null;
-    }
-
-    driverPosition = null;
-    driverTarget = null;
-}
-
-// Limpiar marcadores
-function clearMarkers() {
-    currentMarkers.forEach(marker => {
-        map.removeLayer(marker);
-    });
-    currentMarkers = [];
-
-    if (restaurantMarker) {
-        map.removeLayer(restaurantMarker);
-        restaurantMarker = null;
-    }
-
-    clearDriverSimulation();
-}
-
-// Marcar pedido como entregado
-function markAsDelivered(orderId) {
-    const orderIndex = deliveryOrders.findIndex(o => o.id === orderId);
+// Iniciar entrega
+function startDelivery(orderId) {
+    const orderIndex = APP_STATE.deliveryOrders.findIndex(o => o.id === orderId);
     if (orderIndex === -1) return;
 
-    // Actualizar estado del pedido
-    deliveryOrders[orderIndex].status = 'delivered';
-    deliveryOrders[orderIndex].progress = 100;
+    APP_STATE.deliveryOrders[orderIndex].status = 'in-progress';
+    APP_STATE.deliveryOrders[orderIndex].driverPosition = { ...CONFIG.restaurantLocation };
+    APP_STATE.deliveryOrders[orderIndex].progress = 0;
 
-    // Encontrar el elemento del pedido en el DOM
+    updateAllStats();
+    renderDeliveryList();
+    showConfirmation('¡Entrega iniciada!', 'El pedido ha sido marcado como en camino.');
+    startDriverSimulation(APP_STATE.deliveryOrders[orderIndex]);
+}
+
+// Marcar como entregado
+function markAsDelivered(orderId) {
+    const orderIndex = APP_STATE.deliveryOrders.findIndex(o => o.id === orderId);
+    if (orderIndex === -1) return;
+
+    APP_STATE.deliveryOrders[orderIndex].status = 'delivered';
+    APP_STATE.deliveryOrders[orderIndex].progress = 100;
+
     const orderElement = document.querySelector(`.delivery-card[data-order-id="${orderId}"]`);
-
     if (orderElement) {
-        // Agregar animación de desvanecimiento
         orderElement.classList.add('fade-out');
-
-        // Eliminar el elemento después de la animación
         setTimeout(() => {
             orderElement.remove();
-
-            // Actualizar estadísticas
-            updateStats();
-
-            // Volver a renderizar la lista si estamos en un filtro específico
+            updateAllStats();
             const activeFilter = document.querySelector('.filter-buttons .btn.active').getAttribute('data-filter');
             if (activeFilter !== 'all') {
                 renderDeliveryList(activeFilter);
@@ -645,26 +650,92 @@ function markAsDelivered(orderId) {
         }, 500);
     }
 
-    // Mostrar confirmación
-    showDeliveryConfirmation(deliveryOrders[orderIndex]);
+    showConfirmation('¡Pedido entregado!', 'El pedido ha sido marcado como entregado exitosamente.');
 }
 
-// Mostrar confirmación de entrega
-function showDeliveryConfirmation(order) {
-    // En una aplicación real, aquí se enviaría una notificación al servidor
-    // Por ahora, solo mostramos una alerta
-    alert(`¡Pedido ${order.orderNumber} marcado como entregado!\nCliente: ${order.customerName}\nDirección: ${order.address}\nTotal: ${order.total}`);
+// Mostrar confirmación
+function showConfirmation(title, message) {
+    document.getElementById('confirmationTitle').textContent = title;
+    document.getElementById('confirmationMessage').textContent = message;
+    
+    const confirmationModal = new bootstrap.Modal(document.getElementById('confirmationModal'));
+    confirmationModal.show();
 }
 
-// Actualizar estadísticas
-function updateStats() {
-    const pendingCount = deliveryOrders.filter(o => o.status === 'pending').length;
-    const inProgressCount = deliveryOrders.filter(o => o.status === 'in-progress').length;
-    const deliveredCount = deliveryOrders.filter(o => o.status === 'delivered').length;
-    const totalCount = deliveryOrders.length;
+// Iniciar simulación para todos los pedidos
+function startAllDriverSimulations() {
+    APP_STATE.deliveryOrders.forEach(order => {
+        if (order.status === 'in-progress' && order.progress < 100) {
+            startDriverSimulation(order);
+        }
+    });
+}
 
+// Iniciar simulación individual
+function startDriverSimulation(order) {
+    if (APP_STATE.driverSimulations.has(order.id)) {
+        clearInterval(APP_STATE.driverSimulations.get(order.id));
+    }
+
+    const interval = setInterval(() => {
+        const orderIndex = APP_STATE.deliveryOrders.findIndex(o => o.id === order.id);
+        if (orderIndex === -1 || APP_STATE.deliveryOrders[orderIndex].status !== 'in-progress' || APP_STATE.deliveryOrders[orderIndex].progress >= 100) {
+            clearInterval(interval);
+            APP_STATE.driverSimulations.delete(order.id);
+            return;
+        }
+
+        if (!APP_STATE.deliveryOrders[orderIndex].driverPosition) {
+            APP_STATE.deliveryOrders[orderIndex].driverPosition = { ...CONFIG.restaurantLocation };
+        }
+
+        const start = CONFIG.restaurantLocation;
+        const end = APP_STATE.deliveryOrders[orderIndex].coordinates;
+        const progressFactor = APP_STATE.deliveryOrders[orderIndex].progress / 100;
+
+        APP_STATE.deliveryOrders[orderIndex].driverPosition = {
+            lat: start.lat + (end.lat - start.lat) * progressFactor,
+            lng: start.lng + (end.lng - start.lng) * progressFactor
+        };
+
+        APP_STATE.deliveryOrders[orderIndex].progress += 1;
+
+        if (APP_STATE.deliveryOrders[orderIndex].progress >= 100) {
+            clearInterval(interval);
+            APP_STATE.driverSimulations.delete(order.id);
+        }
+
+        const activeFilter = document.querySelector('.filter-buttons .btn.active').getAttribute('data-filter');
+        if (activeFilter === 'all' || activeFilter === 'in-progress') {
+            renderDeliveryList(activeFilter);
+        }
+    }, 3000);
+
+    APP_STATE.driverSimulations.set(order.id, interval);
+}
+
+// Actualizar todas las estadísticas
+function updateAllStats() {
+    const pendingCount = APP_STATE.deliveryOrders.filter(o => o.status === 'pending').length;
+    const inProgressCount = APP_STATE.deliveryOrders.filter(o => o.status === 'in-progress').length;
+    const deliveredCount = APP_STATE.deliveryOrders.filter(o => o.status === 'delivered').length;
+    const totalCount = APP_STATE.deliveryOrders.length;
+
+    // Actualizar estadísticas principales
     document.getElementById('pendingCount').textContent = pendingCount;
     document.getElementById('inProgressCount').textContent = inProgressCount;
     document.getElementById('deliveredCount').textContent = deliveredCount;
     document.getElementById('totalCount').textContent = totalCount;
+
+    // Actualizar estadísticas del sidebar
+    document.getElementById('sidebarPendingCount').textContent = pendingCount;
+    document.getElementById('sidebarProgressCount').textContent = inProgressCount;
 }
+
+// Exportar funciones globales si es necesario
+window.DeliverySystem = {
+    initializeApp,
+    startDelivery,
+    markAsDelivered,
+    showMapModal
+};

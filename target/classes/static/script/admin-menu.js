@@ -6,48 +6,187 @@ let users = [];
 let sales = [];
 let isPublicMenuVisible = false;
 
-// ========== SISTEMA DE PERSISTENCIA ==========
+// Sistema de Eventos Mejorado para sincronización en tiempo real
+const EventSystem = {
+    events: {},
+    
+    on(event, callback) {
+        if (!this.events[event]) {
+            this.events[event] = [];
+        }
+        this.events[event].push(callback);
+    },
+    
+    emit(event, data) {
+        console.log(`Emitiendo evento: ${event}`, data);
+        if (this.events[event]) {
+            this.events[event].forEach(callback => {
+                try {
+                    callback(data);
+                } catch (error) {
+                    console.error(`Error en evento ${event}:`, error);
+                }
+            });
+        }
+    },
+    
+    // Nuevo: Limpiar eventos específicos
+    off(event, callback) {
+        if (this.events[event]) {
+            this.events[event] = this.events[event].filter(cb => cb !== callback);
+        }
+    }
+};
+
+// Funciones para exportación
+function exportarVentasPDF() {
+    if (sales.length === 0) {
+        mostrarAlerta('No hay ventas para exportar', 'warning');
+        return;
+    }
+
+    try {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        // Título
+        doc.setFontSize(18);
+        doc.text('Reporte de Ventas - Luren Chicken', 14, 22);
+
+        // Fecha de generación
+        doc.setFontSize(10);
+        doc.text(`Generado el: ${new Date().toLocaleDateString('es-PE')}`, 14, 30);
+
+        // Encabezados de tabla
+        const headers = [['ID', 'Cliente', 'Productos', 'Total', 'Fecha', 'Estado', 'Tipo', 'Cajero']];
+
+        // Datos de la tabla
+        const data = sales.map(venta => [
+            venta.id.toString(),
+            venta.cliente || 'Cliente no registrado',
+            (venta.cantidadProductos || 0).toString() + ' productos',
+            `S/ ${venta.total.toFixed(2)}`,
+            new Date(venta.fecha).toLocaleDateString('es-PE'),
+            venta.estado || 'Pendiente',
+            venta.tipo || 'Local',
+            venta.cajero || 'Sistema'
+        ]);
+
+        // Crear tabla
+        doc.autoTable({
+            startY: 35,
+            head: headers,
+            body: data,
+            theme: 'grid',
+            styles: { fontSize: 8 },
+            headStyles: { fillColor: [13, 110, 253] }
+        });
+
+        // Guardar PDF
+        doc.save(`ventas_luren_chicken_${new Date().toISOString().split('T')[0]}.pdf`);
+
+        mostrarAlerta('Reporte PDF descargado correctamente', 'success');
+    } catch (error) {
+        console.error('Error al generar PDF:', error);
+        mostrarAlerta('Error al generar el reporte PDF', 'danger');
+    }
+}
+
+function exportarVentasExcel() {
+    if (sales.length === 0) {
+        mostrarAlerta('No hay ventas para exportar', 'warning');
+        return;
+    }
+
+    try {
+        // Preparar datos para Excel
+        const datosExcel = sales.map(venta => ({
+            'ID Pedido': venta.id,
+            'Cliente': venta.cliente || 'Cliente no registrado',
+            'Cantidad Productos': venta.cantidadProductos || 0,
+            'Total (S/)': venta.total,
+            'Fecha': new Date(venta.fecha).toLocaleDateString('es-PE'),
+            'Estado': venta.estado || 'Pendiente',
+            'Tipo': venta.tipo || 'Local',
+            'Cajero': venta.cajero || 'Sistema'
+        }));
+
+        // Crear hoja de trabajo
+        const ws = XLSX.utils.json_to_sheet(datosExcel);
+
+        // Crear libro de trabajo
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Ventas');
+
+        // Generar archivo Excel
+        XLSX.writeFile(wb, `ventas_luren_chicken_${new Date().toISOString().split('T')[0]}.xlsx`);
+
+        mostrarAlerta('Reporte Excel descargado correctamente', 'success');
+    } catch (error) {
+        console.error('Error al generar Excel:', error);
+        mostrarAlerta('Error al generar el reporte Excel', 'danger');
+    }
+}
+
+// Funciones para persistencia de datos en localStorage - MEJORADO
 function guardarDatosEnLocalStorage() {
     try {
-        localStorage.setItem('lurenProducts', JSON.stringify(products));
-        localStorage.setItem('lurenUsers', JSON.stringify(users));
-        console.log('💾 Datos guardados:', { productos: products.length, usuarios: users.length });
+        const datosCompletos = {
+            products: products,
+            users: users,
+            lastSave: new Date().toISOString(),
+            version: '1.0'
+        };
+        
+        localStorage.setItem('lurenData', JSON.stringify(datosCompletos));
+        console.log('Datos guardados en localStorage:', {
+            productos: products.length,
+            usuarios: users.length,
+            hora: new Date().toLocaleTimeString()
+        });
     } catch (error) {
-        console.error('❌ Error al guardar datos:', error);
+        console.error('Error al guardar en localStorage:', error);
+        mostrarAlerta('Error al guardar los datos', 'danger');
     }
 }
 
 function cargarDatosDesdeLocalStorage() {
     try {
-        const productosGuardados = localStorage.getItem('lurenProducts');
-        const usuariosGuardados = localStorage.getItem('lurenUsers');
+        const datosGuardados = localStorage.getItem('lurenData');
         
-        if (productosGuardados) {
-            products = JSON.parse(productosGuardados);
-            console.log('📦 Productos cargados:', products.length);
+        if (datosGuardados) {
+            const datos = JSON.parse(datosGuardados);
+            products = datos.products || [];
+            users = datos.users || [];
+            
+            console.log('Datos cargados:', {
+                productos: products.length,
+                usuarios: users.length,
+                version: datos.version || 'N/A'
+            });
+            
+            if (datos.lastSave) {
+                console.log('Última sincronización:', new Date(datos.lastSave).toLocaleString());
+            }
         } else {
-            products = obtenerProductosPorDefecto();
-            guardarDatosEnLocalStorage();
+            // Datos iniciales por defecto
+            inicializarDatosPorDefecto();
         }
         
-        if (usuariosGuardados) {
-            users = JSON.parse(usuariosGuardados);
-            console.log('👥 Usuarios cargados:', users.length);
-        } else {
-            users = obtenerUsuariosPorDefecto();
-            guardarDatosEnLocalStorage();
-        }
+        // Verificar integridad de datos
+        verificarIntegridadDatos();
         
     } catch (error) {
-        console.error('❌ Error al cargar datos:', error);
-        products = obtenerProductosPorDefecto();
-        users = obtenerUsuariosPorDefecto();
-        guardarDatosEnLocalStorage();
+        console.error('Error al cargar datos:', error);
+        mostrarAlerta('Error al cargar los datos guardados', 'warning');
+        inicializarDatosPorDefecto();
     }
 }
 
-function obtenerProductosPorDefecto() {
-    return [
+function inicializarDatosPorDefecto() {
+    console.log('Inicializando datos por defecto...');
+    
+    products = [
         {
             id: 1,
             nombre: "Pollo a la Brasa Familiar",
@@ -55,45 +194,60 @@ function obtenerProductosPorDefecto() {
             precio: 35.00,
             descripcion: "Delicioso pollo a la brasa con papas fritas y ensalada fresca",
             imagen: "https://images.unsplash.com/photo-1586190848861-99aa4a171e90?w=300&h=200&fit=crop",
-            estado: "activo"
+            estado: "activo",
+            fechaCreacion: new Date().toISOString()
         },
         {
             id: 2,
             nombre: "Parrilla Especial",
             categoria: "parrillas",
             precio: 85.00,
-            descripcion: "Parrilla completa para 4 personas con carnes variadas",
+            descripcion: "Parrilla completa para 4 personas con carnes variadas y guarniciones",
             imagen: "https://images.unsplash.com/photo-1558036117-15e82a2c9a9a?w=300&h=200&fit=crop",
-            estado: "activo"
+            estado: "activo",
+            fechaCreacion: new Date().toISOString()
+        },
+        {
+            id: 3,
+            nombre: "Chicharrón de Pollo",
+            categoria: "chicharron",
+            precio: 25.00,
+            descripcion: "Crujiente chicharrón de pollo con yuca frita y salsa criolla",
+            imagen: "https://images.unsplash.com/photo-1562967914-608f82629710?w=300&h=200&fit=crop",
+            estado: "activo",
+            fechaCreacion: new Date().toISOString()
         }
     ];
-}
 
-function obtenerUsuariosPorDefecto() {
-    return [
+    users = [
         {
             id: 1,
             nombre: "Administrador Principal",
             email: "admin@lurenchicken.com",
             rol: "admin",
             estado: "activo",
-            fechaRegistro: "2024-01-01"
+            fechaRegistro: "2023-01-15"
         }
     ];
+    
+    guardarDatosEnLocalStorage();
 }
 
-// ========== SISTEMA DE ALERTAS ==========
-function mostrarAlerta(mensaje, tipo = 'success') {
-    // Crear contenedor de alertas si no existe
-    let dynamicAlerts = document.getElementById('dynamicAlerts');
-    if (!dynamicAlerts) {
-        dynamicAlerts = document.createElement('div');
-        dynamicAlerts.id = 'dynamicAlerts';
-        dynamicAlerts.className = 'position-fixed top-0 end-0 p-3';
-        dynamicAlerts.style.cssText = 'z-index: 9999; min-width: 300px;';
-        document.body.appendChild(dynamicAlerts);
-    }
+function verificarIntegridadDatos() {
+    // Verificar que todos los productos tengan los campos requeridos
+    products = products.filter(producto => 
+        producto && 
+        producto.id && 
+        producto.nombre && 
+        producto.categoria && 
+        producto.precio
+    );
+    
+    console.log('Integridad de datos verificada:', products.length, 'productos válidos');
+}
 
+// Función para mostrar alertas dinámicas
+function mostrarAlerta(mensaje, tipo = 'success') {
     const alerta = document.createElement('div');
     alerta.className = `alert alert-${tipo} alert-dismissible fade show`;
     alerta.innerHTML = `
@@ -104,8 +258,10 @@ function mostrarAlerta(mensaje, tipo = 'success') {
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     `;
 
+    const dynamicAlerts = document.getElementById('dynamicAlerts');
     dynamicAlerts.appendChild(alerta);
 
+    // Auto-eliminar después de 5 segundos
     setTimeout(() => {
         if (alerta.parentNode) {
             alerta.remove();
@@ -113,37 +269,257 @@ function mostrarAlerta(mensaje, tipo = 'success') {
     }, 5000);
 }
 
-// ========== SISTEMA DE SINCRONIZACIÓN ==========
-function sincronizarMenuPublico() {
-    console.log('🔄 Sincronizando menú público...');
-    
-    // Actualizar estadísticas del dashboard
-    actualizarEstadisticasDashboard();
-    
-    // Guardar cambios
-    guardarDatosEnLocalStorage();
-    
-    // Actualizar menú público SIEMPRE que haya cambios
-    actualizarMenuPublico();
-    
-    console.log('✅ Sincronización completada');
-}
-
-// ========== DASHBOARD ==========
+// Función para actualizar estadísticas del dashboard
 function actualizarEstadisticasDashboard() {
     const productosActivos = products.filter(p => p.estado === 'activo').length;
-    const totalUsuarios = users.length;
-    
-    const totalProductosElem = document.getElementById('totalProductos');
-    const totalUsuariosElem = document.getElementById('totalUsuarios');
-    
-    if (totalProductosElem) totalProductosElem.textContent = productosActivos;
-    if (totalUsuariosElem) totalUsuariosElem.textContent = totalUsuarios;
-    
-    console.log('📊 Dashboard actualizado:', { productosActivos, totalUsuarios });
+    document.getElementById('totalProductos').textContent = productosActivos;
+    document.getElementById('totalUsuarios').textContent = users.length;
 }
 
-// ========== GESTIÓN DE PRODUCTOS ==========
+// SISTEMA DE SINCRONIZACIÓN MEJORADO
+function sincronizarMenuPublico(accion, producto = null) {
+    console.log(`Sincronizando menú público - Acción: ${accion}`, producto);
+    
+    // Emitir evento para sincronización en tiempo real
+    EventSystem.emit('menuChanged', { 
+        accion, 
+        producto, 
+        timestamp: new Date().toISOString(),
+        totalProductos: products.length,
+        productosActivos: products.filter(p => p.estado === 'activo').length
+    });
+    
+    // Actualizar estadísticas inmediatamente
+    actualizarEstadisticasDashboard();
+    
+    // Si el menú público está visible, actualizarlo inmediatamente
+    if (isPublicMenuVisible) {
+        console.log('Menú público visible - Actualizando...');
+        actualizarMenuPublico();
+    } else {
+        console.log('Menú público no visible - Sincronización diferida');
+    }
+    
+    // Guardar cambios en localStorage
+    guardarDatosEnLocalStorage();
+    
+    // Forzar actualización del DOM
+    setTimeout(() => {
+        if (isPublicMenuVisible) {
+            actualizarMenuPublico();
+        }
+    }, 100);
+}
+
+// Función para cargar estadísticas
+async function cargarEstadisticas() {
+    try {
+        const response = await fetch('/api/estadisticas/dashboard', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.getElementById('csrfToken').value
+            }
+        });
+
+        if (!response.ok) throw new Error('Error al cargar estadísticas');
+
+        const data = await response.json();
+        actualizarEstadisticasPrincipales(data);
+        cargarGraficos(data);
+        cargarVentasRecientes(data.ventasRecientes);
+
+    } catch (error) {
+        console.error('Error:', error);
+        cargarDatosEnCero();
+    }
+}
+
+// Función para cargar datos en cero
+function cargarDatosEnCero() {
+    const datosEnCero = {
+        totalProductos: products.filter(p => p.estado === 'activo').length,
+        totalUsuarios: users.length,
+        pedidosHoy: 0,
+        ingresosHoy: 0,
+        ventasMesTotal: 0,
+        promedioDiario: 0,
+        ventaMaxima: 0,
+        totalPedidos: 0,
+        graficoVentas: {
+            labels: Array.from({ length: 30 }, (_, i) => (i + 1).toString()),
+            data: Array(30).fill(0)
+        },
+        ventasRecientes: []
+    };
+
+    actualizarEstadisticasPrincipales(datosEnCero);
+    cargarGraficos(datosEnCero);
+    cargarVentasRecientes(datosEnCero.ventasRecientes);
+}
+
+// Función para actualizar estadísticas principales
+function actualizarEstadisticasPrincipales(data) {
+    const productosActivos = products.filter(p => p.estado === 'activo').length;
+
+    document.getElementById('totalProductos').textContent = productosActivos;
+    document.getElementById('totalUsuarios').textContent = users.length;
+    document.getElementById('pedidosHoy').textContent = data.pedidosHoy || '0';
+    document.getElementById('ingresosHoy').textContent = `S/ ${(data.ingresosHoy || 0).toFixed(2)}`;
+
+    document.getElementById('ventasMesTotal').textContent = `S/ ${(data.ventasMesTotal || 0).toFixed(2)}`;
+    document.getElementById('promedioDiario').textContent = `S/ ${(data.promedioDiario || 0).toFixed(2)}`;
+    document.getElementById('ventaMaxima').textContent = `S/ ${(data.ventaMaxima || 0).toFixed(2)}`;
+    document.getElementById('totalPedidos').textContent = data.totalPedidos || '0';
+}
+
+// Función para cargar gráficos
+function cargarGraficos(data) {
+    const salesCtx = document.getElementById('salesChart');
+    const emptyChartMessage = document.getElementById('emptyChartMessage');
+
+    const tieneDatos = data.graficoVentas && data.graficoVentas.data.some(valor => valor > 0);
+
+    if (!tieneDatos) {
+        if (salesChart) {
+            salesChart.destroy();
+            salesChart = null;
+        }
+        salesCtx.style.display = 'none';
+        emptyChartMessage.classList.remove('d-none');
+        return;
+    }
+
+    salesCtx.style.display = 'block';
+    emptyChartMessage.classList.add('d-none');
+
+    if (salesChart) {
+        salesChart.destroy();
+    }
+
+    salesChart = new Chart(salesCtx, {
+        type: 'line',
+        data: {
+            labels: data.graficoVentas.labels || [],
+            datasets: [{
+                label: 'Ventas Diarias (S/)',
+                data: data.graficoVentas.data || [],
+                borderColor: '#0d6efd',
+                backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: true },
+                tooltip: {
+                    callbacks: {
+                        label: function (context) {
+                            return `S/ ${context.parsed.y.toFixed(2)}`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function (value) {
+                            return 'S/ ' + value;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Función para cargar ventas recientes
+function cargarVentasRecientes(ventas) {
+    const tbody = document.getElementById('salesTableBody');
+    const noSalesMessage = document.getElementById('noSalesMessage');
+
+    tbody.innerHTML = '';
+    sales = ventas || [];
+
+    if (!ventas || ventas.length === 0) {
+        noSalesMessage.classList.remove('d-none');
+        tbody.parentElement.parentElement.classList.add('d-none');
+        return;
+    }
+
+    noSalesMessage.classList.add('d-none');
+    tbody.parentElement.parentElement.classList.remove('d-none');
+
+    ventas.forEach(venta => {
+        const tr = document.createElement('tr');
+        const estadoClass = {
+            'completado': 'bg-success',
+            'proceso': 'bg-warning',
+            'pendiente': 'bg-secondary',
+            'cancelado': 'bg-danger'
+        }[venta.estado] || 'bg-secondary';
+
+        const estadoText = {
+            'completado': 'Completado',
+            'proceso': 'En Proceso',
+            'pendiente': 'Pendiente',
+            'cancelado': 'Cancelado'
+        }[venta.estado] || 'Pendiente';
+
+        const fecha = new Date(venta.fecha);
+        const fechaFormateada = fecha.toLocaleDateString('es-PE', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+
+        tr.innerHTML = `
+            <td><strong>${venta.id}</strong></td>
+            <td>${venta.cliente || 'Cliente no registrado'}</td>
+            <td><small>${venta.cantidadProductos || 0} productos</small></td>
+            <td><strong>S/ ${venta.total.toFixed(2)}</strong></td>
+            <td>${fechaFormateada}</td>
+            <td><span class="badge ${estadoClass}">${estadoText}</span></td>
+            <td><span class="badge bg-info">${venta.tipo || 'Local'}</span></td>
+            <td>${venta.cajero || 'Sistema'}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+// Función para actualizar el período del gráfico
+async function actualizarPeriodoGrafico() {
+    const periodo = document.getElementById('chartPeriod').value;
+
+    try {
+        const response = await fetch(`/api/estadisticas/ventas?periodo=${periodo}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.getElementById('csrfToken').value
+            }
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            cargarGraficos(data);
+            mostrarAlerta(`Período actualizado a últimos ${periodo} días`, 'success');
+        } else {
+            throw new Error('Error al actualizar período');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        mostrarAlerta('Error al actualizar el período del gráfico', 'danger');
+    }
+}
+
+// GESTIÓN DE PRODUCTOS - SISTEMA MEJORADO
 function cargarProductos() {
     mostrarProductos();
 }
@@ -153,7 +529,7 @@ function mostrarProductos() {
     const noProductsMessage = document.getElementById('noProductsMessage');
 
     if (!tbody) {
-        console.error('❌ No se encontró la tabla de productos');
+        console.error('No se encontró el tbody de productos');
         return;
     }
 
@@ -162,8 +538,6 @@ function mostrarProductos() {
     if (products.length === 0) {
         if (noProductsMessage) {
             noProductsMessage.classList.remove('d-none');
-        }
-        if (tbody.parentElement.parentElement) {
             tbody.parentElement.parentElement.classList.add('d-none');
         }
         return;
@@ -171,9 +545,7 @@ function mostrarProductos() {
 
     if (noProductsMessage) {
         noProductsMessage.classList.add('d-none');
-        if (tbody.parentElement.parentElement) {
-            tbody.parentElement.parentElement.classList.remove('d-none');
-        }
+        tbody.parentElement.parentElement.classList.remove('d-none');
     }
 
     // Aplicar filtros
@@ -213,10 +585,12 @@ function mostrarProductos() {
             <td><span class="badge ${estadoClass}">${estadoText}</span></td>
             <td>
                 <div class="action-buttons">
-                    <button class="btn btn-sm btn-outline-primary edit-product" data-id="${product.id}">
+                    <button class="btn btn-sm btn-outline-primary edit-product" data-id="${product.id}" 
+                            title="Editar producto">
                         <i class="fas fa-edit"></i>
                     </button>
-                    <button class="btn btn-sm btn-outline-danger delete-product" data-id="${product.id}" data-nombre="${product.nombre}">
+                    <button class="btn btn-sm btn-outline-danger delete-product" data-id="${product.id}"
+                            title="Eliminar producto">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
@@ -225,34 +599,24 @@ function mostrarProductos() {
         tbody.appendChild(tr);
     });
 
-    console.log(`📊 Mostrando ${filteredProducts.length} productos de ${products.length} totales`);
+    console.log(`Mostrando ${filteredProducts.length} productos filtrados de ${products.length} totales`);
 }
 
 function abrirModalProducto(producto = null) {
-    const modalElement = document.getElementById('productModal');
-    if (!modalElement) {
-        console.error('❌ Modal de producto no encontrado');
-        return;
-    }
-
-    const modal = new bootstrap.Modal(modalElement);
+    const modal = new bootstrap.Modal(document.getElementById('productModal'));
     const form = document.getElementById('productForm');
     const modalTitle = document.getElementById('productModalLabel');
     const imagePreview = document.getElementById('imagePreview');
 
-    if (!form || !modalTitle) {
-        console.error('❌ Elementos del modal no encontrados');
+    if (!form || !modalTitle || !imagePreview) {
+        console.error('Elementos del modal no encontrados');
         return;
     }
 
-    // Limpiar formulario
     form.reset();
-    if (imagePreview) {
-        imagePreview.classList.add('d-none');
-    }
+    imagePreview.classList.add('d-none');
 
     if (producto) {
-        // Modo edición
         modalTitle.textContent = 'Editar Producto';
         document.getElementById('productId').value = producto.id;
         document.getElementById('productName').value = producto.nombre;
@@ -261,14 +625,13 @@ function abrirModalProducto(producto = null) {
         document.getElementById('productDescription').value = producto.descripcion || '';
         document.getElementById('productStatus').value = producto.estado;
 
-        if (producto.imagen && imagePreview) {
+        if (producto.imagen) {
             imagePreview.src = producto.imagen;
             imagePreview.classList.remove('d-none');
         }
 
         currentEditingId = producto.id;
     } else {
-        // Modo agregar
         modalTitle.textContent = 'Agregar Producto';
         currentEditingId = null;
     }
@@ -306,7 +669,7 @@ function guardarProducto() {
 
         if (currentEditingId) {
             // Actualizar producto existente
-            const index = products.findIndex(p => p.id == currentEditingId);
+            const index = products.findIndex(p => p.id === currentEditingId);
             if (index !== -1) {
                 productoData = {
                     ...products[index],
@@ -315,10 +678,11 @@ function guardarProducto() {
                     precio,
                     descripcion,
                     estado,
-                    imagen
+                    imagen,
+                    fechaActualizacion: new Date().toISOString()
                 };
                 products[index] = productoData;
-                console.log(`✏️ Producto actualizado: ${productoData.nombre}`);
+                console.log(`Producto actualizado: ${productoData.nombre}`);
             }
         } else {
             // Agregar nuevo producto
@@ -330,25 +694,25 @@ function guardarProducto() {
                 precio,
                 descripcion,
                 estado,
-                imagen
+                imagen,
+                fechaCreacion: new Date().toISOString()
             };
             products.push(productoData);
             accion = 'agregado';
-            console.log(`🆕 Producto agregado: ${productoData.nombre} (ID: ${nuevoId})`);
+            console.log(`Producto agregado: ${productoData.nombre} (ID: ${nuevoId})`);
         }
 
-        // SINCRONIZAR INMEDIATAMENTE
-        sincronizarMenuPublico();
+        // Sincronizar inmediatamente
+        sincronizarMenuPublico(accion, productoData);
 
         mostrarAlerta(`Producto "${nombre}" ${accion} correctamente`, 'success');
 
-        // Cerrar modal
-        const modal = bootstrap.Modal.getInstance(document.getElementById('productModal'));
-        if (modal) {
-            modal.hide();
+        // Cerrar modal y actualizar vista
+        const modalInstance = bootstrap.Modal.getInstance(document.getElementById('productModal'));
+        if (modalInstance) {
+            modalInstance.hide();
         }
         
-        // Actualizar vista de productos
         mostrarProductos();
 
     } catch (error) {
@@ -358,27 +722,28 @@ function guardarProducto() {
 }
 
 function eliminarProducto(id) {
-    const producto = products.find(p => p.id == id);
+    const producto = products.find(p => p.id === id);
     if (!producto) {
         mostrarAlerta('Error: Producto no encontrado', 'danger');
         return;
     }
 
-    const index = products.findIndex(p => p.id == id);
+    const index = products.findIndex(p => p.id === id);
     if (index !== -1) {
+        // Eliminar producto
         const productoEliminado = products.splice(index, 1)[0];
         
-        // SINCRONIZAR INMEDIATAMENTE
-        sincronizarMenuPublico();
+        // Sincronizar inmediatamente
+        sincronizarMenuPublico('eliminado', productoEliminado);
         
         mostrarAlerta(`Producto "${productoEliminado.nombre}" eliminado correctamente`, 'success');
         mostrarProductos();
         
-        console.log(`🗑️ Producto eliminado: ${productoEliminado.nombre}`);
+        console.log(`Producto eliminado: ${productoEliminado.nombre}`);
     }
 }
 
-// ========== GESTIÓN DE USUARIOS ==========
+// GESTIÓN DE USUARIOS
 function cargarUsuarios() {
     mostrarUsuarios();
 }
@@ -444,7 +809,7 @@ function mostrarUsuarios() {
                     <button class="btn btn-sm btn-outline-primary edit-user" data-id="${user.id}">
                         <i class="fas fa-edit"></i>
                     </button>
-                    <button class="btn btn-sm btn-outline-danger delete-user" data-id="${user.id}" data-nombre="${user.nombre}">
+                    <button class="btn btn-sm btn-outline-danger delete-user" data-id="${user.id}">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
@@ -455,10 +820,7 @@ function mostrarUsuarios() {
 }
 
 function abrirModalUsuario(usuario = null) {
-    const modalElement = document.getElementById('userModal');
-    if (!modalElement) return;
-
-    const modal = new bootstrap.Modal(modalElement);
+    const modal = new bootstrap.Modal(document.getElementById('userModal'));
     const form = document.getElementById('userForm');
     const modalTitle = document.getElementById('userModalLabel');
     const passwordField = document.getElementById('passwordField');
@@ -501,7 +863,7 @@ function guardarUsuario() {
 
     try {
         if (currentEditingId) {
-            const index = users.findIndex(u => u.id == currentEditingId);
+            const index = users.findIndex(u => u.id === currentEditingId);
             if (index !== -1) {
                 users[index] = { ...users[index], nombre, email, rol, estado };
             }
@@ -520,8 +882,10 @@ function guardarUsuario() {
         guardarDatosEnLocalStorage();
         mostrarAlerta(`Usuario ${currentEditingId ? 'actualizado' : 'agregado'} correctamente`, 'success');
         
-        const modal = bootstrap.Modal.getInstance(document.getElementById('userModal'));
-        if (modal) modal.hide();
+        const modalInstance = bootstrap.Modal.getInstance(document.getElementById('userModal'));
+        if (modalInstance) {
+            modalInstance.hide();
+        }
         
         mostrarUsuarios();
         actualizarEstadisticasDashboard();
@@ -533,7 +897,7 @@ function guardarUsuario() {
 }
 
 function eliminarUsuario(id) {
-    const index = users.findIndex(u => u.id == id);
+    const index = users.findIndex(u => u.id === id);
     if (index !== -1) {
         const usuarioEliminado = users.splice(index, 1)[0];
         guardarDatosEnLocalStorage();
@@ -545,30 +909,30 @@ function eliminarUsuario(id) {
     }
 }
 
-// ========== MENÚ PÚBLICO ==========
+// SISTEMA DE MENÚ PÚBLICO MEJORADO - CORREGIDO
 function mostrarMenuPublico() {
     isPublicMenuVisible = true;
-    console.log('🔍 Activando menú público...');
+    console.log('Menú público activado - Sincronización ACTIVA');
     actualizarMenuPublico();
 }
 
 function actualizarMenuPublico() {
     const container = document.getElementById('publicMenuContainer');
     if (!container) {
-        console.log('❌ Contenedor del menú público no encontrado');
+        console.log('Contenedor del menú público no encontrado');
         return;
     }
 
-    console.log('🎯 Actualizando menú público...');
+    console.log('Actualizando menú público...');
     container.innerHTML = '';
 
     const productosActivos = products.filter(p => p.estado === 'activo');
-    console.log(`📦 Productos activos para mostrar: ${productosActivos.length}`);
+    console.log(`Productos activos encontrados: ${productosActivos.length}`);
 
     if (productosActivos.length === 0) {
         container.innerHTML = `
             <div class="col-12">
-                <div class="text-center py-5">
+                <div class="empty-state text-center py-5">
                     <i class="fas fa-concierge-bell fa-3x text-muted mb-3"></i>
                     <h4 class="text-muted">No hay productos disponibles</h4>
                     <p class="text-muted">Agrega productos activos para que aparezcan en el menú público.</p>
@@ -590,7 +954,7 @@ function actualizarMenuPublico() {
         productosPorCategoria[producto.categoria].push(producto);
     });
 
-    console.log('🏷️ Categorías encontradas:', Object.keys(productosPorCategoria));
+    console.log('Categorías encontradas:', Object.keys(productosPorCategoria));
 
     // Mostrar por categorías
     Object.keys(productosPorCategoria).forEach(categoria => {
@@ -634,7 +998,7 @@ function actualizarMenuPublico() {
         });
     });
 
-    console.log('✅ Menú público actualizado correctamente');
+    console.log('Menú público actualizado correctamente');
 }
 
 function getCategoriaIcon(categoria) {
@@ -650,43 +1014,101 @@ function getCategoriaIcon(categoria) {
     return icons[categoria] || 'fa-utensils';
 }
 
-// ========== UTILIDADES ==========
+// Función para mostrar modal de confirmación
 function mostrarConfirmacion(mensaje, accionConfirmar) {
     const modalBody = document.getElementById('confirmModalBody');
     const confirmBtn = document.getElementById('confirmActionBtn');
 
-    if (!modalBody || !confirmBtn) return;
+    if (!modalBody || !confirmBtn) {
+        console.error('Elementos del modal de confirmación no encontrados');
+        return;
+    }
 
     modalBody.textContent = mensaje;
 
-    // Reemplazar botón para evitar múltiples event listeners
     const nuevoConfirmBtn = confirmBtn.cloneNode(true);
     confirmBtn.parentNode.replaceChild(nuevoConfirmBtn, confirmBtn);
 
-    // Agregar nuevo event listener
     document.getElementById('confirmActionBtn').addEventListener('click', function () {
         accionConfirmar();
-        const modal = bootstrap.Modal.getInstance(document.getElementById('confirmModal'));
-        if (modal) modal.hide();
+        const modalInstance = bootstrap.Modal.getInstance(document.getElementById('confirmModal'));
+        if (modalInstance) {
+            modalInstance.hide();
+        }
     });
 
     const modal = new bootstrap.Modal(document.getElementById('confirmModal'));
     modal.show();
 }
 
-// ========== INICIALIZACIÓN COMPLETA ==========
+// INICIALIZACIÓN MEJORADA
 document.addEventListener('DOMContentLoaded', function () {
-    console.log('🚀 Iniciando Luren Chicken Admin Dashboard...');
+    console.log('Iniciando Luren Chicken Admin Dashboard...');
     
     // Cargar datos persistentes
     cargarDatosDesdeLocalStorage();
     
+    // Configurar sistema de eventos para sincronización
+    EventSystem.on('menuChanged', (data) => {
+        console.log('Evento de cambio en menú recibido:', data);
+        if (isPublicMenuVisible) {
+            console.log('Actualizando menú público por evento...');
+            setTimeout(() => {
+                actualizarMenuPublico();
+            }, 50);
+        }
+    });
+
     // Inicializar datos
-    actualizarEstadisticasDashboard();
+    cargarDatosEnCero();
     cargarProductos();
     cargarUsuarios();
+    actualizarEstadisticasDashboard();
 
-    // ========== CONFIGURACIÓN DE NAVEGACIÓN ==========
+    // Eventos del dashboard
+    const refreshSalesBtn = document.getElementById('refreshSales');
+    if (refreshSalesBtn) {
+        refreshSalesBtn.addEventListener('click', function () {
+            cargarEstadisticas();
+            mostrarAlerta('Datos actualizados correctamente', 'info');
+        });
+    }
+
+    const chartPeriod = document.getElementById('chartPeriod');
+    if (chartPeriod) {
+        chartPeriod.addEventListener('change', actualizarPeriodoGrafico);
+    }
+
+    // Eventos para exportación
+    const exportPDF = document.getElementById('exportPDF');
+    if (exportPDF) {
+        exportPDF.addEventListener('click', function (e) {
+            e.preventDefault();
+            exportarVentasPDF();
+        });
+    }
+
+    const exportExcel = document.getElementById('exportExcel');
+    if (exportExcel) {
+        exportExcel.addEventListener('click', function (e) {
+            e.preventDefault();
+            exportarVentasExcel();
+        });
+    }
+
+    // Auto-actualización
+    setInterval(cargarEstadisticas, 120000);
+
+    // Toggle sidebar
+    const toggleSidebarBtn = document.querySelector('.toggle-sidebar');
+    const app = document.getElementById('app');
+    if (toggleSidebarBtn && app) {
+        toggleSidebarBtn.addEventListener('click', function () {
+            app.classList.toggle('collapsed');
+        });
+    }
+
+    // Navigation between sections - MEJORADO
     const navLinks = document.querySelectorAll('.sidebar .nav-link');
     const sectionContents = document.querySelectorAll('.section-content');
     const sectionTitle = document.getElementById('sectionTitle');
@@ -696,65 +1118,44 @@ document.addEventListener('DOMContentLoaded', function () {
             if (this.getAttribute('href') === '#' || this.getAttribute('data-section')) {
                 e.preventDefault();
 
-                // Remover active de todos los links
                 navLinks.forEach(navLink => navLink.classList.remove('active'));
-                
-                // Agregar active al link clickeado
                 this.classList.add('active');
 
-                // Ocultar todas las secciones
                 sectionContents.forEach(section => section.classList.add('d-none'));
 
-                // Mostrar sección seleccionada
                 const sectionId = this.getAttribute('data-section') + '-section';
                 const selectedSection = document.getElementById(sectionId);
-                
                 if (selectedSection) {
                     selectedSection.classList.remove('d-none');
-                    
-                    // Actualizar título
                     const linkText = this.querySelector('span').textContent;
                     if (sectionTitle) {
                         sectionTitle.textContent = linkText;
                     }
 
-                    console.log(`📍 Navegando a: ${sectionId}`);
-
-                    // Control de visibilidad del menú público
+                    // Control de visibilidad del menú público - MEJORADO
                     if (sectionId === 'public-menu-section') {
                         isPublicMenuVisible = true;
-                        console.log('🎯 Menú público ACTIVADO');
-                        mostrarMenuPublico();
+                        console.log('Navegando al menú público - Actualizando...');
+                        setTimeout(() => {
+                            mostrarMenuPublico();
+                        }, 100);
                     } else {
                         isPublicMenuVisible = false;
-                        console.log('👁️ Menú público DESACTIVADO');
+                        console.log('Saliendo del menú público');
                     }
 
-                    // Cargar datos específicos de la sección
+                    // Cargar datos específicos
                     if (sectionId === 'menu-section') {
                         cargarProductos();
                     } else if (sectionId === 'users-section') {
                         cargarUsuarios();
-                    } else if (sectionId === 'dashboard-section') {
-                        actualizarEstadisticasDashboard();
                     }
                 }
             }
         });
     });
 
-    // ========== BOTÓN TOGGLE SIDEBAR ==========
-    const toggleSidebarBtn = document.querySelector('.toggle-sidebar');
-    const app = document.getElementById('app');
-    
-    if (toggleSidebarBtn && app) {
-        toggleSidebarBtn.addEventListener('click', function () {
-            app.classList.toggle('collapsed');
-            console.log('📱 Sidebar toggled');
-        });
-    }
-
-    // ========== EVENTOS DE PRODUCTOS ==========
+    // Eventos para gestión de productos
     const addProductBtn = document.getElementById('addProductBtn');
     if (addProductBtn) {
         addProductBtn.addEventListener('click', () => abrirModalProducto());
@@ -770,10 +1171,15 @@ document.addEventListener('DOMContentLoaded', function () {
         saveProductBtn.addEventListener('click', guardarProducto);
     }
 
-    // Filtros de productos
+    // Eventos para búsqueda y filtros de productos
     const searchProducts = document.getElementById('searchProducts');
     if (searchProducts) {
         searchProducts.addEventListener('input', mostrarProductos);
+    }
+
+    const searchProductsBtn = document.getElementById('searchProductsBtn');
+    if (searchProductsBtn) {
+        searchProductsBtn.addEventListener('click', mostrarProductos);
     }
 
     const categoryFilter = document.getElementById('categoryFilter');
@@ -786,7 +1192,7 @@ document.addEventListener('DOMContentLoaded', function () {
         statusFilter.addEventListener('change', mostrarProductos);
     }
 
-    // ========== EVENTOS DE USUARIOS ==========
+    // Eventos para gestión de usuarios
     const addUserBtn = document.getElementById('addUserBtn');
     if (addUserBtn) {
         addUserBtn.addEventListener('click', () => abrirModalUsuario());
@@ -802,10 +1208,15 @@ document.addEventListener('DOMContentLoaded', function () {
         saveUserBtn.addEventListener('click', guardarUsuario);
     }
 
-    // Filtros de usuarios
+    // Eventos para búsqueda y filtros de usuarios
     const searchUsers = document.getElementById('searchUsers');
     if (searchUsers) {
         searchUsers.addEventListener('input', mostrarUsuarios);
+    }
+
+    const searchUsersBtn = document.getElementById('searchUsersBtn');
+    if (searchUsersBtn) {
+        searchUsersBtn.addEventListener('click', mostrarUsuarios);
     }
 
     const roleFilter = document.getElementById('roleFilter');
@@ -818,16 +1229,16 @@ document.addEventListener('DOMContentLoaded', function () {
         userStatusFilter.addEventListener('change', mostrarUsuarios);
     }
 
-    // ========== EVENTO ACTUALIZAR MENÚ PÚBLICO ==========
+    // Evento para actualizar menú público
     const refreshPublicMenu = document.getElementById('refreshPublicMenu');
     if (refreshPublicMenu) {
         refreshPublicMenu.addEventListener('click', function() {
             mostrarMenuPublico();
-            mostrarAlerta('Menú público actualizado manualmente', 'success');
+            mostrarAlerta('Menú público actualizado', 'success');
         });
     }
 
-    // ========== EVENTOS DELEGADOS PARA ACCIONES ==========
+    // Eventos delegados para acciones en tablas - MEJORADO
     document.addEventListener('click', function (e) {
         // Editar producto
         if (e.target.closest('.edit-product')) {
@@ -835,7 +1246,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const id = parseInt(btn.getAttribute('data-id'));
             const producto = products.find(p => p.id === id);
             if (producto) {
-                console.log(`✏️ Editando producto: ${producto.nombre}`);
+                console.log(`Editando producto: ${producto.nombre}`);
                 abrirModalProducto(producto);
             }
         }
@@ -846,7 +1257,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const id = parseInt(btn.getAttribute('data-id'));
             const producto = products.find(p => p.id === id);
             if (producto) {
-                console.log(`🗑️ Solicitando eliminación de: ${producto.nombre}`);
+                console.log(`Solicitando eliminación de: ${producto.nombre}`);
                 mostrarConfirmacion(
                     `¿Está seguro de que desea eliminar el producto "${producto.nombre}"? Esta acción no se puede deshacer.`,
                     () => eliminarProducto(id)
@@ -859,10 +1270,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const btn = e.target.closest('.edit-user');
             const id = parseInt(btn.getAttribute('data-id'));
             const usuario = users.find(u => u.id === id);
-            if (usuario) {
-                console.log(`✏️ Editando usuario: ${usuario.nombre}`);
-                abrirModalUsuario(usuario);
-            }
+            if (usuario) abrirModalUsuario(usuario);
         }
 
         // Eliminar usuario
@@ -871,7 +1279,6 @@ document.addEventListener('DOMContentLoaded', function () {
             const id = parseInt(btn.getAttribute('data-id'));
             const usuario = users.find(u => u.id === id);
             if (usuario) {
-                console.log(`🗑️ Solicitando eliminación de: ${usuario.nombre}`);
                 mostrarConfirmacion(
                     `¿Está seguro de que desea eliminar al usuario "${usuario.nombre}"?`,
                     () => eliminarUsuario(id)
@@ -880,14 +1287,14 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // ========== VISTA PREVIA DE IMAGEN ==========
+    // Vista previa de imagen
     const productImage = document.getElementById('productImage');
     if (productImage) {
         productImage.addEventListener('change', function (e) {
             const file = e.target.files[0];
             const preview = document.getElementById('imagePreview');
 
-            if (file && preview) {
+            if (file) {
                 if (file.size > 2 * 1024 * 1024) {
                     mostrarAlerta('La imagen debe ser menor a 2MB', 'warning');
                     this.value = '';
@@ -900,48 +1307,62 @@ document.addEventListener('DOMContentLoaded', function () {
                     preview.classList.remove('d-none');
                 };
                 reader.readAsDataURL(file);
-            } else if (preview) {
+            } else {
                 preview.classList.add('d-none');
             }
         });
     }
 
-    // ========== GUARDADO AUTOMÁTICO ==========
+    // Guardar datos antes de cerrar sesión o recargar - MEJORADO
     window.addEventListener('beforeunload', function() {
-        console.log('💾 Guardando datos antes de salir...');
+        console.log('Guardando datos antes de salir...');
         guardarDatosEnLocalStorage();
     });
 
-    // Guardar datos cada 30 segundos
+    // Guardar datos periódicamente
     setInterval(guardarDatosEnLocalStorage, 30000);
 
-    console.log('✅ Sistema completamente inicializado y listo');
-    console.log('🔄 Sincronización instantánea ACTIVADA');
-    console.log('💾 Persistencia automática ACTIVADA');
+    console.log('Dashboard Luren Chicken inicializado correctamente');
+    console.log('Sistema de sincronización en tiempo real ACTIVADO');
+    console.log('Sistema de persistencia ACTIVADO');
 });
 
-// ========== FUNCIONES GLOBALES PARA TESTING ==========
-window.agregarProductoDemo = function() {
-    const nuevoProducto = {
-        id: Math.max(0, ...products.map(p => p.id)) + 1,
-        nombre: `Producto Demo ${Date.now()}`,
-        categoria: ['pollos', 'parrillas', 'hamburguesas'][Math.floor(Math.random() * 3)],
-        precio: Math.floor(Math.random() * 50) + 10,
-        descripcion: 'Este es un producto de demostración',
-        imagen: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=300&h=200&fit=crop',
-        estado: 'activo'
-    };
-    
-    products.push(nuevoProducto);
-    sincronizarMenuPublico();
-    mostrarAlerta('Producto demo agregado', 'success');
-};
-
-window.mostrarEstado = function() {
-    console.log('📊 Estado actual:', {
-        productos: products.length,
-        productosActivos: products.filter(p => p.estado === 'activo').length,
-        usuarios: users.length,
-        menuPublicoVisible: isPublicMenuVisible
+// Simulación de endpoints API
+window.fetch = window.fetch || function (url, options) {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            if (url === '/api/estadisticas/dashboard') {
+                resolve({
+                    ok: true,
+                    json: () => Promise.resolve({
+                        totalProductos: products.filter(p => p.estado === 'activo').length,
+                        totalUsuarios: users.length,
+                        pedidosHoy: 12,
+                        ingresosHoy: 450.50,
+                        ventasMesTotal: 12500.75,
+                        promedioDiario: 416.69,
+                        ventaMaxima: 850.00,
+                        totalPedidos: 156,
+                        graficoVentas: {
+                            labels: Array.from({ length: 30 }, (_, i) => (i + 1).toString()),
+                            data: Array.from({ length: 30 }, () => Math.floor(Math.random() * 1000) + 200)
+                        },
+                        ventasRecientes: [
+                            {
+                                id: 1001,
+                                cliente: "Juan Pérez",
+                                cantidadProductos: 3,
+                                total: 125.50,
+                                fecha: new Date().toISOString(),
+                                estado: "completado",
+                                tipo: "Delivery",
+                                cajero: "María García"
+                            }
+                        ]
+                    })
+                });
+            }
+            resolve({ ok: false, status: 500 });
+        }, 1000);
     });
 };

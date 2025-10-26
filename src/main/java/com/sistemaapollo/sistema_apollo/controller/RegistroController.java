@@ -225,7 +225,7 @@ public class RegistroController {
     }
 
 
-    // ENDPOINT: LOGIN DE USUARIO
+
 
     /**
      * Autentica a un usuario verificando sus credenciales.
@@ -259,7 +259,7 @@ public class RegistroController {
     }
 
 
-    // CLASES INTERNAS PARA DTOs
+
 
 
     /**

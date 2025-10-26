@@ -68,7 +68,7 @@ public class CarritoController {
         return "redirect:/carrito";
     }
 
-    //  NUEVO: Endpoint para actualizar cantidad
+
     @PostMapping("/actualizar/{id}")
     public String actualizarCantidad(@PathVariable Long id,
                                      @RequestParam int cantidad,
@@ -93,7 +93,7 @@ public class CarritoController {
         return "redirect:/carrito";
     }
 
-    //  CORREGIDO: Cambiar a POST para vaciar carrito
+
     @PostMapping("/vaciar")
     public String vaciarCarrito(Authentication authentication) {
         String correo = authentication.getName();
@@ -104,7 +104,7 @@ public class CarritoController {
         return "redirect:/carrito";
     }
 
-    // Endpoint para obtener el total del carrito (JSON) - Para JavaScript
+
     @GetMapping("/total")
     @ResponseBody
     public Map<String, Object> obtenerTotalCarrito(Authentication authentication) {
@@ -134,7 +134,7 @@ public class CarritoController {
         return response;
     }
 
-    //  Endpoint AJAX para agregar producto sin redirección
+
     @PostMapping("/agregar-ajax")
     @ResponseBody
     public Map<String, Object> agregarAlCarritoAjax(@RequestParam Long productoId,

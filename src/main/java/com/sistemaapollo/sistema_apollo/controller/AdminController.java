@@ -196,7 +196,7 @@ public class AdminController {
         return "nuevo-producto";
     }
 
-    // Procesar el formulario de nuevo producto (POST) - CORREGIDO
+    // Procesar el formulario de nuevo producto
     @PostMapping("/guardar")
     public String guardarProducto(
             @RequestParam String nombre,

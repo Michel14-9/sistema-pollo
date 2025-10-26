@@ -62,10 +62,10 @@ public class SecurityConfig {
                                 "/menu", "/menu/**"
                         ).permitAll()
 
-                        //  Rutas admin
+
                         .requestMatchers("/admin-menu", "/admin/**").hasRole("ADMIN")
 
-                        //  Rutas autenticadas
+
                         .requestMatchers(
                                 "/carrito", "/carrito/**",
                                 "/pago", "/pago/**",
@@ -79,7 +79,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
 
-                //  LOGIN
+
                 .formLogin(form -> form
                         .loginPage("/login")
                         .successHandler(customAuthenticationSuccessHandler())
@@ -87,7 +87,7 @@ public class SecurityConfig {
                         .permitAll()
                 )
 
-                //  LOGOUT - PERMITIENDO GET EXPLÍCITAMENTE
+
                 .logout(logout -> logout
                         .logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET"))
                         .logoutSuccessUrl("/login?logout=true")
@@ -96,7 +96,7 @@ public class SecurityConfig {
                         .permitAll()
                 )
 
-                // MANEJO DE EXCEPCIONES
+
                 .exceptionHandling(exception -> exception
                         .accessDeniedPage("/login?accessDenied=true")
                 );
@@ -104,7 +104,7 @@ public class SecurityConfig {
         return http.build();
     }
 
-    //  BEAN PARA EL MANEJADOR DE REDIRECCIÓN PERSONALIZADO
+
     @Bean
     public AuthenticationSuccessHandler customAuthenticationSuccessHandler() {
         return new AuthenticationSuccessHandler() {
@@ -121,7 +121,7 @@ public class SecurityConfig {
                     // Redirigir admin a su panel
                     response.sendRedirect("/admin-menu");
                 } else {
-                    // Redirigir usuarios normales a la página principal
+
                     response.sendRedirect("/");
                 }
             }

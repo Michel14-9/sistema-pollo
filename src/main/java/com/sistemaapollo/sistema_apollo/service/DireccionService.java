@@ -151,7 +151,7 @@ public class DireccionService {
                 .stream().findFirst();
     }
 
-    // MÉTODO PRIVADO - QUITAR PREDETERMINADAS
+
     private void quitarPredeterminadas(Usuario usuario) {
         List<Direccion> direcciones = direccionRepository.findByUsuarioAndPredeterminadaTrue(usuario);
         for (Direccion dir : direcciones) {

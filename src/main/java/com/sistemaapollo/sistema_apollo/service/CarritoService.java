@@ -70,18 +70,18 @@ public class CarritoService {
         carritoRepository.deleteByUsuarioId(usuarioId);
     }
 
-    //  MÉTODO LIMPIAR CARRITO - FALTANTE
+
     @Transactional
     public void limpiarCarrito(Long usuarioId) {
         carritoRepository.deleteByUsuarioId(usuarioId);
     }
 
-    //  OPCIONAL -: Método para verificar si el carrito está vacío
+
     public boolean estaVacio(Long usuarioId) {
         return carritoRepository.findByUsuarioId(usuarioId).isEmpty();
     }
 
-    //  OPCIONAL: Método para obtener el total de items en el carrito
+
     public int obtenerTotalItems(Long usuarioId) {
         List<CarritoItem> carrito = carritoRepository.findByUsuarioId(usuarioId);
         return carrito.stream().mapToInt(CarritoItem::getCantidad).sum();

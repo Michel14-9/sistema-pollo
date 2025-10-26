@@ -14,33 +14,33 @@ public class UsuarioService {
     @Autowired
     private UsuarioRepository userRepository;
 
-    // 🔹 Instancia de BCryptPasswordEncoder
+    //  Instancia de BCryptPasswordEncoder
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-    // 🔹 Autenticar usuario
+    //  Autenticar usuario
     public Optional<Usuario> autenticar(String username, String password) {
         return userRepository.findByUsername(username)
                 .filter(user -> passwordEncoder.matches(password, user.getPassword()));
     }
 
-    // 🔹 Guardar usuario (registro) con encriptación de contraseña
+
     public Usuario guardarUsuario(Usuario user) {
         // Encriptamos la contraseña antes de guardar
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
 
-    // 🔹 Buscar usuario por correo/username
+
     public Optional<Usuario> buscarPorUsername(String username) {
         return userRepository.findByUsername(username);
     }
 
-    // 🔹 Buscar usuario por ID
+
     public Optional<Usuario> obtenerPorId(Long id) {
         return userRepository.findById(id);
     }
 
-    // 🔹 Obtener la vista según rol del usuario
+
     public String obtenerVistaPorRol(Usuario user) {
         if(user.getRol() == null) return "/"; // fallback
         switch (user.getRol().toUpperCase()) {

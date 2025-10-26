@@ -40,7 +40,7 @@ public class SecurityConfig {
                         .ignoringRequestMatchers("/logout")
                 )
 
-                // CONFIGURACIÓN DE SESIÓN
+                
                 .sessionManagement(session -> session
                         .sessionFixation().migrateSession()
                         .maximumSessions(1)

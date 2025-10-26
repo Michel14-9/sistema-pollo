@@ -18,13 +18,13 @@ public class SigueTuPedidoController {
         this.pedidoService = pedidoService;
     }
 
-    //  PÁGINA PRINCIPAL
+
     @GetMapping
     public String mostrarPaginaSeguimiento() {
         return "sigue-tu-pedido";
     }
 
-    //  BUSCAR PEDIDO
+
     @PostMapping("/buscar")
     public String buscarPedido(@RequestParam(required = false) String canalPedido,
                                @RequestParam String numeroPedido,
@@ -61,7 +61,7 @@ public class SigueTuPedidoController {
         }
     }
 
-    //  BUSCAR PEDIDO POR NÚMERO (GET - para enlaces directos)
+
     @GetMapping("/buscar")
     public String buscarPedidoGet(@RequestParam String numero, Model model) {
         try {

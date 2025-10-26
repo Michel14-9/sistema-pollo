@@ -68,7 +68,7 @@ public class CarritoController {
         return "redirect:/carrito";
     }
 
-    //  NUEVO: Endpoint para actualizar cantidad
+    //    actualizar cantidad
     @PostMapping("/actualizar/{id}")
     public String actualizarCantidad(@PathVariable Long id,
                                      @RequestParam int cantidad,

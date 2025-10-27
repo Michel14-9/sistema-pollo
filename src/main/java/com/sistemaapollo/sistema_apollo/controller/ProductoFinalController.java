@@ -46,7 +46,7 @@ public class ProductoFinalController {
                 : ResponseEntity.notFound().build();
     }
 
-    //  Guardar nuevo producto (formulario Thymeleaf)
+
     @PostMapping("/guardar")
     public String guardarProducto(ProductoFinal producto, RedirectAttributes redirect) {
         productoFinalService.guardar(producto);
@@ -54,7 +54,7 @@ public class ProductoFinalController {
         return "redirect:/admin/productos";
     }
 
-    //  Guardar nuevo producto (API JSON, para AJAX)
+
     @PostMapping("/guardar-json")
     @ResponseBody
     public ResponseEntity<?> guardarProductoJson(@RequestBody ProductoFinal producto) {
@@ -62,7 +62,7 @@ public class ProductoFinalController {
         return ResponseEntity.ok(nuevo);
     }
 
-    //  Actualizar producto (formulario Thymeleaf)
+
     @PostMapping("/actualizar")
     public String actualizarProducto(ProductoFinal producto, RedirectAttributes redirect) {
         try {
@@ -74,7 +74,7 @@ public class ProductoFinalController {
         return "redirect:/admin/productos";
     }
 
-    //  Actualizar producto (API JSON, para AJAX)
+
     @PutMapping("/actualizar-json")
     @ResponseBody
     public ResponseEntity<?> actualizarProductoJson(@RequestBody ProductoFinal producto) {
@@ -86,7 +86,7 @@ public class ProductoFinalController {
         }
     }
 
-    //  Eliminar producto (formulario Thymeleaf)
+
     @PostMapping("/eliminar/{id}")
     public String eliminarProducto(@PathVariable Long id, RedirectAttributes redirect) {
         productoFinalService.eliminar(id);
@@ -94,7 +94,7 @@ public class ProductoFinalController {
         return "redirect:/admin/productos";
     }
 
-    //  Eliminar producto (API JSON, para AJAX)
+
     @DeleteMapping("/eliminar-json/{id}")
     @ResponseBody
     public ResponseEntity<?> eliminarProductoJson(@PathVariable Long id) {

@@ -39,10 +39,10 @@ public class PedidoController {
         this.objectMapper = new ObjectMapper();
     }
 
-    //  CREAR PEDIDO CON FORMULARIO HTML
+    //  CREAR PEDIDO
     @PostMapping("/crear")
     public String crearPedido(@RequestParam String datosPedido,
-                              HttpServletRequest request, // ✅ AHORA CON jakarta.servlet
+                              HttpServletRequest request,
                               Authentication authentication) {
         try {
             System.out.println("===  CREAR PEDIDO CON FORMULARIO ===");
@@ -90,13 +90,13 @@ public class PedidoController {
         }
     }
 
-    //  PÁGINA DE CONFIRMACIÓN DE PEDIDO - MEJORADA
+    //  PÁGINA DE CONFIRMACIÓN DE PEDIDO
     @GetMapping("/confirmacion-pedido")
     public String mostrarConfirmacion(@RequestParam(required = false) Long id,
                                       Authentication authentication,
                                       Model model) {
         try {
-            System.out.println("=== 📄 CARGANDO PÁGINA DE CONFIRMACIÓN ===");
+            System.out.println("===  CARGANDO PÁGINA DE CONFIRMACIÓN ===");
 
             if (authentication == null || !authentication.isAuthenticated()) {
                 return "redirect:/login?redirect=/confirmacion-pedido";
@@ -192,12 +192,12 @@ public class PedidoController {
         }
     }
 
-    //  BUSCAR PEDIDO -
+    //  BUSCAR PEDIDO
     @PostMapping("/buscar")
     public String buscarPedido(@RequestParam String canalPedido,
                                @RequestParam String numeroPedido,
                                Model model) {
-        System.out.println("🔍 Buscando pedido - Número: " + numeroPedido);
+        System.out.println(" Buscando pedido - Número: " + numeroPedido);
 
 
 

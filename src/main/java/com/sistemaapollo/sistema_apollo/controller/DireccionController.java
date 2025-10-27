@@ -20,7 +20,7 @@ public class DireccionController {
     private DireccionService direccionService;
 
 
-    // OBTENER DIRECCIONES DEL USUARIO (CON DTOs)
+
 
     @GetMapping
     public ResponseEntity<?> obtenerDireccionesUsuario(Authentication authentication) {
@@ -44,7 +44,7 @@ public class DireccionController {
     }
 
 
-// GUARDAR NUEVA DIRECCIÓN (CON DTOs) -
+
 
     @PostMapping
     public ResponseEntity<?> guardarDireccion(@RequestBody DireccionRequestDTO direccionRequest,
@@ -64,7 +64,7 @@ public class DireccionController {
 
             String username = authentication.getName();
 
-            // Validaciones básicas
+
             if (direccionRequest.getNombre() == null || direccionRequest.getNombre().trim().isEmpty()) {
                 System.out.println(" ERROR: Nombre de dirección vacío");
                 return ResponseEntity.badRequest().body("El nombre de la dirección es obligatorio");
@@ -96,7 +96,7 @@ public class DireccionController {
     }
 
 
-    // ACTUALIZAR DIRECCIÓN (CON DTOs)
+    // ACTUALIZAR DIRECCIÓN
 
     @PutMapping("/{id}")
     public ResponseEntity<?> actualizarDireccion(@PathVariable Long id,
@@ -122,9 +122,9 @@ public class DireccionController {
         }
     }
 
-    // ==========================
-    // ELIMINAR DIRECCIÓN (SIN CAMBIOS)
-    // ==========================
+
+    // ELIMINAR DIRECCIÓN
+
     @DeleteMapping("/{id}")
     public ResponseEntity<?> eliminarDireccion(@PathVariable Long id, Authentication authentication) {
         try {
@@ -145,7 +145,7 @@ public class DireccionController {
     }
 
 
-    // MARCAR DIRECCIÓN COMO PREDETERMINADA (SIN CAMBIOS)
+
 
     @PutMapping("/{id}/predeterminada")
     public ResponseEntity<?> marcarPredeterminada(@PathVariable Long id, Authentication authentication) {
@@ -166,9 +166,9 @@ public class DireccionController {
         }
     }
 
-    // ==========================
-    // OBTENER DIRECCIÓN PREDETERMINADA (CON DTO)
-    // ==========================
+
+
+
     @GetMapping("/predeterminada")
     public ResponseEntity<?> obtenerDireccionPredeterminada(Authentication authentication) {
         try {

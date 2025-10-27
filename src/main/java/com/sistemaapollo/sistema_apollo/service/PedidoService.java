@@ -29,7 +29,7 @@ public class PedidoService {
         return pedidoRepository.findAllWithItems();
     }
 
-    //  CREAR NUEVO PEDIDO ACTUALIZADO
+    //  CREAR NUEVO PEDIDO
     @Transactional
     public Pedido crearPedido(Usuario usuario, List<CarritoItem> carrito, Map<String, Object> datosPedido) {
         try {
@@ -43,7 +43,7 @@ public class PedidoService {
             pedido.setInstrucciones((String) datosPedido.get("instrucciones"));
             pedido.setObservaciones((String) datosPedido.get("observaciones"));
 
-            // Convertir CarritoItems a ItemPedido
+
             for (CarritoItem carritoItem : carrito) {
                 ItemPedido itemPedido = new ItemPedido();
                 itemPedido.setNombreProducto(carritoItem.getProducto().getNombre());
@@ -53,19 +53,19 @@ public class PedidoService {
                 pedido.agregarItem(itemPedido);
             }
 
-            // Calcular totales automáticamente
+
             pedido.calcularTotales();
 
-            //  PRIMERO GUARDAR PARA OBTENER EL ID
+
             Pedido pedidoGuardado = pedidoRepository.save(pedido);
 
-            //  LUEGO GENERAR EL NÚMERO BASADO EN EL ID
+
             String numeroGenerado = "LR" + String.format("%06d", pedidoGuardado.getId());
             pedidoGuardado.setNumero(numeroGenerado);
             pedidoGuardado.setNumeroPedido(numeroGenerado);
             pedidoGuardado.setCanal("WEB");
 
-            //  FINALMENTE GUARDAR CON EL NÚMERO
+
             return pedidoRepository.save(pedidoGuardado);
 
         } catch (Exception e) {
@@ -73,7 +73,7 @@ public class PedidoService {
         }
     }
 
-    //  OBTENER PEDIDO POR ID
+
     public Optional<Pedido> obtenerPedidoPorId(Long pedidoId) {
         return pedidoRepository.findById(pedidoId);
     }
@@ -83,7 +83,7 @@ public class PedidoService {
         return pedidoRepository.findByUsuarioIdOrderByFechaDesc(usuarioId);
     }
 
-    // ACTUALIZAR ESTADO DE PEDIDO
+
     @Transactional
     public Pedido actualizarEstadoPedido(Long pedidoId, String nuevoEstado) {
         Optional<Pedido> pedidoOpt = pedidoRepository.findById(pedidoId);
@@ -95,7 +95,7 @@ public class PedidoService {
             throw new RuntimeException("Pedido no encontrado");
         }
     }
-    //  AGREGAR ESTE MÉTODO A PedidoService
+
     public Optional<Pedido> buscarPorNumeroPedido(String numeroPedido) {
         return pedidoRepository.findByNumeroPedido(numeroPedido);
     }

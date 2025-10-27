@@ -12,10 +12,10 @@ public class DireccionRequestDTO {
     private boolean predeterminada;
     private boolean facturacion;
 
-    // Constructor vacío
+
     public DireccionRequestDTO() {}
 
-    // Getters y Setters
+
     public String getNombre() { return nombre; }
     public void setNombre(String nombre) { this.nombre = nombre; }
 
@@ -40,7 +40,7 @@ public class DireccionRequestDTO {
     public boolean isFacturacion() { return facturacion; }
     public void setFacturacion(boolean facturacion) { this.facturacion = facturacion; }
 
-    // Método para convertir a entidad Direccion
+
     public Direccion toEntity() {
         Direccion direccion = new Direccion();
         direccion.setNombre(this.nombre);

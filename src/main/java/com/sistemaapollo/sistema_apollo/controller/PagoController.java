@@ -55,7 +55,7 @@ public class PagoController {
                 carrito = new ArrayList<>();
             }
 
-            //  OBTENER DIRECCIONES DEL USUARIO
+
             List<Direccion> direcciones = new ArrayList<>();
             Direccion direccionPredeterminada = null;
 
@@ -79,7 +79,7 @@ public class PagoController {
             double descuento = 0.0;
             double total = 0.0;
 
-            //  Solo calcular si hay productos en el carrito
+
             if (!carrito.isEmpty()) {
                 subtotal = carrito.stream()
                         .mapToDouble(item -> item.getPrecioUnitario() * item.getCantidad())
@@ -90,7 +90,7 @@ public class PagoController {
                 total = subtotal + costoEnvio - descuento;
             }
 
-            //  Agregar datos al modelo (siempre)
+
             model.addAttribute("usuario", usuario);
             model.addAttribute("carrito", carrito);
             model.addAttribute("subtotal", subtotal);
@@ -99,7 +99,7 @@ public class PagoController {
             model.addAttribute("total", total);
             model.addAttribute("cantidadItems", carrito.size());
 
-            //  AGREGAR DIRECCIONES AL MODELO
+
             model.addAttribute("direcciones", direcciones);
             model.addAttribute("direccionPredeterminada", direccionPredeterminada);
 
@@ -111,7 +111,7 @@ public class PagoController {
             return "pago";
 
         } catch (Exception e) {
-            System.err.println("❌ ERROR en PagoController: " + e.getMessage());
+            System.err.println(" ERROR en PagoController: " + e.getMessage());
             e.printStackTrace();
             return "redirect:/carrito?error=pago_error";
         }

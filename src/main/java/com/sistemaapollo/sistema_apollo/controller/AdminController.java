@@ -1,9 +1,14 @@
 package com.sistemaapollo.sistema_apollo.controller;
-
+import org.springframework.http.ResponseEntity;
+import java.util.HashMap;
 import com.sistemaapollo.sistema_apollo.model.ProductoFinal;
+import com.sistemaapollo.sistema_apollo.model.Usuario;
+import com.sistemaapollo.sistema_apollo.repository.UsuarioRepository;
 import com.sistemaapollo.sistema_apollo.service.ProductoFinalService;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -11,6 +16,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -24,6 +30,12 @@ public class AdminController {
 
     private final ProductoFinalService productoFinalService;
 
+    @Autowired
+    private UsuarioRepository usuarioRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     public AdminController(ProductoFinalService productoFinalService) {
         this.productoFinalService = productoFinalService;
     }
@@ -36,7 +48,6 @@ public class AdminController {
         model.addAttribute("pagina", "dashboard");
         return "admin-menu";
     }
-
 
     @GetMapping("/exportar-dashboard-excel")
     public void exportarDashboardExcel(HttpServletResponse response) throws IOException {
@@ -196,31 +207,33 @@ public class AdminController {
         return "nuevo-producto";
     }
 
-    // Procesar el formulario de nuevo producto
+    // Procesar el formulario de nuevo producto - VERSIÓN PARA AJAX
     @PostMapping("/guardar")
-    public String guardarProducto(
+    @ResponseBody
+    public ResponseEntity<?> guardarProducto(
             @RequestParam String nombre,
             @RequestParam String descripcion,
             @RequestParam Double precio,
             @RequestParam String tipo,
-            @RequestParam(required = false) String imagenUrl, // PARÁMETRO PARA URL
-            RedirectAttributes redirectAttributes) {
+            @RequestParam(required = false) String imagenUrl) {
 
         try {
+            System.out.println("📥 Recibiendo producto para guardar:");
+            System.out.println("Nombre: " + nombre);
+            System.out.println("Tipo: " + tipo);
+            System.out.println("Precio: " + precio);
+
             // Validar datos básicos
             if (nombre == null || nombre.trim().isEmpty()) {
-                redirectAttributes.addFlashAttribute("error", "El nombre del producto es requerido");
-                return "redirect:/admin-menu/nuevo";
+                return ResponseEntity.badRequest().body(Map.of("success", false, "error", "El nombre del producto es requerido"));
             }
 
             if (precio == null || precio <= 0) {
-                redirectAttributes.addFlashAttribute("error", "El precio debe ser mayor a 0");
-                return "redirect:/admin-menu/nuevo";
+                return ResponseEntity.badRequest().body(Map.of("success", false, "error", "El precio debe ser mayor a 0"));
             }
 
             if (tipo == null || tipo.trim().isEmpty()) {
-                redirectAttributes.addFlashAttribute("error", "El tipo/categoría es requerido");
-                return "redirect:/admin-menu/nuevo";
+                return ResponseEntity.badRequest().body(Map.of("success", false, "error", "El tipo/categoría es requerido"));
             }
 
             // Crear nuevo producto
@@ -240,90 +253,294 @@ public class AdminController {
             // Guardar en la base de datos
             ProductoFinal productoCreado = productoFinalService.guardar(producto);
 
-            System.out.println("=== NUEVO PRODUCTO GUARDADO EN BD ===");
+            System.out.println("✅ NUEVO PRODUCTO GUARDADO EN BD");
             System.out.println("ID: " + productoCreado.getId());
             System.out.println("Nombre: " + productoCreado.getNombre());
             System.out.println("Precio: S/." + productoCreado.getPrecio());
             System.out.println("Tipo: " + productoCreado.getTipo());
             System.out.println("Imagen: " + productoCreado.getImagenUrl());
-            System.out.println("===============================");
 
-            redirectAttributes.addFlashAttribute("success", "Producto guardado exitosamente!");
+            return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "message", "Producto guardado exitosamente!",
+                    "producto", productoCreado
+            ));
 
         } catch (Exception e) {
-            System.err.println("Error al guardar producto: " + e.getMessage());
-            redirectAttributes.addFlashAttribute("error", "Error al guardar el producto: " + e.getMessage());
-            return "redirect:/admin-menu/nuevo";
-        }
-
-        return "redirect:/admin-menu";
-    }
-
-    // Editar producto existente
-    @GetMapping("/editar/{id}")
-    public String editarProducto(@PathVariable Long id, Model model) {
-        try {
-            Optional<ProductoFinal> productoOpt = productoFinalService.obtenerPorId(id);
-            if (productoOpt.isPresent()) {
-                model.addAttribute("producto", productoOpt.get());
-                model.addAttribute("pagina", "editar-producto");
-                return "nuevo-producto";
-            } else {
-                model.addAttribute("error", "Producto no encontrado");
-                return "redirect:/admin-menu";
-            }
-        } catch (Exception e) {
-            model.addAttribute("error", "Error al cargar el producto");
-            return "redirect:/admin-menu";
+            System.err.println("❌ Error al guardar producto: " + e.getMessage());
+            return ResponseEntity.status(500).body(Map.of("success", false, "error", "Error al guardar el producto: " + e.getMessage()));
         }
     }
 
-    // Actualizar producto existente
+    // Actualizar producto existente - VERSIÓN PARA AJAX
     @PostMapping("/actualizar/{id}")
-    public String actualizarProducto(
+    @ResponseBody
+    public ResponseEntity<?> actualizarProducto(
             @PathVariable Long id,
             @RequestParam String nombre,
             @RequestParam String descripcion,
             @RequestParam Double precio,
             @RequestParam String tipo,
-            @RequestParam(required = false) String imagenUrl,
-            RedirectAttributes redirectAttributes) {
+            @RequestParam(required = false) String imagenUrl) {
 
         try {
+            System.out.println("📥 Actualizando producto ID: " + id);
+
+            // Validaciones
+            if (nombre == null || nombre.trim().isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("success", false, "error", "El nombre del producto es requerido"));
+            }
+
+            if (precio == null || precio <= 0) {
+                return ResponseEntity.badRequest().body(Map.of("success", false, "error", "El precio debe ser mayor a 0"));
+            }
+
+            if (tipo == null || tipo.trim().isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("success", false, "error", "El tipo/categoría es requerido"));
+            }
+
             Optional<ProductoFinal> productoOpt = productoFinalService.obtenerPorId(id);
             if (productoOpt.isPresent()) {
                 ProductoFinal producto = productoOpt.get();
-                producto.setNombre(nombre);
-                producto.setDescripcion(descripcion);
+                producto.setNombre(nombre.trim());
+                producto.setDescripcion(descripcion != null ? descripcion.trim() : "");
                 producto.setPrecio(precio);
-                producto.setTipo(tipo);
+                producto.setTipo(tipo.trim());
 
-                // Actualizar imagen URL solo si se proporciona
+                // Manejar imagen URL
                 if (imagenUrl != null && !imagenUrl.trim().isEmpty()) {
                     producto.setImagenUrl(imagenUrl.trim());
+                } else {
+                    producto.setImagenUrl("/imagenes/default-product.jpg");
                 }
 
-                productoFinalService.guardar(producto);
-                redirectAttributes.addFlashAttribute("success", "Producto actualizado exitosamente!");
+                ProductoFinal productoActualizado = productoFinalService.guardar(producto);
+
+                System.out.println("✅ PRODUCTO ACTUALIZADO EN BD");
+                System.out.println("ID: " + productoActualizado.getId());
+                System.out.println("Nombre: " + productoActualizado.getNombre());
+
+                return ResponseEntity.ok(Map.of(
+                        "success", true,
+                        "message", "Producto actualizado exitosamente!",
+                        "producto", productoActualizado
+                ));
             } else {
-                redirectAttributes.addFlashAttribute("error", "Producto no encontrado");
+                return ResponseEntity.status(404).body(Map.of("success", false, "error", "Producto no encontrado"));
             }
 
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Error al actualizar el producto");
+            System.err.println("❌ Error al actualizar producto: " + e.getMessage());
+            return ResponseEntity.status(500).body(Map.of("success", false, "error", "Error al actualizar el producto: " + e.getMessage()));
         }
-        return "redirect:/admin-menu";
     }
 
-    // Eliminar producto
+    // Eliminar producto - VERSIÓN PARA AJAX
     @PostMapping("/eliminar/{id}")
-    public String eliminarProducto(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+    @ResponseBody
+    public ResponseEntity<?> eliminarProducto(
+            @PathVariable Long id,
+            @RequestParam(required = false) String redirectSection) {
+
         try {
-            productoFinalService.eliminar(id);
-            redirectAttributes.addFlashAttribute("success", "Producto eliminado exitosamente!");
+            System.out.println("🗑️ Eliminando producto ID: " + id);
+
+            Optional<ProductoFinal> productoOpt = productoFinalService.obtenerPorId(id);
+            if (productoOpt.isPresent()) {
+                productoFinalService.eliminar(id);
+                System.out.println("✅ PRODUCTO ELIMINADO: ID " + id);
+
+                return ResponseEntity.ok(Map.of(
+                        "success", true,
+                        "message", "Producto eliminado exitosamente!"
+                ));
+            } else {
+                return ResponseEntity.status(404).body(Map.of("success", false, "error", "Producto no encontrado"));
+            }
+
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Error al eliminar el producto");
+            System.err.println("❌ Error al eliminar producto: " + e.getMessage());
+            return ResponseEntity.status(500).body(Map.of("success", false, "error", "Error al eliminar el producto: " + e.getMessage()));
         }
-        return "redirect:/admin-menu";
+    }
+
+    @GetMapping("/estadisticas")
+    @ResponseBody
+    public Map<String, Object> obtenerEstadisticas() {
+        Map<String, Object> estadisticas = new HashMap<>();
+
+        try {
+            List<ProductoFinal> productos = productoFinalService.obtenerTodos();
+            List<Usuario> usuarios = usuarioRepository.findAll();
+
+            // Estadísticas de productos
+            estadisticas.put("totalProductos", productos.size());
+            estadisticas.put("precioPromedio", productos.stream()
+                    .mapToDouble(ProductoFinal::getPrecio)
+                    .average().orElse(0.0));
+            estadisticas.put("precioMaximo", productos.stream()
+                    .mapToDouble(ProductoFinal::getPrecio)
+                    .max().orElse(0.0));
+            estadisticas.put("precioMinimo", productos.stream()
+                    .mapToDouble(ProductoFinal::getPrecio)
+                    .min().orElse(0.0));
+
+            // Estadísticas de usuarios
+            estadisticas.put("totalUsuarios", usuarios.size());
+
+            // Agrupar productos por categoría
+            Map<String, Long> productosPorCategoria = productos.stream()
+                    .collect(Collectors.groupingBy(ProductoFinal::getTipo, Collectors.counting()));
+            estadisticas.put("productosPorCategoria", productosPorCategoria);
+
+            // Para pedidos (puedes implementar esto después)
+            estadisticas.put("pedidosHoy", 0);
+            estadisticas.put("ingresosHoy", 0.0);
+
+            estadisticas.put("success", true);
+
+        } catch (Exception e) {
+            estadisticas.put("success", false);
+            estadisticas.put("error", e.getMessage());
+        }
+
+        return estadisticas;
+    }
+
+    // Endpoint para obtener todos los productos (JSON)
+    @GetMapping("/productos")
+    @ResponseBody
+    public List<ProductoFinal> obtenerTodosProductos() {
+        return productoFinalService.obtenerTodos();
+    }
+
+    // Endpoint para obtener un producto por ID (JSON)
+    @GetMapping("/productos/{id}")
+    @ResponseBody
+    public ResponseEntity<?> obtenerProductoPorId(@PathVariable Long id) {
+        try {
+            Optional<ProductoFinal> producto = productoFinalService.obtenerPorId(id);
+            if (producto.isPresent()) {
+                return ResponseEntity.ok(producto.get());
+            } else {
+                return ResponseEntity.status(404).body(Map.of("error", "Producto no encontrado"));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    // ================== GESTIÓN DE USUARIOS ==================
+
+    // Endpoint para obtener todos los usuarios (JSON)
+    @GetMapping("/usuarios")
+    @ResponseBody
+    public List<Usuario> obtenerTodosUsuarios() {
+        List<Usuario> usuarios = usuarioRepository.findAll();
+        System.out.println("👥 Enviando " + usuarios.size() + " usuarios al frontend");
+        return usuarios;
+    }
+
+    // Endpoint para crear usuario
+    @PostMapping("/usuarios/guardar")
+    @ResponseBody
+    public ResponseEntity<?> guardarUsuario(
+            @RequestParam String nombres,
+            @RequestParam String apellidos,
+            @RequestParam String tipoDocumento,
+            @RequestParam String numeroDocumento,
+            @RequestParam String telefono,
+            @RequestParam String fechaNacimiento,
+            @RequestParam String email,
+            @RequestParam String rol,
+            @RequestParam String password) {
+
+        try {
+            System.out.println("📥 Recibiendo usuario para guardar:");
+            System.out.println("Nombres: " + nombres);
+            System.out.println("Email: " + email);
+            System.out.println("Rol: " + rol);
+
+            // Validar que el email no exista
+            if (usuarioRepository.findByUsername(email).isPresent()) {
+                return ResponseEntity.badRequest().body(Map.of(
+                        "success", false,
+                        "error", "El correo electrónico ya está registrado"
+                ));
+            }
+
+            // Validar contraseña
+            if (password == null || password.trim().length() < 6) {
+                return ResponseEntity.badRequest().body(Map.of(
+                        "success", false,
+                        "error", "La contraseña debe tener al menos 6 caracteres"
+                ));
+            }
+
+            // Crear nuevo usuario
+            Usuario usuario = new Usuario();
+            usuario.setNombres(nombres.trim());
+            usuario.setApellidos(apellidos.trim());
+            usuario.setTipoDocumento(tipoDocumento);
+            usuario.setNumeroDocumento(numeroDocumento.trim());
+            usuario.setTelefono(telefono.trim());
+            usuario.setFechaNacimiento(LocalDate.parse(fechaNacimiento));
+            usuario.setUsername(email.trim());
+            usuario.setRol(rol.toUpperCase());
+            usuario.setPassword(passwordEncoder.encode(password));
+
+            // Guardar en la base de datos
+            Usuario usuarioCreado = usuarioRepository.save(usuario);
+
+            System.out.println("✅ NUEVO USUARIO GUARDADO EN BD");
+            System.out.println("ID: " + usuarioCreado.getId());
+            System.out.println("Nombre: " + usuarioCreado.getNombres() + " " + usuarioCreado.getApellidos());
+            System.out.println("Rol: " + usuarioCreado.getRol());
+
+            return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "message", "Usuario creado exitosamente!",
+                    "usuario", usuarioCreado
+            ));
+
+        } catch (Exception e) {
+            System.err.println("❌ Error al guardar usuario: " + e.getMessage());
+            return ResponseEntity.status(500).body(Map.of(
+                    "success", false,
+                    "error", "Error al guardar el usuario: " + e.getMessage()
+            ));
+        }
+    }
+
+    // Endpoint para eliminar usuario
+    @PostMapping("/usuarios/eliminar/{id}")
+    @ResponseBody
+    public ResponseEntity<?> eliminarUsuario(@PathVariable Long id) {
+        try {
+            System.out.println("🗑️ Eliminando usuario ID: " + id);
+
+            Optional<Usuario> usuarioOpt = usuarioRepository.findById(id);
+            if (usuarioOpt.isPresent()) {
+                usuarioRepository.deleteById(id);
+                System.out.println("✅ USUARIO ELIMINADO: ID " + id);
+
+                return ResponseEntity.ok(Map.of(
+                        "success", true,
+                        "message", "Usuario eliminado exitosamente!"
+                ));
+            } else {
+                return ResponseEntity.status(404).body(Map.of(
+                        "success", false,
+                        "error", "Usuario no encontrado"
+                ));
+            }
+
+        } catch (Exception e) {
+            System.err.println("❌ Error al eliminar usuario: " + e.getMessage());
+            return ResponseEntity.status(500).body(Map.of(
+                    "success", false,
+                    "error", "Error al eliminar el usuario: " + e.getMessage()
+            ));
+        }
     }
 }

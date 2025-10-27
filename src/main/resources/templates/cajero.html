@@ -7,7 +7,8 @@
     <title>Sistema POS - Pedido</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="/src/main/resources/static/css/cajero.css">
+    <link th:href="@{/css/cajero.css}" rel="stylesheet">
+    <link rel="stylesheet" href="../static/css/cajero.css">
 </head>
 
 <body>
@@ -15,24 +16,25 @@
     <header class="cajero-header">
         <div class="header-top">
             <div class="empresa-info">
-                <div class="logo">LC</div>
+                <div class="logo">
+                    <img src="../static/imagenes/LurenChicken.jpg" src="https://via.placeholder.com/80x80?text=LC"
+                        alt="Luren Chicken">
+                </div>
                 <span class="empresa-nombre">Luren Chicken</span>
             </div>
             <div class="usuario-info">
-                <span class="usuario">Cajero: Maria González</span>
+                <!-- Usando Thymeleaf para mostrar información del usuario -->
+                <span class="usuario" th:text="'Cajero: ' + ${usuario.nombre}">Cajero: Maria González</span>
                 <span class="hora" id="header-hora-actual"></span>
             </div>
         </div>
 
         <nav class="cajero-nav">
             <div class="estado-caja">
-                <span class="estado">Caja - Abierta</span>
+                <!-- Usando Thymeleaf para mostrar estado de caja -->
+                <span class="estado" th:text="${caja.estado} ? 'Caja - Abierta' : 'Caja - Cerrada'">Caja -
+                    Abierta</span>
                 <span class="fecha" id="header-fecha-actual"></span>
-            </div>
-            <div class="acciones-rapidas">
-                <button class="btn-accion" id="btn-suspender">Suspender</button>
-                <button class="btn-accion" id="btn-corte">Corte Parcial</button>
-                <button class="btn-accion" id="btn-cierre">Cierre Caja</button>
             </div>
         </nav>
     </header>
@@ -44,15 +46,26 @@
                     <h5 class="mb-3">Información del Pedido</h5>
                     <div class="d-flex justify-content-between mb-2">
                         <span>Número de Orden:</span>
-                        <span class="fw-bold text-primary" id="order-number">#ORD-2024-001234</span>
+                        <!-- Usando Thymeleaf para mostrar número de orden -->
+                        <span class="fw-bold text-primary" id="order-number"
+                            th:text="${pedido.numero}">#ORD-2024-001234</span>
                     </div>
                     <hr>
                     <div id="order-items-container">
                         <div id="order-items-list">
+                            <!-- Usando Thymeleaf para mostrar items del pedido -->
+                            <div th:each="item : ${pedido.items}"
+                                class="d-flex justify-content-between border-bottom pb-2 mb-3">
+                                <span th:text="${item.nombre} + ' x ' + ${item.cantidad}">Hamburguesa Clásica x 1</span>
+                                <span th:text="'S/ ' + ${#numbers.formatDecimal(item.precio * item.cantidad, 1, 2)}">S/
+                                    12.50</span>
+                            </div>
                         </div>
                         <div class="d-flex justify-content-between fw-bold fs-5 text-info">
                             <span>Total:</span>
-                            <span id="order-total-display">S/ 0.00</span>
+                            <!-- Usando Thymeleaf para mostrar total -->
+                            <span id="order-total-display"
+                                th:text="'S/ ' + ${#numbers.formatDecimal(pedido.total, 1, 2)}">S/ 20.00</span>
                         </div>
                     </div>
                 </div>
@@ -75,15 +88,25 @@
                     </div>
                 </div>
 
+                <!-- Contenido para Delivery -->
                 <div id="content-delivery" class="mb-4">
                     <h5 class="mt-4 mb-2">Número de Teléfono</h5>
                     <div class="input-group mb-3">
                         <input type="text" class="form-control" id="phoneNumberInput" placeholder="Ej: +51 987654321"
                             maxlength="12">
                     </div>
-                    <small class="text-muted">Se enviará el comprobante por **WhatsApp** a este número.</small>
+                    <small class="text-muted">Se enviará el comprobante por <strong>WhatsApp</strong> a este
+                        número.</small>
+
+                    <!-- Botón para enviar comprobante por WhatsApp (solo visible en Delivery) -->
+                    <div class="mt-3">
+                        <button id="btn-send-whatsapp-receipt" class="btn btn-whatsapp btn-lg w-100">
+                            <i class="bi bi-whatsapp me-2"></i>Enviar Comprobante por WhatsApp
+                        </button>
+                    </div>
                 </div>
 
+                <!-- Contenido para Recojo en Tienda -->
                 <div id="content-pickup" class="mb-4" style="display: none;">
                     <h5 class="mt-4 mb-2">Datos para Boleta</h5>
                     <div class="mb-3">
@@ -92,32 +115,48 @@
                             placeholder="Ej: HUACHIN OJEDA DENIS ABEL">
                     </div>
                     <small class="text-muted">Se generará boleta electrónica con estos datos.</small>
+
+                    <!-- Botón para generar boleta (solo visible en Recojo en Tienda) -->
+                    <div class="mt-3">
+                        <button id="btn-generate-pickup-invoice" class="btn btn-generar-boleta btn-lg w-100">
+                            <i class="bi bi-receipt me-2"></i>Generar Boleta para Recojo
+                        </button>
+                    </div>
                 </div>
 
                 <div id="content-pickup-info" class="card shadow-sm mb-4 p-3" style="display: none;">
                     <h5 class="mb-3">Información de la Tienda</h5>
-                    <p class="mb-1 text-muted"><i class="bi bi-geo-alt me-2"></i> Calle Mayor 123, 28013 Madrid,
-                        España
+                    <!-- Usando Thymeleaf para mostrar información de la tienda -->
+                    <p class="mb-1 text-muted"><i class="bi bi-geo-alt me-2"></i>
+                        <span th:text="${tienda.direccion}">Calle Mayor 123, 28013 Madrid, España</span>
                     </p>
-                    <p class="mb-1 text-muted"><i class="bi bi-clock me-2"></i> Lun-Dom: 11:00 - 23:00</p>
-                    <p class="mb-0 text-muted"><i class="bi bi-telephone me-2"></i> +34 91 123 4567</p>
+                    <p class="mb-1 text-muted"><i class="bi bi-clock me-2"></i>
+                        <span th:text="${tienda.horario}">Lun-Dom: 11:00 - 23:00</span>
+                    </p>
+                    <p class="mb-0 text-muted"><i class="bi bi-telephone me-2"></i>
+                        <span th:text="${tienda.telefono}">+34 91 123 4567</span>
+                    </p>
                 </div>
 
                 <div class="card shadow-sm mb-4 p-3">
                     <h5 class="mb-3">Estado del Pedido</h5>
                     <div id="status-bar" class="order-status-bar d-flex justify-content-between align-items-center">
-                        <div class="status-item active text-center"><span
-                                class="step-circle bg-primary text-white">1</span>
+                        <!-- Estados del pedido que se actualizarán dinámicamente -->
+                        <div class="status-item active text-center" data-step="1">
+                            <span class="step-circle bg-primary text-white">1</span>
                             <div class="mt-1">Procesando</div>
                         </div>
-                        <div class="status-item text-center"><span class="step-circle">2</span>
+                        <div class="status-item text-center" data-step="2">
+                            <span class="step-circle">2</span>
                             <div class="mt-1">Confirmado</div>
                         </div>
-                        <div class="status-item text-center"><span class="step-circle">3</span>
+                        <div class="status-item text-center" data-step="3">
+                            <span class="step-circle">3</span>
                             <div class="mt-1">Preparando</div>
                         </div>
-                        <div id="step-4" class="status-item text-center"><span class="step-circle">4</span>
-                            <div class="mt-1">Listo para Entrega</div>
+                        <div class="status-item text-center" data-step="4" id="step-4">
+                            <span class="step-circle">4</span>
+                            <div class="mt-1" id="step-4-text">Listo para Entrega</div>
                         </div>
                     </div>
                 </div>
@@ -125,42 +164,12 @@
 
             <div class="col-lg-4">
                 <div class="mb-4">
-                    <h5>Comprobantes</h5>
-                    <div id="receipt-buttons" class="d-grid gap-2">
-                        <div id="receipt-delivery">
-                            <button id="btn-generate-payment-receipt" class="btn btn-primary btn-lg">Generar Comprobante
-                                de Pago</button>
-                            <button id="btn-send-whatsapp-receipt" class="btn btn-success btn-lg mt-2">
-                                <i class="bi bi-whatsapp me-2"></i>Enviar Comprobante por WhatsApp
-                            </button>
-                        </div>
-                        <div id="receipt-pickup" style="display: none;">
-                            <button id="btn-generate-payment-receipt-pickup" class="btn btn-primary btn-lg">Generar
-                                Comprobante de Pago</button>
-                            <button id="btn-generate-pickup-invoice" class="btn btn-success btn-lg mt-2 dropdown-toggle"
-                                type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Generar Boleta para Recojo
-                            </button>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="#" id="btn-download-boleta-pdf">Descargar PDF</a>
-                                </li>
-                                <li><a class="dropdown-item" href="#" id="btn-download-boleta-excel">Descargar Excel</a>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mb-4">
                     <h5>Acciones</h5>
                     <div class="d-grid gap-2">
-                        <button id="btn-add-item" class="btn btn-info btn-lg">Añadir Nuevo Item</button>
-                        <button id="btn-open-payment-modal" class="btn btn-primary btn-lg" data-bs-toggle="modal"
-                            data-bs-target="#paymentModal">Procesar Pago</button>
-                        <button id="btn-update-status" class="btn btn-light btn-lg border text-muted">Actualizar
-                            Estado</button>
-                        <button id="btn-cancel-order" class="btn btn-danger btn-lg" data-bs-toggle="modal"
-                            data-bs-target="#cancelOrderModal">Cancelar Pedido</button>
+                        <!-- Botón para actualizar estado del pedido -->
+                        <button id="btn-update-status" class="btn btn-primary btn-lg">
+                            Actualizar Estado
+                        </button>
                     </div>
                 </div>
 
@@ -174,287 +183,17 @@
                         <i class="bi bi-clock me-2"></i>
                         <span id="currentTime"></span>
                     </p>
-                    <p class="mb-0"><i class="bi bi-person me-2"></i>Cajero: María González</p>
+                    <p class="mb-0">
+                        <i class="bi bi-person me-2"></i>
+                        <!-- Usando Thymeleaf para mostrar información del cajero -->
+                        <span th:text="'Cajero: ' + ${usuario.nombre}">Cajero: María González</span>
+                    </p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal para Suspender Caja -->
-    <div class="modal-custom" id="modalSuspender">
-        <div class="modal-content-custom">
-            <div class="modal-header-custom">
-                <div class="modal-title-custom">Suspender Caja</div>
-                <button class="close-modal">&times;</button>
-            </div>
-            <div class="modal-body-custom">
-                <div class="info-box">
-                    Al suspender la caja, el sistema permanecerá bloqueado hasta que ingrese su contraseña
-                    nuevamente.
-                </div>
-                <div class="form-group">
-                    <label for="motivoSuspension">Motivo de suspensión:</label>
-                    <select id="motivoSuspension">
-                        <option value="">Seleccione un motivo</option>
-                        <option value="descanso">Pausa para descanso</option>
-                        <option value="almuerzo">Pausa para almuerzo</option>
-                        <option value="reunion">Reunión de personal</option>
-                        <option value="problema_tecnico">Problema técnico</option>
-                        <option value="otro">Otro</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="tiempoEstimado">Tiempo estimado (minutos):</label>
-                    <input type="number" id="tiempoEstimado" min="5" max="120" value="15">
-                </div>
-            </div>
-            <div class="modal-footer-custom">
-                <button class="btn-modal btn-cancel">Cancelar</button>
-                <button class="btn-modal btn-confirm" id="confirmarSuspension">Suspender Caja</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal para Corte Parcial -->
-    <div class="modal-custom" id="modalCorte">
-        <div class="modal-content-custom">
-            <div class="modal-header-custom">
-                <div class="modal-title-custom">Corte Parcial de Caja</div>
-                <button class="close-modal">&times;</button>
-            </div>
-            <div class="modal-body-custom">
-                <div class="info-box">
-                    El corte parcial generará un reporte de las transacciones realizadas hasta el momento sin
-                    cerrar la caja.
-                </div>
-                <div class="reporte-corte">
-                    <div class="reporte-item">
-                        <span>Ventas en efectivo:</span>
-                        <span>S/ 845.00</span>
-                    </div>
-                    <div class="reporte-item">
-                        <span>Ventas con tarjeta:</span>
-                        <span>S/ 320.50</span>
-                    </div>
-                    <div class="reporte-item">
-                        <span>Ventas con Yape/Plin:</span>
-                        <span>S/ 156.00</span>
-                    </div>
-                    <div class="reporte-item">
-                        <span>N° de transacciones:</span>
-                        <span>28</span>
-                    </div>
-                    <div class="reporte-total">
-                        <span>Total parcial:</span>
-                        <span>S/ 1,321.50</span>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="observacionesCorte">Observaciones (opcional):</label>
-                    <textarea id="observacionesCorte" rows="3"
-                        placeholder="Ingrese observaciones sobre el corte parcial..."></textarea>
-                </div>
-            </div>
-            <div class="modal-footer-custom">
-                <button class="btn-modal btn-cancel">Cancelar</button>
-                <button class="btn-modal btn-confirm" id="confirmarCorte">Imprimir Corte</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal para Cierre de Caja -->
-    <div class="modal-custom" id="modalCierre">
-        <div class="modal-content-custom">
-            <div class="modal-header-custom">
-                <div class="modal-title-custom">Cierre de Caja</div>
-                <button class="close-modal">&times;</button>
-            </div>
-            <div class="modal-body-custom">
-                <div class="info-box">
-                    <strong>¡Atención!</strong> Al cerrar la caja, no podrá realizar más transacciones hasta que
-                    se abra nuevamente.
-                    Asegúrese de contar todo el efectivo antes de continuar.
-                </div>
-                <div class="form-group">
-                    <label for="efectivoInicial">Efectivo inicial:</label>
-                    <input type="number" id="efectivoInicial" value="200.00" step="0.01" readonly>
-                </div>
-                <div class="form-group">
-                    <label for="efectivoFinal">Efectivo en caja:</label>
-                    <input type="number" id="efectivoFinal" placeholder="Ingrese el monto contado" step="0.01">
-                </div>
-                <div class="form-group">
-                    <label for="diferencia">Diferencia:</label>
-                    <input type="number" id="diferencia" step="0.01" readonly>
-                </div>
-                <div class="form-group">
-                    <label for="observacionesCierre">Observaciones:</label>
-                    <textarea id="observacionesCierre" rows="3"
-                        placeholder="Ingrese observaciones sobre el cierre..."></textarea>
-                </div>
-            </div>
-            <div class="modal-footer-custom">
-                <button class="btn-modal btn-cancel">Cancelar</button>
-                <button class="btn-modal btn-confirm" id="confirmarCierre">Cerrar Caja</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal para Devolución -->
-    <div class="modal-custom" id="modalDevolucion">
-        <div class="modal-content-custom">
-            <div class="modal-header-custom">
-                <div class="modal-title-custom">Proceso de Devolución</div>
-                <button class="close-modal">&times;</button>
-            </div>
-            <div class="modal-body-custom">
-                <div class="info-box">
-                    Para procesar una devolución, escanee el ticket original o ingrese el número de transacción.
-                </div>
-                <div class="form-group">
-                    <label for="numeroTicket">Número de ticket:</label>
-                    <input type="text" id="numeroTicket" placeholder="Ej: T-00482">
-                </div>
-                <div class="form-group">
-                    <label for="motivoDevolucion">Motivo de devolución:</label>
-                    <select id="motivoDevolucion">
-                        <option value="">Seleccione un motivo</option>
-                        <option value="producto_defectuoso">Producto defectuoso</option>
-                        <option value="producto_equivocado">Producto equivocado</option>
-                        <option value="no_satisfecho">Cliente no satisfecho</option>
-                        <option value="exceso_cobro">Exceso de cobro</option>
-                        <option value="otro">Otro</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="productoDevolver">Producto a devolver:</label>
-                    <input type="text" id="productoDevolver" placeholder="Busque o escanee el producto">
-                </div>
-                <div class="form-group">
-                    <label for="cantidadDevolver">Cantidad a devolver:</label>
-                    <input type="number" id="cantidadDevolver" min="1" value="1">
-                </div>
-            </div>
-            <div class="modal-footer-custom">
-                <button class="btn-modal btn-cancel">Cancelar</button>
-                <button class="btn-modal btn-confirm" id="confirmarDevolucion">Procesar Devolución</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal para Ayuda -->
-    <div class="modal-custom" id="modalAyuda">
-        <div class="modal-content-custom">
-            <div class="modal-header-custom">
-                <div class="modal-title-custom">❓ Centro de Ayuda</div>
-                <button class="close-modal">&times;</button>
-            </div>
-            <div class="modal-body-custom">
-                <div class="info-box">
-                    Seleccione el tipo de asistencia que necesita:
-                </div>
-                <div class="form-group">
-                    <label for="tipoAyuda">Tipo de ayuda:</label>
-                    <select id="tipoAyuda">
-                        <option value="">Seleccione una opción</option>
-                        <option value="problema_tecnico">Problema técnico</option>
-                        <option value="consulta_producto">Consulta de producto</option>
-                        <option value="proceso_venta">Proceso de venta</option>
-                        <option value="devolucion">Proceso de devolución</option>
-                        <option value="reporte">Generación de reportes</option>
-                        <option value="otro">Otro</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="descripcionProblema">Descripción del problema:</label>
-                    <textarea id="descripcionProblema" rows="4"
-                        placeholder="Describa en detalle el problema o consulta..."></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="urgencia">Nivel de urgencia:</label>
-                    <select id="urgencia">
-                        <option value="baja">Baja - Puede esperar</option>
-                        <option value="media" selected>Media - Necesita atención pronto</option>
-                        <option value="alta">Alta - Necesita atención inmediata</option>
-                    </select>
-                </div>
-            </div>
-            <div class="modal-footer-custom">
-                <button class="btn-modal btn-cancel">Cancelar</button>
-                <button class="btn-modal btn-confirm" id="confirmarAyuda">Solicitar Ayuda</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Bootstrap Modals -->
-    <div class="modal fade" id="paymentReceiptModal" tabindex="-1" aria-labelledby="paymentReceiptModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="paymentReceiptModalLabel">Comprobante de Pago</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body" id="receipt-to-print">
-                    <div class="text-center mb-4">
-                        <h4>Recibo de Venta</h4>
-                        <p class="mb-0"><strong>VELARDE CIPRIAN TEODORO</strong></p>
-                        <p class="mb-0">CAL. JUNIN 617 ALTURA DEL PARQUE LUREN</p>
-                        <p class="mb-0">ICA - ICA - ICA</p>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-6"><strong>Orden #:</strong> <span
-                                id="receipt-order-number">#ORD-2024-001234</span></div>
-                        <div class="col-6 text-end"><strong>Fecha:</strong> <span id="receipt-date-time"></span></div>
-                    </div>
-                    <hr>
-                    <table class="table table-bordered mb-3">
-                        <thead>
-                            <tr>
-                                <th>Descripción</th>
-                                <th class="text-end">Cantidad</th>
-                                <th class="text-end">Precio Unit.</th>
-                                <th class="text-end">Total</th>
-                            </tr>
-                        </thead>
-                        <tbody id="receipt-items-body">
-                            <tr>
-                                <td>Hamburguesa Clásica</td>
-                                <td class="text-end">1</td>
-                                <td class="text-end">S/ 12.50</td>
-                                <td class="text-end">S/ 12.50</td>
-                            </tr>
-                            <tr>
-                                <td>Bebida Cola</td>
-                                <td class="text-end">3</td>
-                                <td class="text-end">S/ 2.50</td>
-                                <td class="text-end">S/ 7.50</td>
-                            </tr>
-                        </tbody>
-                        <tfoot>
-                            <tr>
-                                <th colspan="3" class="text-end">Subtotal:</th>
-                                <td class="text-end" id="receipt-subtotal-display">S/ 20.00</td>
-                            </tr>
-                            <tr>
-                                <th colspan="3" class="text-end">Total:</th>
-                                <td class="text-end" id="receipt-total-display">S/ 20.00</td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                    <div class="text-center">
-                        <p class="mb-0">¡Gracias por su compra!</p>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                    <button type="button" class="btn btn-primary" id="btn-print-receipt"><i
-                            class="bi bi-printer me-2"></i>Imprimir Recibo</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
+    <!-- Modal para Boleta Electrónica -->
     <div class="modal fade" id="pickupInvoiceModal" tabindex="-1" aria-labelledby="pickupInvoiceModalLabel"
         aria-hidden="true">
         <div class="modal-dialog modal-xl">
@@ -538,112 +277,22 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                    <button type="button" class="btn btn-success" id="btn-download-boleta-pdf-modal"><i
-                            class="bi bi-file-earmark-pdf me-2"></i>Descargar Boleta (PDF)</button>
-                    <button type="button" class="btn btn-info" id="btn-download-boleta-excel-modal"><i
-                            class="bi bi-file-earmark-spreadsheet me-2"></i>Descargar Boleta (Excel)</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title" id="paymentModalLabel"><i class="bi bi-credit-card-fill me-2"></i>Pago
-                        Seguro</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                        aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="alert alert-info text-center" role="alert">
-                        Total a pagar: <strong id="modal-payment-total">S/ 0.00</strong>
-                    </div>
-                    <form id="payment-form">
-                        <div class="mb-3">
-                            <label for="card-number" class="form-label">Número de Tarjeta</label>
-                            <input type="text" class="form-control" id="card-number" placeholder="XXXX XXXX XXXX XXXX"
-                                maxlength="19" required>
-                            <div class="invalid-feedback">Ingrese un número de tarjeta válido (16 dígitos).</div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="card-expiry" class="form-label">Vencimiento (MM/AA)</label>
-                                <input type="text" class="form-control" id="card-expiry" placeholder="MM/AA"
-                                    maxlength="5" required>
-                                <div class="invalid-feedback">Formato: MM/AA.</div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="card-cvc" class="form-label">CVC/CVV</label>
-                                <input type="text" class="form-control" id="card-cvc" placeholder="CVC" maxlength="4"
-                                    required>
-                                <div class="invalid-feedback">CVC inválido (3 o 4 dígitos).</div>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="card-name" class="form-label">Nombre en la Tarjeta</label>
-                            <input type="text" class="form-control" id="card-name" required>
-                        </div>
-                        <div id="payment-status-message" class="mt-3 text-center d-none"></div>
-                        <button type="submit" class="btn btn-success w-100 mt-3" id="btn-finalize-payment">
-                            <span id="spinner" class="spinner-border spinner-border-sm d-none" role="status"
-                                aria-hidden="true"></span>
-                            Finalizar Pago
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal fade" id="cancelOrderModal" tabindex="-1" aria-labelledby="cancelOrderModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header bg-danger text-white">
-                    <h5 class="modal-title" id="cancelOrderModalLabel"><i
-                            class="bi bi-x-octagon-fill me-2"></i>Confirmar Cancelación</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                        aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p class="lead">¿Está absolutamente seguro de que desea cancelar la Orden <strong
-                            class="text-danger" id="cancel-order-number">#ORD-2024-001234</strong>?</p>
-                    <div class="alert alert-warning" role="alert">
-                        ⚠️ Esta acción es irreversible y el pedido pasará al estado **CANCELADO**.
-                    </div>
-                    <div class="mb-3">
-                        <label for="cancelReason" class="form-label">Razón de la Cancelación (Opcional)</label>
-                        <textarea class="form-control" id="cancelReason" rows="2"
-                            placeholder="Ej: Error de cliente, falta de stock, etc."></textarea>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Mantener Pedido</button>
-                    <button type="button" class="btn btn-danger" id="btn-confirm-cancel">
-                        <span id="cancel-spinner" class="spinner-border spinner-border-sm d-none" role="status"
-                            aria-hidden="true"></span>
-                        Sí, Cancelar Pedido
+                    <button type="button" class="btn btn-success" id="btn-download-boleta-pdf-modal">
+                        <i class="bi bi-file-earmark-pdf me-2"></i>Descargar Boleta (PDF)
+                    </button>
+                    <button type="button" class="btn btn-info" id="btn-download-boleta-excel-modal">
+                        <i class="bi bi-file-earmark-spreadsheet me-2"></i>Descargar Boleta (Excel)
                     </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <footer class="cajero-footer">
-        <div class="footer-info">
-            <div class="controles-cajero">
-                <button class="btn-control" id="btn-devolucion"> Devolución</button>
-                <button class="btn-control" id="btn-ayuda"> Ayuda</button>
-            </div>
-        </div>
-    </footer>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="/src/main/resources/static/script/cajero.js"></script>
+    <script th:src="@{/script/cajero.js}"></script>
+    <script src="../static/script/cajero.js"></script>
 </body>
 
 </html>

@@ -31,11 +31,11 @@ public class MenuController {
         Set<String> categoriasUnicas = todosProductos.stream()
                 .map(ProductoFinal::getTipo)
                 .collect(Collectors.toSet());
-        System.out.println("🔍 Categorías en BD: " + categoriasUnicas);
+        System.out.println(" Categorías en BD: " + categoriasUnicas);
 
         // MOSTRAR CADA PRODUCTO CON SU CATEGORÍA
         todosProductos.forEach(producto -> {
-            System.out.println("📦 Producto: '" + producto.getNombre() + "' - Categoría: '" + producto.getTipo() + "'");
+            System.out.println(" Producto: '" + producto.getNombre() + "' - Categoría: '" + producto.getTipo() + "'");
         });
 
         // Filtrar productos por categorías - USAR minúsculas
@@ -68,13 +68,13 @@ public class MenuController {
                 .toList();
 
         // Mostrar en consola cuántos productos hay por categoría
-        System.out.println("🐔 Pollos: " + pollos.size());
-        System.out.println("🔥 Parrillas: " + parrillas.size());
-        System.out.println("🐷 Chicharrón: " + chicharron.size());
-        System.out.println("🍗 Broaster: " + broaster.size());
-        System.out.println("🍔 Hamburguesas: " + hamburguesas.size());
+        System.out.println(" Pollos: " + pollos.size());
+        System.out.println(" Parrillas: " + parrillas.size());
+        System.out.println("Chicharrón: " + chicharron.size());
+        System.out.println("Broaster: " + broaster.size());
+        System.out.println("Hamburguesas: " + hamburguesas.size());
         System.out.println("🇵🇪 Criollos: " + criollos.size());
-        System.out.println("📦 Combos: " + combos.size());
+        System.out.println(" Combos: " + combos.size());
         System.out.println("=============================");
 
         // Agregar las listas al modelo

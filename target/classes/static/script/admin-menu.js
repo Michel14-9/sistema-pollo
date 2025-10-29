@@ -349,7 +349,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Mostrar mensaje de éxito
                 mostrarAlerta(result.message, 'success');
 
-                // Mantener en la sección actual (usuarios)
+
                 if (currentSection === 'users') {
                     cambiarSeccion('users');
                 }
@@ -443,7 +443,7 @@ document.addEventListener('DOMContentLoaded', function() {
         modal.show();
     }
 
-    // GUARDAR PRODUCTO (NUEVO O EDITAR) - CORREGIDO
+    // GUARDAR PRODUCTO
     async function guardarProducto(formData) {
         try {
             console.log('Guardando producto...', formData);
@@ -495,7 +495,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // ELIMINAR PRODUCTO - CORREGIDO
+    // ELIMINAR PRODUCTO
     async function eliminarProducto(id) {
         try {
             console.log('Eliminando producto ID:', id);
@@ -515,7 +515,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 await cargarProductos();
                 mostrarAlerta('Producto eliminado exitosamente!', 'success');
 
-                // Mantener en la sección actual
+
                 if (currentSection === 'menu') {
                     cambiarSeccion('menu');
                 }
@@ -554,7 +554,7 @@ document.addEventListener('DOMContentLoaded', function() {
         modal.show();
     }
 
-    // CAMBIAR SECCIÓN - CORREGIDO
+    // CAMBIAR SECCIÓN
     function cambiarSeccion(seccion) {
         console.log('Cambiando a sección:', seccion);
         currentSection = seccion;
@@ -708,7 +708,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
 
-        // FORMULARIO DE PRODUCTO - CORREGIDO (EVITAR ENVÍO TRADICIONAL)
+        // FORMULARIO DE PRODUCTO
         const productForm = document.getElementById('productForm');
         if (productForm) {
             productForm.addEventListener('submit', async function(e) {
@@ -820,12 +820,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 mostrarAlerta('Guardando usuario...', 'info');
 
-                // Llamar a la función guardar
+
                 await guardarUsuario(formData);
             });
         }
 
-        // EVENTOS DELEGADOS para acciones en tablas
+
         document.addEventListener('click', function (e) {
             // Editar producto
             if (e.target.closest('.edit-product')) {
@@ -879,7 +879,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        // Vista previa de imagen
+
         const productImage = document.getElementById('productImage');
         if (productImage) {
             productImage.addEventListener('input', function (e) {
@@ -902,13 +902,13 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Inicializar la aplicación
+
     inicializarAdminMenu();
 
     console.log('Admin Menu inicializado correctamente');
 });
 
-// Utilidades globales
+
 window.AdminMenu = {
     recargar: function() {
         window.location.reload();
@@ -921,7 +921,7 @@ window.AdminMenu = {
         if (searchInput) searchInput.value = '';
         if (categoryFilter) categoryFilter.value = '';
 
-        // Disparar evento de cambio para actualizar la vista
+
         if (categoryFilter) {
             categoryFilter.dispatchEvent(new Event('change'));
         }

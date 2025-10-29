@@ -17,11 +17,11 @@ public class Pedido {
     private String estado;
     private LocalDateTime fecha;
 
-    //  CAMPOS NUEVOS QUE ESPERA EL JAVASCRIPT
+
     private Double total;
     private String observaciones;
 
-    //  CAMPOS NECESARIOS PARA EL SISTEMA DE PAGO
+
     private Double subtotal;
     private Double costoEnvio;
     private Double descuento;
@@ -33,12 +33,12 @@ public class Pedido {
 
     private String numeroPedido; // Número único generado automáticamente
 
-    //  RELACIÓN CON USUARIO (IMPORTANTE)
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id")
     private Usuario usuario;
 
-    //  RELACIÓN CON ITEMS
+
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ItemPedido> items = new ArrayList<>();
 
@@ -49,23 +49,23 @@ public class Pedido {
         this.items = new ArrayList<>();
     }
 
-    //  MÉTODO PARA GENERAR CÓDIGO (para el JavaScript)
+
     public String getCodigo() {
         return (canal != null && numero != null) ? canal + "-" + numero : "N/A";
     }
 
-    //  MÉTODO COMPATIBLE CON FECHA (para el JavaScript)
+
     public LocalDateTime getFechaPedido() {
         return fecha;
     }
 
-    //  MÉTODO PARA AGREGAR ITEMS
+
     public void agregarItem(ItemPedido item) {
         item.setPedido(this);
         this.items.add(item);
     }
 
-    //  MÉTODO PARA CALCULAR TOTALES
+
     public void calcularTotales() {
         this.subtotal = items.stream()
                 .mapToDouble(ItemPedido::getSubtotal)

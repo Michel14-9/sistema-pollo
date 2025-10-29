@@ -20,7 +20,7 @@ public class ItemPedido {
     @JsonIgnore
     private Pedido pedido;
 
-    //  MÉTODO PARA COMPATIBILIDAD CON JAVASCRIPT
+
     public Producto getProducto() {
         Producto producto = new Producto();
         producto.setNombre(nombreProducto);
@@ -50,7 +50,7 @@ public class ItemPedido {
     public void setPedido(Pedido pedido) { this.pedido = pedido; }
 }
 
-//  CLASE AUXILIAR PARA EL PRODUCTO
+
 class Producto {
     private String nombre;
     private Double precio;

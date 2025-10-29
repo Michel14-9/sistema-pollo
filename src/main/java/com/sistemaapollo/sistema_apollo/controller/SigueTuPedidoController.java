@@ -32,11 +32,11 @@ public class SigueTuPedidoController {
         try {
             System.out.println(" Buscando pedido - Número: " + numeroPedido);
 
-            //  PRIMERO BUSCAR POR NÚMERO DE PEDIDO GENERADO (LR000123)
+
             Optional<Pedido> pedidoOpt = pedidoService.buscarPorNumeroPedido(numeroPedido);
 
             if (!pedidoOpt.isPresent()) {
-                //  SI NO ENCUENTRA, BUSCAR POR CANAL Y NÚMERO (solo si se proporcionó canal)
+
                 if (canalPedido != null && !canalPedido.trim().isEmpty()) {
                     System.out.println(" Buscando por canal: " + canalPedido);
                     pedidoOpt = pedidoService.buscarPedido(canalPedido, numeroPedido);

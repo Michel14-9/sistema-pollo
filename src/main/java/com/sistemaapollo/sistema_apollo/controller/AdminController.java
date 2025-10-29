@@ -40,7 +40,7 @@ public class AdminController {
         this.productoFinalService = productoFinalService;
     }
 
-    // Página principal del admin - MOSTRAR PRODUCTOS
+
     @GetMapping("")
     public String adminMenu(Model model) {
         List<ProductoFinal> productos = productoFinalService.obtenerTodos();
@@ -181,7 +181,7 @@ public class AdminController {
                 row.createCell(4).setCellValue(producto.getDescripcion() != null ? producto.getDescripcion() : "");
             }
 
-            // Autoajustar columnas en todas las hojas
+
             for (int i = 0; i < 6; i++) {
                 resumenSheet.autoSizeColumn(i);
                 statsSheet.autoSizeColumn(i);
@@ -199,7 +199,7 @@ public class AdminController {
         }
     }
 
-    // Mostrar formulario para nuevo producto
+
     @GetMapping("/nuevo")
     public String nuevoProducto(Model model) {
         model.addAttribute("pagina", "nuevo-producto");
@@ -207,7 +207,7 @@ public class AdminController {
         return "nuevo-producto";
     }
 
-    // Procesar el formulario de nuevo producto - VERSIÓN PARA AJAX
+
     @PostMapping("/guardar")
     @ResponseBody
     public ResponseEntity<?> guardarProducto(
@@ -218,7 +218,7 @@ public class AdminController {
             @RequestParam(required = false) String imagenUrl) {
 
         try {
-            System.out.println("📥 Recibiendo producto para guardar:");
+            System.out.println(" Recibiendo producto para guardar:");
             System.out.println("Nombre: " + nombre);
             System.out.println("Tipo: " + tipo);
             System.out.println("Precio: " + precio);
@@ -236,14 +236,14 @@ public class AdminController {
                 return ResponseEntity.badRequest().body(Map.of("success", false, "error", "El tipo/categoría es requerido"));
             }
 
-            // Crear nuevo producto
+
             ProductoFinal producto = new ProductoFinal();
             producto.setNombre(nombre.trim());
             producto.setDescripcion(descripcion != null ? descripcion.trim() : "");
             producto.setPrecio(precio);
             producto.setTipo(tipo.trim());
 
-            // Manejar imagen URL - si está vacía, usar valor por defecto
+
             if (imagenUrl != null && !imagenUrl.trim().isEmpty()) {
                 producto.setImagenUrl(imagenUrl.trim());
             } else {
@@ -253,7 +253,7 @@ public class AdminController {
             // Guardar en la base de datos
             ProductoFinal productoCreado = productoFinalService.guardar(producto);
 
-            System.out.println("✅ NUEVO PRODUCTO GUARDADO EN BD");
+            System.out.println(" NUEVO PRODUCTO GUARDADO EN BD");
             System.out.println("ID: " + productoCreado.getId());
             System.out.println("Nombre: " + productoCreado.getNombre());
             System.out.println("Precio: S/." + productoCreado.getPrecio());
@@ -267,12 +267,12 @@ public class AdminController {
             ));
 
         } catch (Exception e) {
-            System.err.println("❌ Error al guardar producto: " + e.getMessage());
+            System.err.println(" Error al guardar producto: " + e.getMessage());
             return ResponseEntity.status(500).body(Map.of("success", false, "error", "Error al guardar el producto: " + e.getMessage()));
         }
     }
 
-    // Actualizar producto existente - VERSIÓN PARA AJAX
+
     @PostMapping("/actualizar/{id}")
     @ResponseBody
     public ResponseEntity<?> actualizarProducto(
@@ -284,7 +284,7 @@ public class AdminController {
             @RequestParam(required = false) String imagenUrl) {
 
         try {
-            System.out.println("📥 Actualizando producto ID: " + id);
+            System.out.println(" Actualizando producto ID: " + id);
 
             // Validaciones
             if (nombre == null || nombre.trim().isEmpty()) {
@@ -316,7 +316,7 @@ public class AdminController {
 
                 ProductoFinal productoActualizado = productoFinalService.guardar(producto);
 
-                System.out.println("✅ PRODUCTO ACTUALIZADO EN BD");
+                System.out.println(" PRODUCTO ACTUALIZADO EN BD");
                 System.out.println("ID: " + productoActualizado.getId());
                 System.out.println("Nombre: " + productoActualizado.getNombre());
 
@@ -330,12 +330,12 @@ public class AdminController {
             }
 
         } catch (Exception e) {
-            System.err.println("❌ Error al actualizar producto: " + e.getMessage());
+            System.err.println(" Error al actualizar producto: " + e.getMessage());
             return ResponseEntity.status(500).body(Map.of("success", false, "error", "Error al actualizar el producto: " + e.getMessage()));
         }
     }
 
-    // Eliminar producto - VERSIÓN PARA AJAX
+
     @PostMapping("/eliminar/{id}")
     @ResponseBody
     public ResponseEntity<?> eliminarProducto(
@@ -343,12 +343,12 @@ public class AdminController {
             @RequestParam(required = false) String redirectSection) {
 
         try {
-            System.out.println("🗑️ Eliminando producto ID: " + id);
+            System.out.println(" Eliminando producto ID: " + id);
 
             Optional<ProductoFinal> productoOpt = productoFinalService.obtenerPorId(id);
             if (productoOpt.isPresent()) {
                 productoFinalService.eliminar(id);
-                System.out.println("✅ PRODUCTO ELIMINADO: ID " + id);
+                System.out.println(" PRODUCTO ELIMINADO: ID " + id);
 
                 return ResponseEntity.ok(Map.of(
                         "success", true,
@@ -359,7 +359,7 @@ public class AdminController {
             }
 
         } catch (Exception e) {
-            System.err.println("❌ Error al eliminar producto: " + e.getMessage());
+            System.err.println("Error al eliminar producto: " + e.getMessage());
             return ResponseEntity.status(500).body(Map.of("success", false, "error", "Error al eliminar el producto: " + e.getMessage()));
         }
     }
@@ -373,7 +373,7 @@ public class AdminController {
             List<ProductoFinal> productos = productoFinalService.obtenerTodos();
             List<Usuario> usuarios = usuarioRepository.findAll();
 
-            // Estadísticas de productos
+
             estadisticas.put("totalProductos", productos.size());
             estadisticas.put("precioPromedio", productos.stream()
                     .mapToDouble(ProductoFinal::getPrecio)
@@ -385,15 +385,14 @@ public class AdminController {
                     .mapToDouble(ProductoFinal::getPrecio)
                     .min().orElse(0.0));
 
-            // Estadísticas de usuarios
+
             estadisticas.put("totalUsuarios", usuarios.size());
 
-            // Agrupar productos por categoría
+
             Map<String, Long> productosPorCategoria = productos.stream()
                     .collect(Collectors.groupingBy(ProductoFinal::getTipo, Collectors.counting()));
             estadisticas.put("productosPorCategoria", productosPorCategoria);
 
-            // Para pedidos (puedes implementar esto después)
             estadisticas.put("pedidosHoy", 0);
             estadisticas.put("ingresosHoy", 0.0);
 
@@ -407,14 +406,14 @@ public class AdminController {
         return estadisticas;
     }
 
-    // Endpoint para obtener todos los productos (JSON)
+
     @GetMapping("/productos")
     @ResponseBody
     public List<ProductoFinal> obtenerTodosProductos() {
         return productoFinalService.obtenerTodos();
     }
 
-    // Endpoint para obtener un producto por ID (JSON)
+
     @GetMapping("/productos/{id}")
     @ResponseBody
     public ResponseEntity<?> obtenerProductoPorId(@PathVariable Long id) {
@@ -430,9 +429,9 @@ public class AdminController {
         }
     }
 
-    // ================== GESTIÓN DE USUARIOS ==================
 
-    // Endpoint para obtener todos los usuarios (JSON)
+
+
     @GetMapping("/usuarios")
     @ResponseBody
     public List<Usuario> obtenerTodosUsuarios() {
@@ -456,7 +455,7 @@ public class AdminController {
             @RequestParam String password) {
 
         try {
-            System.out.println("📥 Recibiendo usuario para guardar:");
+            System.out.println(" Recibiendo usuario para guardar:");
             System.out.println("Nombres: " + nombres);
             System.out.println("Email: " + email);
             System.out.println("Rol: " + rol);
@@ -492,7 +491,7 @@ public class AdminController {
             // Guardar en la base de datos
             Usuario usuarioCreado = usuarioRepository.save(usuario);
 
-            System.out.println("✅ NUEVO USUARIO GUARDADO EN BD");
+            System.out.println(" NUEVO USUARIO GUARDADO EN BD");
             System.out.println("ID: " + usuarioCreado.getId());
             System.out.println("Nombre: " + usuarioCreado.getNombres() + " " + usuarioCreado.getApellidos());
             System.out.println("Rol: " + usuarioCreado.getRol());
@@ -504,7 +503,7 @@ public class AdminController {
             ));
 
         } catch (Exception e) {
-            System.err.println("❌ Error al guardar usuario: " + e.getMessage());
+            System.err.println(" Error al guardar usuario: " + e.getMessage());
             return ResponseEntity.status(500).body(Map.of(
                     "success", false,
                     "error", "Error al guardar el usuario: " + e.getMessage()
@@ -512,17 +511,17 @@ public class AdminController {
         }
     }
 
-    // Endpoint para eliminar usuario
+
     @PostMapping("/usuarios/eliminar/{id}")
     @ResponseBody
     public ResponseEntity<?> eliminarUsuario(@PathVariable Long id) {
         try {
-            System.out.println("🗑️ Eliminando usuario ID: " + id);
+            System.out.println(" Eliminando usuario ID: " + id);
 
             Optional<Usuario> usuarioOpt = usuarioRepository.findById(id);
             if (usuarioOpt.isPresent()) {
                 usuarioRepository.deleteById(id);
-                System.out.println("✅ USUARIO ELIMINADO: ID " + id);
+                System.out.println(" USUARIO ELIMINADO: ID " + id);
 
                 return ResponseEntity.ok(Map.of(
                         "success", true,
@@ -536,7 +535,7 @@ public class AdminController {
             }
 
         } catch (Exception e) {
-            System.err.println("❌ Error al eliminar usuario: " + e.getMessage());
+            System.err.println(" Error al eliminar usuario: " + e.getMessage());
             return ResponseEntity.status(500).body(Map.of(
                     "success", false,
                     "error", "Error al eliminar el usuario: " + e.getMessage()

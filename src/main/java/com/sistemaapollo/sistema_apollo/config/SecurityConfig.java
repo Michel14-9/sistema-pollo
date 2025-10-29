@@ -34,13 +34,13 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-
+                //  CSRF ACTIVO PERO PERMITIENDO LOGOUT POR GET
                 .csrf(csrf -> csrf
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                         .ignoringRequestMatchers("/logout")
                 )
 
-
+                // CONFIGURACIÓN DE SESIÓN
                 .sessionManagement(session -> session
                         .sessionFixation().migrateSession()
                         .maximumSessions(1)
@@ -56,16 +56,16 @@ public class SecurityConfig {
                                 "/locales", "/nuestros-locales",
                                 "/login", "/registrate", "/registro",
                                 "/api/auth/**",
-                                "/css/**", "/static/css/script/**", "/imagenes/**", "/archivos/**",
+                                "/css/**", "/script/**", "/imagenes/**", "/archivos/**",
                                 "/error", "/libro-reclamaciones", "/terminos",
                                 "/politica-datos", "/politica-cookies",
                                 "/menu", "/menu/**"
                         ).permitAll()
 
-
+                        //  Rutas admin
                         .requestMatchers("/admin-menu", "/admin/**").hasRole("ADMIN")
 
-
+                        //  Rutas autenticadas
                         .requestMatchers(
                                 "/carrito", "/carrito/**",
                                 "/pago", "/pago/**",
@@ -79,15 +79,15 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
 
-
+                //  LOGIN FORM CON REDIRECCIÓN PERSONALIZADA
                 .formLogin(form -> form
                         .loginPage("/login")
-                        .successHandler(customAuthenticationSuccessHandler())
+                        .successHandler(customAuthenticationSuccessHandler()) // ✅ CLAVE: Handler personalizado
                         .failureUrl("/login?error=true")
                         .permitAll()
                 )
 
-
+                //  LOGOUT - PERMITIENDO GET EXPLÍCITAMENTE
                 .logout(logout -> logout
                         .logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET"))
                         .logoutSuccessUrl("/login?logout=true")
@@ -96,7 +96,7 @@ public class SecurityConfig {
                         .permitAll()
                 )
 
-
+                // MANEJO DE EXCEPCIONES
                 .exceptionHandling(exception -> exception
                         .accessDeniedPage("/login?accessDenied=true")
                 );
@@ -104,7 +104,7 @@ public class SecurityConfig {
         return http.build();
     }
 
-
+    //  BEAN PARA EL MANEJADOR DE REDIRECCIÓN PERSONALIZADO
     @Bean
     public AuthenticationSuccessHandler customAuthenticationSuccessHandler() {
         return new AuthenticationSuccessHandler() {
@@ -121,7 +121,7 @@ public class SecurityConfig {
                     // Redirigir admin a su panel
                     response.sendRedirect("/admin-menu");
                 } else {
-
+                    // Redirigir usuarios normales a la página principal
                     response.sendRedirect("/");
                 }
             }

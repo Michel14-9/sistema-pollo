@@ -89,9 +89,9 @@ public class RegistroController {
             Usuario usuario = userRepository.findByUsername(username)
                     .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-            // ==========================
+
             // VALIDACIÓN Y ACTUALIZACIÓN DE CONTRASEÑA
-            // ==========================
+
             if (request.getNuevaPassword() != null && !request.getNuevaPassword().isEmpty()) {
                 System.out.println(" Solicitado cambio de contraseña");
 

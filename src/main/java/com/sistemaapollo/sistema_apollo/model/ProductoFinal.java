@@ -23,11 +23,11 @@ public class ProductoFinal {
     @Column(nullable = false)
     private Double precio;
 
-    // 🔹 CAMPO CORREGIDO - usar TEXT para URLs largas
+
     @Column(name = "imagen_url", columnDefinition = "TEXT")
     private String imagenUrl;
 
-    // === Constructores ===
+
     public ProductoFinal() {}
 
     public ProductoFinal(String nombre, String descripcion, Double precio, String tipo) {

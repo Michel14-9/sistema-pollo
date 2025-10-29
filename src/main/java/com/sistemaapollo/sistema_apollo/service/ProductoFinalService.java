@@ -16,22 +16,22 @@ public class ProductoFinalService {
         this.productoFinalRepository = productoFinalRepository;
     }
 
-    // Obtener todos los productos
+
     public List<ProductoFinal> obtenerTodos() {
         return productoFinalRepository.findAll();
     }
 
-    // Obtener producto por ID (con Optional)
+
     public Optional<ProductoFinal> obtenerPorId(Long id) {
         return productoFinalRepository.findById(id);
     }
 
-    // Guardar producto
+
     public ProductoFinal guardar(ProductoFinal producto) {
         return productoFinalRepository.save(producto);
     }
 
-    // Eliminar producto
+
     public void eliminar(Long id) {
         productoFinalRepository.deleteById(id);
     }

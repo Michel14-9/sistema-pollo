@@ -73,7 +73,7 @@ public class Local {
     @Column(name = "logo_url")
     private String logoUrl;
 
-    // Métodos auxiliares
+
     public String getHorarioCompleto() {
         return diasAtencion + " de " + horaApertura + " a " + horaCierre;
     }

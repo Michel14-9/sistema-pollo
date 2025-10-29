@@ -7,6 +7,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Controller
 public class MenuController {
@@ -25,43 +27,54 @@ public class MenuController {
         System.out.println("=== CARGANDO MENÚ PÚBLICO ===");
         System.out.println("Total de productos encontrados: " + todosProductos.size());
 
-        // Filtrar productos por categorías
+        // MOSTRAR TODAS LAS CATEGORÍAS QUE EXISTEN EN LA BD
+        Set<String> categoriasUnicas = todosProductos.stream()
+                .map(ProductoFinal::getTipo)
+                .collect(Collectors.toSet());
+        System.out.println(" Categorías en BD: " + categoriasUnicas);
+
+        // MOSTRAR CADA PRODUCTO CON SU CATEGORÍA
+        todosProductos.forEach(producto -> {
+            System.out.println(" Producto: '" + producto.getNombre() + "' - Categoría: '" + producto.getTipo() + "'");
+        });
+
+        // Filtrar productos por categorías - USAR minúsculas
         List<ProductoFinal> pollos = todosProductos.stream()
-                .filter(p -> "Pollos".equals(p.getTipo()))
+                .filter(p -> "pollos".equalsIgnoreCase(p.getTipo()))
                 .toList();
 
         List<ProductoFinal> parrillas = todosProductos.stream()
-                .filter(p -> "Parrillas".equals(p.getTipo()))
+                .filter(p -> "parrillas".equalsIgnoreCase(p.getTipo()))
                 .toList();
 
         List<ProductoFinal> chicharron = todosProductos.stream()
-                .filter(p -> "Chicharrón".equals(p.getTipo()))
+                .filter(p -> "chicharron".equalsIgnoreCase(p.getTipo()) || "chicharrón".equalsIgnoreCase(p.getTipo()))
                 .toList();
 
         List<ProductoFinal> broaster = todosProductos.stream()
-                .filter(p -> "Broaster".equals(p.getTipo()))
+                .filter(p -> "broaster".equalsIgnoreCase(p.getTipo()))
                 .toList();
 
         List<ProductoFinal> hamburguesas = todosProductos.stream()
-                .filter(p -> "Hamburguesas".equals(p.getTipo()))
+                .filter(p -> "hamburguesas".equalsIgnoreCase(p.getTipo()))
                 .toList();
 
         List<ProductoFinal> criollos = todosProductos.stream()
-                .filter(p -> "Criollos".equals(p.getTipo()))
+                .filter(p -> "criollos".equalsIgnoreCase(p.getTipo()))
                 .toList();
 
         List<ProductoFinal> combos = todosProductos.stream()
-                .filter(p -> "Combos".equals(p.getTipo()))
+                .filter(p -> "combos".equalsIgnoreCase(p.getTipo()))
                 .toList();
 
         // Mostrar en consola cuántos productos hay por categoría
-        System.out.println("Pollos: " + pollos.size());
-        System.out.println("Parrillas: " + parrillas.size());
+        System.out.println(" Pollos: " + pollos.size());
+        System.out.println(" Parrillas: " + parrillas.size());
         System.out.println("Chicharrón: " + chicharron.size());
         System.out.println("Broaster: " + broaster.size());
         System.out.println("Hamburguesas: " + hamburguesas.size());
-        System.out.println("Criollos: " + criollos.size());
-        System.out.println("Combos: " + combos.size());
+        System.out.println("🇵🇪 Criollos: " + criollos.size());
+        System.out.println(" Combos: " + combos.size());
         System.out.println("=============================");
 
         // Agregar las listas al modelo

@@ -1,1086 +1,929 @@
-// Variables globales
-let salesChart = null;
-let currentEditingId = null;
-let products = [];
-let users = [];
-let sales = [];
+// admin-menu.js - VERSIÓN COMPLETA CON GESTIÓN DE USUARIOS
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('=== ADMIN MENÚ - INICIADO ===');
 
-// Funciones para exportación
-function exportarVentasPDF() {
-    if (sales.length === 0) {
-        mostrarAlerta('No hay ventas para exportar', 'warning');
-        return;
-    }
+    // Variables globales
+    let currentEditingId = null;
+    let products = [];
+    let users = [];
+    let estadisticas = {};
+    let currentSection = 'dashboard';
 
-    try {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-
-        // Título
-        doc.setFontSize(18);
-        doc.text('Reporte de Ventas - Luren Chicken', 14, 22);
-
-        // Fecha de generación
-        doc.setFontSize(10);
-        doc.text(`Generado el: ${new Date().toLocaleDateString('es-PE')}`, 14, 30);
-
-        // Encabezados de tabla
-        const headers = [['ID', 'Cliente', 'Productos', 'Total', 'Fecha', 'Estado', 'Tipo', 'Cajero']];
-
-        // Datos de la tabla
-        const data = sales.map(venta => [
-            venta.id.toString(),
-            venta.cliente || 'Cliente no registrado',
-            (venta.cantidadProductos || 0).toString() + ' productos',
-            `S/ ${venta.total.toFixed(2)}`,
-            new Date(venta.fecha).toLocaleDateString('es-PE'),
-            venta.estado || 'Pendiente',
-            venta.tipo || 'Local',
-            venta.cajero || 'Sistema'
-        ]);
-
-        // Crear tabla
-        doc.autoTable({
-            startY: 35,
-            head: headers,
-            body: data,
-            theme: 'grid',
-            styles: { fontSize: 8 },
-            headStyles: { fillColor: [13, 110, 253] }
-        });
-
-        // Guardar PDF
-        doc.save(`ventas_luren_chicken_${new Date().toISOString().split('T')[0]}.pdf`);
-
-        mostrarAlerta('Reporte PDF descargado correctamente', 'success');
-    } catch (error) {
-        console.error('Error al generar PDF:', error);
-        mostrarAlerta('Error al generar el reporte PDF', 'danger');
-    }
-}
-
-function exportarVentasExcel() {
-    if (sales.length === 0) {
-        mostrarAlerta('No hay ventas para exportar', 'warning');
-        return;
-    }
-
-    try {
-        // Preparar datos para Excel
-        const datosExcel = sales.map(venta => ({
-            'ID Pedido': venta.id,
-            'Cliente': venta.cliente || 'Cliente no registrado',
-            'Cantidad Productos': venta.cantidadProductos || 0,
-            'Total (S/)': venta.total,
-            'Fecha': new Date(venta.fecha).toLocaleDateString('es-PE'),
-            'Estado': venta.estado || 'Pendiente',
-            'Tipo': venta.tipo || 'Local',
-            'Cajero': venta.cajero || 'Sistema'
-        }));
-
-        // Crear hoja de trabajo
-        const ws = XLSX.utils.json_to_sheet(datosExcel);
-
-        // Crear libro de trabajo
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, 'Ventas');
-
-        // Generar archivo Excel
-        XLSX.writeFile(wb, `ventas_luren_chicken_${new Date().toISOString().split('T')[0]}.xlsx`);
-
-        mostrarAlerta('Reporte Excel descargado correctamente', 'success');
-    } catch (error) {
-        console.error('Error al generar Excel:', error);
-        mostrarAlerta('Error al generar el reporte Excel', 'danger');
-    }
-}
-
-// Funciones para persistencia de datos en localStorage
-function guardarDatosEnLocalStorage() {
-    localStorage.setItem('lurenProducts', JSON.stringify(products));
-    localStorage.setItem('lurenUsers', JSON.stringify(users));
-    console.log('Datos guardados en localStorage');
-}
-
-function cargarDatosDesdeLocalStorage() {
-    const productosGuardados = localStorage.getItem('lurenProducts');
-    const usuariosGuardados = localStorage.getItem('lurenUsers');
-
-    if (productosGuardados) {
-        products = JSON.parse(productosGuardados);
-    } else {
-        // Datos de ejemplo si no hay nada en localStorage
-        products = [
-            {
-                id: 1,
-                nombre: "Pollo a la Brasa",
-                categoria: "pollos",
-                precio: 35.00,
-                descripcion: "Delicioso pollo a la brasa con papas fritas y ensalada",
-                imagen: "https://via.placeholder.com/300x200?text=Pollo+Brasa",
-                estado: "activo"
-            },
-            {
-                id: 2,
-                nombre: "Parrilla Familiar",
-                categoria: "parrillas",
-                precio: 85.00,
-                descripcion: "Parrilla completa para 4 personas con carnes variadas",
-                imagen: "https://via.placeholder.com/300x200?text=Parrilla",
-                estado: "activo"
-            }
-        ];
-    }
-
-    if (usuariosGuardados) {
-        users = JSON.parse(usuariosGuardados);
-    } else {
-        // Datos de ejemplo si no hay nada en localStorage
-        users = [
-            {
-                id: 1,
-                nombre: "Administrador Principal",
-                email: "admin@lurenchicken.com",
-                rol: "admin",
-                estado: "activo",
-                fechaRegistro: "2023-01-15"
-            },
-            {
-                id: 2,
-                nombre: "Carlos Rodríguez",
-                email: "carlos@lurenchicken.com",
-                rol: "cajero",
-                estado: "activo",
-                fechaRegistro: "2023-02-20"
-            }
-        ];
-    }
-
-    console.log('Datos cargados desde localStorage:', {
-        productos: products.length,
-        usuarios: users.length
-    });
-}
-
-// Función para mostrar alertas dinámicas
-function mostrarAlerta(mensaje, tipo = 'success') {
-    const alerta = document.createElement('div');
-    alerta.className = `alert alert-${tipo} alert-dismissible fade show`;
-    alerta.innerHTML = `
-            ${mensaje}
+    // Función para mostrar alertas dinámicas
+    function mostrarAlerta(mensaje, tipo = 'success') {
+        const alerta = document.createElement('div');
+        alerta.className = `alert alert-${tipo} alert-dismissible fade show`;
+        alerta.innerHTML = `
+            <div class="d-flex align-items-center">
+                <i class="fas ${tipo === 'success' ? 'fa-check-circle' : tipo === 'warning' ? 'fa-exclamation-triangle' : 'fa-exclamation-circle'} me-2"></i>
+                <span>${mensaje}</span>
+            </div>
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         `;
 
-    const dynamicAlerts = document.getElementById('dynamicAlerts');
-    dynamicAlerts.appendChild(alerta);
+        const dynamicAlerts = document.getElementById('dynamicAlerts');
+        dynamicAlerts.innerHTML = ''; // Limpiar alertas anteriores
+        dynamicAlerts.appendChild(alerta);
 
-    setTimeout(() => {
-        if (alerta.parentNode) {
-            alerta.remove();
-        }
-    }, 5000);
-}
-
-// Función para actualizar estadísticas del dashboard
-function actualizarEstadisticasDashboard() {
-    // Actualizar contador de productos activos
-    const productosActivos = products.filter(p => p.estado === 'activo').length;
-    document.getElementById('totalProductos').textContent = productosActivos;
-
-    // Actualizar contador de usuarios
-    document.getElementById('totalUsuarios').textContent = users.length;
-
-    console.log('Estadísticas actualizadas:', {
-        productos: productosActivos,
-        usuarios: users.length
-    });
-}
-
-// Función para cargar estadísticas desde la base de datos PostgreSQL
-async function cargarEstadisticas() {
-    try {
-        // Simular llamada a la API para obtener estadísticas
-        const response = await fetch('/api/estadisticas/dashboard', {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.getElementById('csrfToken').value
+        setTimeout(() => {
+            if (alerta.parentNode) {
+                alerta.remove();
             }
-        });
-
-        if (!response.ok) {
-            throw new Error('Error al cargar estadísticas');
-        }
-
-        const data = await response.json();
-
-        // Actualizar estadísticas principales
-        actualizarEstadisticasPrincipales(data);
-
-        // Cargar gráficos
-        cargarGraficos(data);
-
-        // Cargar ventas recientes
-        cargarVentasRecientes(data.ventasRecientes);
-
-    } catch (error) {
-        console.error('Error:', error);
-        // Cargar datos en cero (sin ventas)
-        cargarDatosEnCero();
-    }
-}
-
-// Función para cargar datos en cero (sin ventas)
-function cargarDatosEnCero() {
-    const datosEnCero = {
-        totalProductos: 0,
-        totalUsuarios: 0,
-        pedidosHoy: 0,
-        ingresosHoy: 0,
-        ventasMesTotal: 0,
-        promedioDiario: 0,
-        ventaMaxima: 0,
-        totalPedidos: 0,
-        graficoVentas: {
-            labels: Array.from({ length: 30 }, (_, i) => (i + 1).toString()),
-            data: Array(30).fill(0)
-        },
-        ventasRecientes: []
-    };
-
-    actualizarEstadisticasPrincipales(datosEnCero);
-    cargarGraficos(datosEnCero);
-    cargarVentasRecientes(datosEnCero.ventasRecientes);
-}
-
-// Función para actualizar estadísticas principales
-function actualizarEstadisticasPrincipales(data) {
-    // Usar datos reales de productos y usuarios
-    const productosActivos = products.filter(p => p.estado === 'activo').length;
-
-    document.getElementById('totalProductos').textContent = productosActivos;
-    document.getElementById('totalUsuarios').textContent = users.length;
-    document.getElementById('pedidosHoy').textContent = data.pedidosHoy || '0';
-    document.getElementById('ingresosHoy').textContent = `S/ ${(data.ingresosHoy || 0).toFixed(2)}`;
-
-    // Actualizar resumen de ventas
-    document.getElementById('ventasMesTotal').textContent = `S/ ${(data.ventasMesTotal || 0).toFixed(2)}`;
-    document.getElementById('promedioDiario').textContent = `S/ ${(data.promedioDiario || 0).toFixed(2)}`;
-    document.getElementById('ventaMaxima').textContent = `S/ ${(data.ventaMaxima || 0).toFixed(2)}`;
-    document.getElementById('totalPedidos').textContent = data.totalPedidos || '0';
-}
-
-// Función para cargar gráficos
-function cargarGraficos(data) {
-    const salesCtx = document.getElementById('salesChart');
-    const emptyChartMessage = document.getElementById('emptyChartMessage');
-
-    // Verificar si hay datos para mostrar
-    const tieneDatos = data.graficoVentas && data.graficoVentas.data.some(valor => valor > 0);
-
-    if (!tieneDatos) {
-        // Mostrar mensaje de gráfico vacío
-        if (salesChart) {
-            salesChart.destroy();
-            salesChart = null;
-        }
-        salesCtx.style.display = 'none';
-        emptyChartMessage.classList.remove('d-none');
-        return;
+        }, 5000);
     }
 
-    // Mostrar gráfico y ocultar mensaje
-    salesCtx.style.display = 'block';
-    emptyChartMessage.classList.add('d-none');
+    // CARGAR ESTADÍSTICAS DEL DASHBOARD
+    async function cargarEstadisticas() {
+        try {
+            console.log('Cargando estadísticas...');
+            const response = await fetch('/admin-menu/estadisticas');
 
-    // Destruir gráfico anterior si existe
-    if (salesChart) {
-        salesChart.destroy();
-    }
-
-    salesChart = new Chart(salesCtx, {
-        type: 'line',
-        data: {
-            labels: data.graficoVentas.labels || [],
-            datasets: [{
-                label: 'Ventas Diarias (S/)',
-                data: data.graficoVentas.data || [],
-                borderColor: '#0d6efd',
-                backgroundColor: 'rgba(13, 110, 253, 0.1)',
-                tension: 0.4,
-                fill: true
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: true
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function (context) {
-                            return `S/ ${context.parsed.y.toFixed(2)}`;
-                        }
-                    }
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        callback: function (value) {
-                            return 'S/ ' + value;
-                        }
-                    }
-                }
+            if (!response.ok) {
+                throw new Error('Error al cargar estadísticas: ' + response.status);
             }
-        }
-    });
-}
 
-// Función para cargar ventas recientes
-function cargarVentasRecientes(ventas) {
-    const tbody = document.getElementById('salesTableBody');
-    const noSalesMessage = document.getElementById('noSalesMessage');
-
-    tbody.innerHTML = '';
-
-    // Guardar ventas en variable global para exportación
-    sales = ventas || [];
-
-    if (!ventas || ventas.length === 0) {
-        noSalesMessage.classList.remove('d-none');
-        tbody.parentElement.parentElement.classList.add('d-none');
-        return;
-    }
-
-    noSalesMessage.classList.add('d-none');
-    tbody.parentElement.parentElement.classList.remove('d-none');
-
-    ventas.forEach(venta => {
-        const tr = document.createElement('tr');
-        const estadoClass = {
-            'completado': 'bg-success',
-            'proceso': 'bg-warning',
-            'pendiente': 'bg-secondary',
-            'cancelado': 'bg-danger'
-        }[venta.estado] || 'bg-secondary';
-
-        const estadoText = {
-            'completado': 'Completado',
-            'proceso': 'En Proceso',
-            'pendiente': 'Pendiente',
-            'cancelado': 'Cancelado'
-        }[venta.estado] || 'Pendiente';
-
-        // Formatear fecha
-        const fecha = new Date(venta.fecha);
-        const fechaFormateada = fecha.toLocaleDateString('es-PE', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
-
-        tr.innerHTML = `
-                <td><strong>${venta.id}</strong></td>
-                <td>${venta.cliente || 'Cliente no registrado'}</td>
-                <td>
-                    <small>${venta.cantidadProductos || 0} productos</small>
-                </td>
-                <td><strong>S/ ${venta.total.toFixed(2)}</strong></td>
-                <td>${fechaFormateada}</td>
-                <td><span class="badge ${estadoClass}">${estadoText}</span></td>
-                <td><span class="badge bg-info">${venta.tipo || 'Local'}</span></td>
-                <td>${venta.cajero || 'Sistema'}</td>
-            `;
-        tbody.appendChild(tr);
-    });
-}
-
-// Función para actualizar el período del gráfico
-async function actualizarPeriodoGrafico() {
-    const periodo = document.getElementById('chartPeriod').value;
-
-    try {
-        // Simular llamada a la API para obtener datos del período seleccionado
-        const response = await fetch(`/api/estadisticas/ventas?periodo=${periodo}`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.getElementById('csrfToken').value
-            }
-        });
-
-        if (response.ok) {
             const data = await response.json();
-            cargarGraficos(data);
-            mostrarAlerta(`Período actualizado a últimos ${periodo} días`, 'success');
-        } else {
-            throw new Error('Error al actualizar período');
+            console.log('Estadísticas cargadas:', data);
+
+            if (data.success !== false) {
+                estadisticas = data;
+                actualizarDashboard();
+            } else {
+                throw new Error(data.error || 'Error desconocido');
+            }
+
+        } catch (error) {
+            console.error('Error cargando estadísticas:', error);
+            mostrarAlerta('Error al cargar estadísticas del dashboard', 'warning');
         }
-    } catch (error) {
-        console.error('Error:', error);
-        mostrarAlerta('Error al actualizar el período del gráfico', 'danger');
-    }
-}
-
-// Funciones para gestión de productos
-function cargarProductos() {
-    mostrarProductos();
-}
-
-function mostrarProductos() {
-    const tbody = document.getElementById('productsTableBody');
-    const noProductsMessage = document.getElementById('noProductsMessage');
-
-    tbody.innerHTML = '';
-
-    if (products.length === 0) {
-        noProductsMessage.classList.remove('d-none');
-        tbody.parentElement.parentElement.classList.add('d-none');
-        return;
     }
 
-    noProductsMessage.classList.add('d-none');
-    tbody.parentElement.parentElement.classList.remove('d-none');
+    // ACTUALIZAR EL DASHBOARD CON LOS DATOS
+    function actualizarDashboard() {
+        // Actualizar tarjetas
+        if (document.getElementById('totalProductos')) {
+            document.getElementById('totalProductos').textContent = estadisticas.totalProductos || 0;
+        }
+        if (document.getElementById('totalUsuarios')) {
+            document.getElementById('totalUsuarios').textContent = estadisticas.totalUsuarios || 0;
+        }
+        if (document.getElementById('pedidosHoy')) {
+            document.getElementById('pedidosHoy').textContent = estadisticas.pedidosHoy || 0;
+        }
+        if (document.getElementById('ingresosHoy')) {
+            document.getElementById('ingresosHoy').textContent = `S/ ${(estadisticas.ingresosHoy || 0).toFixed(2)}`;
+        }
+    }
 
-    // Aplicar filtros
-    const searchTerm = document.getElementById('searchProducts').value.toLowerCase();
-    const categoryFilter = document.getElementById('categoryFilter').value;
-    const statusFilter = document.getElementById('statusFilter').value;
+    // CARGAR PRODUCTOS DESDE EL BACKEND
+    async function cargarProductos() {
+        try {
+            console.log('Cargando productos desde el backend...');
+            const response = await fetch('/admin-menu/productos');
 
-    const filteredProducts = products.filter(product => {
-        const matchesSearch = product.nombre.toLowerCase().includes(searchTerm) ||
-            (product.descripcion && product.descripcion.toLowerCase().includes(searchTerm));
-        const matchesCategory = !categoryFilter || product.categoria === categoryFilter;
-        const matchesStatus = !statusFilter || product.estado === statusFilter;
+            if (!response.ok) {
+                throw new Error('Error al cargar productos: ' + response.status);
+            }
 
-        return matchesSearch && matchesCategory && matchesStatus;
-    });
+            products = await response.json();
+            console.log('Productos cargados:', products.length, 'productos');
 
-    filteredProducts.forEach(product => {
-        const tr = document.createElement('tr');
-        const estadoClass = product.estado === 'activo' ? 'bg-success' : 'bg-secondary';
-        const estadoText = product.estado === 'activo' ? 'Activo' : 'Inactivo';
+            mostrarProductos();
 
-        tr.innerHTML = `
+        } catch (error) {
+            console.error('Error cargando productos:', error);
+            mostrarAlerta('Error al cargar productos', 'warning');
+        }
+    }
+
+    // MOSTRAR PRODUCTOS EN LA TABLA
+    function mostrarProductos() {
+        const tbody = document.getElementById('productsTableBody');
+        const noProductsMessage = document.getElementById('noProductsMessage');
+
+        if (!tbody) {
+            console.error('No se encontró el tbody de productos');
+            return;
+        }
+
+        tbody.innerHTML = '';
+
+        if (products.length === 0) {
+            if (noProductsMessage) {
+                noProductsMessage.classList.remove('d-none');
+            }
+            if (tbody.parentNode) {
+                tbody.parentNode.classList.add('d-none');
+            }
+            return;
+        }
+
+        if (noProductsMessage) {
+            noProductsMessage.classList.add('d-none');
+        }
+        if (tbody.parentNode) {
+            tbody.parentNode.classList.remove('d-none');
+        }
+
+        // Aplicar filtros
+        const searchTerm = document.getElementById('searchProducts')?.value.toLowerCase() || '';
+        const categoryFilter = document.getElementById('categoryFilter')?.value || '';
+
+        console.log('Filtrando productos:', {
+            searchTerm,
+            categoryFilter,
+            totalProducts: products.length
+        });
+
+        const filteredProducts = products.filter(product => {
+            const matchesSearch = product.nombre.toLowerCase().includes(searchTerm) ||
+                (product.descripcion && product.descripcion.toLowerCase().includes(searchTerm));
+
+            const matchesCategory = !categoryFilter ||
+                product.tipo.toLowerCase() === categoryFilter.toLowerCase();
+
+            return matchesSearch && matchesCategory;
+        });
+
+        console.log('Productos filtrados:', filteredProducts.length);
+
+        filteredProducts.forEach(product => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
                 <td>${product.id}</td>
                 <td>
-                    <img src="${product.imagen}" alt="${product.nombre}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;">
+                    <img src="${product.imagenUrl || '/imagenes/default-product.jpg'}"
+                         alt="${product.nombre}"
+                         style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;"
+                         onerror="this.src='/imagenes/default-product.jpg'">
                 </td>
-                <td>${product.nombre}</td>
-                <td>${product.categoria}</td>
-                <td>S/ ${product.precio.toFixed(2)}</td>
-                <td><span class="badge ${estadoClass}">${estadoText}</span></td>
+                <td>
+                    <strong>${product.nombre}</strong>
+                    ${product.descripcion ? `<br><small class="text-muted">${product.descripcion}</small>` : ''}
+                </td>
+                <td>
+                    <span class="badge bg-primary">${product.tipo}</span>
+                </td>
+                <td><strong>S/ ${product.precio.toFixed(2)}</strong></td>
                 <td>
                     <div class="action-buttons">
-                        <button class="btn btn-sm btn-outline-primary edit-product" data-id="${product.id}">
+                        <button class="btn btn-sm btn-outline-primary edit-product" data-id="${product.id}"
+                                title="Editar producto">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <button class="btn btn-sm btn-outline-danger delete-product" data-id="${product.id}">
+                        <button class="btn btn-sm btn-outline-danger delete-product" data-id="${product.id}"
+                                title="Eliminar producto">
                             <i class="fas fa-trash"></i>
                         </button>
                     </div>
                 </td>
             `;
-        tbody.appendChild(tr);
-    });
-}
+            tbody.appendChild(tr);
+        });
 
-function abrirModalProducto(producto = null) {
-    const modal = new bootstrap.Modal(document.getElementById('productModal'));
-    const form = document.getElementById('productForm');
-    const modalTitle = document.getElementById('productModalLabel');
-    const imagePreview = document.getElementById('imagePreview');
-
-    form.reset();
-    imagePreview.classList.add('d-none');
-
-    if (producto) {
-        // Modo edición
-        modalTitle.textContent = 'Editar Producto';
-        document.getElementById('productId').value = producto.id;
-        document.getElementById('productName').value = producto.nombre;
-        document.getElementById('productCategory').value = producto.categoria;
-        document.getElementById('productPrice').value = producto.precio;
-        document.getElementById('productDescription').value = producto.descripcion || '';
-        document.getElementById('productStatus').value = producto.estado;
-
-        if (producto.imagen) {
-            imagePreview.src = producto.imagen;
-            imagePreview.classList.remove('d-none');
-        }
-
-        currentEditingId = producto.id;
-    } else {
-        // Modo agregar
-        modalTitle.textContent = 'Agregar Producto';
-        currentEditingId = null;
+        console.log('Productos mostrados en tabla:', filteredProducts.length);
     }
 
-    modal.show();
-}
+    // ================== GESTIÓN DE USUARIOS ==================
 
-function guardarProducto() {
-    // Generar ID único para nuevo producto
-    const nuevoId = currentEditingId || Math.max(...products.map(p => p.id), 0) + 1;
+    // CARGAR USUARIOS DESDE EL BACKEND
+    async function cargarUsuarios() {
+        try {
+            console.log('Cargando usuarios desde el backend...');
+            const response = await fetch('/admin-menu/usuarios');
 
-    const productoData = {
-        id: nuevoId,
-        nombre: document.getElementById('productName').value,
-        categoria: document.getElementById('productCategory').value,
-        precio: parseFloat(document.getElementById('productPrice').value),
-        descripcion: document.getElementById('productDescription').value,
-        estado: document.getElementById('productStatus').value,
-        imagen: document.getElementById('imagePreview').src || "https://via.placeholder.com/300x200?text=Producto"
-    };
-
-    try {
-        if (currentEditingId) {
-            // Actualizar producto existente
-            const index = products.findIndex(p => p.id === currentEditingId);
-            if (index !== -1) {
-                products[index] = { ...products[index], ...productoData };
+            if (!response.ok) {
+                throw new Error('Error al cargar usuarios: ' + response.status);
             }
-        } else {
-            // Agregar nuevo producto
-            products.push(productoData);
+
+            users = await response.json();
+            console.log('Usuarios cargados:', users.length, 'usuarios');
+
+            mostrarUsuarios();
+
+        } catch (error) {
+            console.error('Error cargando usuarios:', error);
+            mostrarAlerta('Error al cargar usuarios', 'warning');
         }
-
-        // Guardar en localStorage
-        guardarDatosEnLocalStorage();
-
-        mostrarAlerta(`Producto ${currentEditingId ? 'actualizado' : 'agregado'} correctamente`, 'success');
-
-        // Cerrar modal
-        bootstrap.Modal.getInstance(document.getElementById('productModal')).hide();
-
-        // Recargar productos
-        mostrarProductos();
-
-        // Actualizar dashboard y menú público
-        actualizarEstadisticasDashboard();
-        if (!document.getElementById('public-menu-section').classList.contains('d-none')) {
-            mostrarMenuPublico();
-        }
-
-    } catch (error) {
-        console.error('Error:', error);
-        mostrarAlerta('Error al guardar el producto', 'danger');
-    }
-}
-
-// Función para eliminar producto
-function eliminarProducto(id) {
-    // Encontrar el índice del producto a eliminar
-    const index = products.findIndex(p => p.id === id);
-
-    if (index !== -1) {
-        // Eliminar el producto del array
-        products.splice(index, 1);
-
-        // Guardar en localStorage
-        guardarDatosEnLocalStorage();
-
-        // Mostrar alerta de éxito
-        mostrarAlerta('Producto eliminado correctamente', 'success');
-
-        // Actualizar la vista de productos
-        mostrarProductos();
-
-        // Actualizar dashboard
-        actualizarEstadisticasDashboard();
-
-        // Actualizar el menú público si está visible
-        if (!document.getElementById('public-menu-section').classList.contains('d-none')) {
-            mostrarMenuPublico();
-        }
-    } else {
-        mostrarAlerta('Error: Producto no encontrado', 'danger');
-    }
-}
-
-// Funciones para gestión de usuarios
-function cargarUsuarios() {
-    mostrarUsuarios();
-}
-
-function mostrarUsuarios() {
-    const tbody = document.getElementById('usersTableBody');
-    const noUsersMessage = document.getElementById('noUsersMessage');
-
-    tbody.innerHTML = '';
-
-    if (users.length === 0) {
-        noUsersMessage.classList.remove('d-none');
-        tbody.parentElement.parentElement.classList.add('d-none');
-        return;
     }
 
-    noUsersMessage.classList.add('d-none');
-    tbody.parentElement.parentElement.classList.remove('d-none');
+    // MOSTRAR USUARIOS EN LA TABLA
+    function mostrarUsuarios() {
+        const tbody = document.getElementById('usersTableBody');
+        const noUsersMessage = document.getElementById('noUsersMessage');
 
-    // Aplicar filtros
-    const searchTerm = document.getElementById('searchUsers').value.toLowerCase();
-    const roleFilter = document.getElementById('roleFilter').value;
-    const statusFilter = document.getElementById('userStatusFilter').value;
+        if (!tbody) {
+            console.error('No se encontró el tbody de usuarios');
+            return;
+        }
 
-    const filteredUsers = users.filter(user => {
-        const matchesSearch = user.nombre.toLowerCase().includes(searchTerm) ||
-            user.email.toLowerCase().includes(searchTerm);
-        const matchesRole = !roleFilter || user.rol === roleFilter;
-        const matchesStatus = !statusFilter || user.estado === statusFilter;
+        tbody.innerHTML = '';
 
-        return matchesSearch && matchesRole && matchesStatus;
-    });
+        if (users.length === 0) {
+            if (noUsersMessage) {
+                noUsersMessage.classList.remove('d-none');
+            }
+            if (tbody.parentNode) {
+                tbody.parentNode.classList.add('d-none');
+            }
+            return;
+        }
 
-    filteredUsers.forEach(user => {
-        const tr = document.createElement('tr');
-        const estadoClass = user.estado === 'activo' ? 'bg-success' : 'bg-secondary';
-        const estadoText = user.estado === 'activo' ? 'Activo' : 'Inactivo';
-        const rolText = {
-            'admin': 'Administrador',
-            'cajero': 'Cajero',
-            'cocinero': 'Cocinero'
-        }[user.rol] || user.rol;
+        if (noUsersMessage) {
+            noUsersMessage.classList.add('d-none');
+        }
+        if (tbody.parentNode) {
+            tbody.parentNode.classList.remove('d-none');
+        }
 
-        // Generar avatar con iniciales
-        const iniciales = user.nombre.split(' ').map(n => n[0]).join('').toUpperCase();
+        // Aplicar filtros
+        const searchTerm = document.getElementById('searchUsers')?.value.toLowerCase() || '';
+        const roleFilter = document.getElementById('roleFilter')?.value || '';
 
-        tr.innerHTML = `
+        console.log('Filtrando usuarios:', {
+            searchTerm,
+            roleFilter,
+            totalUsers: users.length
+        });
+
+        const filteredUsers = users.filter(user => {
+            const matchesSearch = user.nombres.toLowerCase().includes(searchTerm) ||
+                user.apellidos.toLowerCase().includes(searchTerm) ||
+                user.username.toLowerCase().includes(searchTerm);
+
+            const matchesRole = !roleFilter ||
+                user.rol.toLowerCase() === roleFilter.toLowerCase();
+
+            return matchesSearch && matchesRole;
+        });
+
+        console.log('Usuarios filtrados:', filteredUsers.length);
+
+        filteredUsers.forEach(user => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
                 <td>${user.id}</td>
                 <td>
-                    <div class="user-avatar">${iniciales}</div>
+                    <div class="user-avatar-small">
+                        ${user.nombres.charAt(0)}${user.apellidos.charAt(0)}
+                    </div>
                 </td>
-                <td>${user.nombre}</td>
-                <td>${user.email}</td>
-                <td>${rolText}</td>
-                <td><span class="badge ${estadoClass}">${estadoText}</span></td>
-                <td>${new Date(user.fechaRegistro).toLocaleDateString('es-PE')}</td>
+                <td>
+                    <strong>${user.nombres} ${user.apellidos}</strong>
+                    <br><small class="text-muted">${user.tipoDocumento}: ${user.numeroDocumento}</small>
+                </td>
+                <td>${user.username}</td>
+                <td>
+                    <span class="badge ${getBadgeClassForRole(user.rol)}">${user.rol}</span>
+                </td>
+                <td>
+                    <span class="badge bg-success">Activo</span>
+                </td>
                 <td>
                     <div class="action-buttons">
-                        <button class="btn btn-sm btn-outline-primary edit-user" data-id="${user.id}">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="btn btn-sm btn-outline-danger delete-user" data-id="${user.id}">
+                        <button class="btn btn-sm btn-outline-danger delete-user" data-id="${user.id}"
+                                title="Eliminar usuario">
                             <i class="fas fa-trash"></i>
                         </button>
                     </div>
                 </td>
             `;
-        tbody.appendChild(tr);
-    });
-}
+            tbody.appendChild(tr);
+        });
 
-function abrirModalUsuario(usuario = null) {
-    const modal = new bootstrap.Modal(document.getElementById('userModal'));
-    const form = document.getElementById('userForm');
-    const modalTitle = document.getElementById('userModalLabel');
-    const passwordField = document.getElementById('passwordField');
-
-    form.reset();
-
-    if (usuario) {
-        // Modo edición
-        modalTitle.textContent = 'Editar Usuario';
-        document.getElementById('userId').value = usuario.id;
-        document.getElementById('userName').value = usuario.nombre;
-        document.getElementById('userEmail').value = usuario.email;
-        document.getElementById('userRole').value = usuario.rol;
-        document.getElementById('userStatus').value = usuario.estado;
-
-        // Ocultar campo de contraseña en edición
-        passwordField.style.display = 'none';
-
-        currentEditingId = usuario.id;
-    } else {
-        // Modo agregar
-        modalTitle.textContent = 'Agregar Usuario';
-        passwordField.style.display = 'block';
-        document.getElementById('userPassword').required = true;
-        currentEditingId = null;
+        console.log('Usuarios mostrados en tabla:', filteredUsers.length);
     }
 
-    modal.show();
-}
+    // OBTENER CLASE BADGE PARA ROL
+    function getBadgeClassForRole(rol) {
+        switch(rol.toLowerCase()) {
+            case 'admin': return 'bg-danger';
+            case 'cajero': return 'bg-warning';
+            case 'cocinero': return 'bg-info';
+            default: return 'bg-secondary';
+        }
+    }
 
-function guardarUsuario() {
-    // Generar ID único para nuevo usuario
-    const nuevoId = currentEditingId || Math.max(...users.map(u => u.id), 0) + 1;
+    // ABRIR MODAL DE USUARIO
+    function abrirModalUsuario() {
+        const modal = new bootstrap.Modal(document.getElementById('userModal'));
+        const form = document.getElementById('userForm');
+        const modalTitle = document.getElementById('userModalLabel');
 
-    const usuarioData = {
-        id: nuevoId,
-        nombre: document.getElementById('userName').value,
-        email: document.getElementById('userEmail').value,
-        rol: document.getElementById('userRole').value,
-        estado: document.getElementById('userStatus').value,
-        fechaRegistro: currentEditingId ? users.find(u => u.id === currentEditingId).fechaRegistro : new Date().toISOString().split('T')[0]
-    };
-
-    try {
-        if (currentEditingId) {
-            // Actualizar usuario existente
-            const index = users.findIndex(u => u.id === currentEditingId);
-            if (index !== -1) {
-                users[index] = { ...users[index], ...usuarioData };
-            }
-        } else {
-            // Agregar nuevo usuario
-            users.push(usuarioData);
+        if (!form || !modalTitle) {
+            console.error('No se encontraron elementos del modal de usuario');
+            return;
         }
 
-        // Guardar en localStorage
-        guardarDatosEnLocalStorage();
-
-        mostrarAlerta(`Usuario ${currentEditingId ? 'actualizado' : 'agregado'} correctamente`, 'success');
-
-        // Cerrar modal
-        bootstrap.Modal.getInstance(document.getElementById('userModal')).hide();
-
-        // Recargar usuarios
-        mostrarUsuarios();
-
-        // Actualizar dashboard
-        actualizarEstadisticasDashboard();
-
-    } catch (error) {
-        console.error('Error:', error);
-        mostrarAlerta('Error al guardar el usuario', 'danger');
-    }
-}
-
-// Función para eliminar usuario
-function eliminarUsuario(id) {
-    // Encontrar el índice del usuario a eliminar
-    const index = users.findIndex(u => u.id === id);
-
-    if (index !== -1) {
-        // Eliminar el usuario del array
-        users.splice(index, 1);
-
-        // Guardar en localStorage
-        guardarDatosEnLocalStorage();
-
-        // Mostrar alerta de éxito
-        mostrarAlerta('Usuario eliminado correctamente', 'success');
-
-        // Actualizar la vista de usuarios
-        mostrarUsuarios();
-
-        // Actualizar dashboard
-        actualizarEstadisticasDashboard();
-    } else {
-        mostrarAlerta('Error: Usuario no encontrado', 'danger');
-    }
-}
-
-// Función para mostrar menú público
-function mostrarMenuPublico() {
-    const container = document.getElementById('publicMenuContainer');
-    container.innerHTML = '';
-
-    const productosActivos = products.filter(p => p.estado === 'activo');
-
-    if (productosActivos.length === 0) {
-        container.innerHTML = `
-                <div class="col-12">
-                    <div class="empty-state">
-                        <i class="fas fa-concierge-bell"></i>
-                        <h4>No hay productos disponibles</h4>
-                        <p>Agrega productos activos para que aparezcan en el menú público.</p>
-                    </div>
-                </div>
-            `;
-        return;
+        form.reset();
+        modalTitle.textContent = 'Agregar Usuario';
+        modal.show();
     }
 
-    productosActivos.forEach(producto => {
-        const col = document.createElement('div');
-        col.className = 'col-md-4 mb-4';
+    // GUARDAR USUARIO
+    async function guardarUsuario(formData) {
+        try {
+            console.log('Guardando usuario...');
 
-        col.innerHTML = `
-                <div class="card product-card h-100">
-                    <img src="${producto.imagen}" class="card-img-top" alt="${producto.nombre}">
-                    <div class="card-body d-flex flex-column">
-                        <h5 class="card-title">${producto.nombre}</h5>
-                        <p class="card-text flex-grow-1">${producto.descripcion || 'Sin descripción'}</p>
-                        <div class="d-flex justify-content-between align-items-center mt-auto">
-                            <span class="h5 mb-0 text-primary">S/ ${producto.precio.toFixed(2)}</span>
-                            <span class="badge bg-secondary">${producto.categoria}</span>
-                        </div>
-                    </div>
-                </div>
-            `;
+            const csrfToken = document.querySelector('input[name="_csrf"]').value;
+            formData.append('_csrf', csrfToken);
 
-        container.appendChild(col);
-    });
-}
+            const response = await fetch('/admin-menu/usuarios/guardar', {
+                method: 'POST',
+                body: formData
+            });
 
-// Función para mostrar modal de confirmación
-function mostrarConfirmacion(mensaje, accionConfirmar) {
-    const modalBody = document.getElementById('confirmModalBody');
-    const confirmBtn = document.getElementById('confirmActionBtn');
+            const result = await response.json();
+            console.log('Respuesta del servidor:', result);
 
-    modalBody.textContent = mensaje;
+            if (result.success) {
+                // Cerrar modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('userModal'));
+                if (modal) {
+                    modal.hide();
+                }
 
-    // Remover event listeners anteriores
-    const nuevoConfirmBtn = confirmBtn.cloneNode(true);
-    confirmBtn.parentNode.replaceChild(nuevoConfirmBtn, confirmBtn);
+                // Recargar usuarios
+                await cargarUsuarios();
 
-    // Agregar nuevo event listener
-    document.getElementById('confirmActionBtn').addEventListener('click', function () {
-        accionConfirmar();
-        bootstrap.Modal.getInstance(document.getElementById('confirmModal')).hide();
-    });
+                // Mostrar mensaje de éxito
+                mostrarAlerta(result.message, 'success');
 
-    // Mostrar modal
-    const modal = new bootstrap.Modal(document.getElementById('confirmModal'));
-    modal.show();
-}
 
-// Inicialización cuando el DOM está listo
-document.addEventListener('DOMContentLoaded', function () {
-    // Cargar datos desde localStorage al iniciar
-    cargarDatosDesdeLocalStorage();
+                if (currentSection === 'users') {
+                    cambiarSeccion('users');
+                }
 
-    // Cargar datos iniciales
-    cargarDatosEnCero();
-    cargarProductos();
-    cargarUsuarios();
+            } else {
+                throw new Error(result.error || 'Error del servidor');
+            }
 
-    // Actualizar estadísticas del dashboard con datos reales
-    actualizarEstadisticasDashboard();
+        } catch (error) {
+            console.error('Error guardando usuario:', error);
+            mostrarAlerta('Error al guardar el usuario: ' + error.message, 'danger');
+        }
+    }
 
-    // Configurar eventos del dashboard
-    document.getElementById('refreshSales').addEventListener('click', function () {
-        cargarEstadisticas();
-        mostrarAlerta('Datos actualizados', 'info');
-    });
+    // ELIMINAR USUARIO
+    async function eliminarUsuario(id) {
+        try {
+            console.log('Eliminando usuario ID:', id);
 
-    document.getElementById('chartPeriod').addEventListener('change', actualizarPeriodoGrafico);
+            const user = users.find(u => u.id == id);
+            if (!user) {
+                throw new Error('Usuario no encontrado');
+            }
 
-    // Eventos para exportación
-    document.getElementById('exportPDF').addEventListener('click', function (e) {
-        e.preventDefault();
-        exportarVentasPDF();
-    });
+            const formData = new FormData();
+            const csrfToken = document.querySelector('input[name="_csrf"]').value;
+            formData.append('_csrf', csrfToken);
 
-    document.getElementById('exportExcel').addEventListener('click', function (e) {
-        e.preventDefault();
-        exportarVentasExcel();
-    });
+            const response = await fetch(`/admin-menu/usuarios/eliminar/${id}`, {
+                method: 'POST',
+                body: formData
+            });
 
-    // Configurar auto-actualización cada 2 minutos
-    setInterval(cargarEstadisticas, 120000);
+            const result = await response.json();
 
-    // Toggle sidebar
-    const toggleSidebarBtn = document.querySelector('.toggle-sidebar');
-    const app = document.getElementById('app');
+            if (result.success) {
+                // Recargar usuarios
+                await cargarUsuarios();
+                mostrarAlerta(result.message, 'success');
 
-    if (toggleSidebarBtn && app) {
-        toggleSidebarBtn.addEventListener('click', function () {
-            app.classList.toggle('collapsed');
+                // Mantener en la sección actual
+                if (currentSection === 'users') {
+                    cambiarSeccion('users');
+                }
+            } else {
+                throw new Error(result.error || 'Error del servidor al eliminar');
+            }
+
+        } catch (error) {
+            console.error('Error eliminando usuario:', error);
+            mostrarAlerta('Error al eliminar el usuario: ' + error.message, 'danger');
+        }
+    }
+
+    // ABRIR MODAL DE PRODUCTO
+    function abrirModalProducto(producto = null) {
+        const modal = new bootstrap.Modal(document.getElementById('productModal'));
+        const form = document.getElementById('productForm');
+        const modalTitle = document.getElementById('productModalLabel');
+        const imagePreview = document.getElementById('imagePreview');
+
+        if (!form || !modalTitle || !imagePreview) {
+            console.error('No se encontraron elementos del modal');
+            return;
+        }
+
+        form.reset();
+        imagePreview.classList.add('d-none');
+
+        if (producto) {
+            modalTitle.textContent = 'Editar Producto';
+            document.getElementById('productId').value = producto.id;
+            document.getElementById('productName').value = producto.nombre;
+            document.getElementById('productCategory').value = producto.tipo;
+            document.getElementById('productPrice').value = producto.precio;
+            document.getElementById('productDescription').value = producto.descripcion || '';
+            document.getElementById('productImage').value = producto.imagenUrl || '';
+
+            if (producto.imagenUrl && producto.imagenUrl !== '/imagenes/default-product.jpg') {
+                imagePreview.src = producto.imagenUrl;
+                imagePreview.classList.remove('d-none');
+            }
+
+            currentEditingId = producto.id;
+        } else {
+            modalTitle.textContent = 'Agregar Producto';
+            document.getElementById('productId').value = '';
+            currentEditingId = null;
+        }
+
+        modal.show();
+    }
+
+    // GUARDAR PRODUCTO
+    async function guardarProducto(formData) {
+        try {
+            console.log('Guardando producto...', formData);
+
+            const url = currentEditingId
+                ? `/admin-menu/actualizar/${currentEditingId}`
+                : '/admin-menu/guardar';
+
+            // Agregar CSRF token
+            const csrfToken = document.querySelector('input[name="_csrf"]').value;
+            formData.append('_csrf', csrfToken);
+
+            const response = await fetch(url, {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                // Cerrar modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('productModal'));
+                if (modal) {
+                    modal.hide();
+                }
+
+                // Recargar productos
+                await cargarProductos();
+
+                // Mostrar mensaje de éxito
+                mostrarAlerta(
+                    currentEditingId
+                        ? 'Producto actualizado exitosamente!'
+                        : 'Producto guardado exitosamente!',
+                    'success'
+                );
+
+                // Mantener en la sección actual (menú)
+                if (currentSection === 'menu') {
+                    cambiarSeccion('menu');
+                }
+
+            } else {
+                const errorText = await response.text();
+                throw new Error(errorText || 'Error del servidor');
+            }
+
+        } catch (error) {
+            console.error('Error guardando producto:', error);
+            mostrarAlerta('Error al guardar el producto: ' + error.message, 'danger');
+        }
+    }
+
+    // ELIMINAR PRODUCTO
+    async function eliminarProducto(id) {
+        try {
+            console.log('Eliminando producto ID:', id);
+
+            const formData = new FormData();
+            const csrfToken = document.querySelector('input[name="_csrf"]').value;
+            formData.append('_csrf', csrfToken);
+            formData.append('redirectSection', currentSection);
+
+            const response = await fetch(`/admin-menu/eliminar/${id}`, {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                // Recargar productos
+                await cargarProductos();
+                mostrarAlerta('Producto eliminado exitosamente!', 'success');
+
+
+                if (currentSection === 'menu') {
+                    cambiarSeccion('menu');
+                }
+            } else {
+                throw new Error('Error del servidor al eliminar');
+            }
+
+        } catch (error) {
+            console.error('Error eliminando producto:', error);
+            mostrarAlerta('Error al eliminar el producto: ' + error.message, 'danger');
+        }
+    }
+
+    // FUNCIÓN DE CONFIRMACIÓN
+    function mostrarConfirmacion(mensaje, accionConfirmar) {
+        const modalBody = document.getElementById('confirmModalBody');
+        const confirmBtn = document.getElementById('confirmActionBtn');
+
+        if (!modalBody || !confirmBtn) return;
+
+        modalBody.textContent = mensaje;
+
+        // Limpiar event listeners anteriores
+        const nuevoConfirmBtn = confirmBtn.cloneNode(true);
+        confirmBtn.parentNode.replaceChild(nuevoConfirmBtn, confirmBtn);
+
+        document.getElementById('confirmActionBtn').addEventListener('click', function () {
+            accionConfirmar();
+            const modalInstance = bootstrap.Modal.getInstance(document.getElementById('confirmModal'));
+            if (modalInstance) {
+                modalInstance.hide();
+            }
         });
+
+        const modal = new bootstrap.Modal(document.getElementById('confirmModal'));
+        modal.show();
     }
 
-    // Navigation between sections
-    const navLinks = document.querySelectorAll('.sidebar .nav-link');
-    const sectionContents = document.querySelectorAll('.section-content');
-    const sectionTitle = document.getElementById('sectionTitle');
+    // CAMBIAR SECCIÓN
+    function cambiarSeccion(seccion) {
+        console.log('Cambiando a sección:', seccion);
+        currentSection = seccion;
 
-    navLinks.forEach(link => {
-        link.addEventListener('click', function (e) {
-            if (this.getAttribute('href') === '#' || this.getAttribute('data-section')) {
-                e.preventDefault();
+        const sectionContents = document.querySelectorAll('.section-content');
+        const sectionTitle = document.getElementById('sectionTitle');
+        const navLinks = document.querySelectorAll('.sidebar .nav-link');
 
-                // Remove active class from all links
-                navLinks.forEach(navLink => {
-                    navLink.classList.remove('active');
-                });
+        // Ocultar todas las secciones
+        sectionContents.forEach(section => section.classList.add('d-none'));
 
-                // Add active class to clicked link
-                this.classList.add('active');
+        // Remover active de todos los links
+        navLinks.forEach(navLink => navLink.classList.remove('active'));
 
-                // Hide all sections
-                sectionContents.forEach(section => {
-                    section.classList.add('d-none');
-                });
+        // Mostrar sección seleccionada
+        const selectedSection = document.getElementById(seccion + '-section');
+        if (selectedSection) {
+            selectedSection.classList.remove('d-none');
+        }
 
-                // Show selected section
-                const sectionId = this.getAttribute('data-section') + '-section';
-                const selectedSection = document.getElementById(sectionId);
-                if (selectedSection) {
-                    selectedSection.classList.remove('d-none');
+        // Actualizar título
+        if (sectionTitle) {
+            const activeLink = document.querySelector(`[data-section="${seccion}"]`);
+            if (activeLink) {
+                const linkText = activeLink.querySelector('span').textContent;
+                sectionTitle.textContent = linkText;
+            }
+        }
 
-                    // Update section title
-                    const linkText = this.querySelector('span').textContent;
-                    sectionTitle.textContent = linkText;
+        // Activar link correspondiente
+        const activeLink = document.querySelector(`[data-section="${seccion}"]`);
+        if (activeLink) {
+            activeLink.classList.add('active');
+        }
 
-                    // Cargar datos específicos de la sección
-                    if (sectionId === 'menu-section') {
-                        cargarProductos();
-                    } else if (sectionId === 'users-section') {
-                        cargarUsuarios();
-                    } else if (sectionId === 'public-menu-section') {
-                        mostrarMenuPublico();
+        // Cargar datos específicos de la sección
+        if (seccion === 'dashboard') {
+            cargarEstadisticas();
+        } else if (seccion === 'menu') {
+            cargarProductos();
+        } else if (seccion === 'users') {
+            cargarUsuarios();
+        }
+    }
+
+    // INICIALIZACIÓN MEJORADA
+    function inicializarAdminMenu() {
+        console.log('Inicializando Admin Menu...');
+
+        // Cargar datos iniciales
+        cargarEstadisticas();
+        cargarProductos();
+
+        // Navegación entre secciones
+        const navLinks = document.querySelectorAll('.sidebar .nav-link');
+
+        navLinks.forEach(link => {
+            link.addEventListener('click', function (e) {
+                if (this.getAttribute('href') === '#' || this.getAttribute('data-section')) {
+                    e.preventDefault();
+
+                    const section = this.getAttribute('data-section');
+                    if (section) {
+                        cambiarSeccion(section);
                     }
+                }
+            });
+        });
+
+        // EVENTOS PARA GESTIÓN DE PRODUCTOS
+        const addProductBtn = document.getElementById('addProductBtn');
+        if (addProductBtn) {
+            addProductBtn.addEventListener('click', () => {
+                console.log('Botón agregar producto clickeado');
+                abrirModalProducto();
+            });
+        }
+
+        const addFirstProductBtn = document.getElementById('addFirstProductBtn');
+        if (addFirstProductBtn) {
+            addFirstProductBtn.addEventListener('click', () => {
+                console.log('Botón agregar primer producto clickeado');
+                abrirModalProducto();
+            });
+        }
+
+        // Eventos para búsqueda y filtros de productos
+        const searchProducts = document.getElementById('searchProducts');
+        if (searchProducts) {
+            searchProducts.addEventListener('input', function() {
+                console.log('Buscando productos:', this.value);
+                mostrarProductos();
+            });
+        }
+
+        const searchProductsBtn = document.getElementById('searchProductsBtn');
+        if (searchProductsBtn) {
+            searchProductsBtn.addEventListener('click', function() {
+                console.log('Botón buscar productos clickeado');
+                mostrarProductos();
+            });
+        }
+
+        const categoryFilter = document.getElementById('categoryFilter');
+        if (categoryFilter) {
+            categoryFilter.addEventListener('change', function() {
+                console.log('Filtro de categoría cambiado:', this.value);
+                mostrarProductos();
+            });
+        }
+
+        // EVENTOS PARA GESTIÓN DE USUARIOS
+        const addUserBtn = document.getElementById('addUserBtn');
+        if (addUserBtn) {
+            addUserBtn.addEventListener('click', () => {
+                console.log('Botón agregar usuario clickeado');
+                abrirModalUsuario();
+            });
+        }
+
+        const addFirstUserBtn = document.getElementById('addFirstUserBtn');
+        if (addFirstUserBtn) {
+            addFirstUserBtn.addEventListener('click', () => {
+                console.log('Botón agregar primer usuario clickeado');
+                abrirModalUsuario();
+            });
+        }
+
+        // Eventos para búsqueda y filtros de usuarios
+        const searchUsers = document.getElementById('searchUsers');
+        if (searchUsers) {
+            searchUsers.addEventListener('input', function() {
+                console.log('Buscando usuarios:', this.value);
+                mostrarUsuarios();
+            });
+        }
+
+        const searchUsersBtn = document.getElementById('searchUsersBtn');
+        if (searchUsersBtn) {
+            searchUsersBtn.addEventListener('click', function() {
+                console.log('Botón buscar usuarios clickeado');
+                mostrarUsuarios();
+            });
+        }
+
+        const roleFilter = document.getElementById('roleFilter');
+        if (roleFilter) {
+            roleFilter.addEventListener('change', function() {
+                console.log('Filtro de rol cambiado:', this.value);
+                mostrarUsuarios();
+            });
+        }
+
+        // FORMULARIO DE PRODUCTO
+        const productForm = document.getElementById('productForm');
+        if (productForm) {
+            productForm.addEventListener('submit', async function(e) {
+                e.preventDefault(); // IMPORTANTE: Prevenir envío tradicional
+
+                const nombre = document.getElementById('productName').value.trim();
+                const tipo = document.getElementById('productCategory').value;
+                const precio = parseFloat(document.getElementById('productPrice').value);
+                const descripcion = document.getElementById('productDescription').value.trim();
+                const imagenUrl = document.getElementById('productImage').value.trim();
+
+                // Validaciones
+                if (!nombre) {
+                    mostrarAlerta('El nombre del producto es requerido', 'warning');
+                    return;
+                }
+
+                if (!tipo) {
+                    mostrarAlerta('Debe seleccionar una categoría', 'warning');
+                    return;
+                }
+
+                if (isNaN(precio) || precio <= 0) {
+                    mostrarAlerta('El precio debe ser un número mayor a 0', 'warning');
+                    return;
+                }
+
+                // Crear FormData
+                const formData = new FormData();
+                formData.append('nombre', nombre);
+                formData.append('tipo', tipo);
+                formData.append('precio', precio);
+                formData.append('descripcion', descripcion);
+                formData.append('imagenUrl', imagenUrl);
+
+                mostrarAlerta('Guardando producto...', 'info');
+
+                // Llamar a la función guardar
+                await guardarProducto(formData);
+            });
+        }
+
+        // FORMULARIO DE USUARIO
+        const saveUserBtn = document.getElementById('saveUserBtn');
+        if (saveUserBtn) {
+            saveUserBtn.addEventListener('click', async function() {
+                const nombres = document.getElementById('userName').value.trim();
+                const apellidos = document.getElementById('userLastName').value.trim();
+                const tipoDocumento = document.getElementById('userDocumentType').value;
+                const numeroDocumento = document.getElementById('userDocumentNumber').value.trim();
+                const telefono = document.getElementById('userPhone').value.trim();
+                const fechaNacimiento = document.getElementById('userBirthDate').value;
+                const email = document.getElementById('userEmail').value.trim();
+                const rol = document.getElementById('userRole').value;
+                const password = document.getElementById('userPassword').value;
+
+                // Validaciones
+                if (!nombres || !apellidos) {
+                    mostrarAlerta('Los nombres y apellidos son requeridos', 'warning');
+                    return;
+                }
+
+                if (!tipoDocumento) {
+                    mostrarAlerta('Debe seleccionar un tipo de documento', 'warning');
+                    return;
+                }
+
+                if (!numeroDocumento) {
+                    mostrarAlerta('El número de documento es requerido', 'warning');
+                    return;
+                }
+
+                if (!telefono) {
+                    mostrarAlerta('El teléfono es requerido', 'warning');
+                    return;
+                }
+
+                if (!fechaNacimiento) {
+                    mostrarAlerta('La fecha de nacimiento es requerida', 'warning');
+                    return;
+                }
+
+                if (!email) {
+                    mostrarAlerta('El email es requerido', 'warning');
+                    return;
+                }
+
+                if (!rol) {
+                    mostrarAlerta('Debe seleccionar un rol', 'warning');
+                    return;
+                }
+
+                if (!password || password.length < 6) {
+                    mostrarAlerta('La contraseña debe tener al menos 6 caracteres', 'warning');
+                    return;
+                }
+
+                // Crear FormData
+                const formData = new FormData();
+                formData.append('nombres', nombres);
+                formData.append('apellidos', apellidos);
+                formData.append('tipoDocumento', tipoDocumento);
+                formData.append('numeroDocumento', numeroDocumento);
+                formData.append('telefono', telefono);
+                formData.append('fechaNacimiento', fechaNacimiento);
+                formData.append('email', email);
+                formData.append('rol', rol);
+                formData.append('password', password);
+
+                mostrarAlerta('Guardando usuario...', 'info');
+
+
+                await guardarUsuario(formData);
+            });
+        }
+
+
+        document.addEventListener('click', function (e) {
+            // Editar producto
+            if (e.target.closest('.edit-product')) {
+                const btn = e.target.closest('.edit-product');
+                const id = btn.getAttribute('data-id');
+                console.log('Editando producto ID:', id);
+
+                const producto = products.find(p => p.id == id);
+                if (producto) {
+                    abrirModalProducto(producto);
+                } else {
+                    console.error('Producto no encontrado para editar:', id);
+                    mostrarAlerta('Error: Producto no encontrado', 'danger');
+                }
+            }
+
+            // Eliminar producto
+            if (e.target.closest('.delete-product')) {
+                const btn = e.target.closest('.delete-product');
+                const id = btn.getAttribute('data-id');
+                console.log('Eliminando producto ID:', id);
+
+                const producto = products.find(p => p.id == id);
+                if (producto) {
+                    mostrarConfirmacion(
+                        `¿Está seguro de que desea eliminar el producto "${producto.nombre}"? Esta acción no se puede deshacer.`,
+                        () => eliminarProducto(id)
+                    );
+                } else {
+                    console.error('Producto no encontrado para eliminar:', id);
+                    mostrarAlerta('Error: Producto no encontrado', 'danger');
+                }
+            }
+
+            // Eliminar usuario
+            if (e.target.closest('.delete-user')) {
+                const btn = e.target.closest('.delete-user');
+                const id = btn.getAttribute('data-id');
+                console.log('Eliminando usuario ID:', id);
+
+                const user = users.find(u => u.id == id);
+                if (user) {
+                    mostrarConfirmacion(
+                        `¿Está seguro de que desea eliminar al usuario "${user.nombres} ${user.apellidos}"? Esta acción no se puede deshacer.`,
+                        () => eliminarUsuario(id)
+                    );
+                } else {
+                    console.error('Usuario no encontrado para eliminar:', id);
+                    mostrarAlerta('Error: Usuario no encontrado', 'danger');
                 }
             }
         });
-    });
 
-    // Eventos para gestión de productos
-    document.getElementById('addProductBtn').addEventListener('click', () => abrirModalProducto());
-    document.getElementById('addFirstProductBtn').addEventListener('click', () => abrirModalProducto());
-    document.getElementById('saveProductBtn').addEventListener('click', guardarProducto);
 
-    // Eventos para búsqueda y filtros de productos
-    document.getElementById('searchProducts').addEventListener('input', mostrarProductos);
-    document.getElementById('searchProductsBtn').addEventListener('click', mostrarProductos);
-    document.getElementById('categoryFilter').addEventListener('change', mostrarProductos);
-    document.getElementById('statusFilter').addEventListener('change', mostrarProductos);
+        const productImage = document.getElementById('productImage');
+        if (productImage) {
+            productImage.addEventListener('input', function (e) {
+                const url = e.target.value.trim();
+                const preview = document.getElementById('imagePreview');
 
-    // Eventos para gestión de usuarios
-    document.getElementById('addUserBtn').addEventListener('click', () => abrirModalUsuario());
-    document.getElementById('addFirstUserBtn').addEventListener('click', () => abrirModalUsuario());
-    document.getElementById('saveUserBtn').addEventListener('click', guardarUsuario);
-
-    // Eventos para búsqueda y filtros de usuarios
-    document.getElementById('searchUsers').addEventListener('input', mostrarUsuarios);
-    document.getElementById('searchUsersBtn').addEventListener('click', mostrarUsuarios);
-    document.getElementById('roleFilter').addEventListener('change', mostrarUsuarios);
-    document.getElementById('userStatusFilter').addEventListener('change', mostrarUsuarios);
-
-    // Evento para actualizar menú público
-    document.getElementById('refreshPublicMenu').addEventListener('click', mostrarMenuPublico);
-
-    // Eventos delegados para acciones en tablas
-    document.addEventListener('click', function (e) {
-        // Editar producto
-        if (e.target.closest('.edit-product')) {
-            const id = parseInt(e.target.closest('.edit-product').getAttribute('data-id'));
-            const producto = products.find(p => p.id === id);
-            if (producto) abrirModalProducto(producto);
+                if (url && (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('/'))) {
+                    preview.src = url;
+                    preview.classList.remove('d-none');
+                } else {
+                    preview.classList.add('d-none');
+                }
+            });
         }
 
-        // Eliminar producto
-        if (e.target.closest('.delete-product')) {
-            const id = parseInt(e.target.closest('.delete-product').getAttribute('data-id'));
-            const producto = products.find(p => p.id === id);
-            if (producto) {
-                mostrarConfirmacion(
-                    `¿Está seguro de que desea eliminar el producto "${producto.nombre}"?`,
-                    () => eliminarProducto(id)
-                );
-            }
+        // Botón de actualizar ventas
+        const refreshSales = document.getElementById('refreshSales');
+        if (refreshSales) {
+            refreshSales.addEventListener('click', cargarEstadisticas);
         }
+    }
 
-        // Editar usuario
-        if (e.target.closest('.edit-user')) {
-            const id = parseInt(e.target.closest('.edit-user').getAttribute('data-id'));
-            const usuario = users.find(u => u.id === id);
-            if (usuario) abrirModalUsuario(usuario);
-        }
 
-        // Eliminar usuario
-        if (e.target.closest('.delete-user')) {
-            const id = parseInt(e.target.closest('.delete-user').getAttribute('data-id'));
-            const usuario = users.find(u => u.id === id);
-            if (usuario) {
-                mostrarConfirmacion(
-                    `¿Está seguro de que desea eliminar al usuario "${usuario.nombre}"?`,
-                    () => eliminarUsuario(id)
-                );
-            }
-        }
-    });
+    inicializarAdminMenu();
 
-    // Vista previa de imagen en formulario de producto
-    document.getElementById('productImage').addEventListener('change', function (e) {
-        const file = e.target.files[0];
-        const preview = document.getElementById('imagePreview');
-
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                preview.src = e.target.result;
-                preview.classList.remove('d-none');
-            };
-            reader.readAsDataURL(file);
-        } else {
-            preview.classList.add('d-none');
-        }
-    });
-
-    console.log('Dashboard Luren Chicken - Inicializado correctamente con todas las funcionalidades');
+    console.log('Admin Menu inicializado correctamente');
 });
 
-// Simulación de endpoints API para PostgreSQL
-window.fetch = window.fetch || function (url, options) {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            // Simular respuesta de la base de datos PostgreSQL
-            if (url === '/api/estadisticas/dashboard') {
-                resolve({
-                    ok: true,
-                    json: () => Promise.resolve({
-                        totalProductos: products.filter(p => p.estado === 'activo').length,
-                        totalUsuarios: users.length,
-                        pedidosHoy: 12,
-                        ingresosHoy: 450.50,
-                        ventasMesTotal: 12500.75,
-                        promedioDiario: 416.69,
-                        ventaMaxima: 850.00,
-                        totalPedidos: 156,
-                        graficoVentas: {
-                            labels: Array.from({ length: 30 }, (_, i) => (i + 1).toString()),
-                            data: Array.from({ length: 30 }, () => Math.floor(Math.random() * 1000) + 200)
-                        },
-                        ventasRecientes: [
-                            {
-                                id: 1001,
-                                cliente: "Juan Pérez",
-                                cantidadProductos: 3,
-                                total: 125.50,
-                                fecha: new Date().toISOString(),
-                                estado: "completado",
-                                tipo: "Delivery",
-                                cajero: "María García"
-                            },
-                            {
-                                id: 1002,
-                                cliente: "Ana López",
-                                cantidadProductos: 2,
-                                total: 85.00,
-                                fecha: new Date(Date.now() - 3600000).toISOString(),
-                                estado: "proceso",
-                                tipo: "Local",
-                                cajero: "Carlos Rodríguez"
-                            },
-                            {
-                                id: 1003,
-                                cliente: "Roberto Silva",
-                                cantidadProductos: 5,
-                                total: 210.75,
-                                fecha: new Date(Date.now() - 7200000).toISOString(),
-                                estado: "completado",
-                                tipo: "Delivery",
-                                cajero: "María García"
-                            }
-                        ]
-                    })
-                });
-            }
 
-            // Para otras URLs, simular error
-            resolve({
-                ok: false,
-                status: 500
-            });
-        }, 1000);
-    });
+window.AdminMenu = {
+    recargar: function() {
+        window.location.reload();
+    },
+
+    limpiarFiltros: function() {
+        const searchInput = document.getElementById('searchProducts');
+        const categoryFilter = document.getElementById('categoryFilter');
+
+        if (searchInput) searchInput.value = '';
+        if (categoryFilter) categoryFilter.value = '';
+
+
+        if (categoryFilter) {
+            categoryFilter.dispatchEvent(new Event('change'));
+        }
+    }
 };

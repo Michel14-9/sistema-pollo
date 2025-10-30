@@ -35,10 +35,10 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // ✅ CSRF CONFIGURADO CORRECTAMENTE PARA CAJERO
+                // CSRF CONFIGURADO CORRECTAMENTE PARA CAJERO
                 .csrf(csrf -> csrf
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                        // ✅ PERMITIR endpoints POST de todos los módulos
+                        // PERMITIR endpoints POST de todos los módulos
                         .ignoringRequestMatchers(
                                 "/cajero/marcar-pagado/**",
                                 "/cajero/marcar-cancelado/**",
@@ -72,7 +72,7 @@ public class SecurityConfig {
                         // Rutas admin
                         .requestMatchers("/admin-menu", "/admin/**").hasRole("ADMIN")
 
-                        // Rutas cajero - ✅ QUITAR de permitAll() y dejar solo aquí
+                        // Rutas cajero - QUITAR de permitAll() y dejar solo aquí
                         .requestMatchers("/cajero", "/cajero/**").hasRole("CAJERO")
 
                         // Rutas cocinero
@@ -102,7 +102,7 @@ public class SecurityConfig {
                 // LOGIN FORM - REDIRIGE A /postLogin (COMO ANTES)
                 .formLogin(form -> form
                         .loginPage("/login")
-                        .defaultSuccessUrl("/postLogin") // ✅ REDIRIGE AL CONTROLADOR
+                        .defaultSuccessUrl("/postLogin") //  REDIRIGE AL CONTROLADOR
                         .failureUrl("/login?error=true")
                         .permitAll()
                 )

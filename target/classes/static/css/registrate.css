@@ -1,4 +1,6 @@
 
+       
+
 /* ======== PALETA DE COLORES ======== */
 :root {
   --verde: #81c784;        /* Verde claro (frescura) */
@@ -172,11 +174,6 @@ img, .btn, .nav-link {
   }
 }
 
-
-
-
-/* === COLORES BASE === */
-/* ======== PALETA DE COLORES ======== */
 :root {
   --verde: #81c784;        /* Verde claro (frescura) */
   --naranja: #ffb74d;      /* Naranja (energía y apetito) */
@@ -185,197 +182,120 @@ img, .btn, .nav-link {
   --gris: #6c757d;         /* Gris suave (texto) */
   --blanco: #fafafa;       /* Fondo cálido */
 }
-/* === GENERAL === */
-body {
-  background-color: var(--blanco);
-  color: var(--gris);
-  font-family: 'Poppins', sans-serif;
-  margin: 0;
-  padding: 0;
-}
 
-/* === HERO SECTION === */
-.hero-section {
-  background: linear-gradient(135deg, var(--amarillo), var(--blanco));
-  padding: 100px 0;
-  text-align: left;
-}
-
-.hero-title {
-  color: var(--naranja);
-  font-size: 3rem;
-  font-weight: 700;
-}
-
-.hero-subtitle {
-  color: var(--gris);
-  font-size: 1.2rem;
-  margin-bottom: 30px;
-}
-
-.hero-buttons .btn {
-  border-radius: 30px;
-  padding: 12px 25px;
-  font-weight: 600;
-  transition: all 0.3s ease;
-}
-
-.btn-primary {
-  background-color: var(--verde);
-  border: none;
-  color: white;
-}
-
-.btn-primary:hover {
-  background-color: #57a05a;
-}
-
-.btn-outline-primary {
-  border: 2px solid var(--naranja);
-  color: var(--naranja);
-}
-
-.btn-outline-primary:hover {
-  background-color: var(--naranja);
-  color: white;
-}
-
-.hero-image {
+/* === CONTENEDOR PRINCIPAL === */
+.registro-container {
+  background: var(--blanco);
+  max-width: 700px;
+  margin: 60px auto;
+  padding: 40px;
   border-radius: 20px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-  width: 100%;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border-top: 6px solid var(--naranja);
 }
 
-/* === FEATURES SECTION === */
-.features-section {
-  background-color: var(--amarillo);
+/* === TITULOS === */
+.registro-container h2 {
+  color: var(--verde);
+  font-weight: bold;
 }
 
-.section-title {
-  color: var(--rojo);
-  font-weight: 700;
-  text-transform: uppercase;
-}
-
-.feature-icon i {
-  font-size: 2.5rem;
+.registro-container h5 {
   color: var(--naranja);
+  font-weight: 600;
+  margin-top: 25px;
   margin-bottom: 15px;
 }
 
-.feature-icon:hover i {
-  transform: scale(1.1);
-  transition: 0.3s;
-}
-
-/* === OFFERS SECTION === */
-.offers-section {
-  background-color: var(--blanco);
-}
-
-.offer-card {
-  background: white;
-  border-radius: 20px;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-  transition: transform 0.3s ease;
-}
-
-.offer-card:hover {
-  transform: translateY(-8px);
-}
-
-.offer-badge {
-  background-color: var(--naranja);
-  color: white;
-  font-weight: bold;
-  padding: 5px 12px;
-  border-radius: 20px;
-  position: absolute;
-  margin: 10px;
-}
-
-.offer-image {
-  width: 100%;
-  height: 220px;
-  object-fit: cover;
-}
-
-.offer-content {
-  padding: 20px;
-}
-
-.old-price {
-  text-decoration: line-through;
+/* === LABELS === */
+.form-label {
   color: var(--gris);
-  font-size: 0.9rem;
+  font-weight: 500;
 }
 
-.current-price {
-  color: var(--verde);
-  font-weight: 700;
-  font-size: 1.2rem;
-}
-
-.discount-price {
-  color: var(--rojo);
-  font-weight: 600;
-}
-
-.btn-success {
-  background-color: var(--verde);
-  border: none;
-  border-radius: 30px;
-  padding: 12px;
-  font-weight: 600;
+/* === INPUTS Y SELECTS === */
+.form-control,
+.form-select {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 10px 12px;
   transition: all 0.3s ease;
 }
 
-.btn-success:hover {
-  background-color: #4cae4f;
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--verde);
+  box-shadow: 0 0 8px rgba(129, 199, 132, 0.4);
 }
 
-/* === LOCATION SECTION === */
-.location-section {
-  background: var(--amarillo);
-}
-
-.location-card {
-  background: white;
-  border-radius: 20px;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-}
-
-.location-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.location-info {
-  padding: 20px;
-}
-
-.location-info h3 {
-  color: var(--naranja);
-  font-weight: 700;
-}
-
-.service-badge {
-  display: inline-block;
+/* === MENSAJES === */
+.alert-success {
   background-color: var(--verde);
   color: white;
-  border-radius: 20px;
-  padding: 5px 10px;
-  margin: 5px 3px;
-  font-size: 0.9rem;
+  border: none;
+  border-radius: 10px;
 }
 
-.service-badge:nth-child(2) {
-  background-color: var(--naranja);
-}
-
-.service-badge:nth-child(3) {
+.alert-danger {
   background-color: var(--rojo);
+  color: white;
+  border: none;
+  border-radius: 10px;
 }
+
+/* === CHECKBOXES === */
+.form-check-label {
+  color: var(--gris);
+}
+
+.form-check-input:checked {
+  background-color: var(--naranja);
+  border-color: var(--naranja);
+}
+
+/* === BOTÓN PRINCIPAL === */
+.btn-luren {
+  background: var(--naranja);
+  color: white;
+  font-weight: 600;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.btn-luren:hover {
+  background: var(--verde);
+  color: #fff;
+  transform: scale(1.03);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+/* === FUERZA DE CONTRASEÑA === */
+.password-strength {
+  margin-top: 5px;
+  height: 8px;
+  border-radius: 5px;
+  background: #eee;
+}
+
+.password-strength.weak {
+  background: var(--rojo);
+}
+
+.password-strength.medium {
+  background: var(--naranja);
+}
+
+.password-strength.strong {
+  background: var(--verde);
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+  .registro-container {
+    padding: 25px;
+  }
+}
+

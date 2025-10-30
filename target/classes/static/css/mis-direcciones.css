@@ -175,3 +175,240 @@ img, .btn, .nav-link {
 }
 
 
+
+
+
+
+
+/* ESTILOS "MIS DIRECCIONES" */
+
+/* ===== CONTENEDOR PRINCIPAL ===== */
+main.container {
+  color: var(--gris);
+  font-family: "Poppins", sans-serif;
+}
+
+/* ===== TÍTULOS ===== */
+h1.h2.text-luren {
+  color: var(--verde);
+  font-weight: 600;
+}
+
+.text-muted {
+  color: #777 !important;
+}
+
+/* ===== SIDEBAR ===== */
+.sidebar-menu {
+  border: none;
+  border-radius: 12px;
+  background-color: var(--blanco);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.sidebar-menu .card-header {
+  background-color: var(--naranja);
+  color: #fff;
+  border-radius: 12px 12px 0 0;
+}
+
+.sidebar-menu .list-group-item {
+  border: none;
+  font-weight: 500;
+  color: var(--gris);
+  transition: all 0.3s ease;
+}
+
+.sidebar-menu .list-group-item:hover {
+  background-color: var(--amarillo);
+  color: var(--verde);
+}
+
+.sidebar-menu .list-group-item.active {
+  background-color: var(--verde);
+  color: #fff;
+}
+
+/* ===== TARJETAS Y SECCIONES ===== */
+.card {
+  border: none;
+  border-radius: 12px;
+  background-color: var(--blanco);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.card-header.bg-light {
+  background-color: #f8f9fa !important;
+  border-bottom: 1px solid #eee;
+}
+
+/* ===== BOTONES ===== */
+.btn-luren {
+  background-color: var(--verde);
+  color: #fff;
+  font-weight: 600;
+  border-radius: 8px;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.btn-luren:hover {
+  background-color: var(--verde-oscuro);
+}
+
+.btn-outline-luren {
+  border: 2px solid var(--naranja);
+  color: var(--naranja);
+  background: transparent;
+  font-weight: 600;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.btn-outline-luren:hover {
+  background-color: var(--naranja);
+  color: #fff;
+}
+
+/* ===== ALERTAS ===== */
+.alert-warning {
+  background-color: var(--amarillo);
+  color: var(--gris);
+  border: none;
+  border-radius: 10px;
+  font-weight: 500;
+}
+
+/* ===== MODAL ===== */
+.modal-content {
+  border-radius: 12px;
+  background-color: var(--blanco);
+  border: 2px solid var(--amarillo);
+}
+
+.modal-header {
+  background-color: var(--naranja);
+  color: #fff;
+  border-radius: 12px 12px 0 0;
+}
+
+.modal-footer {
+  background-color: #fdfdfd;
+  border-top: 1px solid #eee;
+}
+
+/* ===== FORMULARIO DE DIRECCIONES ===== */
+form label.form-label {
+  font-weight: 600;
+  color: var(--verde);
+}
+
+.form-control,
+.form-select {
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  transition: all 0.3s ease;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--verde);
+  box-shadow: 0 0 0 0.15rem rgba(129, 199, 132, 0.25);
+}
+
+.form-check-input:checked {
+  background-color: var(--verde);
+  border-color: var(--verde);
+}
+
+/* ===== LISTA DE DIRECCIONES ===== */
+#direccionesLista .card {
+  background-color: var(--blanco);
+  border-left: 6px solid var(--verde);
+  padding: 10px;
+  transition: all 0.3s ease;
+}
+
+#direccionesLista .card:hover {
+  border-left-color: var(--naranja);
+  transform: translateY(-3px);
+}
+
+/* ===== ESTADO VACÍO ===== */
+#direccionesVacias {
+  border: 2px dashed var(--naranja);
+  background-color: var(--amarillo);
+  color: var(--gris);
+}
+
+#direccionesVacias .btn-luren {
+  background-color: var(--verde);
+}
+
+/* ===== INFORMACIÓN IMPORTANTE ===== */
+.card.mt-4 h6 {
+  color: var(--verde);
+  font-weight: 600;
+}
+
+.card.mt-4 .text-muted {
+  color: var(--gris);
+}
+
+/* ===== EFECTOS DE INTERACCIÓN ===== */
+a {
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+a:hover {
+  color: var(--verde);
+}
+
+#btnAgregarDireccion,
+#btnAgregarPrimeraDireccion {
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .sidebar-menu {
+    margin-bottom: 20px;
+  }
+
+  .card .btn {
+    width: 100%;
+  }
+
+  .modal-dialog {
+    margin: 10px;
+  }
+}
+
+
+
+
+
+
+
+
+
+

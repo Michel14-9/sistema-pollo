@@ -50,7 +50,7 @@
                 </a>
             </li>
             <li class="nav-item mt-4">
-                <a class="nav-link" href="#" data-section="public-menu">
+                <a class="nav-link" th:href="@{/menu}">
                     <i class="fas fa-eye"></i>
                     <span>Ver Menú Público</span>
                 </a>
@@ -85,8 +85,146 @@
 
         <!-- Dashboard Section -->
         <div id="dashboard-section" class="section-content">
-            <!-- Contenido del dashboard sin cambios -->
-            <!-- ... (mantener todo el contenido del dashboard igual) ... -->
+            <!-- Estadísticas Principales -->
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="card stat-card text-primary">
+                        <i class="fas fa-concierge-bell"></i>
+                        <div class="number" id="totalProductos">0</div>
+                        <div class="label">Productos Activos</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stat-card text-success">
+                        <i class="fas fa-users"></i>
+                        <div class="number" id="totalUsuarios">0</div>
+                        <div class="label">Usuarios Registrados</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stat-card text-warning">
+                        <i class="fas fa-shopping-cart"></i>
+                        <div class="number" id="pedidosHoy">0</div>
+                        <div class="label">Pedidos Hoy</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stat-card text-info">
+                        <i class="fas fa-dollar-sign"></i>
+                        <div class="number" id="ingresosHoy">S/ 0.00</div>
+                        <div class="label">Ingresos Hoy</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gráficos Estadísticos -->
+            <div class="row mt-4">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">Estadísticas de Ventas</h5>
+                            <div>
+                                <select class="form-select form-select-sm" id="chartPeriod">
+                                    <option value="7">Últimos 7 días</option>
+                                    <option value="30" selected>Últimos 30 días</option>
+                                    <option value="90">Últimos 3 meses</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-container">
+                                <canvas id="salesChart"></canvas>
+                            </div>
+                            <div id="emptyChartMessage" class="empty-state d-none">
+                                <i class="fas fa-chart-line"></i>
+                                <h4>No hay datos de ventas</h4>
+                                <p>El gráfico se actualizará cuando se registren las primeras ventas.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Resumen de Ventas</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <small class="text-muted">Ventas Totales del Mes</small>
+                                <h4 id="ventasMesTotal">S/ 0.00</h4>
+                            </div>
+                            <div class="mb-3">
+                                <small class="text-muted">Promedio Diario</small>
+                                <h4 id="promedioDiario">S/ 0.00</h4>
+                            </div>
+                            <div class="mb-3">
+                                <small class="text-muted">Venta Más Alta</small>
+                                <h4 id="ventaMaxima">S/ 0.00</h4>
+                            </div>
+                            <div>
+                                <small class="text-muted">Total de Pedidos</small>
+                                <h4 id="totalPedidos">0</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ventas Recientes -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">Ventas Recientes</h5>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-sm btn-outline-primary" id="refreshSales">
+                                    <i class="fas fa-sync-alt"></i> Actualizar
+                                </button>
+                                <!-- Botón de exportación -->
+                                <div class="dropdown export-dropdown">
+                                    <button class="btn btn-sm btn-success dropdown-toggle" type="button" id="exportDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="fas fa-download"></i> Exportar
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="exportDropdown">
+                                        <li><a class="dropdown-item" href="#" id="exportPDF">
+                                            <i class="fas fa-file-pdf text-danger"></i> Descargar PDF
+                                        </a></li>
+                                        <li><a class="dropdown-item" href="#" id="exportExcel">
+                                            <i class="fas fa-file-excel text-success"></i> Descargar Excel
+                                        </a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Pedido ID</th>
+                                            <th>Cliente</th>
+                                            <th>Productos</th>
+                                            <th>Total</th>
+                                            <th>Fecha</th>
+                                            <th>Estado</th>
+                                            <th>Tipo</th>
+                                            <th>Cajero</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="salesTableBody">
+                                        <!-- Se llenará dinámicamente desde la base de datos -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div id="noSalesMessage" class="text-center py-5 d-none">
+                                <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
+                                <h4 class="text-muted">No hay ventas registradas</h4>
+                                <p class="text-muted">Las ventas aparecerán aquí cuando los cajeros comiencen a registrar pedidos.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Menu Management Section -->
@@ -112,11 +250,9 @@
                         <option value="">Todas las categorías</option>
                         <option value="pollos">Pollos</option>
                         <option value="parrillas">Parrillas</option>
-                        <option value="chicharron">Chicharrón</option>
-                        <option value="broaster">Broaster</option>
-                        <option value="hamburguesas">Hamburguesas</option>
-                        <option value="criollos">Criollos</option>
-                        <option value="combos">Combos</option>
+                        <option value="ensaladas">Ensaladas</option>
+                        <option value="bebidas">Bebidas</option>
+                        <option value="postres">Postres</option>
                     </select>
                     <select class="form-select" id="statusFilter">
                         <option value="">Todos los estados</option>
@@ -131,18 +267,18 @@
                     <div class="table-responsive">
                         <table class="table table-hover">
                             <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Imagen</th>
-                                <th>Nombre</th>
-                                <th>Categoría</th>
-                                <th>Precio</th>
-                                <th>Estado</th>
-                                <th>Acciones</th>
-                            </tr>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Imagen</th>
+                                    <th>Nombre</th>
+                                    <th>Categoría</th>
+                                    <th>Precio</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
                             </thead>
                             <tbody id="productsTableBody">
-                            <!-- Se llenará dinámicamente -->
+                                <!-- Se llenará dinámicamente -->
                             </tbody>
                         </table>
                     </div>
@@ -160,11 +296,71 @@
 
         <!-- Users Management Section -->
         <div id="users-section" class="section-content d-none">
-            <!-- Contenido de gestión de usuarios sin cambios -->
-            <!-- ... (mantener todo el contenido de usuarios igual) ... -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3>Gestión de Usuarios</h3>
+                <button class="btn btn-primary" id="addUserBtn">
+                    <i class="fas fa-user-plus"></i> Agregar Usuario
+                </button>
+            </div>
+
+            <div class="search-filter-container">
+                <div class="search-box">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Buscar usuarios..." id="searchUsers">
+                        <button class="btn btn-outline-secondary" type="button" id="searchUsersBtn">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="filter-buttons">
+                    <select class="form-select" id="roleFilter">
+                        <option value="">Todos los roles</option>
+                        <option value="admin">Administrador</option>
+                        <option value="cajero">Cajero</option>
+                        <option value="cocinero">Cocinero</option>
+                    </select>
+                    <select class="form-select" id="userStatusFilter">
+                        <option value="">Todos los estados</option>
+                        <option value="activo">Activo</option>
+                        <option value="inactivo">Inactivo</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Avatar</th>
+                                    <th>Nombre</th>
+                                    <th>Email</th>
+                                    <th>Rol</th>
+                                    <th>Estado</th>
+                                    <th>Fecha Registro</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody">
+                                <!-- Se llenará dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="noUsersMessage" class="text-center py-5 d-none">
+                        <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                        <h4 class="text-muted">No hay usuarios registrados</h4>
+                        <p class="text-muted">Agrega usuarios para comenzar a gestionar tu equipo.</p>
+                        <button class="btn btn-primary mt-3" id="addFirstUserBtn">
+                            <i class="fas fa-user-plus"></i> Agregar Primer Usuario
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- Public Menu Section CORREGIDA -->
+        <!-- Public Menu Section -->
         <div id="public-menu-section" class="section-content d-none">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h3>Vista Previa del Menú Público</h3>
@@ -173,69 +369,8 @@
                 </button>
             </div>
 
-            <!-- Barra de Categorías -->
-            <section class="categories-nav text-center mb-4">
-                <div class="btn-group" role="group">
-                    <a href="#public-pollos" class="btn btn-outline-dark category-tab">Pollos</a>
-                    <a href="#public-parrillas" class="btn btn-outline-dark category-tab">Parrillas</a>
-                    <a href="#public-chicharron" class="btn btn-outline-dark category-tab">Chicharrón</a>
-                    <a href="#public-broaster" class="btn btn-outline-dark category-tab">Broaster</a>
-                    <a href="#public-hamburguesas" class="btn btn-outline-dark category-tab">Hamburguesas</a>
-                    <a href="#public-criollos" class="btn btn-outline-dark category-tab">Criollos</a>
-                    <a href="#public-combos" class="btn btn-outline-dark category-tab">Combos</a>
-                </div>
-            </section>
-
-            <!-- Contenido del Menú por Categorías -->
-            <div class="public-menu-container">
-                <!-- Pollos -->
-                <h2 class="category-title" id="public-pollos">Pollos a la Brasa</h2>
-                <div class="row g-3 mb-5" id="public-pollos-container">
-                    <!-- Los productos de pollos se cargarán aquí dinámicamente -->
-                </div>
-
-                <!-- Parrillas -->
-                <h2 class="category-title" id="public-parrillas">Parrillas</h2>
-                <div class="row g-3 mb-5" id="public-parrillas-container">
-                    <!-- Los productos de parrillas se cargarán aquí dinámicamente -->
-                </div>
-
-                <!-- Chicharrón -->
-                <h2 class="category-title" id="public-chicharron">Chicharrón</h2>
-                <div class="row g-3 mb-5" id="public-chicharron-container">
-                    <!-- Los productos de chicharrón se cargarán aquí dinámicamente -->
-                </div>
-
-                <!-- Broaster -->
-                <h2 class="category-title" id="public-broaster">Broaster</h2>
-                <div class="row g-3 mb-5" id="public-broaster-container">
-                    <!-- Los productos de broaster se cargarán aquí dinámicamente -->
-                </div>
-
-                <!-- Hamburguesas -->
-                <h2 class="category-title" id="public-hamburguesas">Hamburguesas</h2>
-                <div class="row g-3 mb-5" id="public-hamburguesas-container">
-                    <!-- Los productos de hamburguesas se cargarán aquí dinámicamente -->
-                </div>
-
-                <!-- Criollos -->
-                <h2 class="category-title" id="public-criollos">Criollos</h2>
-                <div class="row g-3 mb-5" id="public-criollos-container">
-                    <!-- Los productos de criollos se cargarán aquí dinámicamente -->
-                </div>
-
-                <!-- Combos -->
-                <h2 class="category-title" id="public-combos">Combos</h2>
-                <div class="row g-3 mb-5" id="public-combos-container">
-                    <!-- Los productos de combos se cargarán aquí dinámicamente -->
-                </div>
-            </div>
-
-            <!-- Mensaje cuando no hay productos -->
-            <div id="noPublicProductsMessage" class="text-center py-5 d-none">
-                <i class="fas fa-concierge-bell fa-3x text-muted mb-3"></i>
-                <h4 class="text-muted">No hay productos disponibles</h4>
-                <p class="text-muted">Agrega productos activos para que aparezcan en el menú público.</p>
+            <div class="row" id="publicMenuContainer">
+                <!-- Se llenará dinámicamente con los productos activos -->
             </div>
         </div>
     </div>
@@ -264,11 +399,9 @@
                                     <option value="">Seleccione una categoría</option>
                                     <option value="pollos">Pollos</option>
                                     <option value="parrillas">Parrillas</option>
-                                    <option value="chicharron">Chicharrón</option>
-                                    <option value="broaster">Broaster</option>
-                                    <option value="hamburguesas">Hamburguesas</option>
-                                    <option value="criollos">Criollos</option>
-                                    <option value="combos">Combos</option>
+                                    <option value="ensaladas">Ensaladas</option>
+                                    <option value="bebidas">Bebidas</option>
+                                    <option value="postres">Postres</option>
                                 </select>
                             </div>
                             <div class="mb-3">
@@ -310,14 +443,71 @@
 
 <!-- Modal para Agregar/Editar Usuario -->
 <div class="modal fade" id="userModal" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
-    <!-- Contenido del modal de usuario sin cambios -->
-    <!-- ... (mantener el modal de usuario igual) ... -->
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="userModalLabel">Agregar Usuario</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="userForm">
+                    <input type="hidden" id="userId">
+                    <div class="mb-3">
+                        <label for="userName" class="form-label">Nombre Completo</label>
+                        <input type="text" class="form-control" id="userName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="userEmail" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="userEmail" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="userRole" class="form-label">Rol</label>
+                        <select class="form-select" id="userRole" required>
+                            <option value="">Seleccione un rol</option>
+                            <option value="admin">Administrador</option>
+                            <option value="cajero">Cajero</option>
+                            <option value="cocinero">Cocinero</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="userStatus" class="form-label">Estado</label>
+                        <select class="form-select" id="userStatus" required>
+                            <option value="activo">Activo</option>
+                            <option value="inactivo">Inactivo</option>
+                        </select>
+                    </div>
+                    <div class="mb-3" id="passwordField">
+                        <label for="userPassword" class="form-label">Contraseña</label>
+                        <input type="password" class="form-control" id="userPassword">
+                        <div class="form-text">Deje en blanco para mantener la contraseña actual</div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="saveUserBtn">Guardar Usuario</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Modal de Confirmación -->
 <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
-    <!-- Contenido del modal de confirmación sin cambios -->
-    <!-- ... (mantener el modal de confirmación igual) ... -->
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmModalLabel">Confirmar Acción</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="confirmModalBody">
+                ¿Está seguro de que desea realizar esta acción?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="confirmActionBtn">Confirmar</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Scripts -->

@@ -1,0 +1,363 @@
+/* --- Estilos para Header Vertical Izquierdo --- */
+.cocinero-header {
+    background-color: #dc3545; /* Rojo característico de cocina */
+    color: white;
+    padding: 20px 10px;
+    box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
+    width: 200px;
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    z-index: 1000;
+}
+
+.header-top {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.empresa-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.logo {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 10px;
+    border-radius: 10px;
+    background-color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.empresa-nombre {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: white;
+}
+
+.usuario-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.usuario-info span {
+    margin-bottom: 5px;
+    font-size: 0.9rem;
+    text-align: center;
+    color: white;
+}
+
+.cocinero-nav {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-top: 1px solid rgba(255, 255, 255, 0.3);
+    padding-top: 10px;
+}
+
+.estado-cocina {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.estado-cocina span {
+    margin-bottom: 5px;
+    font-weight: 500;
+    text-align: center;
+    color: white;
+}
+
+/* Ajuste del contenido principal para el header vertical */
+.container-fluid {
+    margin-left: 220px; /* Espacio para el header vertical */
+    padding-right: 20px;
+}
+
+/* --- Estilos para Métricas --- */
+.stat-card {
+    border: none;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    transition: transform 0.2s;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+}
+
+.stat-card i {
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
+.stat-card .number {
+    font-size: 2rem;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+.stat-card .label {
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+/* --- Estilos para Columnas Kanban --- */
+.card {
+    border: none;
+    border-radius: 10px;
+}
+
+.card-header {
+    border-radius: 10px 10px 0 0 !important;
+    font-weight: bold;
+}
+
+/* Columna Por Preparar */
+.card-header.bg-warning {
+    background: linear-gradient(135deg, #ffc107, #ffb300) !important;
+}
+
+/* Columna En Preparación */
+.card-header.bg-primary {
+    background: linear-gradient(135deg, #0d6efd, #0b5ed7) !important;
+}
+
+/* Columna Listos */
+.card-header.bg-success {
+    background: linear-gradient(135deg, #198754, #157347) !important;
+}
+
+/* Lista de pedidos */
+.list-group-item {
+    border: none;
+    border-bottom: 1px solid #e9ecef;
+    padding: 15px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.list-group-item:hover {
+    background-color: #f8f9fa;
+    transform: translateX(5px);
+}
+
+.list-group-item:last-child {
+    border-bottom: none;
+}
+
+/* Estados de pedido */
+.pedido-item {
+    position: relative;
+}
+
+.pedido-item.urgente {
+    border-left: 4px solid #dc3545;
+}
+
+.pedido-item .pedido-tiempo {
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+.pedido-item .badge-tiempo {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
+/* Detalle del pedido */
+#detalle-pedido-container {
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Items del pedido en detalle */
+.item-pedido {
+    display: flex;
+    justify-content: between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.item-pedido:last-child {
+    border-bottom: none;
+}
+
+.item-cantidad {
+    background-color: #007bff;
+    color: white;
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    margin-right: 10px;
+}
+
+/* Botones de acción */
+.btn-cocina {
+    border-radius: 20px;
+    font-weight: bold;
+    padding: 10px 20px;
+    transition: all 0.3s;
+}
+
+.btn-comenzar {
+    background: linear-gradient(135deg, #ffc107, #ffb300);
+    border: none;
+    color: #000;
+}
+
+.btn-comenzar:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(255, 193, 7, 0.3);
+}
+
+.btn-listo {
+    background: linear-gradient(135deg, #198754, #157347);
+    border: none;
+    color: white;
+}
+
+.btn-listo:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(25, 135, 84, 0.3);
+}
+
+/* Badges de tiempo */
+.badge-tiempo-ok {
+    background-color: #198754;
+}
+
+.badge-tiempo-warning {
+    background-color: #ffc107;
+    color: #000;
+}
+
+.badge-tiempo-danger {
+    background-color: #dc3545;
+}
+
+/* Estados visuales */
+.estado-pendiente {
+    border-left: 4px solid #ffc107;
+}
+
+.estado-preparando {
+    border-left: 4px solid #0d6efd;
+}
+
+.estado-listo {
+    border-left: 4px solid #198754;
+}
+
+/* Animaciones */
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(13, 110, 253, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(13, 110, 253, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(13, 110, 253, 0);
+    }
+}
+
+.pedido-nuevo {
+    animation: pulse 2s infinite;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .cocinero-header {
+        width: 100%;
+        height: auto;
+        position: relative;
+        padding: 10px;
+    }
+
+    .container-fluid {
+        margin-left: 0;
+        padding-right: 15px;
+    }
+
+    .stat-card {
+        margin-bottom: 15px;
+    }
+
+    .col-lg-4 {
+        margin-bottom: 20px;
+    }
+}
+
+@media (max-width: 576px) {
+    .stat-card .number {
+        font-size: 1.5rem;
+    }
+
+    .stat-card i {
+        font-size: 1.5rem;
+    }
+
+    .btn-cocina {
+        padding: 8px 16px;
+        font-size: 0.9rem;
+    }
+}
+
+/* Scroll personalizado */
+.list-group-flush::-webkit-scrollbar {
+    width: 6px;
+}
+
+.list-group-flush::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.list-group-flush::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 10px;
+}
+
+.list-group-flush::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}

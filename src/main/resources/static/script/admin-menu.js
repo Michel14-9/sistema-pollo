@@ -1,4 +1,4 @@
-// admin-menu.js - VERSIÓN COMPLETA CON GESTIÓN DE USUARIOS
+// admin-menu.js - VERSIÓN COMPLETA CON DASHBOARD DE PEDIDOS E INGRESOS
 document.addEventListener('DOMContentLoaded', function() {
     console.log('=== ADMIN MENÚ - INICIADO ===');
 
@@ -32,48 +32,242 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 5000);
     }
 
-    // CARGAR ESTADÍSTICAS DEL DASHBOARD
-    async function cargarEstadisticas() {
-        try {
-            console.log('Cargando estadísticas...');
-            const response = await fetch('/admin-menu/estadisticas');
+    // ================== FUNCIONES NUEVAS PARA DASHBOARD ==================
 
-            if (!response.ok) {
-                throw new Error('Error al cargar estadísticas: ' + response.status);
+    // CARGAR ESTADÍSTICAS COMPLETAS DEL DASHBOARD
+    async function cargarEstadisticasDashboard() {
+        try {
+            console.log('Cargando estadísticas completas del dashboard...');
+
+            // Cargar estadísticas básicas (productos y usuarios)
+            const [estadisticasResponse, ventasRecientesResponse, estadisticasVentasResponse] = await Promise.all([
+                fetch('/admin-menu/estadisticas-dashboard'),
+                fetch('/admin-menu/ventas-recientes'),
+                fetch('/admin-menu/estadisticas-ventas')
+            ]);
+
+            if (!estadisticasResponse.ok || !ventasRecientesResponse.ok) {
+                throw new Error('Error al cargar datos del dashboard');
             }
 
-            const data = await response.json();
-            console.log('Estadísticas cargadas:', data);
+            const estadisticasData = await estadisticasResponse.json();
+            const ventasRecientes = await ventasRecientesResponse.json();
+            const estadisticasVentas = await estadisticasVentasResponse.json();
 
-            if (data.success !== false) {
-                estadisticas = data;
-                actualizarDashboard();
+            console.log('Datos del dashboard cargados:', {
+                estadisticas: estadisticasData,
+                ventasRecientes: ventasRecientes.length,
+                estadisticasVentas: estadisticasVentas
+            });
+
+            if (estadisticasData.success !== false) {
+                // Actualizar tarjetas del dashboard
+                actualizarTarjetasDashboard(estadisticasData);
+
+                // Actualizar tabla de ventas recientes
+                actualizarVentasRecientes(ventasRecientes);
+
+                // Actualizar gráfico de ventas
+                if (estadisticasVentas.success) {
+                    actualizarGraficoVentas(estadisticasVentas.ventasPorDia);
+                }
+
+                // Actualizar resumen de ventas
+                actualizarResumenVentas(estadisticasData);
             } else {
-                throw new Error(data.error || 'Error desconocido');
+                throw new Error(estadisticasData.error || 'Error desconocido');
             }
 
         } catch (error) {
-            console.error('Error cargando estadísticas:', error);
-            mostrarAlerta('Error al cargar estadísticas del dashboard', 'warning');
+            console.error('Error cargando dashboard:', error);
+            mostrarAlerta('Error al cargar datos del dashboard', 'warning');
         }
     }
 
-    // ACTUALIZAR EL DASHBOARD CON LOS DATOS
-    function actualizarDashboard() {
-        // Actualizar tarjetas
+    // ACTUALIZAR TARJETAS DEL DASHBOARD
+    function actualizarTarjetasDashboard(data) {
+        // Actualizar tarjetas principales
         if (document.getElementById('totalProductos')) {
-            document.getElementById('totalProductos').textContent = estadisticas.totalProductos || 0;
+            document.getElementById('totalProductos').textContent = data.totalProductos || 0;
         }
         if (document.getElementById('totalUsuarios')) {
-            document.getElementById('totalUsuarios').textContent = estadisticas.totalUsuarios || 0;
+            document.getElementById('totalUsuarios').textContent = data.totalUsuarios || 0;
         }
         if (document.getElementById('pedidosHoy')) {
-            document.getElementById('pedidosHoy').textContent = estadisticas.pedidosHoy || 0;
+            document.getElementById('pedidosHoy').textContent = data.pedidosHoy || 0;
         }
         if (document.getElementById('ingresosHoy')) {
-            document.getElementById('ingresosHoy').textContent = `S/ ${(estadisticas.ingresosHoy || 0).toFixed(2)}`;
+            document.getElementById('ingresosHoy').textContent = `S/ ${(data.ingresosHoy || 0).toFixed(2)}`;
         }
     }
+
+    // ACTUALIZAR RESUMEN DE VENTAS
+    function actualizarResumenVentas(data) {
+        if (document.getElementById('ventasMesTotal')) {
+            document.getElementById('ventasMesTotal').textContent = `S/ ${(data.ventasMesTotal || 0).toFixed(2)}`;
+        }
+        if (document.getElementById('promedioDiario')) {
+            document.getElementById('promedioDiario').textContent = `S/ ${(data.promedioDiario || 0).toFixed(2)}`;
+        }
+        if (document.getElementById('ventaMaxima')) {
+            document.getElementById('ventaMaxima').textContent = `S/ ${(data.ventaMaxima || 0).toFixed(2)}`;
+        }
+        if (document.getElementById('totalPedidos')) {
+            document.getElementById('totalPedidos').textContent = data.totalPedidos || 0;
+        }
+    }
+
+    // ACTUALIZAR TABLA DE VENTAS RECIENTES
+ // ACTUALIZAR TABLA DE VENTAS RECIENTES
+ function actualizarVentasRecientes(ventas) {
+     const tbody = document.getElementById('salesTableBody');
+     const noSalesMessage = document.getElementById('noSalesMessage');
+     const tableContainer = document.querySelector('.table-responsive');
+
+     if (!tbody) return;
+
+     tbody.innerHTML = '';
+
+     if (!ventas || ventas.length === 0) {
+         if (noSalesMessage) noSalesMessage.classList.remove('d-none');
+         if (tableContainer) tableContainer.classList.add('d-none');
+         return;
+     }
+
+     if (noSalesMessage) noSalesMessage.classList.add('d-none');
+     if (tableContainer) tableContainer.classList.remove('d-none');
+
+     ventas.forEach(pedido => {
+         const tr = document.createElement('tr');
+
+         // Formatear fecha
+         const fecha = pedido.fecha ? new Date(pedido.fecha).toLocaleDateString('es-ES', {
+             day: '2-digit',
+             month: '2-digit',
+             year: 'numeric',
+             hour: '2-digit',
+             minute: '2-digit'
+         }) : 'N/A';
+
+         // === PARTE MODIFICADA - USAR EL NUEVO MÉTODO ===
+         let productosHtml = '';
+         if (pedido.items && pedido.items.length > 0) {
+             pedido.items.forEach(item => {
+                 // USAR nombreProductoSeguro O nombreProducto como fallback
+                 const nombreProducto = item.nombreProductoSeguro || item.nombreProducto || 'Producto no disponible';
+                 productosHtml += `${nombreProducto} (x${item.cantidad})<br>`;
+             });
+         } else {
+             productosHtml = 'Sin productos';
+         }
+         // === FIN DE PARTE MODIFICADA ===
+
+         // Cliente (usar nombre del usuario o "Cliente general")
+         const cliente = pedido.usuario ?
+             `${pedido.usuario.nombres} ${pedido.usuario.apellidos}` :
+             (pedido.cliente || 'Cliente general');
+
+         tr.innerHTML = `
+             <td>${pedido.numeroPedido || pedido.id}</td>
+             <td>${cliente}</td>
+             <td>${productosHtml}</td>
+             <td><strong>S/ ${(pedido.total || 0).toFixed(2)}</strong></td>
+             <td>${fecha}</td>
+             <td>
+                 <span class="badge ${getBadgeClassForEstado(pedido.estado)}">
+                     ${pedido.estado || 'PENDIENTE'}
+                 </span>
+             </td>
+         `;
+         tbody.appendChild(tr);
+     });
+ }
+
+    // OBTENER CLASE BADGE PARA ESTADO DEL PEDIDO
+    function getBadgeClassForEstado(estado) {
+        if (!estado) return 'bg-secondary';
+
+        switch(estado.toUpperCase()) {
+            case 'ENTREGADO': return 'bg-success';
+            case 'PREPARACION': return 'bg-warning';
+            case 'LISTO': return 'bg-info';
+            case 'CANCELADO': return 'bg-danger';
+            case 'PENDIENTE': return 'bg-secondary';
+            default: return 'bg-secondary';
+        }
+    }
+
+    // ACTUALIZAR GRÁFICO DE VENTAS
+    function actualizarGraficoVentas(ventasPorDia) {
+        const ctx = document.getElementById('salesChart');
+        const emptyChartMessage = document.getElementById('emptyChartMessage');
+
+        if (!ctx) return;
+
+        // Verificar si hay datos para mostrar
+        const hasData = ventasPorDia && Object.values(ventasPorDia).some(valor => valor > 0);
+
+        if (!hasData) {
+            ctx.style.display = 'none';
+            if (emptyChartMessage) emptyChartMessage.classList.remove('d-none');
+            return;
+        }
+
+        ctx.style.display = 'block';
+        if (emptyChartMessage) emptyChartMessage.classList.add('d-none');
+
+        // Destruir gráfico existente si existe
+        if (window.salesChartInstance) {
+            window.salesChartInstance.destroy();
+        }
+
+        const labels = Object.keys(ventasPorDia);
+        const data = Object.values(ventasPorDia);
+
+        window.salesChartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Ventas (S/)',
+                    data: data,
+                    borderColor: '#007bff',
+                    backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `Ventas: S/ ${context.parsed.y.toFixed(2)}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return 'S/ ' + value.toFixed(2);
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // ================== FUNCIONES EXISTENTES ==================
 
     // CARGAR PRODUCTOS DESDE EL BACKEND
     async function cargarProductos() {
@@ -349,7 +543,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Mostrar mensaje de éxito
                 mostrarAlerta(result.message, 'success');
 
-
                 if (currentSection === 'users') {
                     cambiarSeccion('users');
                 }
@@ -515,7 +708,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 await cargarProductos();
                 mostrarAlerta('Producto eliminado exitosamente!', 'success');
 
-
                 if (currentSection === 'menu') {
                     cambiarSeccion('menu');
                 }
@@ -554,7 +746,7 @@ document.addEventListener('DOMContentLoaded', function() {
         modal.show();
     }
 
-    // CAMBIAR SECCIÓN
+    // CAMBIAR SECCIÓN (ACTUALIZADA)
     function cambiarSeccion(seccion) {
         console.log('Cambiando a sección:', seccion);
         currentSection = seccion;
@@ -592,7 +784,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Cargar datos específicos de la sección
         if (seccion === 'dashboard') {
-            cargarEstadisticas();
+            cargarEstadisticasDashboard(); // Cambiado a la nueva función
         } else if (seccion === 'menu') {
             cargarProductos();
         } else if (seccion === 'users') {
@@ -605,7 +797,7 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Inicializando Admin Menu...');
 
         // Cargar datos iniciales
-        cargarEstadisticas();
+        cargarEstadisticasDashboard(); // Cambiado a la nueva función
         cargarProductos();
 
         // Navegación entre secciones
@@ -820,12 +1012,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 mostrarAlerta('Guardando usuario...', 'info');
 
-
                 await guardarUsuario(formData);
             });
         }
 
-
+        // EVENTOS DELEGADOS
         document.addEventListener('click', function (e) {
             // Editar producto
             if (e.target.closest('.edit-product')) {
@@ -879,7 +1070,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-
+        // PREVISUALIZACIÓN DE IMAGEN
         const productImage = document.getElementById('productImage');
         if (productImage) {
             productImage.addEventListener('input', function (e) {
@@ -895,20 +1086,56 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
 
-        // Botón de actualizar ventas
+        // Botón de actualizar ventas (ACTUALIZADO)
         const refreshSales = document.getElementById('refreshSales');
         if (refreshSales) {
-            refreshSales.addEventListener('click', cargarEstadisticas);
+            refreshSales.addEventListener('click', function() {
+                console.log('Actualizando ventas...');
+                cargarEstadisticasDashboard();
+                mostrarAlerta('Ventas actualizadas', 'info');
+            });
         }
     }
 
-
+    // INICIALIZAR
     inicializarAdminMenu();
 
     console.log('Admin Menu inicializado correctamente');
 });
 
+// FUNCIÓN PARA EXPORTAR REPORTES
+async function exportarReporteDashboard() {
+    try {
+        const response = await fetch('/admin-menu/exportar-dashboard-excel');
+        if (response.ok) {
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = `dashboard_apollo_${new Date().toISOString().split('T')[0]}.xlsx`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
 
+            // Mostrar alerta de éxito
+            const event = new CustomEvent('showAlert', {
+                detail: { message: 'Reporte exportado exitosamente', type: 'success' }
+            });
+            document.dispatchEvent(event);
+        } else {
+            throw new Error('Error al exportar reporte');
+        }
+    } catch (error) {
+        console.error('Error exportando reporte:', error);
+        const event = new CustomEvent('showAlert', {
+            detail: { message: 'Error al exportar reporte', type: 'danger' }
+        });
+        document.dispatchEvent(event);
+    }
+}
+
+// OBJETO GLOBAL
 window.AdminMenu = {
     recargar: function() {
         window.location.reload();
@@ -921,9 +1148,16 @@ window.AdminMenu = {
         if (searchInput) searchInput.value = '';
         if (categoryFilter) categoryFilter.value = '';
 
-
         if (categoryFilter) {
             categoryFilter.dispatchEvent(new Event('change'));
+        }
+    },
+
+    exportarReporte: exportarReporteDashboard,
+
+    actualizarDashboard: function() {
+        if (typeof cargarEstadisticasDashboard === 'function') {
+            cargarEstadisticasDashboard();
         }
     }
 };

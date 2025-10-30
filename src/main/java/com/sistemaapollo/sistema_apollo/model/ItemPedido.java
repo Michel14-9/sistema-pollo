@@ -15,15 +15,33 @@ public class ItemPedido {
     private Double precio;
     private Double subtotal;
 
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "producto_id")
+    private ProductoFinal producto;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "pedido_id")
     @JsonIgnore
     private Pedido pedido;
 
 
+    public String getNombreProductoSeguro() {
+        if (producto != null && producto.getNombre() != null) {
+            return producto.getNombre();
+        }
+        return nombreProducto != null ? nombreProducto : "Producto no disponible";
+    }
+
+
+    public String getProductosParaTabla() {
+        return getNombreProductoSeguro() + " (x" + getCantidad() + ")";
+    }
+
+
     public Producto getProducto() {
         Producto producto = new Producto();
-        producto.setNombre(nombreProducto);
+        producto.setNombre(getNombreProductoSeguro());
         producto.setPrecio(precio);
         return producto;
     }
@@ -48,6 +66,10 @@ public class ItemPedido {
 
     public Pedido getPedido() { return pedido; }
     public void setPedido(Pedido pedido) { this.pedido = pedido; }
+
+    // === GETTER Y SETTER PARA PRODUCTO ===
+    public ProductoFinal getProductoFinal() { return producto; }
+    public void setProductoFinal(ProductoFinal producto) { this.producto = producto; }
 }
 
 

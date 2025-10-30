@@ -6,6 +6,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -34,10 +35,16 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                //  CSRF ACTIVO PERO PERMITIENDO LOGOUT POR GET
+                // ✅ CSRF CONFIGURADO CORRECTAMENTE PARA CAJERO
                 .csrf(csrf -> csrf
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                        .ignoringRequestMatchers("/logout")
+                        // ✅ PERMITIR endpoints POST de todos los módulos
+                        .ignoringRequestMatchers(
+                                "/cajero/marcar-pagado/**",
+                                "/cajero/marcar-cancelado/**",
+                                "/cocinero/iniciar-preparacion/**",
+                                "/cocinero/marcar-listo/**"
+                        )
                 )
 
                 // CONFIGURACIÓN DE SESIÓN
@@ -48,7 +55,7 @@ public class SecurityConfig {
                         .expiredUrl("/login?expired=true")
                 )
 
-                //  RUTAS Y PERMISOS
+                // RUTAS Y PERMISOS (CON NUEVOS ROLES) - CORREGIDO
                 .authorizeHttpRequests(auth -> auth
                         // Rutas públicas
                         .requestMatchers(
@@ -62,10 +69,23 @@ public class SecurityConfig {
                                 "/menu", "/menu/**"
                         ).permitAll()
 
-                        //  Rutas admin
+                        // Rutas admin
                         .requestMatchers("/admin-menu", "/admin/**").hasRole("ADMIN")
 
-                        //  Rutas autenticadas
+                        // Rutas cajero - ✅ QUITAR de permitAll() y dejar solo aquí
+                        .requestMatchers("/cajero", "/cajero/**").hasRole("CAJERO")
+
+                        // Rutas cocinero
+                        .requestMatchers("/cocinero", "/cocinero/**").hasRole("COCINERO")
+
+                        // Rutas delivery
+                        .requestMatchers("/delivery", "/delivery/**").hasRole("DELIVERY")
+
+                        // Rutas compartidas
+                        .requestMatchers("/pedidos-comunes", "/api/pedidos-comunes/**")
+                        .hasAnyRole("ADMIN", "CAJERO", "COCINERO", "DELIVERY")
+
+                        // Rutas autenticadas
                         .requestMatchers(
                                 "/carrito", "/carrito/**",
                                 "/pago", "/pago/**",
@@ -79,15 +99,15 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
 
-                //  LOGIN FORM CON REDIRECCIÓN PERSONALIZADA
+                // LOGIN FORM - REDIRIGE A /postLogin (COMO ANTES)
                 .formLogin(form -> form
                         .loginPage("/login")
-                        .successHandler(customAuthenticationSuccessHandler()) // ✅ CLAVE: Handler personalizado
+                        .defaultSuccessUrl("/postLogin") // ✅ REDIRIGE AL CONTROLADOR
                         .failureUrl("/login?error=true")
                         .permitAll()
                 )
 
-                //  LOGOUT - PERMITIENDO GET EXPLÍCITAMENTE
+                // LOGOUT - PERMITIENDO GET EXPLÍCITAMENTE
                 .logout(logout -> logout
                         .logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET"))
                         .logoutSuccessUrl("/login?logout=true")
@@ -102,29 +122,5 @@ public class SecurityConfig {
                 );
 
         return http.build();
-    }
-
-    //  BEAN PARA EL MANEJADOR DE REDIRECCIÓN PERSONALIZADO
-    @Bean
-    public AuthenticationSuccessHandler customAuthenticationSuccessHandler() {
-        return new AuthenticationSuccessHandler() {
-            @Override
-            public void onAuthenticationSuccess(HttpServletRequest request,
-                                                HttpServletResponse response,
-                                                Authentication authentication) throws IOException, ServletException {
-
-                // Verificar si el usuario tiene rol ADMIN
-                boolean isAdmin = authentication.getAuthorities().stream()
-                        .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"));
-
-                if (isAdmin) {
-                    // Redirigir admin a su panel
-                    response.sendRedirect("/admin-menu");
-                } else {
-                    // Redirigir usuarios normales a la página principal
-                    response.sendRedirect("/");
-                }
-            }
-        };
     }
 }

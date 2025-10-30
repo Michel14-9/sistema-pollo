@@ -1,501 +1,509 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - Luren Chicken</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link th:href="@{/css/admin-menu.css}" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
+
 <body>
-<input type="hidden" id="csrfToken" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+    <input type="hidden" id="csrfToken" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
 
-<div id="app" class="d-flex">
-    <!-- Sidebar -->
-    <div class="sidebar">
-        <div class="d-flex align-items-center justify-content-center mb-4">
-            <div class="logo-icon">
-                <i class="fas fa-utensils fa-2x"></i>
+    <div id="app" class="d-flex">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="d-flex align-items-center justify-content-center mb-4">
+                <div class="logo-icon">
+                    <i class="fas fa-utensils fa-2x"></i>
+                </div>
+                <div class="logo-text">
+                    <h4 class="mb-0">Luren Chicken</h4>
+                    <small class="text-muted">Panel Admin</small>
+                </div>
             </div>
-            <div class="logo-text">
-                <h4 class="mb-0">Luren Chicken</h4>
-                <small class="text-muted">Panel Admin</small>
-            </div>
-        </div>
 
-        <ul class="nav flex-column">
-            <li class="nav-item">
-                <a class="nav-link active" href="#" data-section="dashboard">
-                    <i class="fas fa-tachometer-alt"></i>
-                    <span>Dashboard</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#" data-section="menu">
-                    <i class="fas fa-concierge-bell"></i>
-                    <span>Gestionar Menú</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#" data-section="users">
-                    <i class="fas fa-users"></i>
-                    <span>Gestionar Usuarios</span>
-                </a>
-            </li>
-            <li class="nav-item mt-4">
-                <a class="nav-link" th:href="@{/menu}">
-                    <i class="fas fa-eye"></i>
-                    <span>Ver Menú Público</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link logout-btn" th:href="@{/logout}">
-                    <i class="fas fa-sign-out-alt"></i>
-                    <span>Cerrar Sesión</span>
-                </a>
-            </li>
-        </ul>
-    </div>
-
-    <!-- Main Content -->
-    <div class="main-content flex-grow-1">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <button class="toggle-sidebar"><i class="fas fa-bars"></i></button>
-                <h2 class="d-inline-block ms-3 mb-0" id="sectionTitle">Dashboard</h2>
-            </div>
-            <div class="d-flex align-items-center">
-                <div class="user-avatar me-2" id="userAvatar">AD</div>
-                <span id="userDisplayName">Administrador</span>
-            </div>
-        </div>
-
-        <div id="dynamicAlerts"></div>
-
-        <!-- Dashboard Section -->
-        <div id="dashboard-section" class="section-content">
-            <div class="row">
-                <div class="col-md-3">
-                    <div class="card stat-card text-primary">
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link active" href="#" data-section="dashboard">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-section="menu">
                         <i class="fas fa-concierge-bell"></i>
-                        <div class="number" id="totalProductos">0</div>
-                        <div class="label">Productos</div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card stat-card text-success">
+                        <span>Gestionar Menú</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-section="users">
                         <i class="fas fa-users"></i>
-                        <div class="number" id="totalUsuarios">0</div>
-                        <div class="label">Usuarios Registrados</div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card stat-card text-warning">
-                        <i class="fas fa-shopping-cart"></i>
-                        <div class="number" id="pedidosHoy">0</div>
-                        <div class="label">Pedidos Hoy</div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card stat-card text-info">
-                        <i class="fas fa-dollar-sign"></i>
-                        <div class="number" id="ingresosHoy">S/ 0.00</div>
-                        <div class="label">Ingresos Hoy</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Gráficos y estadísticas adicionales -->
-            <div class="row mt-4">
-                <div class="col-md-8">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="card-title mb-0">Estadísticas de Ventas</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="chart-container">
-                                <canvas id="salesChart"></canvas>
-                            </div>
-                            <div id="emptyChartMessage" class="empty-state text-center py-5 d-none">
-                                <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
-                                <h4 class="text-muted">No hay datos de ventas</h4>
-                                <p class="text-muted">El gráfico se actualizará cuando se registren las primeras ventas.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="card-title mb-0">Resumen de Ventas</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="mb-3">
-                                <small class="text-muted">Ventas Totales del Mes</small>
-                                <h4 id="ventasMesTotal">S/ 0.00</h4>
-                            </div>
-                            <div class="mb-3">
-                                <small class="text-muted">Promedio Diario</small>
-                                <h4 id="promedioDiario">S/ 0.00</h4>
-                            </div>
-                            <div class="mb-3">
-                                <small class="text-muted">Venta Más Alta</small>
-                                <h4 id="ventaMaxima">S/ 0.00</h4>
-                            </div>
-                            <div>
-                                <small class="text-muted">Total de Pedidos</small>
-                                <h4 id="totalPedidos">0</h4>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Ventas Recientes -->
-            <div class="row mt-4">
-                <div class="col-12">
-                    <div class="card">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <h5 class="card-title mb-0">Ventas Recientes</h5>
-                            <div class="d-flex gap-2">
-                                <button class="btn btn-sm btn-outline-primary" id="refreshSales">
-                                    <i class="fas fa-sync-alt"></i> Actualizar
-                                </button>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-hover">
-                                    <thead>
-                                    <tr>
-                                        <th>Pedido ID</th>
-                                        <th>Cliente</th>
-                                        <th>Productos</th>
-                                        <th>Total</th>
-                                        <th>Fecha</th>
-                                        <th>Estado</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody id="salesTableBody">
-                                    <!-- Se llenará dinámicamente -->
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div id="noSalesMessage" class="text-center py-5 d-none">
-                                <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
-                                <h4 class="text-muted">No hay ventas registradas</h4>
-                                <p class="text-muted">Las ventas aparecerán aquí cuando se registren pedidos.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                        <span>Gestionar Usuarios</span>
+                    </a>
+                </li>
+                <li class="nav-item mt-4">
+                    <a class="nav-link" th:href="@{/menu}">
+                        <i class="fas fa-eye"></i>
+                        <span>Ver Menú Público</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link logout-btn" th:href="@{/logout}">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Cerrar Sesión</span>
+                    </a>
+                </li>
+            </ul>
         </div>
 
-        <!-- Gestión del Menú -->
-        <div id="menu-section" class="section-content d-none">
+        <!-- Main Content -->
+        <div class="main-content flex-grow-1">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h3>Gestión de Menú</h3>
-                <button class="btn btn-primary" id="addProductBtn">
-                    <i class="fas fa-plus"></i> Agregar Producto
-                </button>
-            </div>
-
-            <div class="search-filter-container">
-                <div class="search-box">
-                    <div class="input-group">
-                        <input type="text" class="form-control" placeholder="Buscar productos..." id="searchProducts">
-                        <button class="btn btn-outline-secondary" type="button" id="searchProductsBtn">
-                            <i class="fas fa-search"></i>
-                        </button>
-                    </div>
+                <div>
+                    <button class="toggle-sidebar"><i class="fas fa-bars"></i></button>
+                    <h2 class="d-inline-block ms-3 mb-0" id="sectionTitle">Dashboard</h2>
                 </div>
-                <div class="filter-buttons">
-                    <select class="form-select" id="categoryFilter">
-                        <option value="">Todas las categorías</option>
-                        <option value="pollos">Pollos</option>
-                        <option value="parrillas">Parrillas</option>
-                        <option value="chicharron">Chicharrón</option>
-                        <option value="broaster">Broaster</option>
-                        <option value="hamburguesas">Hamburguesas</option>
-                        <option value="criollos">Criollos</option>
-                        <option value="combos">Combos</option>
-                    </select>
+                <div class="d-flex align-items-center">
+                    <div class="user-avatar me-2" id="userAvatar">AD</div>
+                    <span id="userDisplayName">Administrador</span>
                 </div>
             </div>
 
-            <div class="card">
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Imagen</th>
-                                <th>Nombre</th>
-                                <th>Categoría</th>
-                                <th>Precio</th>
-                                <th>Acciones</th>
-                            </tr>
-                            </thead>
-                            <tbody id="productsTableBody">
-                            <!-- Cargado dinámicamente -->
-                            </tbody>
-                        </table>
-                    </div>
-                    <div id="noProductsMessage" class="text-center py-5 d-none">
-                        <i class="fas fa-concierge-bell fa-3x text-muted mb-3"></i>
-                        <h4 class="text-muted">No hay productos registrados</h4>
-                        <p class="text-muted">Agrega productos para comenzar a gestionar tu menú.</p>
-                        <button class="btn btn-primary mt-3" id="addFirstProductBtn">
-                            <i class="fas fa-plus"></i> Agregar Primer Producto
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
+            <div id="dynamicAlerts"></div>
 
-        <!-- Gestión de Usuarios -->
-        <div id="users-section" class="section-content d-none">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h3>Gestión de Usuarios</h3>
-                <button class="btn btn-primary" id="addUserBtn">
-                    <i class="fas fa-user-plus"></i> Agregar Usuario
-                </button>
-            </div>
-
-            <div class="search-filter-container">
-                <div class="search-box">
-                    <div class="input-group">
-                        <input type="text" class="form-control" placeholder="Buscar usuarios..." id="searchUsers">
-                        <button class="btn btn-outline-secondary" type="button" id="searchUsersBtn">
-                            <i class="fas fa-search"></i>
-                        </button>
+            <!-- Dashboard Section -->
+            <div id="dashboard-section" class="section-content">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="card stat-card text-primary">
+                            <i class="fas fa-concierge-bell"></i>
+                            <div class="number" id="totalProductos">0</div>
+                            <div class="label">Productos</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card stat-card text-success">
+                            <i class="fas fa-users"></i>
+                            <div class="number" id="totalUsuarios">0</div>
+                            <div class="label">Usuarios Registrados</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card stat-card text-warning">
+                            <i class="fas fa-shopping-cart"></i>
+                            <div class="number" id="pedidosHoy">0</div>
+                            <div class="label">Pedidos Hoy</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card stat-card text-info">
+                            <i class="fas fa-dollar-sign"></i>
+                            <div class="number" id="ingresosHoy">S/ 0.00</div>
+                            <div class="label">Ingresos Hoy</div>
+                        </div>
                     </div>
                 </div>
-                <div class="filter-buttons">
-                    <select class="form-select" id="roleFilter">
-                        <option value="">Todos los roles</option>
-                        <option value="admin">Administrador</option>
-                        <option value="cajero">Cajero</option>
-                        <option value="cocinero">Cocinero</option>
-                        <option value="delivery">Delivery</option>
-                    </select>
-                </div>
-            </div>
 
-            <div class="card">
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Avatar</th>
-                                <th>Nombre</th>
-                                <th>Email</th>
-                                <th>Rol</th>
-                                <th>Estado</th>
-                                <th>Acciones</th>
-                            </tr>
-                            </thead>
-                            <tbody id="usersTableBody">
-                            <!-- Se llenará dinámicamente -->
-                            </tbody>
-                        </table>
-                    </div>
-                    <div id="noUsersMessage" class="text-center py-5 d-none">
-                        <i class="fas fa-users fa-3x text-muted mb-3"></i>
-                        <h4 class="text-muted">No hay usuarios registrados</h4>
-                        <p class="text-muted">Agrega usuarios para comenzar a gestionar tu equipo.</p>
-                        <button class="btn btn-primary mt-3" id="addFirstUserBtn">
-                            <i class="fas fa-user-plus"></i> Agregar Primer Usuario
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Vista Pública -->
-        <div id="public-menu-section" class="section-content d-none">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h3>Vista del Menú Público</h3>
-                <button class="btn btn-primary" id="refreshPublicMenu">
-                    <i class="fas fa-sync-alt"></i> Actualizar
-                </button>
-            </div>
-            <div class="row" id="publicMenuContainer">
-                <!-- Productos activos -->
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal Producto - VERSIÓN CORREGIDA -->
-<div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="productModalLabel">Agregar Producto</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <!-- CAMBIO IMPORTANTE: QUITAR th:action -->
-            <form id="productForm" method="POST">
-                <input type="hidden" name="_csrf" th:value="${_csrf.token}">
-                <input type="hidden" id="productId" name="id">
-
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="productName" class="form-label">Nombre</label>
-                                <input type="text" class="form-control" id="productName" name="nombre" required>
+                <!-- Gráficos y estadísticas adicionales -->
+                <div class="row mt-4">
+                    <div class="col-md-8">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Estadísticas de Ventas</h5>
                             </div>
-                            <div class="mb-3">
-                                <label for="productCategory" class="form-label">Categoría</label>
-                                <select class="form-select" id="productCategory" name="tipo" required>
-                                    <option value="">Seleccione una categoría</option>
-                                    <option value="pollos">Pollos</option>
-                                    <option value="parrillas">Parrillas</option>
-                                    <option value="chicharron">Chicharrón</option>
-                                    <option value="broaster">Broaster</option>
-                                    <option value="hamburguesas">Hamburguesas</option>
-                                    <option value="criollos">Criollos</option>
-                                    <option value="combos">Combos</option>
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label for="productPrice" class="form-label">Precio (S/)</label>
-                                <input type="number" class="form-control" id="productPrice" name="precio" step="0.01" min="0" required>
+                            <div class="card-body">
+                                <div class="chart-container">
+                                    <canvas id="salesChart"></canvas>
+                                </div>
+                                <div id="emptyChartMessage" class="empty-state text-center py-5 d-none">
+                                    <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
+                                    <h4 class="text-muted">No hay datos de ventas</h4>
+                                    <p class="text-muted">El gráfico se actualizará cuando se registren las primeras
+                                        ventas.</p>
+                                </div>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="productDescription" class="form-label">Descripción</label>
-                                <textarea class="form-control" id="productDescription" name="descripcion" rows="4"></textarea>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Resumen de Ventas</h5>
                             </div>
-                            <div class="mb-3">
-                                <label for="productImage" class="form-label">Imagen URL</label>
-                                <input type="text" class="form-control" id="productImage" name="imagenUrl" placeholder="https://ejemplo.com/imagen.jpg">
-                                <div class="form-text">Ingresa la URL de la imagen del producto</div>
-                                <div id="imagePreviewContainer" class="mt-2">
-                                    <img id="imagePreview" class="form-image-preview d-none" style="max-width: 200px; max-height: 150px;">
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <small class="text-muted">Ventas Totales del Mes</small>
+                                    <h4 id="ventasMesTotal">S/ 0.00</h4>
+                                </div>
+                                <div class="mb-3">
+                                    <small class="text-muted">Promedio Diario</small>
+                                    <h4 id="promedioDiario">S/ 0.00</h4>
+                                </div>
+                                <div class="mb-3">
+                                    <small class="text-muted">Venta Más Alta</small>
+                                    <h4 id="ventaMaxima">S/ 0.00</h4>
+                                </div>
+                                <div>
+                                    <small class="text-muted">Total de Pedidos</small>
+                                    <h4 id="totalPedidos">0</h4>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Guardar Producto</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
 
-<!-- Modal Usuario -->
-<div class="modal fade" id="userModal" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="userModalLabel">Agregar Usuario</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="userForm">
-                    <input type="hidden" id="userId">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="userName" class="form-label">Nombres</label>
-                                <input type="text" class="form-control" id="userName" required>
+                <!-- Ventas Recientes -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="card-title mb-0">Ventas Recientes</h5>
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-sm btn-outline-primary" id="refreshSales">
+                                        <i class="fas fa-sync-alt"></i> Actualizar
+                                    </button>
+                                </div>
                             </div>
-                            <div class="mb-3">
-                                <label for="userLastName" class="form-label">Apellidos</label>
-                                <input type="text" class="form-control" id="userLastName" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="userDocumentType" class="form-label">Tipo de Documento</label>
-                                <select class="form-select" id="userDocumentType" required>
-                                    <option value="">Seleccione tipo</option>
-                                    <option value="DNI">DNI</option>
-                                    <option value="CE">Carnet de Extranjería</option>
-                                    <option value="PASAPORTE">Pasaporte</option>
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label for="userDocumentNumber" class="form-label">Número de Documento</label>
-                                <input type="text" class="form-control" id="userDocumentNumber" required>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="userPhone" class="form-label">Teléfono</label>
-                                <input type="tel" class="form-control" id="userPhone" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="userBirthDate" class="form-label">Fecha de Nacimiento</label>
-                                <input type="date" class="form-control" id="userBirthDate" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="userEmail" class="form-label">Email</label>
-                                <input type="email" class="form-control" id="userEmail" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="userRole" class="form-label">Rol</label>
-                                <select class="form-select" id="userRole" required>
-                                    <option value="">Seleccione un rol</option>
-                                    <option value="admin">Administrador</option>
-                                    <option value="cajero">Cajero</option>
-                                    <option value="cocinero">Cocinero</option>
-                                    <option value="delivery">Delivery</option>
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label for="userPassword" class="form-label">Contraseña</label>
-                                <input type="password" class="form-control" id="userPassword" required>
-                                <div class="form-text">La contraseña debe tener al menos 6 caracteres</div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Pedido ID</th>
+                                                <th>Cliente</th>
+                                                <th>Productos</th>
+                                                <th>Total</th>
+                                                <th>Fecha</th>
+                                                <th>Estado</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="salesTableBody">
+                                            <!-- Se llenará dinámicamente -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div id="noSalesMessage" class="text-center py-5 d-none">
+                                    <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
+                                    <h4 class="text-muted">No hay ventas registradas</h4>
+                                    <p class="text-muted">Las ventas aparecerán aquí cuando se registren pedidos.</p>
+                                </div>
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <!-- Gestión del Menú -->
+            <div id="menu-section" class="section-content d-none">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3>Gestión de Menú</h3>
+                    <button class="btn btn-primary" id="addProductBtn">
+                        <i class="fas fa-plus"></i> Agregar Producto
+                    </button>
+                </div>
+
+                <div class="search-filter-container">
+                    <div class="search-box">
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Buscar productos..."
+                                id="searchProducts">
+                            <button class="btn btn-outline-secondary" type="button" id="searchProductsBtn">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="filter-buttons">
+                        <select class="form-select" id="categoryFilter">
+                            <option value="">Todas las categorías</option>
+                            <option value="pollos">Pollos</option>
+                            <option value="parrillas">Parrillas</option>
+                            <option value="chicharron">Chicharrón</option>
+                            <option value="broaster">Broaster</option>
+                            <option value="hamburguesas">Hamburguesas</option>
+                            <option value="criollos">Criollos</option>
+                            <option value="combos">Combos</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Imagen</th>
+                                        <th>Nombre</th>
+                                        <th>Categoría</th>
+                                        <th>Precio</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="productsTableBody">
+                                    <!-- Cargado dinámicamente -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="noProductsMessage" class="text-center py-5 d-none">
+                            <i class="fas fa-concierge-bell fa-3x text-muted mb-3"></i>
+                            <h4 class="text-muted">No hay productos registrados</h4>
+                            <p class="text-muted">Agrega productos para comenzar a gestionar tu menú.</p>
+                            <button class="btn btn-primary mt-3" id="addFirstProductBtn">
+                                <i class="fas fa-plus"></i> Agregar Primer Producto
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gestión de Usuarios -->
+            <div id="users-section" class="section-content d-none">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3>Gestión de Usuarios</h3>
+                    <button class="btn btn-primary" id="addUserBtn">
+                        <i class="fas fa-user-plus"></i> Agregar Usuario
+                    </button>
+                </div>
+
+                <div class="search-filter-container">
+                    <div class="search-box">
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Buscar usuarios..." id="searchUsers">
+                            <button class="btn btn-outline-secondary" type="button" id="searchUsersBtn">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="filter-buttons">
+                        <select class="form-select" id="roleFilter">
+                            <option value="">Todos los roles</option>
+                            <option value="admin">Administrador</option>
+                            <option value="cajero">Cajero</option>
+                            <option value="cocinero">Cocinero</option>
+                            <option value="delivery">Delivery</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Avatar</th>
+                                        <th>Nombre</th>
+                                        <th>Email</th>
+                                        <th>Rol</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="usersTableBody">
+                                    <!-- Se llenará dinámicamente -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="noUsersMessage" class="text-center py-5 d-none">
+                            <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                            <h4 class="text-muted">No hay usuarios registrados</h4>
+                            <p class="text-muted">Agrega usuarios para comenzar a gestionar tu equipo.</p>
+                            <button class="btn btn-primary mt-3" id="addFirstUserBtn">
+                                <i class="fas fa-user-plus"></i> Agregar Primer Usuario
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vista Pública -->
+            <div id="public-menu-section" class="section-content d-none">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3>Vista del Menú Público</h3>
+                    <button class="btn btn-primary" id="refreshPublicMenu">
+                        <i class="fas fa-sync-alt"></i> Actualizar
+                    </button>
+                </div>
+                <div class="row" id="publicMenuContainer">
+                    <!-- Productos activos -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Producto - VERSIÓN CORREGIDA -->
+    <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="productModalLabel">Agregar Producto</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <!-- CAMBIO IMPORTANTE: QUITAR th:action -->
+                <form id="productForm" method="POST">
+                    <input type="hidden" name="_csrf" th:value="${_csrf.token}">
+                    <input type="hidden" id="productId" name="id">
+
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="productName" class="form-label">Nombre</label>
+                                    <input type="text" class="form-control" id="productName" name="nombre" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="productCategory" class="form-label">Categoría</label>
+                                    <select class="form-select" id="productCategory" name="tipo" required>
+                                        <option value="">Seleccione una categoría</option>
+                                        <option value="pollos">Pollos</option>
+                                        <option value="parrillas">Parrillas</option>
+                                        <option value="chicharron">Chicharrón</option>
+                                        <option value="broaster">Broaster</option>
+                                        <option value="hamburguesas">Hamburguesas</option>
+                                        <option value="criollos">Criollos</option>
+                                        <option value="combos">Combos</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="productPrice" class="form-label">Precio (S/)</label>
+                                    <input type="number" class="form-control" id="productPrice" name="precio"
+                                        step="0.01" min="0" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="productDescription" class="form-label">Descripción</label>
+                                    <textarea class="form-control" id="productDescription" name="descripcion"
+                                        rows="4"></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="productImage" class="form-label">Imagen URL</label>
+                                    <input type="text" class="form-control" id="productImage" name="imagenUrl"
+                                        placeholder="https://ejemplo.com/imagen.jpg">
+                                    <div class="form-text">Ingresa la URL de la imagen del producto</div>
+                                    <div id="imagePreviewContainer" class="mt-2">
+                                        <img id="imagePreview" class="form-image-preview d-none"
+                                            style="max-width: 200px; max-height: 150px;">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Guardar Producto</button>
+                    </div>
                 </form>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" id="saveUserBtn">Guardar Usuario</button>
+        </div>
+    </div>
+
+    <!-- Modal Usuario -->
+    <div class="modal fade" id="userModal" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="userModalLabel">Agregar Usuario</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="userForm">
+                        <input type="hidden" id="userId">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="userName" class="form-label">Nombres</label>
+                                    <input type="text" class="form-control" id="userName" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="userLastName" class="form-label">Apellidos</label>
+                                    <input type="text" class="form-control" id="userLastName" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="userDocumentType" class="form-label">Tipo de Documento</label>
+                                    <select class="form-select" id="userDocumentType" required>
+                                        <option value="">Seleccione tipo</option>
+                                        <option value="DNI">DNI</option>
+                                        <option value="CE">Carnet de Extranjería</option>
+                                        <option value="PASAPORTE">Pasaporte</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="userDocumentNumber" class="form-label">Número de Documento</label>
+                                    <input type="text" class="form-control" id="userDocumentNumber" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="userPhone" class="form-label">Teléfono</label>
+                                    <input type="tel" class="form-control" id="userPhone" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="userBirthDate" class="form-label">Fecha de Nacimiento</label>
+                                    <input type="date" class="form-control" id="userBirthDate" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="userEmail" class="form-label">Email</label>
+                                    <input type="email" class="form-control" id="userEmail" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="userRole" class="form-label">Rol</label>
+                                    <select class="form-select" id="userRole" required>
+                                        <option value="">Seleccione un rol</option>
+                                        <option value="admin">Administrador</option>
+                                        <option value="cajero">Cajero</option>
+                                        <option value="cocinero">Cocinero</option>
+                                        <option value="delivery">Delivery</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="userPassword" class="form-label">Contraseña</label>
+                                    <input type="password" class="form-control" id="userPassword" required>
+                                    <div class="form-text">La contraseña debe tener al menos 6 caracteres</div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="saveUserBtn">Guardar Usuario</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Modal de Confirmación -->
-<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="confirmModalLabel">Confirmar Acción</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body" id="confirmModalBody">
-                ¿Está seguro de que desea realizar esta acción?
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-danger" id="confirmActionBtn">Confirmar</button>
+    <!-- Modal de Confirmación -->
+    <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmModalLabel">Confirmar Acción</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="confirmModalBody">
+                    ¿Está seguro de que desea realizar esta acción?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="confirmActionBtn">Confirmar</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Scripts -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script th:src="@{/script/admin-menu.js}"></script>
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:src="@{/script/admin-menu.js}"></script>
 </body>
+
 </html>

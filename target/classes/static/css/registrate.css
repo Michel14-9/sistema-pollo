@@ -469,7 +469,7 @@ img, .btn, .nav-link {
 .form-text ul li:hover {
     color: var(--naranja);
 }
-/* ======== OCULTAR MENSAJES DE ERROR INICIALMENTE ======== */
+
 .invalid-feedback {
     display: none !important;
 }

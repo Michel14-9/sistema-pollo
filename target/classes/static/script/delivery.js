@@ -1,4 +1,4 @@
-// delivery.js - SISTEMA PARA DELIVERY - VERSIÓN COMPLETA
+// delivery.js
 
 // Variables globales
 let pedidoSeleccionado = null;
@@ -83,7 +83,7 @@ async function fetchConCSRF(url, options = {}) {
 // CARGAR PEDIDOS PARA DELIVERY
 async function cargarPedidosDelivery() {
     try {
-        console.log('🚚 Cargando pedidos para delivery...');
+        console.log('Cargando pedidos para delivery...');
 
         const [pendientes, enCamino] = await Promise.all([
             fetchConCSRF('/delivery/pedidos-para-entrega').then(r => r.json()),
@@ -93,13 +93,13 @@ async function cargarPedidosDelivery() {
         pedidosPendientesEntrega = Array.isArray(pendientes) ? pendientes : [];
         pedidosEnCamino = Array.isArray(enCamino) ? enCamino : [];
 
-        console.log(`✅ Pedidos cargados: ${pedidosPendientesEntrega.length} pendientes, ${pedidosEnCamino.length} en camino`);
+        console.log(` Pedidos cargados: ${pedidosPendientesEntrega.length} pendientes, ${pedidosEnCamino.length} en camino`);
 
         mostrarPedidos();
         cargarMetricasDelivery();
 
     } catch (error) {
-        console.error('❌ Error cargando pedidos delivery:', error);
+        console.error(' Error cargando pedidos delivery:', error);
         if (error.message.includes('Sesión expirada')) {
             manejarSesionExpirada();
         } else {
@@ -111,7 +111,7 @@ async function cargarPedidosDelivery() {
 // CARGAR MÉTRICAS DEL DELIVERY
 async function cargarMetricasDelivery() {
     try {
-        console.log('📊 Cargando métricas de delivery...');
+        console.log('Cargando métricas de delivery...');
         const response = await fetchConCSRF('/delivery/metricas-delivery');
 
         if (!response.ok) {
@@ -119,7 +119,7 @@ async function cargarMetricasDelivery() {
         }
 
         const metricas = await response.json();
-        console.log('📈 Métricas delivery cargadas:', metricas);
+        console.log(' Métricas delivery cargadas:', metricas);
 
         if (metricas.success) {
             actualizarMetricas(metricas);
@@ -128,7 +128,7 @@ async function cargarMetricasDelivery() {
         }
 
     } catch (error) {
-        console.error('❌ Error cargando métricas delivery:', error);
+        console.error(' Error cargando métricas delivery:', error);
         actualizarMetricasConDatosLocales();
     }
 }
@@ -152,7 +152,7 @@ function actualizarMetricas(metricas) {
         totalEntregadosHoy: metricas.totalEntregadosHoy || 0
     };
 
-    console.log('📊 Actualizando métricas delivery:', metricasData);
+    console.log('Actualizando métricas delivery:', metricasData);
 
     if (elementos.metricas.pendientesEntrega) {
         elementos.metricas.pendientesEntrega.textContent = metricasData.totalParaEntregar;
@@ -173,10 +173,10 @@ function actualizarMetricas(metricas) {
     }
 }
 
-// INICIAR ENTREGA (Pasar a "EN_CAMINO")
+// INICIAR ENTREGA
 async function iniciarEntrega(pedidoId) {
     try {
-        console.log(`🚚 Iniciando entrega del pedido ${pedidoId}...`);
+        console.log(`Iniciando entrega del pedido ${pedidoId}...`);
 
         const response = await fetchConCSRF(`/delivery/iniciar-entrega/${pedidoId}`, {
             method: 'POST',
@@ -192,10 +192,10 @@ async function iniciarEntrega(pedidoId) {
         }
 
         const resultado = await response.text();
-        console.log('📨 Respuesta del servidor:', resultado);
+        console.log(' Respuesta del servidor:', resultado);
 
         if (resultado.includes('SUCCESS')) {
-            mostrarAlerta('✅ Entrega iniciada correctamente', 'success');
+            mostrarAlerta(' Entrega iniciada correctamente', 'success');
             await cargarPedidosDelivery();
             ocultarDetalle();
         } else {
@@ -203,11 +203,11 @@ async function iniciarEntrega(pedidoId) {
         }
 
     } catch (error) {
-        console.error('❌ Error iniciando entrega:', error);
+        console.error(' Error iniciando entrega:', error);
         if (error.message.includes('Sesión expirada')) {
             manejarSesionExpirada();
         } else {
-            mostrarAlerta(`❌ ${error.message}`, 'error');
+            mostrarAlerta(` ${error.message}`, 'error');
         }
     }
 }
@@ -215,7 +215,7 @@ async function iniciarEntrega(pedidoId) {
 // MARCAR PEDIDO COMO ENTREGADO
 async function marcarComoEntregado(pedidoId) {
     try {
-        console.log(`✅ Marcando pedido ${pedidoId} como ENTREGADO...`);
+        console.log(`Marcando pedido ${pedidoId} como ENTREGADO...`);
 
         const response = await fetchConCSRF(`/delivery/marcar-entregado/${pedidoId}`, {
             method: 'POST',
@@ -231,10 +231,10 @@ async function marcarComoEntregado(pedidoId) {
         }
 
         const resultado = await response.text();
-        console.log('📨 Respuesta del servidor:', resultado);
+        console.log(' Respuesta del servidor:', resultado);
 
         if (resultado.includes('SUCCESS')) {
-            mostrarAlerta('✅ Pedido marcado como ENTREGADO correctamente', 'success');
+            mostrarAlerta(' Pedido marcado como ENTREGADO correctamente', 'success');
             await cargarPedidosDelivery();
             ocultarDetalle();
             setTimeout(cargarMetricasDelivery, 500);
@@ -243,11 +243,11 @@ async function marcarComoEntregado(pedidoId) {
         }
 
     } catch (error) {
-        console.error('❌ Error marcando como entregado:', error);
+        console.error(' Error marcando como entregado:', error);
         if (error.message.includes('Sesión expirada')) {
             manejarSesionExpirada();
         } else {
-            mostrarAlerta(`❌ ${error.message}`, 'error');
+            mostrarAlerta(` ${error.message}`, 'error');
         }
     }
 }
@@ -387,7 +387,7 @@ async function mostrarDetallePedido(pedido, columna) {
         elementos.detalle.contenedor.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
     } catch (error) {
-        console.error('❌ Error mostrando detalle:', error);
+        console.error(' Error mostrando detalle:', error);
         mostrarAlerta('Error al cargar detalle del pedido', 'error');
     }
 }
@@ -468,7 +468,7 @@ function calcularTiempoTranscurrido(fechaString) {
         const minutosTotales = Math.floor(diferenciaMs / (1000 * 60));
 
         if (minutosTotales > 360) {
-            console.warn('⚠️ Tiempo muy largo detectado:', minutosTotales, 'minutos para pedido');
+            console.warn(' Tiempo muy largo detectado:', minutosTotales, 'minutos para pedido');
             return { texto: 'Revisar', minutosTotales };
         }
 
@@ -546,7 +546,7 @@ function formatearFechaCorta(fechaString) {
 
 // MANEJAR SESIÓN EXPIRADA
 function manejarSesionExpirada() {
-    mostrarAlerta('🔐 Sesión expirada. Redirigiendo al login...', 'error');
+    mostrarAlerta(' Sesión expirada. Redirigiendo al login...', 'error');
     setTimeout(() => {
         window.location.href = '/login?sessionExpired=true';
     }, 2000);
@@ -632,11 +632,11 @@ function actualizarHoraYFecha() {
 // ================== INICIALIZACIÓN ==================
 
 document.addEventListener('DOMContentLoaded', function () {
-    console.log('🚚 Inicializando módulo de delivery...');
+    console.log(' Inicializando módulo de delivery...');
 
     // Verificar token CSRF
     const csrfToken = getCsrfToken();
-    console.log('🔐 Token CSRF disponible:', csrfToken ? 'SÍ' : 'NO');
+    console.log(' Token CSRF disponible:', csrfToken ? 'SÍ' : 'NO');
 
     // Cargar datos iniciales
     cargarPedidosDelivery();
@@ -678,5 +678,5 @@ document.addEventListener('DOMContentLoaded', function () {
     // Recargar datos cada 30 segundos
     setInterval(cargarPedidosDelivery, 30000);
 
-    console.log('✅ Módulo de delivery inicializado correctamente');
+    console.log('Módulo de delivery inicializado correctamente');
 });

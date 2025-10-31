@@ -1,4 +1,4 @@
-// admin-menu.js - VERSIÓN COMPLETA CON DASHBOARD DE PEDIDOS E INGRESOS Y REPORTES
+// admin-menu.js
 document.addEventListener('DOMContentLoaded', function() {
     console.log('=== ADMIN MENÚ - INICIADO ===');
 
@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 5000);
     }
 
-    // ================== FUNCIONES NUEVAS PARA REPORTES ==================
+
 
     // INICIALIZAR SECCIÓN DE REPORTES
     function inicializarReportes() {
@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', function() {
         inicializarFechas();
     }
 
-  // INICIALIZAR FECHAS - VERSIÓN MEJORADA
+  // INICIALIZAR FECHAS
   function inicializarFechas() {
       const hoy = new Date();
 
@@ -89,7 +89,7 @@ document.addEventListener('DOMContentLoaded', function() {
       document.getElementById('endDate').value = formatLocalDate(hoy);
   }
 
-   // MANEJAR CAMBIO DE RANGO DE FECHAS - VERSIÓN CORREGIDA
+   // MANEJAR CAMBIO DE RANGO DE FECHAS
    function manejarCambioRangoFechas() {
        const dateRange = document.getElementById('dateRange').value;
        const hoy = new Date();
@@ -476,7 +476,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-  // EXPORTAR PDF - VERSIÓN PROFESIONAL
+  // EXPORTAR PDF
   async function exportarPDF() {
       try {
           if (!currentReportData) {
@@ -655,7 +655,7 @@ document.addEventListener('DOMContentLoaded', function() {
           }
 
          // ========== GUARDAR PDF ==========
-         // Usar la misma función formatLocalDate para consistencia
+
          function formatLocalDate(date) {
              const year = date.getFullYear();
              const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -674,8 +674,8 @@ document.addEventListener('DOMContentLoaded', function() {
       }
   }
 
-    // EXPORTAR EXCEL - VERSIÓN PROFESIONAL (CORREGIDA)
-// EXPORTAR EXCEL - VERSIÓN EXCELJS CON ESTILOS REALES
+
+// EXPORTAR EXCEL
 async function exportarExcel() {
     try {
         if (!currentReportData) {
@@ -1064,7 +1064,7 @@ function formatFecha(fechaStr) {
         year: 'numeric'
     });
 }
-    // ================== FUNCIONES NUEVAS PARA DASHBOARD ==================
+
 
     // CARGAR ESTADÍSTICAS COMPLETAS DEL DASHBOARD
     async function cargarEstadisticasDashboard() {
@@ -1191,7 +1191,7 @@ function formatFecha(fechaStr) {
             } else {
                 productosHtml = 'Sin productos';
             }
-            // === FIN DE PARTE MODIFICADA ===
+
 
             // Cliente (usar nombre del usuario o "Cliente general")
             const cliente = pedido.usuario ?
@@ -1409,7 +1409,7 @@ function formatFecha(fechaStr) {
         console.log('Productos mostrados en tabla:', filteredProducts.length);
     }
 
-    // ================== GESTIÓN DE USUARIOS ==================
+
 
     // CARGAR USUARIOS DESDE EL BACKEND
     async function cargarUsuarios() {

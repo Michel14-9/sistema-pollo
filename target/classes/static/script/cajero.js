@@ -1,4 +1,4 @@
-// cajero.js - VERSIÓN FINAL CORREGIDA Y OPTIMIZADA
+// cajero.js -
 
 // Variables globales
 let pedidoSeleccionado = null;
@@ -41,9 +41,9 @@ const elementos = {
     }
 };
 
-// ================== FUNCIONES DE CONEXIÓN CON BACKEND ==================
+// FUNCIONES DE CONEXIÓN CON BACKEND
 
-// OBTENER TOKEN CSRF - VERSIÓN MEJORADA
+// OBTENER TOKEN CSRF
 function getCsrfToken() {
     // Buscar en múltiples ubicaciones posibles
     const csrfInput = document.querySelector('input[name="_csrf"]');
@@ -60,12 +60,12 @@ function getCsrfToken() {
     return token;
 }
 
-// FETCH CON CSRF - FUNCIÓN HELPER MEJORADA
+// FETCH CON CSRF -
 async function fetchConCSRF(url, options = {}) {
     const csrfToken = getCsrfToken();
 
     const config = {
-        credentials: 'include', // Incluir cookies de sesión
+        credentials: 'include',
         headers: {
             'X-CSRF-TOKEN': csrfToken,
             ...options.headers
@@ -73,7 +73,7 @@ async function fetchConCSRF(url, options = {}) {
         ...options
     };
 
-    console.log(`🌐 Realizando petición a: ${url}`);
+    console.log(`Realizando petición a: ${url}`);
     const response = await fetch(url, config);
 
     // Verificar si hay redirección (sesión expirada)
@@ -87,7 +87,7 @@ async function fetchConCSRF(url, options = {}) {
 // CARGAR PEDIDOS PENDIENTES DESDE BACKEND
 async function cargarPedidosPendientes() {
     try {
-        console.log('📦 Cargando pedidos pendientes...');
+        console.log('Cargando pedidos pendientes...');
         const response = await fetchConCSRF('/cajero/pedidos-pendientes');
 
         if (!response.ok) {
@@ -95,12 +95,12 @@ async function cargarPedidosPendientes() {
         }
 
         pedidosPendientes = await response.json();
-        console.log(`✅ Pedidos cargados: ${pedidosPendientes.length}`);
+        console.log(` Pedidos cargados: ${pedidosPendientes.length}`);
         mostrarPedidosPendientes();
         cargarMetricas();
 
     } catch (error) {
-        console.error('❌ Error cargando pedidos:', error);
+        console.error('Error cargando pedidos:', error);
         if (error.message.includes('Sesión expirada')) {
             manejarSesionExpirada();
         } else {
@@ -112,11 +112,11 @@ async function cargarPedidosPendientes() {
 // CARGAR MÉTRICAS DESDE BACKEND
 async function cargarMetricas() {
     try {
-        console.log('📊 Cargando métricas...');
+        console.log(' Cargando métricas...');
         const response = await fetchConCSRF('/cajero/metricas-hoy');
 
         if (!response.ok) {
-            console.warn('⚠️ Endpoint métricas no disponible, usando cálculo local');
+            console.warn('⚠ Endpoint métricas no disponible, usando cálculo local');
             calcularMetricasLocales();
             return;
         }
@@ -127,7 +127,7 @@ async function cargarMetricas() {
         }
 
     } catch (error) {
-        console.error('❌ Error cargando métricas:', error);
+        console.error('Error cargando métricas:', error);
         calcularMetricasLocales();
     }
 }
@@ -142,12 +142,11 @@ function calcularMetricasLocales() {
     actualizarMetricas(metricas);
 }
 
-// MARCAR PEDIDO COMO PAGADO - VERSIÓN OPTIMIZADA
-// MARCAR PEDIDO COMO PAGADO - VERSIÓN MEJORADA
+// MARCAR PEDIDO COMO PAGADO
 async function marcarComoPagado(pedidoId) {
     try {
-        console.log(`💰 Marcando pedido ${pedidoId} como PAGADO...`);
-        console.log('🔐 Token CSRF actual:', getCsrfToken().substring(0, 20) + '...');
+        console.log(` Marcando pedido ${pedidoId} como PAGADO...`);
+        console.log(' Token CSRF actual:', getCsrfToken().substring(0, 20) + '...');
 
         const response = await fetch(`/cajero/marcar-pagado/${pedidoId}`, {
             method: 'POST',
@@ -158,8 +157,8 @@ async function marcarComoPagado(pedidoId) {
             credentials: 'include'
         });
 
-        console.log('📊 Estado respuesta:', response.status, response.statusText);
-        console.log('🔍 Redireccionó?:', response.redirected);
+        console.log(' Estado respuesta:', response.status, response.statusText);
+        console.log(' Redireccionó?:', response.redirected);
 
         // Manejar diferentes códigos de estado
         if (response.status === 401) {
@@ -181,10 +180,10 @@ async function marcarComoPagado(pedidoId) {
         }
 
         const resultado = await response.text();
-        console.log('📨 Respuesta del servidor:', resultado);
+        console.log(' Respuesta del servidor:', resultado);
 
         if (resultado.includes('SUCCESS')) {
-            mostrarAlerta('✅ Pedido marcado como PAGADO exitosamente', 'success');
+            mostrarAlerta('Pedido marcado como PAGADO exitosamente', 'success');
             await cargarPedidosPendientes();
             ocultarDetalle();
         } else {
@@ -192,25 +191,25 @@ async function marcarComoPagado(pedidoId) {
         }
 
     } catch (error) {
-        console.error('❌ Error marcando como pagado:', error);
+        console.error(' Error marcando como pagado:', error);
 
         if (error.message.includes('Sesión expirada')) {
-            mostrarAlerta('🔐 Sesión expirada. Redirigiendo al login...', 'error');
+            mostrarAlerta(' Sesión expirada. Redirigiendo al login...', 'error');
             setTimeout(() => {
                 window.location.href = '/login?sessionExpired=true';
             }, 2000);
         } else {
-            mostrarAlerta(`❌ ${error.message}`, 'error');
+            mostrarAlerta(`${error.message}`, 'error');
         }
     }
 }
 
-// ================== FUNCIONES NUEVAS PARA BOLETA ==================
+// ================== FUNCIONES PARA BOLETA ==================
 
-// MARCAR PEDIDO COMO PAGADO CON GENERACIÓN DE BOLETA - VERSIÓN NUEVA
+// MARCAR PEDIDO COMO PAGADO CON GENERACIÓN DE BOLETA
 async function marcarComoPagadoConBoleta(pedidoId) {
     try {
-        console.log(`💰 Marcando pedido ${pedidoId} como PAGADO y generando boleta...`);
+        console.log(` Marcando pedido ${pedidoId} como PAGADO y generando boleta...`);
 
         const response = await fetch(`/cajero/marcar-pagado/${pedidoId}`, {
             method: 'POST',
@@ -221,7 +220,7 @@ async function marcarComoPagadoConBoleta(pedidoId) {
             credentials: 'include'
         });
 
-        console.log('📊 Estado respuesta:', response.status);
+        console.log(' Estado respuesta:', response.status);
 
         if (response.status === 401) {
             throw new Error('Sesión expirada. Por favor, inicie sesión nuevamente.');
@@ -240,15 +239,15 @@ async function marcarComoPagadoConBoleta(pedidoId) {
             throw new Error(`Error del servidor: ${response.status}`);
         }
 
-        // ✅ CAMBIO: Esperar JSON en lugar de texto
+
         const resultado = await response.json();
-        console.log('📨 Respuesta JSON del servidor:', resultado);
+        console.log(' Respuesta JSON del servidor:', resultado);
 
         if (resultado.status === 'SUCCESS') {
-            let mensaje = '✅ Pedido marcado como PAGADO exitosamente';
+            let mensaje = 'Pedido marcado como PAGADO exitosamente';
 
             if (resultado.boletaPath && !resultado.boletaPath.includes('Error')) {
-                mensaje += `<br>📄 Boleta generada: ${resultado.boletaPath}`;
+                mensaje += `<br> Boleta generada: ${resultado.boletaPath}`;
 
                 // Descargar automáticamente la boleta después de 1 segundo
                 setTimeout(() => {
@@ -264,27 +263,27 @@ async function marcarComoPagadoConBoleta(pedidoId) {
         }
 
     } catch (error) {
-        console.error('❌ Error marcando como pagado:', error);
+        console.error('Error marcando como pagado:', error);
 
         if (error.message.includes('Sesión expirada')) {
-            mostrarAlerta('🔐 Sesión expirada. Redirigiendo al login...', 'error');
+            mostrarAlerta(' Sesión expirada. Redirigiendo al login...', 'error');
             setTimeout(() => {
                 window.location.href = '/login?sessionExpired=true';
             }, 2000);
         } else {
-            mostrarAlerta(`❌ ${error.message}`, 'error');
+            mostrarAlerta(`${error.message}`, 'error');
         }
     }
 }
 
-// FUNCIÓN MEJORADA PARA DESCARGAR BOLETA
+
 function descargarBoleta(boletaFileName) {
     try {
-        console.log('📥 Descargando boleta:', boletaFileName);
+        console.log(' Descargando boleta:', boletaFileName);
 
         // Construir URL completa al endpoint de descarga
         const downloadUrl = `/boletas/${boletaFileName}`;
-        console.log('🔗 URL de descarga:', downloadUrl);
+        console.log('URL de descarga:', downloadUrl);
 
         // Crear enlace temporal
         const link = document.createElement('a');
@@ -297,19 +296,19 @@ function descargarBoleta(boletaFileName) {
         link.click();
         document.body.removeChild(link);
 
-        console.log('✅ Descarga iniciada');
+        console.log('Descarga iniciada');
 
     } catch (error) {
-        console.error('❌ Error en descarga automática:', error);
+        console.error('Error en descarga automática:', error);
         // Fallback: abrir en nueva pestaña
         window.open(`/boletas/${boletaFileName}`, '_blank');
     }
 }
 
-// ACTUALIZA la función marcarComoPagadoConBoleta:
+
 async function marcarComoPagadoConBoleta(pedidoId) {
     try {
-        console.log(`💰 Marcando pedido ${pedidoId} como PAGADO...`);
+        console.log(` Marcando pedido ${pedidoId} como PAGADO...`);
 
         const response = await fetch(`/cajero/marcar-pagado/${pedidoId}`, {
             method: 'POST',
@@ -325,24 +324,24 @@ async function marcarComoPagadoConBoleta(pedidoId) {
         }
 
         const resultado = await response.json();
-        console.log('📨 Respuesta del servidor:', resultado);
+        console.log(' Respuesta del servidor:', resultado);
 
         if (resultado.status === 'SUCCESS') {
-            let mensaje = '✅ Pedido marcado como PAGADO exitosamente';
+            let mensaje = 'Pedido marcado como PAGADO exitosamente';
 
-            // ✅ VERIFICACIÓN MEJORADA - Solo descargar si hay nombre de archivo válido
+
             if (resultado.boletaPath &&
                 resultado.boletaPath !== 'error_generacion' &&
                 !resultado.boletaPath.includes('Error')) {
 
-                mensaje += `<br>📄 Boleta generada: ${resultado.boletaPath}`;
+                mensaje += `<br> Boleta generada: ${resultado.boletaPath}`;
 
                 // Descargar automáticamente después de 1 segundo
                 setTimeout(() => {
                     descargarBoleta(resultado.boletaPath);
                 }, 1000);
             } else {
-                mensaje += `<br>⚠️ Boleta no generada (pero pedido procesado)`;
+                mensaje += `<br> Boleta no generada (pero pedido procesado)`;
             }
 
             mostrarAlerta(mensaje, 'success');
@@ -353,12 +352,12 @@ async function marcarComoPagadoConBoleta(pedidoId) {
         }
 
     } catch (error) {
-        console.error('❌ Error marcando como pagado:', error);
-        mostrarAlerta(`❌ ${error.message}`, 'error');
+        console.error(' Error marcando como pagado:', error);
+        mostrarAlerta(` ${error.message}`, 'error');
     }
 }
 
-// FUNCIÓN PARA VISUALIZAR BOLETA EN NUEVA PESTAÑA
+
 function visualizarBoleta(boletaPath) {
     try {
         let viewUrl = boletaPath;
@@ -367,16 +366,16 @@ function visualizarBoleta(boletaPath) {
         }
 
         window.open(viewUrl, '_blank');
-        console.log('👁️ Boleta abierta en nueva pestaña:', viewUrl);
+        console.log('Boleta abierta en nueva pestaña:', viewUrl);
     } catch (error) {
-        console.error('❌ Error visualizando boleta:', error);
+        console.error(' Error visualizando boleta:', error);
     }
 }
 
-// CANCELAR PEDIDO - VERSIÓN OPTIMIZADA
+// CANCELAR PEDIDO
 async function cancelarPedido(pedidoId, motivo = '') {
     try {
-        console.log(`❌ Cancelando pedido ${pedidoId}...`);
+        console.log(` Cancelando pedido ${pedidoId}...`);
 
         const formData = new URLSearchParams();
         if (motivo) formData.append('motivo', motivo);
@@ -390,10 +389,10 @@ async function cancelarPedido(pedidoId, motivo = '') {
         });
 
         const resultado = await response.text();
-        console.log('📨 Respuesta del servidor:', resultado);
+        console.log(' Respuesta del servidor:', resultado);
 
         if (resultado.includes('SUCCESS') || response.ok) {
-            mostrarAlerta('✅ Pedido cancelado exitosamente', 'success');
+            mostrarAlerta('Pedido cancelado exitosamente', 'success');
             await cargarPedidosPendientes();
             ocultarDetalle();
         } else {
@@ -401,18 +400,18 @@ async function cancelarPedido(pedidoId, motivo = '') {
         }
 
     } catch (error) {
-        console.error('❌ Error cancelando pedido:', error);
+        console.error(' Error cancelando pedido:', error);
         if (error.message.includes('Sesión expirada')) {
             manejarSesionExpirada();
         } else {
-            mostrarAlerta(`❌ Error: ${error.message}`, 'error');
+            mostrarAlerta(` Error: ${error.message}`, 'error');
         }
     }
 }
 
 // MANEJAR SESIÓN EXPIRADA
 function manejarSesionExpirada() {
-    mostrarAlerta('🔐 Sesión expirada. Redirigiendo al login...', 'error');
+    mostrarAlerta(' Sesión expirada. Redirigiendo al login...', 'error');
     setTimeout(() => {
         window.location.href = '/login?sessionExpired=true';
     }, 2000);
@@ -670,11 +669,11 @@ function actualizarHoraYFecha() {
 // ================== EVENT LISTENERS ==================
 
 document.addEventListener('DOMContentLoaded', function () {
-    console.log('🚀 Inicializando módulo de cajero...');
+    console.log(' Inicializando módulo de cajero...');
 
     // Verificar que existe el token CSRF
     const csrfToken = getCsrfToken();
-    console.log('🔐 Token CSRF disponible:', csrfToken ? 'SÍ' : 'NO');
+    console.log(' Token CSRF disponible:', csrfToken ? 'SÍ' : 'NO');
 
     // Cargar datos iniciales
     cargarPedidosPendientes();
@@ -740,10 +739,10 @@ document.addEventListener('DOMContentLoaded', function () {
     // Recargar datos cada 30 segundos
     setInterval(cargarPedidosPendientes, 30000);
 
-    console.log('✅ Módulo de cajero inicializado correctamente');
+    console.log('Módulo de cajero inicializado correctamente');
 });
 
-// ================== FUNCIONES ORIGINALES MANTENIDAS ==================
+
 
 function convertNumberToWords(number) {
     const totalFixed = number.toFixed(2);

@@ -1,17 +1,17 @@
-// sigue-tu-pedido.js - VERSIÓN CORREGIDA - SIN AJAX PARA THYMELEAF
+// sigue-tu-pedido.js
 document.addEventListener('DOMContentLoaded', function() {
     console.log('=== SIGUE TU PEDIDO - INICIADO ===');
     inicializarSeguimiento();
 });
 
-// ✅ Inicializar página de seguimiento
+
 function inicializarSeguimiento() {
     configurarEventos();
     cargarPedidoDesdeURL();
     console.log('Página de seguimiento inicializada');
 }
 
-// ✅ Configurar eventos
+
 function configurarEventos() {
     const form = document.getElementById('formSeguimientoPedido');
     if (form) {
@@ -22,7 +22,7 @@ function configurarEventos() {
                 mostrarError('Por favor ingresa un número de pedido');
                 return;
             }
-            console.log('🔍 Buscando pedido:', numeroPedido);
+            console.log(' Buscando pedido:', numeroPedido);
 
             // Mostrar loading state
             const btnBuscar = document.getElementById('btnBuscar');
@@ -46,7 +46,7 @@ function configurarEventos() {
             setTimeout(() => {
                 const valor = this.value.trim().toUpperCase();
                 if (valor.startsWith('LR')) {
-                    console.log('📋 Número de pedido pegado:', valor);
+                    console.log(' Número de pedido pegado:', valor);
                     // Auto-enfocar el botón de búsqueda
                     document.getElementById('btnBuscar')?.focus();
                 }
@@ -66,13 +66,13 @@ function configurarEventos() {
     configurarEventosResultados();
 }
 
-// ✅ Cargar pedido desde parámetro URL
+
 function cargarPedidoDesdeURL() {
     const urlParams = new URLSearchParams(window.location.search);
     const numeroPedido = urlParams.get('numero');
 
     if (numeroPedido) {
-        console.log('📥 Cargando pedido desde URL:', numeroPedido);
+        console.log(' Cargando pedido desde URL:', numeroPedido);
         document.getElementById('numeroPedido').value = numeroPedido;
 
         // Mostrar loading state
@@ -89,7 +89,7 @@ function cargarPedidoDesdeURL() {
     }
 }
 
-// ✅ Configurar eventos en los resultados (cuando la página ya tiene resultados)
+
 function configurarEventosResultados() {
     // Configurar botón de copiar número
     const btnCopiar = document.querySelector('[onclick*="copiarNumeroPedido"]');
@@ -110,36 +110,35 @@ function configurarEventosResultados() {
     }
 }
 
-// ✅ Copiar número de pedido
+
 function copiarNumeroPedido() {
     const numeroPedidoElement = document.querySelector('.info-pedido p:first-child span');
     if (numeroPedidoElement) {
         const texto = numeroPedidoElement.textContent;
         navigator.clipboard.writeText(texto).then(() => {
-            mostrarNotificacion('✅ Número de pedido copiado: ' + texto, 'success');
+            mostrarNotificacion('Número de pedido copiado: ' + texto, 'success');
         }).catch(() => {
-            mostrarNotificacion('❌ Error al copiar el número', 'error');
+            mostrarNotificacion(' Error al copiar el número', 'error');
         });
     } else {
-        mostrarNotificacion('❌ No se encontró el número de pedido', 'error');
+        mostrarNotificacion(' No se encontró el número de pedido', 'error');
     }
 }
 
-// ✅ Repetir pedido
+
 function repetirPedido() {
-    mostrarNotificacion('🔄 Preparando para repetir pedido...', 'info');
-    // Aquí iría la lógica para repetir el pedido
-    // Por ejemplo: window.location.href = '/menu?repetir-pedido=' + pedidoId;
+    mostrarNotificacion(' Preparando para repetir pedido...', 'info');
+
 }
 
-// ✅ Descargar comprobante
+
 function descargarComprobante() {
-    mostrarNotificacion('📄 Generando comprobante...', 'info');
-    // Aquí iría la lógica para descargar el comprobante
-    // Por ejemplo: window.open('/pedido/comprobante/' + pedidoId, '_blank');
+    mostrarNotificacion(' Generando comprobante...', 'info');
+
+
 }
 
-// ✅ Mostrar notificación
+
 function mostrarNotificacion(mensaje, tipo = 'info') {
     // Remover notificación anterior si existe
     const notificacionAnterior = document.querySelector('.notificacion-flotante');
@@ -188,12 +187,12 @@ function mostrarNotificacion(mensaje, tipo = 'info') {
     }, 5000);
 }
 
-// ✅ Mostrar error
+
 function mostrarError(mensaje) {
     mostrarNotificacion(mensaje, 'error');
 }
 
-// ✅ CSS dinámico para animaciones
+
 const style = document.createElement('style');
 style.textContent = `
     @keyframes slideInRight {

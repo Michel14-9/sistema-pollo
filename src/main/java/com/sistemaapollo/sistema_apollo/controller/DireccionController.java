@@ -25,9 +25,9 @@ public class DireccionController {
     @GetMapping
     public ResponseEntity<?> obtenerDireccionesUsuario(Authentication authentication) {
         try {
-            System.out.println("📥 === OBTENIENDO DIRECCIONES DEL USUARIO ===");
+            System.out.println("=== OBTENIENDO DIRECCIONES DEL USUARIO ===");
             String username = authentication.getName();
-            System.out.println("🔍 Usuario: " + username);
+            System.out.println("Usuario: " + username);
 
             List<Direccion> direcciones = direccionService.obtenerDireccionesUsuario(username);
             List<DireccionDTO> direccionesDTO = direcciones.stream()

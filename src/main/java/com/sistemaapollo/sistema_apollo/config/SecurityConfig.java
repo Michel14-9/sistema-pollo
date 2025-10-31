@@ -35,7 +35,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // CSRF CONFIGURADO CORRECTAMENTE PARA CAJERO
+
                 .csrf(csrf -> csrf
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                         // PERMITIR endpoints POST de todos los módulos
@@ -58,7 +58,7 @@ public class SecurityConfig {
                         .expiredUrl("/login?expired=true")
                 )
 
-                // RUTAS Y PERMISOS (CON NUEVOS ROLES) - CORREGIDO
+                // RUTAS Y PERMISOS
                 .authorizeHttpRequests(auth -> auth
                         // Rutas públicas
                         .requestMatchers(
@@ -102,7 +102,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
 
-                // LOGIN FORM - REDIRIGE A /postLogin (COMO ANTES)
+                // LOGIN FORM
                 .formLogin(form -> form
                         .loginPage("/login")
                         .defaultSuccessUrl("/postLogin") //  REDIRIGE AL CONTROLADOR
@@ -110,7 +110,7 @@ public class SecurityConfig {
                         .permitAll()
                 )
 
-                // LOGOUT - PERMITIENDO GET EXPLÍCITAMENTE
+                // LOGOUT
                 .logout(logout -> logout
                         .logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET"))
                         .logoutSuccessUrl("/login?logout=true")

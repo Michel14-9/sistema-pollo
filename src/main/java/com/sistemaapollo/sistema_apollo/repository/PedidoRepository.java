@@ -15,7 +15,7 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
     @Query("SELECT DISTINCT p FROM Pedido p LEFT JOIN FETCH p.items WHERE p.id = :id")
     Optional<Pedido> findByIdWithItems(@Param("id") Long id);
 
-    // === CONSULTA MEJORADA - AGREGAR ESTA LÍNEA ===
+
     @Query("SELECT DISTINCT p FROM Pedido p LEFT JOIN FETCH p.items i LEFT JOIN FETCH i.producto ORDER BY p.fecha DESC")
     List<Pedido> findAllWithItemsAndProducts();
 
@@ -28,13 +28,13 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
     @Query("SELECT p FROM Pedido p WHERE p.numero = :numero")
     Optional<Pedido> findByNumero(@Param("numero") String numero);
 
-    // PARA CAJERO: pedidos más recientes primero
+
     @Query("SELECT p FROM Pedido p WHERE p.estado = :estado ORDER BY p.fecha DESC")
     List<Pedido> findByEstadoOrderByFechaDesc(@Param("estado") String estado);
-    // ✅ AGREGAR ESTE MÉTODO PARA DELIVERY - CON ITEMS CARGADOS
+
     @Query("SELECT DISTINCT p FROM Pedido p LEFT JOIN FETCH p.items WHERE p.estado = :estado ORDER BY p.fecha ASC")
     List<Pedido> findByEstadoWithItems(@Param("estado") String estado);
-    // PARA COCINERO: pedidos más antiguos primero (FIFO)
+
     @Query("SELECT p FROM Pedido p WHERE p.estado = :estado ORDER BY p.fecha ASC")
     List<Pedido> findByEstadoOrderByFechaAsc(@Param("estado") String estado);
 

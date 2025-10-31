@@ -39,7 +39,7 @@ public class ReportesController {
             @RequestParam(required = false) String fechaFin) {
 
         try {
-            System.out.println("📊 Generando reporte de ventas - Fechas: " + fechaInicio + " a " + fechaFin);
+            System.out.println("Generando reporte de ventas - Fechas: " + fechaInicio + " a " + fechaFin);
 
             Map<String, Object> reporte = new HashMap<>();
 
@@ -48,9 +48,9 @@ public class ReportesController {
             LocalDateTime inicio = rangoFechas[0];
             LocalDateTime fin = rangoFechas[1];
 
-            // ✅ CAMBIO IMPORTANTE: Usar el método que carga productos
+
             List<Pedido> todosPedidos = pedidoRepository.findAllWithItemsAndProducts();
-            System.out.println("📦 Total de pedidos encontrados: " + todosPedidos.size());
+            System.out.println(" Total de pedidos encontrados: " + todosPedidos.size());
 
             // Filtrar pedidos por fecha
             List<Pedido> pedidosFiltrados = todosPedidos.stream()
@@ -59,7 +59,7 @@ public class ReportesController {
                             !p.getFecha().isAfter(fin))
                     .collect(Collectors.toList());
 
-            System.out.println("📦 Pedidos filtrados: " + pedidosFiltrados.size());
+            System.out.println(" Pedidos filtrados: " + pedidosFiltrados.size());
 
             // Calcular métricas
             double totalVentas = pedidosFiltrados.stream()
@@ -107,12 +107,12 @@ public class ReportesController {
             reporte.put("tablaDatos", tablaDatos);
             reporte.put("success", true);
 
-            System.out.println("✅ Reporte de ventas generado exitosamente");
+            System.out.println(" Reporte de ventas generado exitosamente");
 
             return ResponseEntity.ok(reporte);
 
         } catch (Exception e) {
-            System.err.println("❌ Error en reporte de ventas: " + e.getMessage());
+            System.err.println(" Error en reporte de ventas: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(500)
                     .body(Map.of("success", false, "error", "Error al generar reporte: " + e.getMessage()));
@@ -128,7 +128,7 @@ public class ReportesController {
             @RequestParam(required = false) String fechaFin) {
 
         try {
-            System.out.println("📦 Generando reporte de productos - Fechas: " + fechaInicio + " a " + fechaFin);
+            System.out.println(" Generando reporte de productos - Fechas: " + fechaInicio + " a " + fechaFin);
 
             Map<String, Object> reporte = new HashMap<>();
 
@@ -137,7 +137,7 @@ public class ReportesController {
             LocalDateTime inicio = rangoFechas[0];
             LocalDateTime fin = rangoFechas[1];
 
-            // ✅ CAMBIO IMPORTANTE: Usar el método que carga productos
+
             List<Pedido> todosPedidos = pedidoRepository.findAllWithItemsAndProducts();
             List<Pedido> pedidosFiltrados = todosPedidos.stream()
                     .filter(p -> p.getFecha() != null &&
@@ -156,10 +156,10 @@ public class ReportesController {
                     String categoria = "General";
                     if (item.getProductoFinal() != null && item.getProductoFinal().getTipo() != null) {
                         categoria = item.getProductoFinal().getTipo();
-                        System.out.println("✅ Categoría encontrada: " + categoria + " para producto: " + nombreProducto);
+                        System.out.println(" Categoría encontrada: " + categoria + " para producto: " + nombreProducto);
                     } else {
                         categoria = inferirCategoriaDeNombre(nombreProducto);
-                        System.out.println("⚠️ Categoría inferida: " + categoria + " para producto: " + nombreProducto);
+                        System.out.println("Categoría inferida: " + categoria + " para producto: " + nombreProducto);
                     }
 
                     ProductoVendido producto = productosMap.getOrDefault(nombreProducto,
@@ -219,12 +219,12 @@ public class ReportesController {
             reporte.put("tablaDatos", tablaDatos);
             reporte.put("success", true);
 
-            System.out.println("✅ Reporte de productos generado exitosamente");
+            System.out.println(" Reporte de productos generado exitosamente");
 
             return ResponseEntity.ok(reporte);
 
         } catch (Exception e) {
-            System.err.println("❌ Error en reporte de productos: " + e.getMessage());
+            System.err.println("Error en reporte de productos: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(500)
                     .body(Map.of("success", false, "error", "Error al generar reporte: " + e.getMessage()));
@@ -249,7 +249,7 @@ public class ReportesController {
             LocalDateTime inicio = rangoFechas[0];
             LocalDateTime fin = rangoFechas[1];
 
-            // ✅ CAMBIO IMPORTANTE: Usar el método que carga productos
+
             List<Pedido> todosPedidos = pedidoRepository.findAllWithItemsAndProducts();
             List<Usuario> todosUsuarios = usuarioRepository.findAll();
 
@@ -320,12 +320,12 @@ public class ReportesController {
             reporte.put("tablaDatos", tablaDatos);
             reporte.put("success", true);
 
-            System.out.println("✅ Reporte de usuarios generado exitosamente");
+            System.out.println(" Reporte de usuarios generado exitosamente");
 
             return ResponseEntity.ok(reporte);
 
         } catch (Exception e) {
-            System.err.println("❌ Error en reporte de usuarios: " + e.getMessage());
+            System.err.println(" Error en reporte de usuarios: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(500)
                     .body(Map.of("success", false, "error", "Error al generar reporte: " + e.getMessage()));
@@ -348,7 +348,7 @@ public class ReportesController {
             inicio = fin.minusMonths(1);
         }
 
-        System.out.println("📅 Rango de fechas: " + inicio + " a " + fin);
+        System.out.println(" Rango de fechas: " + inicio + " a " + fin);
         return new LocalDateTime[]{inicio, fin};
     }
 
@@ -385,12 +385,12 @@ public class ReportesController {
             if (ventasAnterior == 0) return ventasActual > 0 ? 100.0 : 0.0;
 
             double crecimiento = ((ventasActual - ventasAnterior) / ventasAnterior) * 100;
-            System.out.println("📈 Crecimiento calculado: " + crecimiento + "%");
+            System.out.println(" Crecimiento calculado: " + crecimiento + "%");
 
             return crecimiento;
 
         } catch (Exception e) {
-            System.err.println("❌ Error calculando crecimiento: " + e.getMessage());
+            System.err.println(" Error calculando crecimiento: " + e.getMessage());
             return 0.0;
         }
     }
@@ -424,7 +424,7 @@ public class ReportesController {
             fechaActual = fechaActual.plusDays(1);
         }
 
-        System.out.println("📊 Ventas por día calculadas: " + ventasPorDia.size() + " días");
+        System.out.println(" Ventas por día calculadas: " + ventasPorDia.size() + " días");
         return ventasPorDia;
     }
 
@@ -434,21 +434,21 @@ public class ReportesController {
         for (Pedido pedido : pedidos) {
             if ("ENTREGADO".equals(pedido.getEstado())) {
                 for (ItemPedido item : pedido.getItems()) {
-                    // DIAGNÓSTICO: Ver qué información tenemos
-                    System.out.println("🔍 Item: " + item.getNombreProductoSeguro());
-                    System.out.println("🔍 ProductoFinal: " + (item.getProductoFinal() != null ? "EXISTE" : "NULL"));
+
+                    System.out.println(" Item: " + item.getNombreProductoSeguro());
+                    System.out.println(" ProductoFinal: " + (item.getProductoFinal() != null ? "EXISTE" : "NULL"));
                     if (item.getProductoFinal() != null) {
-                        System.out.println("🔍 Nombre: " + item.getProductoFinal().getNombre());
-                        System.out.println("🔍 Categoría: " + item.getProductoFinal().getTipo());
+                        System.out.println(" Nombre: " + item.getProductoFinal().getNombre());
+                        System.out.println("Categoría: " + item.getProductoFinal().getTipo());
                     }
 
                     String categoria = "General";
                     if (item.getProductoFinal() != null && item.getProductoFinal().getTipo() != null) {
                         categoria = item.getProductoFinal().getTipo();
-                        System.out.println("✅ Usando categoría real: " + categoria);
+                        System.out.println(" Usando categoría real: " + categoria);
                     } else {
                         categoria = inferirCategoriaDeNombre(item.getNombreProductoSeguro());
-                        System.out.println("⚠️ Usando categoría inferida: " + categoria);
+                        System.out.println(" Usando categoría inferida: " + categoria);
                     }
 
                     double subtotal = item.getSubtotal() != null ? item.getSubtotal() : 0.0;
@@ -457,8 +457,8 @@ public class ReportesController {
             }
         }
 
-        System.out.println("📊 Ventas por categoría calculadas: " + ventasPorCategoria.size() + " categorías");
-        System.out.println("📊 Categorías encontradas: " + ventasPorCategoria.keySet());
+        System.out.println(" Ventas por categoría calculadas: " + ventasPorCategoria.size() + " categorías");
+        System.out.println("Categorías encontradas: " + ventasPorCategoria.keySet());
         return ventasPorCategoria;
     }
 
@@ -512,7 +512,7 @@ public class ReportesController {
             tabla.add(fila);
         }
 
-        System.out.println("📋 Tabla de ventas generada: " + tabla.size() + " registros");
+        System.out.println(" Tabla de ventas generada: " + tabla.size() + " registros");
         return tabla;
     }
 

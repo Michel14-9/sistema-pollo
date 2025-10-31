@@ -1,4 +1,4 @@
-// cocinero.js - SISTEMA KANBAN PARA COCINA - VERSIÓN CORREGIDA
+// cocinero.js
 
 // Variables globales
 let pedidoSeleccionado = null;
@@ -55,7 +55,7 @@ function getCsrfToken() {
     const token = csrfInput ? csrfInput.value : (csrfMeta ? csrfMeta.content : '');
 
     if (!token) {
-        console.warn('⚠️ No se encontró token CSRF');
+        console.warn('No se encontró token CSRF');
     }
     return token;
 }
@@ -82,10 +82,10 @@ async function fetchConCSRF(url, options = {}) {
     return response;
 }
 
-// CARGAR TODOS LOS PEDIDOS DEL COCINERO - VERSIÓN CORREGIDA
+// CARGAR TODOS LOS PEDIDOS DEL COCINERO
 async function cargarPedidosCocina() {
     try {
-        console.log('🍳 Cargando pedidos de cocina...');
+        console.log(' Cargando pedidos de cocina...');
 
         const [porPreparar, enPreparacion, listos] = await Promise.all([
             fetchConCSRF('/cocinero/pedidos-por-preparar').then(r => r.json()),
@@ -93,18 +93,18 @@ async function cargarPedidosCocina() {
             fetchConCSRF('/cocinero/pedidos-listos-hoy').then(r => r.json())
         ]);
 
-        // ✅ CORRECCIÓN: Asegurar que siempre sean arrays
+
         pedidosPorPreparar = Array.isArray(porPreparar) ? porPreparar : [];
         pedidosEnPreparacion = Array.isArray(enPreparacion) ? enPreparacion : [];
         pedidosListos = Array.isArray(listos) ? listos : [];
 
-        console.log(`✅ Pedidos cargados: ${pedidosPorPreparar.length} por preparar, ${pedidosEnPreparacion.length} en preparación, ${pedidosListos.length} listos`);
+        console.log(`Pedidos cargados: ${pedidosPorPreparar.length} por preparar, ${pedidosEnPreparacion.length} en preparación, ${pedidosListos.length} listos`);
 
         mostrarPedidos();
         cargarMetricasCocina();
 
     } catch (error) {
-        console.error('❌ Error cargando pedidos:', error);
+        console.error(' Error cargando pedidos:', error);
         if (error.message.includes('Sesión expirada')) {
             manejarSesionExpirada();
         } else {
@@ -113,10 +113,10 @@ async function cargarPedidosCocina() {
     }
 }
 
-// CARGAR MÉTRICAS DEL COCINERO - VERSIÓN MEJORADA
+// CARGAR MÉTRICAS DEL COCINERO
 async function cargarMetricasCocina() {
     try {
-        console.log('📊 Cargando métricas de cocina...');
+        console.log('Cargando métricas de cocina...');
         const response = await fetchConCSRF('/cocinero/metricas-cocina');
 
         if (!response.ok) {
@@ -124,35 +124,35 @@ async function cargarMetricasCocina() {
         }
 
         const metricas = await response.json();
-        console.log('📈 Métricas cargadas:', metricas);
+        console.log('Métricas cargadas:', metricas);
 
         if (metricas.success) {
             actualizarMetricas(metricas);
         } else {
-            // ✅ CORRECCIÓN: Si no hay métricas del servidor, usar datos locales
+
             actualizarMetricasConDatosLocales();
         }
 
     } catch (error) {
-        console.error('❌ Error cargando métricas:', error);
-        // ✅ CORRECCIÓN: Usar datos locales como fallback
+        console.error(' Error cargando métricas:', error);
+
         actualizarMetricasConDatosLocales();
     }
 }
 
-// ACTUALIZAR MÉTRICAS CON DATOS LOCALES - NUEVA FUNCIÓN
+// ACTUALIZAR MÉTRICAS CON DATOS LOCALES
 function actualizarMetricasConDatosLocales() {
     const metricasData = {
         totalPorPreparar: pedidosPorPreparar.length,
         totalEnPreparacion: pedidosEnPreparacion.length,
         totalListosHoy: pedidosListos.length,
-        tiempoPromedio: calcularTiempoPromedioListos() // ✅ Nueva función para calcular tiempo promedio
+        tiempoPromedio: calcularTiempoPromedioListos()
     };
 
     actualizarMetricas(metricasData);
 }
 
-// CALCULAR TIEMPO PROMEDIO DE PEDIDOS LISTOS - NUEVA FUNCIÓN
+// CALCULAR TIEMPO PROMEDIO DE PEDIDOS LISTOS
 function calcularTiempoPromedioListos() {
     if (pedidosListos.length === 0) return 0;
 
@@ -167,7 +167,7 @@ function calcularTiempoPromedioListos() {
                 const diferenciaMs = fechaFin - fechaInicio;
                 const minutos = Math.floor(diferenciaMs / (1000 * 60));
 
-                if (minutos > 0 && minutos < 480) { // ✅ Filtrar tiempos razonables (menos de 8 horas)
+                if (minutos > 0 && minutos < 480) {
                     totalMinutos += minutos;
                     pedidosConTiempo++;
                 }
@@ -183,7 +183,7 @@ function calcularTiempoPromedioListos() {
 // INICIAR PREPARACIÓN DE PEDIDO
 async function iniciarPreparacion(pedidoId) {
     try {
-        console.log(`🍳 Iniciando preparación del pedido ${pedidoId}...`);
+        console.log(`Iniciando preparación del pedido ${pedidoId}...`);
 
         const response = await fetchConCSRF(`/cocinero/iniciar-preparacion/${pedidoId}`, {
             method: 'POST',
@@ -199,10 +199,10 @@ async function iniciarPreparacion(pedidoId) {
         }
 
         const resultado = await response.json();
-        console.log('📨 Respuesta del servidor:', resultado);
+        console.log(' Respuesta del servidor:', resultado);
 
         if (resultado.status === 'SUCCESS') {
-            mostrarAlerta('✅ Preparación iniciada correctamente', 'success');
+            mostrarAlerta(' Preparación iniciada correctamente', 'success');
             await cargarPedidosCocina();
             ocultarDetalle();
         } else {
@@ -210,11 +210,11 @@ async function iniciarPreparacion(pedidoId) {
         }
 
     } catch (error) {
-        console.error('❌ Error iniciando preparación:', error);
+        console.error(' Error iniciando preparación:', error);
         if (error.message.includes('Sesión expirada')) {
             manejarSesionExpirada();
         } else {
-            mostrarAlerta(`❌ ${error.message}`, 'error');
+            mostrarAlerta(` ${error.message}`, 'error');
         }
     }
 }
@@ -222,7 +222,7 @@ async function iniciarPreparacion(pedidoId) {
 // MARCAR PEDIDO COMO LISTO
 async function marcarComoListo(pedidoId) {
     try {
-        console.log(`✅ Marcando pedido ${pedidoId} como LISTO...`);
+        console.log(` Marcando pedido ${pedidoId} como LISTO...`);
 
         const response = await fetchConCSRF(`/cocinero/marcar-listo/${pedidoId}`, {
             method: 'POST',
@@ -238,32 +238,32 @@ async function marcarComoListo(pedidoId) {
         }
 
         const resultado = await response.json();
-        console.log('📨 Respuesta del servidor:', resultado);
+        console.log(' Respuesta del servidor:', resultado);
 
         if (resultado.status === 'SUCCESS') {
-            mostrarAlerta('✅ Pedido marcado como LISTO correctamente', 'success');
+            mostrarAlerta(' Pedido marcado como LISTO correctamente', 'success');
             await cargarPedidosCocina();
             ocultarDetalle();
 
-            // ✅ CORRECCIÓN: Forzar actualización de métricas
+
             setTimeout(cargarMetricasCocina, 500);
         } else {
             throw new Error(resultado.message || 'Error desconocido');
         }
 
     } catch (error) {
-        console.error('❌ Error marcando como listo:', error);
+        console.error(' Error marcando como listo:', error);
         if (error.message.includes('Sesión expirada')) {
             manejarSesionExpirada();
         } else {
-            mostrarAlerta(`❌ ${error.message}`, 'error');
+            mostrarAlerta(` ${error.message}`, 'error');
         }
     }
 }
 
 // ================== FUNCIONES DE INTERFAZ ==================
 
-// ACTUALIZAR MÉTRICAS EN LA INTERFAZ - VERSIÓN CORREGIDA
+// ACTUALIZAR MÉTRICAS EN LA INTERFAZ
 function actualizarMetricas(metricas) {
     const metricasData = {
         totalPorPreparar: metricas.totalPorPreparar || pedidosPorPreparar.length || 0,
@@ -272,9 +272,9 @@ function actualizarMetricas(metricas) {
         tiempoPromedio: metricas.tiempoPromedio || 0
     };
 
-    console.log('📊 Actualizando métricas:', metricasData);
+    console.log('Actualizando métricas:', metricasData);
 
-    // ✅ CORRECCIÓN: Asegurar que todos los elementos existen antes de actualizar
+
     if (elementos.metricas.porPreparar) {
         elementos.metricas.porPreparar.textContent = metricasData.totalPorPreparar;
     }
@@ -285,9 +285,9 @@ function actualizarMetricas(metricas) {
         elementos.metricas.listos.textContent = metricasData.totalListosHoy;
     }
     if (elementos.metricas.tiempoPromedio) {
-        // ✅ CORRECCIÓN: Mostrar correctamente el tiempo promedio
+
         elementos.metricas.tiempoPromedio.textContent = `${metricasData.tiempoPromedio} min`;
-        console.log('⏱️ Tiempo promedio mostrado:', metricasData.tiempoPromedio);
+        console.log(' Tiempo promedio mostrado:', metricasData.tiempoPromedio);
     }
 
     // Actualizar badges
@@ -400,12 +400,12 @@ function crearItemPedido(pedido, columna) {
 
 // ================== FUNCIONES UTILITARIAS ==================
 
-// CALCULAR TIEMPO TRANSCURRIDO - VERSIÓN MEJORADA
+// CALCULAR TIEMPO TRANSCURRIDO
 function calcularTiempoTranscurrido(fechaString) {
     if (!fechaString) return { texto: 'N/A', minutosTotales: 0 };
 
     try {
-        // ✅ CORRECCIÓN: Asegurar que la fecha se parsea correctamente
+
         const fechaPedido = new Date(fechaString);
         if (isNaN(fechaPedido.getTime())) {
             return { texto: 'N/A', minutosTotales: 0 };
@@ -415,9 +415,9 @@ function calcularTiempoTranscurrido(fechaString) {
         const diferenciaMs = ahora - fechaPedido;
         const minutosTotales = Math.floor(diferenciaMs / (1000 * 60));
 
-        // ✅ CORRECCIÓN: Si son más de 6 horas, probablemente hay error de fecha
+
         if (minutosTotales > 360) { // 6 horas
-            console.warn('⚠️ Tiempo muy largo detectado:', minutosTotales, 'minutos para pedido');
+            console.warn(' Tiempo muy largo detectado:', minutosTotales, 'minutos para pedido');
             return { texto: 'Revisar', minutosTotales };
         }
 
@@ -434,7 +434,7 @@ function calcularTiempoTranscurrido(fechaString) {
     }
 }
 
-// OBTENER NOMBRE DEL CLIENTE - VERSIÓN CORREGIDA
+// OBTENER NOMBRE DEL CLIENTE
 function obtenerNombreCliente(pedido) {
     if (pedido.cliente && typeof pedido.cliente === 'object') {
         const nombres = pedido.cliente.nombres || '';
@@ -454,13 +454,13 @@ function formatearFecha(fechaString) {
         const fecha = new Date(fechaString);
         if (isNaN(fecha.getTime())) return 'Fecha inválida';
 
-        return fecha.toLocaleDateString('es-PE', { // ✅ Especificar Perú
+        return fecha.toLocaleDateString('es-PE', {
             day: '2-digit',
             month: '2-digit',
             year: 'numeric',
             hour: '2-digit',
             minute: '2-digit',
-            timeZone: 'America/Lima' // ✅ Zona horaria de Perú
+            timeZone: 'America/Lima'
         });
     } catch (error) {
         return 'Fecha inválida';
@@ -487,7 +487,7 @@ function formatearFechaCorta(fechaString) {
 
 // MANEJAR SESIÓN EXPIRADA
 function manejarSesionExpirada() {
-    mostrarAlerta('🔐 Sesión expirada. Redirigiendo al login...', 'error');
+    mostrarAlerta(' Sesión expirada. Redirigiendo al login...', 'error');
     setTimeout(() => {
         window.location.href = '/login?sessionExpired=true';
     }, 2000);
@@ -540,11 +540,11 @@ function mostrarAlerta(mensaje, tipo = 'info') {
 // ================== INICIALIZACIÓN ==================
 
 document.addEventListener('DOMContentLoaded', function () {
-    console.log('🍳 Inicializando módulo de cocinero...');
+    console.log('Inicializando módulo de cocinero...');
 
     // Verificar token CSRF
     const csrfToken = getCsrfToken();
-    console.log('🔐 Token CSRF disponible:', csrfToken ? 'SÍ' : 'NO');
+    console.log(' Token CSRF disponible:', csrfToken ? 'SÍ' : 'NO');
 
     // Cargar datos iniciales
     cargarPedidosCocina();
@@ -586,7 +586,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Recargar datos cada 30 segundos
     setInterval(cargarPedidosCocina, 30000);
 
-    console.log('✅ Módulo de cocinero inicializado correctamente');
+    console.log('Módulo de cocinero inicializado correctamente');
 });
 
 // ACTUALIZAR HORA Y FECHA EN TIEMPO REAL
@@ -622,7 +622,7 @@ function ocultarDetalle() {
     }
 }
 
-// MOSTRAR DETALLE DEL PEDIDO (función completa que falta)
+// MOSTRAR DETALLE DEL PEDIDO
 async function mostrarDetallePedido(pedido, columna) {
     try {
         pedidoSeleccionado = pedido;
@@ -677,7 +677,7 @@ async function mostrarDetallePedido(pedido, columna) {
         elementos.detalle.contenedor.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
     } catch (error) {
-        console.error('❌ Error mostrando detalle:', error);
+        console.error('Error mostrando detalle:', error);
         mostrarAlerta('Error al cargar detalle del pedido', 'error');
     }
 }

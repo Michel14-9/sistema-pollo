@@ -14,7 +14,7 @@ let modalDetallePedido = null;
 // INICIALIZACIÓN
 
 document.addEventListener('DOMContentLoaded', function() {
-    console.log("🚀 Inicializando gestión de pedidos...");
+    console.log(" Inicializando gestión de pedidos...");
 
     // Verificar si el usuario está autenticado
     if (document.getElementById('pedidosLista')) {
@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const modalElement = document.getElementById('modalDetallePedido');
         if (modalElement) {
             modalDetallePedido = new bootstrap.Modal(modalElement);
-            console.log("✅ Modal de detalles inicializado");
+            console.log(" Modal de detalles inicializado");
         }
 
         // Configurar event listeners
@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Cargar pedidos
         cargarPedidos();
 
-        console.log("✅ Sistema de pedidos inicializado");
+        console.log(" Sistema de pedidos inicializado");
     }
 });
 
@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // CONFIGURACIÓN DE EVENT LISTENERS
 
 function configurarEventListeners() {
-    console.log("🔧 Configurando event listeners...");
+    console.log(" Configurando event listeners...");
 
     // Búsqueda en tiempo real
     const buscarInput = document.getElementById('buscarPedido');
@@ -238,9 +238,7 @@ function filtrarPedidos() {
     mostrarPedidos();
 }
 
-// ==========================
-// GESTIÓN DE DETALLES DEL PEDIDO
-// ==========================
+
 function verDetallePedido(index) {
     console.log(" Viendo detalle del pedido índice:", index);
 
@@ -375,9 +373,7 @@ function repetirPedido() {
     }, 2000);
 }
 
-// ==========================
-// VALIDACIONES
-// ==========================
+
 function validarEstructuraPedido(pedido) {
     return {
         id: validarNumero(pedido.id),
@@ -395,7 +391,7 @@ function validarEstructuraPedido(pedido) {
 function validarDatosPedido(pedido) {
     // Validaciones adicionales para mostrar
     if (!pedido.items || pedido.items.length === 0) {
-        console.warn("⚠ Pedido sin items:", pedido.codigo);
+        console.warn(" Pedido sin items:", pedido.codigo);
         pedido.items = [{ producto: { nombre: "Producto no disponible" }, cantidad: 1, precio: 0 }];
     }
 
@@ -497,9 +493,7 @@ function generarItemsPedido(items) {
     `).join('');
 }
 
-// ==========================
-// VALIDACIONES BÁSICAS
-// ==========================
+
 function validarCampoTexto(valor) {
     if (!valor || valor.toString().trim() === '') return 'No especificado';
     return escapeHTML(valor.toString().trim());
@@ -591,9 +585,7 @@ function mostrarExito(mensaje) {
     alert("Éxito: " + mensaje);
 }
 
-// ==========================
-// MANEJO DE ERRORES GLOBAL
-// ==========================
+
 window.addEventListener('error', function(e) {
     console.error(' Error global:', e.error);
 });

@@ -42,9 +42,7 @@ public class CajeroController {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
-    /**
-     * Vista principal del cajero
-     */
+
     @GetMapping("")
     public String vistaCajero(Authentication authentication, Model model) {
         try {
@@ -85,72 +83,67 @@ public class CajeroController {
         }
     }
 
-    /**
-     * Endpoint para cambiar estado a PAGADO y GENERAR BOLETA AUTOMÁTICAMENTE
-     */
-    /**
-     * Endpoint para cambiar estado a PAGADO y GENERAR BOLETA AUTOMÁTICAMENTE
-     */
+
     @PostMapping("/marcar-pagado/{pedidoId}")
     @ResponseBody
     public ResponseEntity<?> marcarComoPagado(@PathVariable String pedidoId,
                                               Authentication authentication) {
         try {
             System.out.println("=== INICIO marcarComoPagado ===");
-            System.out.println("🔐 Usuario: " + (authentication != null ? authentication.getName() : "NULL"));
+            System.out.println(" Usuario: " + (authentication != null ? authentication.getName() : "NULL"));
 
-            // ✅ Verificar autenticación
+
             if (authentication == null) {
-                System.out.println("❌ ERROR: Authentication es NULL");
+                System.out.println(" ERROR: Authentication es NULL");
                 return ResponseEntity.status(401).body("ERROR: No autenticado");
             }
 
             if (!authentication.isAuthenticated()) {
-                System.out.println("❌ ERROR: Usuario no autenticado");
+                System.out.println(" ERROR: Usuario no autenticado");
                 return ResponseEntity.status(401).body("ERROR: No autenticado");
             }
 
-            // ✅ Verificar rol CAJERO
+            //  Verificar rol CAJERO
             boolean hasCajeroRole = authentication.getAuthorities().stream()
                     .anyMatch(grantedAuthority ->
                             grantedAuthority.getAuthority().equals("ROLE_CAJERO"));
 
-            System.out.println("👮 Tiene rol CAJERO: " + hasCajeroRole);
+            System.out.println(" Tiene rol CAJERO: " + hasCajeroRole);
 
             if (!hasCajeroRole) {
-                System.out.println("❌ ERROR: Usuario sin rol CAJERO. Roles: " +
+                System.out.println(" ERROR: Usuario sin rol CAJERO. Roles: " +
                         authentication.getAuthorities());
                 return ResponseEntity.status(403).body("ERROR: No tiene permisos de cajero");
             }
 
-            // ✅ Convertir ID
+            //  Convertir ID
             Long pedidoIdLong;
             try {
                 pedidoIdLong = Long.parseLong(pedidoId);
-                System.out.println("🔢 ID convertido: " + pedidoIdLong);
+                System.out.println("ID convertido: " + pedidoIdLong);
             } catch (NumberFormatException e) {
-                System.out.println("❌ ERROR: ID inválido");
+                System.out.println(" ERROR: ID inválido");
                 return ResponseEntity.badRequest().body("ERROR: ID de pedido inválido");
             }
 
-            // ✅ Buscar pedido
+            //  Buscar pedido
             Optional<Pedido> pedidoOpt = pedidoRepository.findById(pedidoIdLong);
             if (!pedidoOpt.isPresent()) {
-                System.out.println("❌ ERROR: Pedido no encontrado");
+                System.out.println(" ERROR: Pedido no encontrado");
                 return ResponseEntity.badRequest().body("ERROR: Pedido no encontrado");
             }
 
             Pedido pedido = pedidoOpt.get();
-            System.out.println("📋 Estado actual del pedido: " + pedido.getEstado());
+            System.out.println(" Estado actual del pedido: " + pedido.getEstado());
 
-            // ✅ Validar estado
+            //  Validar estado
             if (!"PENDIENTE".equals(pedido.getEstado())) {
-                System.out.println("❌ ERROR: Pedido no está PENDIENTE");
+                System.out.println(" ERROR: Pedido no está PENDIENTE");
                 return ResponseEntity.badRequest()
                         .body("ERROR: El pedido no está en estado PENDIENTE. Estado actual: " + pedido.getEstado());
             }
 
-            // ✅ OBTENER INFORMACIÓN COMPLETA DEL CAJERO
+            //  OBTENER INFORMACIÓN COMPLETA DEL CAJERO
             String username = authentication.getName();
             Optional<Usuario> cajeroOpt = usuarioRepository.findByUsername(username);
             String nombreCajero = "Cajero"; // Valor por defecto
@@ -168,15 +161,15 @@ public class CajeroController {
                 System.out.println("👤 Cajero que atiende: " + nombreCajero);
             }
 
-            // ✅ Actualizar estado
+            //  Actualizar estado
             pedido.setEstado("PAGADO");
             Pedido pedidoGuardado = pedidoRepository.save(pedido);
 
-            // ✅ GENERAR BOLETA AUTOMÁTICAMENTE CON NOMBRE DEL CAJERO
+            //  GENERAR BOLETA AUTOMÁTICAMENTE CON NOMBRE DEL CAJERO
             String boletaPath = generarBoletaPDF(pedidoGuardado, nombreCajero);
 
-            System.out.println("✅ ÉXITO: Pedido " + pedidoId + " marcado como PAGADO");
-            System.out.println("📄 Boleta generada: " + boletaPath);
+            System.out.println(" ÉXITO: Pedido " + pedidoId + " marcado como PAGADO");
+            System.out.println(" Boleta generada: " + boletaPath);
 
             Map<String, Object> response = new HashMap<>();
             response.put("status", "SUCCESS");
@@ -187,7 +180,7 @@ public class CajeroController {
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
-            System.err.println("💥 EXCEPCIÓN en marcarComoPagado: " + e.getMessage());
+            System.err.println(" EXCEPCIÓN en marcarComoPagado: " + e.getMessage());
             e.printStackTrace();
 
             Map<String, String> errorResponse = new HashMap<>();
@@ -197,12 +190,7 @@ public class CajeroController {
             return ResponseEntity.status(500).body(errorResponse);
         }
     }
-    /**
-     * Genera boleta en PDF - VERSIÓN COMPLETA Y CORREGIDA
-     */
-    /**
-     * Genera boleta en PDF - VERSIÓN CORREGIDA (sin setColSpan)
-     */
+
     private String generarBoletaPDF(Pedido pedido, String nombreCajero) {
         // Usar directorio en raíz del proyecto
         String directoryPath = "boletas/";
@@ -301,7 +289,7 @@ public class CajeroController {
                     table.addCell(new Paragraph("S/ " + String.format("%.2f", item.getSubtotal())));
                 }
             } else {
-                // ✅ CORRECCIÓN: Para "colspan" en iText 7, añadimos celdas individuales
+
                 table.addCell(new Paragraph("No hay items en este pedido"));
                 table.addCell(new Paragraph("")); // Celda vacía
                 table.addCell(new Paragraph("")); // Celda vacía
@@ -332,7 +320,7 @@ public class CajeroController {
 
             document.add(new Paragraph(" "));
 
-            // Método de pago
+
             if (pedido.getMetodoPago() != null) {
                 document.add(new Paragraph("MÉTODO DE PAGO: " + pedido.getMetodoPago()));
             }
@@ -356,29 +344,27 @@ public class CajeroController {
 
             document.close();
 
-            System.out.println("✅ PDF generado exitosamente: " + fullPath);
+            System.out.println(" PDF generado exitosamente: " + fullPath);
             return fileName; // Solo el nombre del archivo
 
         } catch (Exception e) {
-            System.err.println("❌ Error generando boleta PDF: " + e.getMessage());
+            System.err.println("Error generando boleta PDF: " + e.getMessage());
             e.printStackTrace();
             return "error_generacion";
         }
     }
 
-    /**
-     * Servir archivos PDF de boletas - ENDPOINT NUEVO
-     */
+
     @GetMapping("/boletas/{filename:.+}")
     public ResponseEntity<Resource> servirBoleta(@PathVariable String filename) {
         try {
-            System.out.println("📥 Solicitando archivo: " + filename);
+            System.out.println(" Solicitando archivo: " + filename);
 
             Path filePath = Paths.get("boletas/" + filename).normalize();
             Resource resource = new UrlResource(filePath.toUri());
 
             if (resource.exists() && resource.isReadable()) {
-                System.out.println("✅ Archivo encontrado, sirviendo: " + filename);
+                System.out.println(" Archivo encontrado, sirviendo: " + filename);
 
                 return ResponseEntity.ok()
                         .contentType(MediaType.APPLICATION_PDF)
@@ -386,18 +372,16 @@ public class CajeroController {
                                 "inline; filename=\"" + filename + "\"")
                         .body(resource);
             } else {
-                System.out.println("❌ Archivo no encontrado: " + filePath.toString());
+                System.out.println(" Archivo no encontrado: " + filePath.toString());
                 return ResponseEntity.notFound().build();
             }
         } catch (Exception e) {
-            System.err.println("❌ Error sirviendo archivo: " + e.getMessage());
+            System.err.println(" Error sirviendo archivo: " + e.getMessage());
             return ResponseEntity.notFound().build();
         }
     }
 
-    /**
-     * Obtener métricas del día (para AJAX)
-     */
+
     @GetMapping("/metricas-hoy")
     @ResponseBody
     public Map<String, Object> obtenerMetricasHoy() {
@@ -433,21 +417,19 @@ public class CajeroController {
         return metricas;
     }
 
-    /**
-     * Endpoint para cambiar estado a CANCELADO
-     */
+
     @PostMapping("/marcar-cancelado/{pedidoId}")
     @ResponseBody
     public ResponseEntity<?> marcarComoCancelado(@PathVariable String pedidoId,
                                                  @RequestParam(required = false) String motivo,
                                                  Authentication authentication) {
         try {
-            // ✅ 1. Verificar que el usuario está autenticado
+            //   Verificar que el usuario está autenticado
             if (authentication == null || !authentication.isAuthenticated()) {
                 return ResponseEntity.status(401).body("ERROR: Sesión expirada. Por favor, inicie sesión nuevamente.");
             }
 
-            // ✅ 2. Convertir String a Long de forma segura
+            //   Convertir String a Long de forma segura
             Long pedidoIdLong;
             try {
                 pedidoIdLong = Long.parseLong(pedidoId);
@@ -472,7 +454,7 @@ public class CajeroController {
                 }
                 pedidoRepository.save(pedido);
 
-                System.out.println("✅ Pedido " + pedidoId + " cancelado por " + authentication.getName());
+                System.out.println(" Pedido " + pedidoId + " cancelado por " + authentication.getName());
 
                 Map<String, String> response = new HashMap<>();
                 response.put("status", "SUCCESS");
@@ -494,9 +476,7 @@ public class CajeroController {
         }
     }
 
-    /**
-     * Obtener pedidos PENDIENTES (para AJAX) - VERSIÓN CORREGIDA
-     */
+
     @GetMapping("/pedidos-pendientes")
     @ResponseBody
     public ResponseEntity<?> obtenerPedidosPendientes() {
@@ -556,9 +536,7 @@ public class CajeroController {
         }
     }
 
-    /**
-     * Vista para gestionar un pedido específico
-     */
+
     @GetMapping("/pedido/{pedidoId}")
     public String gestionarPedido(@PathVariable Long pedidoId, Model model, Authentication authentication) {
         try {

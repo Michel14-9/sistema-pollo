@@ -11,13 +11,11 @@ import org.springframework.web.bind.annotation.RestController;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-// Añade este controlador a tu CajeroController o crea uno nuevo
+
 @RestController
 public class FileController {
 
-    /**
-     * Servir archivos PDF de boletas
-     */
+
     @GetMapping("/boletas/{filename:.+}")
     public ResponseEntity<Resource> servirBoleta(@PathVariable String filename) {
         try {

@@ -26,12 +26,12 @@ public class Pedido {
     private Double costoEnvio;
     private Double descuento;
 
-    private String metodoPago; // EFECTIVO, TARJETA, YAPE
-    private String tipoEntrega; // DELIVERY, RECOJO
+    private String metodoPago;
+    private String tipoEntrega;
     private String direccionEntrega;
     private String instrucciones;
 
-    private String numeroPedido; // Número único generado automáticamente
+    private String numeroPedido;
 
 
     @ManyToOne(fetch = FetchType.LAZY)

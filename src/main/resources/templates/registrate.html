@@ -138,12 +138,12 @@
             <div class="row mb-3">
                 <div class="col-md-6">
                     <label class="form-label">Nombre</label>
-                    <input type="text" class="form-control" name="nombres" required>
+                    <input type="text" class="form-control" name="nombres"> <!-- QUITAR required -->
                     <div class="invalid-feedback">Por favor ingresa tu nombre</div>
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">Apellido</label>
-                    <input type="text" class="form-control" name="apellidos" required>
+                    <input type="text" class="form-control" name="apellidos"> <!-- QUITAR required -->
                     <div class="invalid-feedback">Por favor ingresa tu apellido</div>
                 </div>
             </div>
@@ -151,7 +151,7 @@
             <div class="row mb-3">
                 <div class="col-md-6">
                     <label class="form-label">Tipo de documento</label>
-                    <select class="form-select" name="tipoDocumento" required>
+                    <select class="form-select" name="tipoDocumento"> <!-- QUITAR required -->
                         <option value="">Seleccione...</option>
                         <option value="DNI">DNI</option>
                         <option value="Pasaporte">Pasaporte</option>
@@ -161,20 +161,20 @@
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">Número de documento</label>
-                    <input type="text" class="form-control" name="numeroDocumento" required>
+                    <input type="text" class="form-control" name="numeroDocumento"> <!-- QUITAR required -->
                     <div class="invalid-feedback" id="docError">Por favor ingresa tu número de documento</div>
                 </div>
             </div>
 
             <div class="mb-3">
                 <label class="form-label">Teléfono</label>
-                <input type="tel" class="form-control" name="telefono" required>
+                <input type="tel" class="form-control" name="telefono"> <!-- QUITAR required -->
                 <div class="invalid-feedback" id="phoneError">Por favor ingresa tu teléfono</div>
             </div>
 
             <div class="mb-3">
                 <label class="form-label">Fecha de nacimiento</label>
-                <input type="date" class="form-control" name="fechaNacimiento" required>
+                <input type="date" class="form-control" name="fechaNacimiento"> <!-- QUITAR required -->
                 <div class="invalid-feedback" id="fechaError">Por favor ingresa tu fecha de nacimiento</div>
             </div>
 
@@ -182,19 +182,28 @@
             <h5>Información de inicio de sesión</h5>
             <div class="mb-3">
                 <label class="form-label">Correo electrónico</label>
-                <input type="email" class="form-control" name="email" required>
+                <input type="email" class="form-control" name="email"> <!-- QUITAR required -->
                 <div class="invalid-feedback" id="emailError">Por favor ingresa un email válido</div>
             </div>
 
             <div class="mb-3">
                 <label class="form-label">Contraseña</label>
-                <input type="password" class="form-control" id="password" name="password" required>
-                <div class="invalid-feedback" id="passwordError">La contraseña debe tener al menos 6 caracteres</div>
-                <div class="password-strength" id="passwordStrength"></div>
-            </div>
+                <input type="password" class="form-control" id="password" name="password"> <!-- QUITAR required -->
+                <div class="invalid-feedback" id="passwordError">La contraseña debe tener al menos 6 caracteres, una mayúscula, una minúscula y un número</div>
 
-            <!-- Campo hidden para reCAPTCHA v3 -->
-            <input type="hidden" id="g-recaptcha-response" name="g-recaptcha-response">
+                <!-- Agregar este helper text -->
+                <div class="form-text">
+                    <small>La contraseña debe contener:</small>
+                    <ul class="small mb-1">
+                        <li>Mínimo 6 caracteres</li>
+                        <li>Al menos 1 letra mayúscula</li>
+                        <li>Al menos 1 letra minúscula</li>
+                        <li>Al menos 1 número</li>
+                    </ul>
+                </div>
+
+                <div class="password-strength mt-2" id="passwordStrength"></div>
+            </div>
 
             <!-- Checkboxes -->
             <div class="form-check mb-2">
@@ -202,7 +211,7 @@
                 <label class="form-check-label" for="promoCheck">Acepto recibir promociones</label>
             </div>
             <div class="form-check mb-4">
-                <input class="form-check-input" type="checkbox" id="dataCheck" name="aceptaDatos" required>
+                <input class="form-check-input" type="checkbox" id="dataCheck" name="aceptaDatos"> <!-- QUITAR required -->
                 <label class="form-check-label" for="dataCheck">Acepto la transferencia de datos</label>
                 <div class="invalid-feedback">Debes aceptar la transferencia de datos</div>
             </div>

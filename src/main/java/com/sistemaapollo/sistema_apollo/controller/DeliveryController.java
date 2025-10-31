@@ -25,9 +25,7 @@ public class DeliveryController {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
-    /**
-     * Vista principal del delivery
-     */
+
     @GetMapping("")
     public String vistaDelivery(Authentication authentication, Model model) {
         try {
@@ -51,9 +49,7 @@ public class DeliveryController {
         }
     }
 
-    /**
-     * Cargar métricas para el dashboard del delivery
-     */
+
     private void cargarMetricasDelivery(Model model) {
         try {
             // Pedidos LISTOS (para entregar)
@@ -87,9 +83,7 @@ public class DeliveryController {
         }
     }
 
-    /**
-     * Calcular eficiencia del delivery (% de pedidos entregados a tiempo)
-     */
+
     private double calcularEficienciaDelivery(List<Pedido> pedidosEntregados) {
         if (pedidosEntregados.isEmpty()) return 0.0;
 
@@ -100,9 +94,7 @@ public class DeliveryController {
         return (double) entregadosATiempo / pedidosEntregados.size() * 100;
     }
 
-    /**
-     * Verificar si un pedido fue entregado a tiempo (menos de 45 minutos)
-     */
+
     private boolean fueEntregadoATiempo(Pedido pedido) {
         if (pedido.getFecha() == null) return false;
 
@@ -110,14 +102,11 @@ public class DeliveryController {
         LocalDateTime fechaPedido = pedido.getFecha();
         LocalDateTime fechaMaximaEntrega = fechaPedido.plusMinutes(45);
 
-        // Buscar cuando se marcó como ENTREGADO (necesitarías historial de estados)
-        // Por ahora, usamos la fecha actual como aproximación
+
         return LocalDateTime.now().isBefore(fechaMaximaEntrega);
     }
 
-    /**
-     * Calcular tiempo promedio de entrega en minutos
-     */
+
     private double calcularTiempoPromedioEntrega(List<Pedido> pedidosEntregados) {
         if (pedidosEntregados.isEmpty()) return 0.0;
 
@@ -142,9 +131,7 @@ public class DeliveryController {
         return contador > 0 ? totalMinutos / contador : 0.0;
     }
 
-    /**
-     * Endpoint para cambiar estado a EN_CAMINO
-     */
+
     @PostMapping("/iniciar-entrega/{pedidoId}")
     @ResponseBody
     public String iniciarEntrega(@PathVariable Long pedidoId, Authentication authentication) {
@@ -173,9 +160,7 @@ public class DeliveryController {
         }
     }
 
-    /**
-     * Endpoint para cambiar estado a ENTREGADO
-     */
+
     @PostMapping("/marcar-entregado/{pedidoId}")
     @ResponseBody
     public String marcarComoEntregado(@PathVariable Long pedidoId, Authentication authentication) {
@@ -204,11 +189,7 @@ public class DeliveryController {
         }
     }
 
-    // ========== MÉTODOS ACTUALIZADOS PARA CARGAR ITEMS ==========
 
-    /**
-     * Obtener pedidos listos para entrega (para AJAX) - CON ITEMS CARGADOS
-     */
     @GetMapping("/pedidos-para-entrega")
     @ResponseBody
     public List<Map<String, Object>> obtenerPedidosParaEntrega() {
@@ -223,9 +204,7 @@ public class DeliveryController {
         }
     }
 
-    /**
-     * Obtener pedidos en camino (para AJAX) - CON ITEMS CARGADOS
-     */
+
     @GetMapping("/pedidos-en-camino")
     @ResponseBody
     public List<Map<String, Object>> obtenerPedidosEnCamino() {
@@ -239,9 +218,7 @@ public class DeliveryController {
         }
     }
 
-    /**
-     * Mapear pedidos a estructura que espera el frontend CON ITEMS
-     */
+
     private List<Map<String, Object>> mapearPedidosParaFrontend(List<Pedido> pedidos) {
         return pedidos.stream().map(pedido -> {
             Map<String, Object> pedidoMap = new HashMap<>();
@@ -272,16 +249,14 @@ public class DeliveryController {
                 pedidoMap.put("cliente", clienteMap);
             }
 
-            // Items del pedido - ¡ESTO ES LO QUE FALTABA!
+            // Items del pedido
             pedidoMap.put("items", obtenerItemsDelPedido(pedido));
 
             return pedidoMap;
         }).collect(Collectors.toList());
     }
 
-    /**
-     * Obtener items del pedido desde ItemPedido
-     */
+
     private List<Map<String, Object>> obtenerItemsDelPedido(Pedido pedido) {
         List<Map<String, Object>> items = new ArrayList<>();
 
@@ -308,9 +283,7 @@ public class DeliveryController {
         return items;
     }
 
-    /**
-     * Obtener pedidos entregados hoy (para AJAX)
-     */
+
     @GetMapping("/pedidos-entregados-hoy")
     @ResponseBody
     public List<Pedido> obtenerPedidosEntregadosHoy() {
@@ -321,9 +294,7 @@ public class DeliveryController {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Obtener métricas del delivery (para AJAX)
-     */
+
     @GetMapping("/metricas-delivery")
     @ResponseBody
     public java.util.Map<String, Object> obtenerMetricasDelivery() {
@@ -356,9 +327,7 @@ public class DeliveryController {
         return metricas;
     }
 
-    /**
-     * Obtener detalles de un pedido específico para delivery
-     */
+
     @GetMapping("/pedido/{pedidoId}")
     @ResponseBody
     public Pedido obtenerDetallePedidoDelivery(@PathVariable Long pedidoId) {
@@ -366,9 +335,7 @@ public class DeliveryController {
         return pedidoOpt.orElse(null);
     }
 
-    /**
-     * Obtener ruta optimizada para entregas
-     */
+
     @GetMapping("/ruta-optimizada")
     @ResponseBody
     public java.util.Map<String, Object> obtenerRutaOptimizada() {
@@ -378,8 +345,7 @@ public class DeliveryController {
             List<Pedido> pedidosParaEntregar = pedidoRepository.findByEstadoOrderByFechaAsc("LISTO");
             List<Pedido> pedidosEnCamino = pedidoRepository.findByEstadoOrderByFechaAsc("EN_CAMINO");
 
-            // Aquí podrías integrar con Google Maps API para optimizar rutas
-            // Por ahora, devolvemos una lista simple ordenada por fecha
+
 
             ruta.put("pedidosParaEntregar", pedidosParaEntregar);
             ruta.put("pedidosEnCamino", pedidosEnCamino);

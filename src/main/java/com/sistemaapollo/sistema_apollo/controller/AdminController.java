@@ -53,7 +53,7 @@ public class AdminController {
         return "admin-menu";
     }
 
-    // ================== NUEVOS ENDPOINTS PARA DASHBOARD ==================
+
 
     @GetMapping("/estadisticas-dashboard")
     @ResponseBody
@@ -141,8 +141,7 @@ public class AdminController {
         return estadisticas;
     }
 
-    // En tu AdminController, reemplaza el endpoint /ventas-recientes con esto:
-    // En tu AdminController, REEMPLAZA el endpoint /ventas-recientes con esto:
+
     @GetMapping("/ventas-recientes")
     @ResponseBody
     public List<Map<String, Object>> obtenerVentasRecientes() {
@@ -246,10 +245,9 @@ public class AdminController {
         return estadisticas;
     }
 
-    // ================== FIN NUEVOS ENDPOINTS ==================
 
-    // EL RESTO DE TUS MÉTODOS EXISTENTES SE MANTIENEN IGUAL...
-    // [Aquí va todo el código que ya tenías desde @GetMapping("/exportar-dashboard-excel") hasta el final]
+
+
 
     @GetMapping("/exportar-dashboard-excel")
     public void exportarDashboardExcel(HttpServletResponse response) throws IOException {
@@ -362,7 +360,7 @@ public class AdminController {
                 statsRow.createCell(5).setCellValue(valorTotal);
             }
 
-            // LISTA COMPLETA DE PRODUCTOS (como respaldo)
+            // LISTA COMPLETA DE PRODUCTOS
             Sheet productosSheet = workbook.createSheet("Todos los Productos");
             Row productosHeader = productosSheet.createRow(0);
             String[] productosHeaders = {"ID", "Nombre", "Categoría", "Precio", "Descripción"};

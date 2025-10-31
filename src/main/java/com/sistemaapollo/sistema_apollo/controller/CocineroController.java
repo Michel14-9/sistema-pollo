@@ -27,9 +27,7 @@ public class CocineroController {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
-    /**
-     * Vista principal del cocinero
-     */
+
     @GetMapping("")
     public String vistaCocinero(Authentication authentication, Model model) {
         try {
@@ -50,24 +48,22 @@ public class CocineroController {
         }
     }
 
-    /**
-     * Endpoint para cambiar estado a PREPARACION
-     */
+
     @PostMapping("/iniciar-preparacion/{pedidoId}")
     @ResponseBody
     public ResponseEntity<?> iniciarPreparacion(@PathVariable String pedidoId,
                                                 Authentication authentication) {
         try {
             System.out.println("=== INICIO iniciarPreparacion ===");
-            System.out.println("🔐 Cocinero: " + (authentication != null ? authentication.getName() : "NULL"));
-            System.out.println("📦 Pedido ID: " + pedidoId);
+            System.out.println(" Cocinero: " + (authentication != null ? authentication.getName() : "NULL"));
+            System.out.println("Pedido ID: " + pedidoId);
 
-            // ✅ Verificar autenticación
+            //  Verificar autenticación
             if (authentication == null || !authentication.isAuthenticated()) {
                 return ResponseEntity.status(401).body("ERROR: No autenticado");
             }
 
-            // ✅ Verificar rol COCINERO
+            //  Verificar rol COCINERO
             boolean hasCocineroRole = authentication.getAuthorities().stream()
                     .anyMatch(grantedAuthority ->
                             grantedAuthority.getAuthority().equals("ROLE_COCINERO"));
@@ -76,7 +72,7 @@ public class CocineroController {
                 return ResponseEntity.status(403).body("ERROR: No tiene permisos de cocinero");
             }
 
-            // ✅ Convertir ID
+            //  Convertir ID
             Long pedidoIdLong;
             try {
                 pedidoIdLong = Long.parseLong(pedidoId);
@@ -84,29 +80,29 @@ public class CocineroController {
                 return ResponseEntity.badRequest().body("ERROR: ID de pedido inválido");
             }
 
-            // ✅ Buscar pedido
+            // Buscar pedido
             Optional<Pedido> pedidoOpt = pedidoRepository.findById(pedidoIdLong);
             if (!pedidoOpt.isPresent()) {
                 return ResponseEntity.badRequest().body("ERROR: Pedido no encontrado");
             }
 
             Pedido pedido = pedidoOpt.get();
-            System.out.println("📋 Estado actual del pedido: " + pedido.getEstado());
+            System.out.println(" Estado actual del pedido: " + pedido.getEstado());
 
-            // ✅ Validar estado (debe estar PAGADO)
+            //  Validar estado (debe estar PAGADO)
             if (!"PAGADO".equals(pedido.getEstado())) {
                 return ResponseEntity.badRequest()
                         .body("ERROR: El pedido no está en estado PAGADO. Estado actual: " + pedido.getEstado());
             }
 
-            // ✅ OBTENER INFORMACIÓN DEL COCINERO
+            //  OBTENER INFORMACIÓN DEL COCINERO
             String nombreCocinero = obtenerNombreUsuario(authentication.getName());
 
-            // ✅ Actualizar estado a PREPARACION
+            //  Actualizar estado a PREPARACION
             pedido.setEstado("PREPARACION");
             Pedido pedidoActualizado = pedidoRepository.save(pedido);
 
-            System.out.println("✅ ÉXITO: Pedido " + pedidoId + " en PREPARACIÓN por " + nombreCocinero);
+            System.out.println(" ÉXITO: Pedido " + pedidoId + " en PREPARACIÓN por " + nombreCocinero);
 
             Map<String, Object> response = new HashMap<>();
             response.put("status", "SUCCESS");
@@ -116,7 +112,7 @@ public class CocineroController {
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
-            System.err.println("💥 EXCEPCIÓN en iniciarPreparacion: " + e.getMessage());
+            System.err.println(" EXCEPCIÓN en iniciarPreparacion: " + e.getMessage());
             e.printStackTrace();
 
             Map<String, String> errorResponse = new HashMap<>();
@@ -127,24 +123,22 @@ public class CocineroController {
         }
     }
 
-    /**
-     * Endpoint para cambiar estado a LISTO
-     */
+
     @PostMapping("/marcar-listo/{pedidoId}")
     @ResponseBody
     public ResponseEntity<?> marcarComoListo(@PathVariable String pedidoId,
                                              Authentication authentication) {
         try {
             System.out.println("=== INICIO marcarComoListo ===");
-            System.out.println("🔐 Cocinero: " + (authentication != null ? authentication.getName() : "NULL"));
-            System.out.println("📦 Pedido ID: " + pedidoId);
+            System.out.println(" Cocinero: " + (authentication != null ? authentication.getName() : "NULL"));
+            System.out.println(" Pedido ID: " + pedidoId);
 
-            // ✅ Verificar autenticación
+            //  Verificar autenticación
             if (authentication == null || !authentication.isAuthenticated()) {
                 return ResponseEntity.status(401).body("ERROR: No autenticado");
             }
 
-            // ✅ Verificar rol COCINERO
+            //  Verificar rol COCINERO
             boolean hasCocineroRole = authentication.getAuthorities().stream()
                     .anyMatch(grantedAuthority ->
                             grantedAuthority.getAuthority().equals("ROLE_COCINERO"));
@@ -153,7 +147,7 @@ public class CocineroController {
                 return ResponseEntity.status(403).body("ERROR: No tiene permisos de cocinero");
             }
 
-            // ✅ Convertir ID
+            //  Convertir ID
             Long pedidoIdLong;
             try {
                 pedidoIdLong = Long.parseLong(pedidoId);
@@ -161,29 +155,29 @@ public class CocineroController {
                 return ResponseEntity.badRequest().body("ERROR: ID de pedido inválido");
             }
 
-            // ✅ Buscar pedido
+            //  Buscar pedido
             Optional<Pedido> pedidoOpt = pedidoRepository.findById(pedidoIdLong);
             if (!pedidoOpt.isPresent()) {
                 return ResponseEntity.badRequest().body("ERROR: Pedido no encontrado");
             }
 
             Pedido pedido = pedidoOpt.get();
-            System.out.println("📋 Estado actual del pedido: " + pedido.getEstado());
+            System.out.println(" Estado actual del pedido: " + pedido.getEstado());
 
-            // ✅ Validar estado (debe estar PREPARACION)
+            //  Validar estado
             if (!"PREPARACION".equals(pedido.getEstado())) {
                 return ResponseEntity.badRequest()
                         .body("ERROR: El pedido no está en estado PREPARACION. Estado actual: " + pedido.getEstado());
             }
 
-            // ✅ OBTENER INFORMACIÓN DEL COCINERO
+            //  OBTENER INFORMACIÓN DEL COCINERO
             String nombreCocinero = obtenerNombreUsuario(authentication.getName());
 
-            // ✅ Actualizar estado a LISTO
+            //  Actualizar estado a LISTO
             pedido.setEstado("LISTO");
             Pedido pedidoActualizado = pedidoRepository.save(pedido);
 
-            System.out.println("✅ ÉXITO: Pedido " + pedidoId + " marcado como LISTO por " + nombreCocinero);
+            System.out.println("ÉXITO: Pedido " + pedidoId + " marcado como LISTO por " + nombreCocinero);
 
             Map<String, Object> response = new HashMap<>();
             response.put("status", "SUCCESS");
@@ -193,7 +187,7 @@ public class CocineroController {
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
-            System.err.println("💥 EXCEPCIÓN en marcarComoListo: " + e.getMessage());
+            System.err.println(" EXCEPCIÓN en marcarComoListo: " + e.getMessage());
             e.printStackTrace();
 
             Map<String, String> errorResponse = new HashMap<>();
@@ -204,9 +198,7 @@ public class CocineroController {
         }
     }
 
-    /**
-     * Obtener pedidos PAGADOS (para preparar) - VERSIÓN CON DTO
-     */
+
     @GetMapping("/pedidos-por-preparar")
     @ResponseBody
     public ResponseEntity<?> obtenerPedidosPorPreparar() {
@@ -226,9 +218,7 @@ public class CocineroController {
         }
     }
 
-    /**
-     * Obtener pedidos en PREPARACION - VERSIÓN CON DTO
-     */
+
     @GetMapping("/pedidos-en-preparacion")
     @ResponseBody
     public ResponseEntity<?> obtenerPedidosEnPreparacion() {
@@ -248,9 +238,7 @@ public class CocineroController {
         }
     }
 
-    /**
-     * Obtener pedidos LISTOS de hoy - VERSIÓN CON DTO
-     */
+
     @GetMapping("/pedidos-listos-hoy")
     @ResponseBody
     public ResponseEntity<?> obtenerPedidosListosHoy() {
@@ -275,9 +263,7 @@ public class CocineroController {
         }
     }
 
-    /**
-     * Obtener métricas del cocinero (para AJAX)
-     */
+
     @GetMapping("/metricas-cocina")
     @ResponseBody
     public Map<String, Object> obtenerMetricasCocina() {
@@ -312,9 +298,7 @@ public class CocineroController {
         return metricas;
     }
 
-    /**
-     * Obtener detalles de un pedido específico
-     */
+
     @GetMapping("/pedido/{pedidoId}")
     @ResponseBody
     public ResponseEntity<?> obtenerDetallePedido(@PathVariable Long pedidoId) {
@@ -334,13 +318,7 @@ public class CocineroController {
         }
     }
 
-    /**
-     * ================== MÉTODOS PRIVADOS AUXILIARES ==================
-     */
 
-    /**
-     * Crear DTO para lista de pedidos
-     */
     private List<Map<String, Object>> crearPedidosDTO(List<Pedido> pedidos) {
         List<Map<String, Object>> pedidosDTO = new ArrayList<>();
 
@@ -386,9 +364,7 @@ public class CocineroController {
         return pedidosDTO;
     }
 
-    /**
-     * Crear DTO para detalle de pedido
-     */
+
     private Map<String, Object> crearPedidoDetalleDTO(Pedido pedido) {
         Map<String, Object> pedidoDTO = new HashMap<>();
         pedidoDTO.put("id", pedido.getId());
@@ -428,9 +404,7 @@ public class CocineroController {
         return pedidoDTO;
     }
 
-    /**
-     * Obtener nombre del usuario
-     */
+
     private String obtenerNombreUsuario(String username) {
         Optional<Usuario> usuarioOpt = usuarioRepository.findByUsername(username);
         if (usuarioOpt.isPresent()) {
@@ -444,9 +418,7 @@ public class CocineroController {
         return username;
     }
 
-    /**
-     * Calcular tiempo promedio de preparación en minutos
-     */
+
     private double calcularTiempoPromedioPreparacion(List<Pedido> pedidosListos) {
         if (pedidosListos.isEmpty()) return 0.0;
 

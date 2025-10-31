@@ -42,15 +42,15 @@ public class SigueTuPedidoController {
             // Limpiar y formatear el número de pedido
             String numeroLimpio = numeroPedido.trim().toUpperCase();
 
-            // ✅ CORRECCIÓN: Probar ambos métodos de búsqueda
+
             Optional<Pedido> pedidoOpt = pedidoRepository.findByNumeroPedido(numeroLimpio);
 
-            // Si no se encuentra, intentar con el otro método
+
             if (!pedidoOpt.isPresent()) {
                 pedidoOpt = pedidoRepository.findByNumero(numeroLimpio);
             }
 
-            // ✅ DEBUG: Agregar para ver qué está pasando
+
             System.out.println("=== DEBUG SIGUE TU PEDIDO ===");
             System.out.println("Buscando: " + numeroLimpio);
             System.out.println("Encontrado: " + pedidoOpt.isPresent());

@@ -43,7 +43,10 @@ public class SecurityConfig {
                                 "/cajero/marcar-pagado/**",
                                 "/cajero/marcar-cancelado/**",
                                 "/cocinero/iniciar-preparacion/**",
-                                "/cocinero/marcar-listo/**"
+                                "/cocinero/marcar-listo/**",
+
+                                "/delivery/iniciar-entrega/**",
+                                "/delivery/marcar-entregado/**"
                         )
                 )
 

@@ -1,881 +1,682 @@
-// delivery.js - SISTEMA DE DELIVERY CON BACKEND REAL
+// delivery.js - SISTEMA PARA DELIVERY - VERSIÓN COMPLETA
 
 // Variables globales
-let pedidos = [];
 let pedidoSeleccionado = null;
-let mapa = null;
-let rutaControl = null;
-let filtroActual = 'all';
-let usuarioDelivery = null;
-
-// Coordenadas del restaurante (configurables)
-const COORDENADAS_RESTAURANTE = [-14.068, -75.728]; // Ica, Perú por defecto
+let pedidosPendientesEntrega = [];
+let pedidosEnCamino = [];
 
 // Elementos del DOM
 const elementos = {
-    // Información del usuario
-    driverName: document.getElementById('driverName'),
-    driverInitials: document.getElementById('driverInitials'),
-    modalDriverName: document.getElementById('modalDriverName'),
-    modalDriverInitials: document.getElementById('modalDriverInitials'),
-
-    // Métricas
     metricas: {
-        pendientes: document.getElementById('pendingCount'),
-        enCamino: document.getElementById('inProgressCount'),
-        entregados: document.getElementById('deliveredCount'),
-        total: document.getElementById('totalCount'),
-        sidebar: {
-            pendientes: document.getElementById('sidebarPendingCount'),
-            enCamino: document.getElementById('sidebarProgressCount')
+        pendientesEntrega: document.getElementById('total-pendientes-entrega'),
+        enCamino: document.getElementById('total-en-camino'),
+        entregadosHoy: document.getElementById('total-entregados-hoy'),
+        badges: {
+            pendientes: document.getElementById('badge-pendientes'),
+            enCamino: document.getElementById('badge-en-camino')
         }
     },
-
-    // Listas y contenedores
-    listaPedidos: document.getElementById('deliveryList'),
-    estadoVacio: document.getElementById('emptyState'),
-
-    // Modal del mapa
-    modalMapa: {
-        elemento: document.getElementById('mapModal'),
-        numeroPedido: document.getElementById('modalOrderNumber'),
-        infoCliente: document.getElementById('modalCustomerInfo'),
-        direccion: document.getElementById('modalDeliveryAddress'),
-        distrito: document.getElementById('modalDistrict'),
-        total: document.getElementById('modalOrderTotal'),
-        hora: document.getElementById('modalOrderTime'),
-        progreso: document.getElementById('deliveryProgress'),
-        porcentaje: document.getElementById('progressPercentage'),
-        distancia: document.getElementById('routeDistance'),
-        tiempo: document.getElementById('routeTime'),
-        estado: document.getElementById('routeStatus')
+    listas: {
+        pendientesEntrega: document.getElementById('lista-pendientes-entrega'),
+        enCamino: document.getElementById('lista-en-camino')
     },
-
-    // Botones de acción
-    botones: {
-        iniciarEntrega: document.getElementById('startDeliveryBtn'),
-        marcarEntregado: document.getElementById('markDeliveredModal')
+    mensajes: {
+        sinPendientes: document.getElementById('sin-pedidos-pendientes'),
+        sinEnCamino: document.getElementById('sin-pedidos-camino')
     },
-
-    // Filtros
-    filtros: document.querySelectorAll('.btn-filter')
+    detalle: {
+        contenedor: document.getElementById('detalle-pedido-container'),
+        numero: document.getElementById('detalle-numero-pedido'),
+        items: document.getElementById('detalle-items-pedido'),
+        total: document.getElementById('detalle-total-pedido'),
+        cliente: document.getElementById('detalle-cliente'),
+        telefono: document.getElementById('detalle-telefono'),
+        direccion: document.getElementById('detalle-direccion'),
+        referencia: document.getElementById('detalle-referencia'),
+        tipoEntrega: document.getElementById('detalle-tipo-entrega'),
+        horaPedido: document.getElementById('detalle-hora-pedido'),
+        tiempoTranscurrido: document.getElementById('detalle-tiempo-transcurrido'),
+        acciones: document.getElementById('acciones-delivery'),
+        observaciones: {
+            contenedor: document.getElementById('detalle-observaciones-container'),
+            texto: document.getElementById('detalle-observaciones')
+        }
+    }
 };
 
 // ================== FUNCIONES DE CONEXIÓN CON BACKEND ==================
 
-// CARGAR INFORMACIÓN DEL USUARIO DELIVERY
-async function cargarUsuarioDelivery() {
-    try {
-        // Esta información vendría del backend, por ahora simulamos
-        usuarioDelivery = {
-            nombres: "Repartidor",
-            apellidos: "Delivery",
-            telefono: "+51 999 999 999"
-        };
+// OBTENER TOKEN CSRF
+function getCsrfToken() {
+    const csrfInput = document.querySelector('input[name="_csrf"]');
+    const csrfMeta = document.querySelector('meta[name="_csrf"]');
+    const token = csrfInput ? csrfInput.value : (csrfMeta ? csrfMeta.content : '');
 
-        // Actualizar interfaz con información del usuario
-        actualizarInfoUsuario();
-
-    } catch (error) {
-        console.error('Error cargando información del usuario:', error);
+    if (!token) {
+        console.warn('⚠️ No se encontró token CSRF');
     }
+    return token;
 }
 
-// CARGAR TODOS LOS PEDIDOS DEL DELIVERY
+// FETCH CON CSRF
+async function fetchConCSRF(url, options = {}) {
+    const csrfToken = getCsrfToken();
+
+    const config = {
+        credentials: 'include',
+        headers: {
+            'X-CSRF-TOKEN': csrfToken,
+            ...options.headers
+        },
+        ...options
+    };
+
+    const response = await fetch(url, config);
+
+    if (response.redirected && response.url.includes('/login')) {
+        throw new Error('Sesión expirada. Por favor, inicie sesión nuevamente.');
+    }
+
+    return response;
+}
+
+// CARGAR PEDIDOS PARA DELIVERY
 async function cargarPedidosDelivery() {
     try {
-        console.log('Cargando pedidos de delivery...');
+        console.log('🚚 Cargando pedidos para delivery...');
 
-        const [paraEntregar, enCamino, entregados] = await Promise.all([
-            fetch('/delivery/pedidos-para-entrega').then(r => {
-                if (!r.ok) throw new Error('Error en pedidos para entrega');
-                return r.json();
-            }),
-            fetch('/delivery/pedidos-en-camino').then(r => {
-                if (!r.ok) throw new Error('Error en pedidos en camino');
-                return r.json();
-            }),
-            fetch('/delivery/pedidos-entregados-hoy').then(r => {
-                if (!r.ok) throw new Error('Error en pedidos entregados');
-                return r.json();
-            })
+        const [pendientes, enCamino] = await Promise.all([
+            fetchConCSRF('/delivery/pedidos-para-entrega').then(r => r.json()),
+            fetchConCSRF('/delivery/pedidos-en-camino').then(r => r.json())
         ]);
 
-        console.log('Pedidos cargados:', {
-            paraEntregar: paraEntregar.length,
-            enCamino: enCamino.length,
-            entregados: entregados.length
-        });
+        pedidosPendientesEntrega = Array.isArray(pendientes) ? pendientes : [];
+        pedidosEnCamino = Array.isArray(enCamino) ? enCamino : [];
 
-        // Combinar todos los pedidos con su estado
-        pedidos = [
-            ...paraEntregar.map(p => ({ ...p, estado: 'LISTO' })),
-            ...enCamino.map(p => ({ ...p, estado: 'EN_CAMINO' })),
-            ...entregados.map(p => ({ ...p, estado: 'ENTREGADO' }))
-        ];
+        console.log(`✅ Pedidos cargados: ${pedidosPendientesEntrega.length} pendientes, ${pedidosEnCamino.length} en camino`);
 
         mostrarPedidos();
-        await cargarMetricasDelivery();
+        cargarMetricasDelivery();
 
     } catch (error) {
-        console.error('Error cargando pedidos:', error);
-        mostrarNotificacion('Error al cargar pedidos: ' + error.message, 'error');
+        console.error('❌ Error cargando pedidos delivery:', error);
+        if (error.message.includes('Sesión expirada')) {
+            manejarSesionExpirada();
+        } else {
+            mostrarAlerta('Error al cargar pedidos de delivery', 'error');
+        }
     }
 }
 
 // CARGAR MÉTRICAS DEL DELIVERY
 async function cargarMetricasDelivery() {
     try {
-        const response = await fetch('/delivery/metricas-delivery');
-        if (!response.ok) throw new Error('Error al cargar métricas');
+        console.log('📊 Cargando métricas de delivery...');
+        const response = await fetchConCSRF('/delivery/metricas-delivery');
+
+        if (!response.ok) {
+            throw new Error(`Error ${response.status}: ${response.statusText}`);
+        }
 
         const metricas = await response.json();
-        console.log('Métricas recibidas:', metricas);
+        console.log('📈 Métricas delivery cargadas:', metricas);
 
         if (metricas.success) {
             actualizarMetricas(metricas);
         } else {
-            throw new Error(metricas.error || 'Error en métricas');
+            actualizarMetricasConDatosLocales();
         }
 
     } catch (error) {
-        console.error('Error cargando métricas:', error);
-        // Si falla, calculamos métricas localmente
-        calcularMetricasLocales();
+        console.error('❌ Error cargando métricas delivery:', error);
+        actualizarMetricasConDatosLocales();
     }
 }
 
-// INICIAR ENTREGA DE PEDIDO
+// ACTUALIZAR MÉTRICAS CON DATOS LOCALES
+function actualizarMetricasConDatosLocales() {
+    const metricasData = {
+        totalParaEntregar: pedidosPendientesEntrega.length,
+        totalEnCamino: pedidosEnCamino.length,
+        totalEntregadosHoy: 0
+    };
+
+    actualizarMetricas(metricasData);
+}
+
+// ACTUALIZAR MÉTRICAS EN LA INTERFAZ
+function actualizarMetricas(metricas) {
+    const metricasData = {
+        totalParaEntregar: metricas.totalParaEntregar || pedidosPendientesEntrega.length || 0,
+        totalEnCamino: metricas.totalEnCamino || pedidosEnCamino.length || 0,
+        totalEntregadosHoy: metricas.totalEntregadosHoy || 0
+    };
+
+    console.log('📊 Actualizando métricas delivery:', metricasData);
+
+    if (elementos.metricas.pendientesEntrega) {
+        elementos.metricas.pendientesEntrega.textContent = metricasData.totalParaEntregar;
+    }
+    if (elementos.metricas.enCamino) {
+        elementos.metricas.enCamino.textContent = metricasData.totalEnCamino;
+    }
+    if (elementos.metricas.entregadosHoy) {
+        elementos.metricas.entregadosHoy.textContent = metricasData.totalEntregadosHoy;
+    }
+
+    // Actualizar badges
+    if (elementos.metricas.badges.pendientes) {
+        elementos.metricas.badges.pendientes.textContent = metricasData.totalParaEntregar;
+    }
+    if (elementos.metricas.badges.enCamino) {
+        elementos.metricas.badges.enCamino.textContent = metricasData.totalEnCamino;
+    }
+}
+
+// INICIAR ENTREGA (Pasar a "EN_CAMINO")
 async function iniciarEntrega(pedidoId) {
     try {
-        console.log('Iniciando entrega para pedido:', pedidoId);
+        console.log(`🚚 Iniciando entrega del pedido ${pedidoId}...`);
 
-        const response = await fetch(`/delivery/iniciar-entrega/${pedidoId}`, {
+        const response = await fetchConCSRF(`/delivery/iniciar-entrega/${pedidoId}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': getCsrfToken()
             }
         });
 
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(errorText.replace('ERROR: ', ''));
+        }
+
         const resultado = await response.text();
-        console.log('Respuesta iniciar entrega:', resultado);
+        console.log('📨 Respuesta del servidor:', resultado);
 
         if (resultado.includes('SUCCESS')) {
-            mostrarNotificacion('Entrega iniciada exitosamente', 'success');
+            mostrarAlerta('✅ Entrega iniciada correctamente', 'success');
             await cargarPedidosDelivery();
-            cerrarModalMapa();
+            ocultarDetalle();
         } else {
             throw new Error(resultado.replace('ERROR: ', ''));
         }
 
     } catch (error) {
-        console.error('Error iniciando entrega:', error);
-        mostrarNotificacion('Error: ' + error.message, 'error');
+        console.error('❌ Error iniciando entrega:', error);
+        if (error.message.includes('Sesión expirada')) {
+            manejarSesionExpirada();
+        } else {
+            mostrarAlerta(`❌ ${error.message}`, 'error');
+        }
     }
 }
 
 // MARCAR PEDIDO COMO ENTREGADO
 async function marcarComoEntregado(pedidoId) {
     try {
-        console.log('Marcando como entregado pedido:', pedidoId);
+        console.log(`✅ Marcando pedido ${pedidoId} como ENTREGADO...`);
 
-        const response = await fetch(`/delivery/marcar-entregado/${pedidoId}`, {
+        const response = await fetchConCSRF(`/delivery/marcar-entregado/${pedidoId}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': getCsrfToken()
             }
         });
 
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(errorText.replace('ERROR: ', ''));
+        }
+
         const resultado = await response.text();
-        console.log('Respuesta marcar entregado:', resultado);
+        console.log('📨 Respuesta del servidor:', resultado);
 
         if (resultado.includes('SUCCESS')) {
-            mostrarNotificacion('Pedido marcado como ENTREGADO', 'success');
+            mostrarAlerta('✅ Pedido marcado como ENTREGADO correctamente', 'success');
             await cargarPedidosDelivery();
-            cerrarModalMapa();
+            ocultarDetalle();
+            setTimeout(cargarMetricasDelivery, 500);
         } else {
             throw new Error(resultado.replace('ERROR: ', ''));
         }
 
     } catch (error) {
-        console.error('Error marcando como entregado:', error);
-        mostrarNotificacion('Error: ' + error.message, 'error');
+        console.error('❌ Error marcando como entregado:', error);
+        if (error.message.includes('Sesión expirada')) {
+            manejarSesionExpirada();
+        } else {
+            mostrarAlerta(`❌ ${error.message}`, 'error');
+        }
     }
 }
 
 // ================== FUNCIONES DE INTERFAZ ==================
 
-// ACTUALIZAR INFORMACIÓN DEL USUARIO EN LA INTERFAZ
-function actualizarInfoUsuario() {
-    if (usuarioDelivery) {
-        const nombreCompleto = `${usuarioDelivery.nombres} ${usuarioDelivery.apellidos}`;
-        const iniciales = usuarioDelivery.nombres.charAt(0) + usuarioDelivery.apellidos.charAt(0);
-
-        if (elementos.driverName) elementos.driverName.textContent = nombreCompleto;
-        if (elementos.driverInitials) elementos.driverInitials.textContent = iniciales;
-        if (elementos.modalDriverName) elementos.modalDriverName.textContent = nombreCompleto;
-        if (elementos.modalDriverInitials) elementos.modalDriverInitials.textContent = iniciales;
-    }
+// MOSTRAR PEDIDOS EN LAS COLUMNAS
+function mostrarPedidos() {
+    mostrarColumnaPendientes();
+    mostrarColumnaEnCamino();
 }
 
-// MOSTRAR PEDIDOS EN LA LISTA
-function mostrarPedidos() {
-    if (!elementos.listaPedidos) return;
+// COLUMNA: PENDIENTES ENTREGA
+function mostrarColumnaPendientes() {
+    if (!elementos.listas.pendientesEntrega) return;
 
-    const pedidosFiltrados = filtrarPedidos();
-    elementos.listaPedidos.innerHTML = '';
+    elementos.listas.pendientesEntrega.innerHTML = '';
 
-    if (pedidosFiltrados.length === 0) {
-        elementos.estadoVacio.classList.remove('d-none');
+    if (pedidosPendientesEntrega.length === 0) {
+        elementos.mensajes.sinPendientes.classList.remove('d-none');
         return;
     }
 
-    elementos.estadoVacio.classList.add('d-none');
+    elementos.mensajes.sinPendientes.classList.add('d-none');
 
-    pedidosFiltrados.forEach(pedido => {
-        const card = crearCardPedido(pedido);
-        elementos.listaPedidos.appendChild(card);
+    pedidosPendientesEntrega.forEach(pedido => {
+        const item = crearItemPedido(pedido, 'pendientes');
+        elementos.listas.pendientesEntrega.appendChild(item);
     });
 }
 
-// FILTRAR PEDIDOS SEGÚN EL FILTRO ACTUAL
-function filtrarPedidos() {
-    switch(filtroActual) {
-        case 'pending':
-            return pedidos.filter(p => p.estado === 'LISTO');
-        case 'in-progress':
-            return pedidos.filter(p => p.estado === 'EN_CAMINO');
-        case 'delivered':
-            return pedidos.filter(p => p.estado === 'ENTREGADO');
-        default:
-            return pedidos;
+// COLUMNA: EN CAMINO
+function mostrarColumnaEnCamino() {
+    if (!elementos.listas.enCamino) return;
+
+    elementos.listas.enCamino.innerHTML = '';
+
+    if (pedidosEnCamino.length === 0) {
+        elementos.mensajes.sinEnCamino.classList.remove('d-none');
+        return;
     }
+
+    elementos.mensajes.sinEnCamino.classList.add('d-none');
+
+    pedidosEnCamino.forEach(pedido => {
+        const item = crearItemPedido(pedido, 'en-camino');
+        elementos.listas.enCamino.appendChild(item);
+    });
 }
 
-// CREAR CARD DE PEDIDO
-function crearCardPedido(pedido) {
-    const card = document.createElement('div');
-    card.className = `delivery-card ${pedido.estado.toLowerCase().replace('_', '-')}`;
+// CREAR ITEM DE PEDIDO PARA LISTA
+function crearItemPedido(pedido, columna) {
+    const item = document.createElement('div');
+    item.className = `list-group-item list-group-item-action pedido-item cursor-pointer estado-${columna}`;
+    item.style.cursor = 'pointer';
 
     const tiempoTranscurrido = calcularTiempoTranscurrido(pedido.fecha);
     const esUrgente = tiempoTranscurrido.minutosTotales > 45;
 
-    card.innerHTML = `
-        <div class="card-header">
-            <div class="order-number">${pedido.numeroPedido || `#${pedido.id}`}</div>
-            <div class="order-status ${obtenerClaseEstado(pedido.estado)}">
-                ${obtenerTextoEstado(pedido.estado)}
-            </div>
-        </div>
-
-        <div class="card-body">
-            <div class="customer-info">
-                <div class="customer-name">
-                    <i class="bi bi-person"></i>
-                    ${obtenerNombreCliente(pedido)}
+    item.innerHTML = `
+        <div class="d-flex justify-content-between align-items-start">
+            <div class="flex-grow-1">
+                <h6 class="mb-1">${pedido.numeroPedido || `#${pedido.id}`}</h6>
+                <p class="mb-1 text-muted small">${obtenerNombreCliente(pedido)}</p>
+                <p class="mb-1 text-muted small">
+                    <i class="bi bi-geo-alt"></i> ${pedido.direccionEntrega || 'Dirección no especificada'}
+                </p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <small class="text-muted">${formatearFechaCorta(pedido.fecha)}</small>
+                    <span class="badge ${esUrgente ? 'bg-danger' : 'bg-warning'} badge-tiempo">
+                        ${tiempoTranscurrido.texto}
+                    </span>
                 </div>
-                <div class="customer-phone">
-                    <i class="bi bi-telephone"></i>
-                    ${obtenerTelefonoCliente(pedido)}
-                </div>
-            </div>
-
-            <div class="delivery-info">
-                <div class="delivery-address">
-                    <i class="bi bi-geo-alt"></i>
-                    ${pedido.direccionEntrega || 'Dirección no especificada'}
-                </div>
-                <div class="delivery-time">
-                    <i class="bi bi-clock"></i>
-                    ${formatearFecha(pedido.fecha)}
-                    ${esUrgente ? '<span class="urgent-indicator">!</span>' : ''}
-                </div>
-            </div>
-
-            <div class="order-items">
-                <strong>Pedido:</strong>
-                <div class="items-list">
-                    ${generarListaItems(pedido)}
-                </div>
-            </div>
-        </div>
-
-        <div class="card-footer">
-            <div class="order-total">
-                Total: <strong>S/ ${(pedido.total || 0).toFixed(2)}</strong>
-            </div>
-            <div class="card-actions">
-                ${generarBotonesAccion(pedido)}
             </div>
         </div>
     `;
 
-    // Configurar eventos de los botones
-    configurarEventosCard(card, pedido);
-
-    return card;
+    item.addEventListener('click', () => mostrarDetallePedido(pedido, columna));
+    return item;
 }
 
-// CONFIGURAR EVENTOS DE LA CARD DEL PEDIDO
-function configurarEventosCard(card, pedido) {
-    const btnMapa = card.querySelector('.btn-map');
-    const btnIniciar = card.querySelector('.btn-start-delivery');
-    const btnEntregado = card.querySelector('.btn-mark-delivered');
+// MOSTRAR DETALLE DEL PEDIDO
+async function mostrarDetallePedido(pedido, columna) {
+    try {
+        pedidoSeleccionado = pedido;
 
-    if (btnMapa) {
-        btnMapa.addEventListener('click', (e) => {
-            e.stopPropagation();
-            abrirModalMapa(pedido);
-        });
+        // Cargar información básica
+        elementos.detalle.numero.textContent = pedido.numeroPedido || `#${pedido.id}`;
+        elementos.detalle.cliente.textContent = obtenerNombreCliente(pedido);
+        elementos.detalle.telefono.textContent = obtenerTelefonoCliente(pedido);
+        elementos.detalle.direccion.textContent = pedido.direccionEntrega || 'No especificada';
+        elementos.detalle.referencia.textContent = pedido.referenciaDireccion || 'No especificada';
+        elementos.detalle.tipoEntrega.textContent = pedido.tipoEntrega || 'DELIVERY';
+        elementos.detalle.horaPedido.textContent = formatearFecha(pedido.fecha);
+        elementos.detalle.total.textContent = `S/ ${(pedido.total || 0).toFixed(2)}`;
+
+        // Calcular y mostrar tiempo transcurrido
+        const tiempo = calcularTiempoTranscurrido(pedido.fecha);
+        elementos.detalle.tiempoTranscurrido.textContent = tiempo.texto;
+        elementos.detalle.tiempoTranscurrido.className = `badge ${tiempo.minutosTotales > 45 ? 'bg-danger' : tiempo.minutosTotales > 30 ? 'bg-warning' : 'bg-info'}`;
+
+        // Mostrar items del pedido
+        elementos.detalle.items.innerHTML = '';
+        if (pedido.items && pedido.items.length > 0) {
+            pedido.items.forEach(item => {
+                const itemElement = document.createElement('div');
+                itemElement.className = 'd-flex justify-content-between border-bottom pb-2 mb-2';
+                itemElement.innerHTML = `
+                    <div class="d-flex align-items-center">
+                        <span class="badge bg-secondary me-2">${item.cantidad || 1}</span>
+                        <span>${item.nombreProducto || 'Producto'}</span>
+                    </div>
+                    <div class="text-end">
+                        <div>S/ ${((item.precio || 0) * (item.cantidad || 1)).toFixed(2)}</div>
+                        <small class="text-muted">S/ ${(item.precio || 0).toFixed(2)} c/u</small>
+                    </div>
+                `;
+                elementos.detalle.items.appendChild(itemElement);
+            });
+        } else {
+            elementos.detalle.items.innerHTML = '<p class="text-muted">No hay items disponibles</p>';
+        }
+
+        // Mostrar observaciones si existen
+        if (pedido.observaciones && pedido.observaciones.trim() !== '') {
+            elementos.detalle.observaciones.texto.textContent = pedido.observaciones;
+            elementos.detalle.observaciones.contenedor.style.display = 'block';
+        } else {
+            elementos.detalle.observaciones.contenedor.style.display = 'none';
+        }
+
+        // Mostrar acciones según la columna
+        mostrarAccionesDelivery(columna);
+
+        // Mostrar detalle con animación
+        elementos.detalle.contenedor.style.display = 'block';
+        elementos.detalle.contenedor.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+    } catch (error) {
+        console.error('❌ Error mostrando detalle:', error);
+        mostrarAlerta('Error al cargar detalle del pedido', 'error');
+    }
+}
+
+// MOSTRAR ACCIONES SEGÚN EL ESTADO
+function mostrarAccionesDelivery(columna) {
+    let accionesHTML = '';
+
+    switch(columna) {
+        case 'pendientes':
+            accionesHTML = `
+                <button class="btn btn-primary btn-lg w-100 mb-2" id="btn-iniciar-entrega">
+                    <i class="bi bi-truck me-2"></i>Iniciar Entrega
+                </button>
+                <small class="text-muted d-block text-center">
+                    El pedido pasará a "En Camino"
+                </small>
+            `;
+            break;
+
+        case 'en-camino':
+            accionesHTML = `
+                <button class="btn btn-success btn-lg w-100 mb-2" id="btn-marcar-entregado">
+                    <i class="bi bi-check2-all me-2"></i>Marcar como Entregado
+                </button>
+                <small class="text-muted d-block text-center">
+                    Confirmar entrega al cliente
+                </small>
+            `;
+            break;
     }
 
+    elementos.detalle.acciones.innerHTML = accionesHTML;
+
+    // Configurar eventos de los botones
+    const btnIniciar = document.getElementById('btn-iniciar-entrega');
+    const btnEntregado = document.getElementById('btn-marcar-entregado');
+
     if (btnIniciar) {
-        btnIniciar.addEventListener('click', (e) => {
-            e.stopPropagation();
-            confirmarAccion(
-                'Iniciar Entrega',
-                `¿Iniciar entrega del pedido ${pedido.numeroPedido || '#' + pedido.id}?`,
-                () => iniciarEntrega(pedido.id)
-            );
+        btnIniciar.addEventListener('click', () => {
+            const modalElement = document.getElementById('modalIniciarEntrega');
+            if (modalElement) {
+                const modal = new bootstrap.Modal(modalElement);
+                document.getElementById('modal-numero-pedido').textContent =
+                    pedidoSeleccionado.numeroPedido || `#${pedidoSeleccionado.id}`;
+                modal.show();
+            }
         });
     }
 
     if (btnEntregado) {
-        btnEntregado.addEventListener('click', (e) => {
-            e.stopPropagation();
-            confirmarAccion(
-                'Marcar como Entregado',
-                `¿Confirmar entrega del pedido ${pedido.numeroPedido || '#' + pedido.id}?`,
-                () => marcarComoEntregado(pedido.id)
-            );
+        btnEntregado.addEventListener('click', () => {
+            const modalElement = document.getElementById('modalMarcarEntregado');
+            if (modalElement) {
+                const modal = new bootstrap.Modal(modalElement);
+                document.getElementById('modal-numero-pedido-entregado').textContent =
+                    pedidoSeleccionado.numeroPedido || `#${pedidoSeleccionado.id}`;
+                modal.show();
+            }
         });
-    }
-}
-
-// GENERAR BOTONES DE ACCIÓN SEGÚN EL ESTADO
-function generarBotonesAccion(pedido) {
-    switch(pedido.estado) {
-        case 'LISTO':
-            return `
-                <button class="btn btn-primary btn-sm btn-start-delivery">
-                    <i class="bi bi-play-circle"></i> Iniciar
-                </button>
-                <button class="btn btn-outline-primary btn-sm btn-map">
-                    <i class="bi bi-map"></i> Mapa
-                </button>
-            `;
-
-        case 'EN_CAMINO':
-            return `
-                <button class="btn btn-success btn-sm btn-mark-delivered">
-                    <i class="bi bi-check-circle"></i> Entregado
-                </button>
-                <button class="btn btn-outline-primary btn-sm btn-map">
-                    <i class="bi bi-map"></i> Mapa
-                </button>
-            `;
-
-        case 'ENTREGADO':
-            return `
-                <span class="badge bg-success">
-                    <i class="bi bi-check-circle"></i> Entregado
-                </span>
-            `;
-
-        default:
-            return '';
-    }
-}
-
-// ABRIR MODAL CON MAPA DE ENTREGA
-function abrirModalMapa(pedido) {
-    pedidoSeleccionado = pedido;
-
-    // Actualizar información del modal
-    actualizarModalMapa(pedido);
-
-    // Configurar botones según el estado
-    configurarBotonesModal(pedido.estado);
-
-    // Inicializar mapa
-    inicializarMapa();
-
-    // Mostrar modal
-    const modal = new bootstrap.Modal(elementos.modalMapa.elemento);
-    modal.show();
-}
-
-// ACTUALIZAR INFORMACIÓN DEL MODAL DEL MAPA
-function actualizarModalMapa(pedido) {
-    elementos.modalMapa.numeroPedido.textContent = pedido.numeroPedido || `#${pedido.id}`;
-    elementos.modalMapa.infoCliente.textContent = obtenerNombreCliente(pedido);
-    elementos.modalMapa.direccion.textContent = pedido.direccionEntrega || 'Dirección no especificada';
-    elementos.modalMapa.distrito.textContent = obtenerDistrito(pedido);
-    elementos.modalMapa.total.textContent = `S/ ${(pedido.total || 0).toFixed(2)}`;
-    elementos.modalMapa.hora.textContent = formatearFecha(pedido.fecha);
-
-    // Actualizar estado en el modal
-    const estadoInfo = obtenerInfoEstado(pedido.estado);
-    elementos.modalMapa.estado.textContent = estadoInfo.texto;
-    elementos.modalMapa.estado.className = `badge ${estadoInfo.clase}`;
-}
-
-// CONFIGURAR BOTONES DEL MODAL SEGÚN ESTADO
-function configurarBotonesModal(estado) {
-    const esListo = estado === 'LISTO';
-    const esEnCamino = estado === 'EN_CAMINO';
-
-    elementos.botones.iniciarEntrega.style.display = esListo ? 'block' : 'none';
-    elementos.botones.marcarEntregado.style.display = esEnCamino ? 'block' : 'none';
-
-    // Configurar eventos
-    elementos.botones.iniciarEntrega.onclick = () => {
-        confirmarAccion(
-            'Iniciar Entrega',
-            `¿Iniciar entrega del pedido ${pedidoSeleccionado.numeroPedido || '#' + pedidoSeleccionado.id}?`,
-            () => iniciarEntrega(pedidoSeleccionado.id)
-        );
-    };
-
-    elementos.botones.marcarEntregado.onclick = () => {
-        confirmarAccion(
-            'Marcar como Entregado',
-            `¿Confirmar entrega del pedido ${pedidoSeleccionado.numeroPedido || '#' + pedidoSeleccionado.id}?`,
-            () => marcarComoEntregado(pedidoSeleccionado.id)
-        );
-    };
-}
-
-// ================== FUNCIONALIDAD DEL MAPA ==================
-
-// INICIALIZAR MAPA LEAFLET
-function inicializarMapa() {
-    if (!pedidoSeleccionado) return;
-
-    // Crear mapa
-    mapa = L.map('deliveryMap').setView(COORDENADAS_RESTAURANTE, 13);
-
-    // Agregar capa de tiles
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors'
-    }).addTo(mapa);
-
-    // Agregar marcadores
-    agregarMarcadoresMapa();
-
-    // Calcular y mostrar ruta
-    calcularRutaEntrega();
-}
-
-// AGREGAR MARCADORES AL MAPA
-function agregarMarcadoresMapa() {
-    // Marcador del restaurante
-    L.marker(COORDENADAS_RESTAURANTE)
-        .addTo(mapa)
-        .bindPopup(`
-            <strong>Luren Chicken</strong><br>
-            Punto de partida<br>
-            <small>${obtenerDireccionRestaurante()}</small>
-        `)
-        .openPopup();
-
-    // Coordenadas del cliente (simuladas)
-    const coordenadasCliente = generarCoordenadasAleatorias(COORDENADAS_RESTAURANTE, 0.03);
-
-    // Marcador del cliente
-    L.marker(coordenadasCliente, {
-        icon: L.divIcon({
-            className: 'customer-marker',
-            html: '<i class="bi bi-house"></i>',
-            iconSize: [25, 25]
-        })
-    }).addTo(mapa).bindPopup(`
-        <strong>Cliente:</strong> ${obtenerNombreCliente(pedidoSeleccionado)}<br>
-        <strong>Dirección:</strong> ${pedidoSeleccionado.direccionEntrega || 'No especificada'}
-    `);
-
-    // Marcador del repartidor (posición simulada)
-    const coordenadasRepartidor = generarCoordenadasAleatorias(COORDENADAS_RESTAURANTE, 0.01);
-
-    L.marker(coordenadasRepartidor, {
-        icon: L.divIcon({
-            className: 'driver-marker',
-            html: '<i class="bi bi-truck"></i>',
-            iconSize: [30, 30]
-        })
-    }).addTo(mapa).bindPopup(`
-        <strong>Repartidor</strong><br>
-        ${usuarioDelivery ? `${usuarioDelivery.nombres} ${usuarioDelivery.apellidos}` : 'En camino'}
-    `);
-
-    // Ajustar vista para mostrar todos los marcadores
-    const grupo = L.featureGroup([
-        L.marker(COORDENADAS_RESTAURANTE),
-        L.marker(coordenadasCliente),
-        L.marker(coordenadasRepartidor)
-    ]);
-    mapa.fitBounds(grupo.getBounds().pad(0.1));
-}
-
-// CALCULAR RUTA DE ENTREGA
-function calcularRutaEntrega() {
-    if (rutaControl) {
-        mapa.removeControl(rutaControl);
-    }
-
-    // Coordenadas simuladas del cliente
-    const coordenadasCliente = generarCoordenadasAleatorias(COORDENADAS_RESTAURANTE, 0.03);
-
-    rutaControl = L.Routing.control({
-        waypoints: [
-            L.latLng(COORDENADAS_RESTAURANTE[0], COORDENADAS_RESTAURANTE[1]),
-            L.latLng(coordenadasCliente[0], coordenadasCliente[1])
-        ],
-        routeWhileDragging: false,
-        showAlternatives: false,
-        fitSelectedRoutes: true,
-        createMarker: function() { return null; }
-    }).addTo(mapa);
-
-    // Simular información de la ruta
-    rutaControl.on('routesfound', function(e) {
-        const rutas = e.routes;
-        const ruta = rutas[0];
-
-        const distanciaKm = (ruta.summary.totalDistance / 1000).toFixed(1);
-        const tiempoMin = Math.round(ruta.summary.totalTime / 60);
-
-        elementos.modalMapa.distancia.textContent = `${distanciaKm} km`;
-        elementos.modalMapa.tiempo.textContent = `${tiempoMin} min`;
-
-        // Iniciar simulación de progreso si el pedido está en camino
-        if (pedidoSeleccionado.estado === 'EN_CAMINO') {
-            simularProgresoEntrega();
-        }
-    });
-}
-
-// SIMULAR PROGRESO DE ENTREGA
-function simularProgresoEntrega() {
-    let progreso = 0;
-    const intervalo = setInterval(() => {
-        progreso += Math.random() * 5;
-        if (progreso >= 100) {
-            progreso = 100;
-            clearInterval(intervalo);
-        }
-
-        elementos.modalMapa.progreso.style.width = `${progreso}%`;
-        elementos.modalMapa.porcentaje.textContent = `${Math.round(progreso)}%`;
-    }, 800);
-}
-
-// CERRAR MODAL DEL MAPA
-function cerrarModalMapa() {
-    const modal = bootstrap.Modal.getInstance(elementos.modalMapa.elemento);
-    if (modal) {
-        modal.hide();
-    }
-
-    // Limpiar mapa
-    if (mapa) {
-        mapa.remove();
-        mapa = null;
-        rutaControl = null;
     }
 }
 
 // ================== FUNCIONES UTILITARIAS ==================
 
-// ACTUALIZAR MÉTRICAS EN LA INTERFAZ
-function actualizarMetricas(metricas) {
-    // Métricas principales
-    if (elementos.metricas.pendientes) {
-        elementos.metricas.pendientes.textContent = metricas.totalParaEntregar || 0;
-    }
-    if (elementos.metricas.enCamino) {
-        elementos.metricas.enCamino.textContent = metricas.totalEnCamino || 0;
-    }
-    if (elementos.metricas.entregados) {
-        elementos.metricas.entregados.textContent = metricas.totalEntregadosHoy || 0;
-    }
-    if (elementos.metricas.total) {
-        const total = (metricas.totalParaEntregar || 0) + (metricas.totalEnCamino || 0) + (metricas.totalEntregadosHoy || 0);
-        elementos.metricas.total.textContent = total;
-    }
-
-    // Métricas del sidebar
-    if (elementos.metricas.sidebar.pendientes) {
-        elementos.metricas.sidebar.pendientes.textContent = metricas.totalParaEntregar || 0;
-    }
-    if (elementos.metricas.sidebar.enCamino) {
-        elementos.metricas.sidebar.enCamino.textContent = metricas.totalEnCamino || 0;
-    }
-}
-
-// CALCULAR MÉTRICAS LOCALMENTE (fallback)
-function calcularMetricasLocales() {
-    const metricas = {
-        totalParaEntregar: pedidos.filter(p => p.estado === 'LISTO').length,
-        totalEnCamino: pedidos.filter(p => p.estado === 'EN_CAMINO').length,
-        totalEntregadosHoy: pedidos.filter(p => p.estado === 'ENTREGADO').length
-    };
-
-    actualizarMetricas(metricas);
-}
-
-// GENERAR LISTA DE ITEMS DEL PEDIDO
-function generarListaItems(pedido) {
-    if (!pedido.items || pedido.items.length === 0) {
-        return '<span class="text-muted">No hay items</span>';
-    }
-
-    const items = pedido.items.slice(0, 3);
-    let html = '';
-
-    items.forEach(item => {
-        const nombreProducto = item.nombreProductoSeguro || item.nombreProducto || 'Producto';
-        const cantidad = item.cantidad || 1;
-        html += `
-            <div class="item">
-                ${nombreProducto}
-                <span class="item-quantity">x${cantidad}</span>
-            </div>
-        `;
-    });
-
-    if (pedido.items.length > 3) {
-        html += `<div class="item-more">+${pedido.items.length - 3} más</div>`;
-    }
-
-    return html;
-}
-
-// OBTENER INFORMACIÓN DEL ESTADO
-function obtenerInfoEstado(estado) {
-    const estados = {
-        'LISTO': { texto: 'Pendiente', clase: 'bg-warning' },
-        'EN_CAMINO': { texto: 'En Camino', clase: 'bg-info' },
-        'ENTREGADO': { texto: 'Entregado', clase: 'bg-success' }
-    };
-    return estados[estado] || { texto: estado, clase: 'bg-secondary' };
-}
-
-// OBTENER CLASE CSS PARA EL ESTADO
-function obtenerClaseEstado(estado) {
-    const clases = {
-        'LISTO': 'status-pending',
-        'EN_CAMINO': 'status-progress',
-        'ENTREGADO': 'status-delivered'
-    };
-    return clases[estado] || 'status-pending';
-}
-
-// OBTENER TEXTO LEGIBLE PARA EL ESTADO
-function obtenerTextoEstado(estado) {
-    const textos = {
-        'LISTO': 'Pendiente',
-        'EN_CAMINO': 'En Camino',
-        'ENTREGADO': 'Entregado'
-    };
-    return textos[estado] || estado;
-}
-
-// OBTENER NOMBRE DEL CLIENTE
-function obtenerNombreCliente(pedido) {
-    if (pedido.usuario) {
-        return `${pedido.usuario.nombres} ${pedido.usuario.apellidos}`;
-    }
-    return pedido.cliente || 'Cliente no especificado';
-}
-
-// OBTENER TELÉFONO DEL CLIENTE
-function obtenerTelefonoCliente(pedido) {
-    if (pedido.usuario && pedido.usuario.telefono) {
-        return pedido.usuario.telefono;
-    }
-    return 'No especificado';
-}
-
-// OBTENER DIRECCIÓN DEL RESTAURANTE
-function obtenerDireccionRestaurante() {
-    return "Av. Principal 123, Ica, Perú";
-}
-
-// OBTENER DISTRITO (simulado)
-function obtenerDistrito(pedido) {
-    const distritos = ['Ica Centro', 'La Tinguiña', 'Pueblo Nuevo', 'Salas', 'Parcona', 'San José'];
-    return distritos[Math.floor(Math.random() * distritos.length)];
-}
-
 // CALCULAR TIEMPO TRANSCURRIDO
 function calcularTiempoTranscurrido(fechaString) {
     if (!fechaString) return { texto: 'N/A', minutosTotales: 0 };
 
-    const fechaPedido = new Date(fechaString);
-    const ahora = new Date();
-    const diferenciaMs = ahora - fechaPedido;
-    const minutosTotales = Math.floor(diferenciaMs / (1000 * 60));
+    try {
+        const fechaPedido = new Date(fechaString);
+        if (isNaN(fechaPedido.getTime())) {
+            return { texto: 'N/A', minutosTotales: 0 };
+        }
 
-    if (minutosTotales < 60) {
-        return { texto: `${minutosTotales}min`, minutosTotales };
-    } else {
-        const horas = Math.floor(minutosTotales / 60);
-        const minutos = minutosTotales % 60;
-        return { texto: `${horas}h ${minutos}m`, minutosTotales };
+        const ahora = new Date();
+        const diferenciaMs = ahora - fechaPedido;
+        const minutosTotales = Math.floor(diferenciaMs / (1000 * 60));
+
+        if (minutosTotales > 360) {
+            console.warn('⚠️ Tiempo muy largo detectado:', minutosTotales, 'minutos para pedido');
+            return { texto: 'Revisar', minutosTotales };
+        }
+
+        if (minutosTotales < 60) {
+            return { texto: `${minutosTotales}min`, minutosTotales };
+        } else {
+            const horas = Math.floor(minutosTotales / 60);
+            const minutos = minutosTotales % 60;
+            return { texto: `${horas}h ${minutos}m`, minutosTotales };
+        }
+    } catch (error) {
+        console.error('Error calculando tiempo:', error);
+        return { texto: 'N/A', minutosTotales: 0 };
     }
 }
 
-// FORMATEAR FECHA
+// OBTENER NOMBRE DEL CLIENTE
+function obtenerNombreCliente(pedido) {
+    if (pedido.cliente && typeof pedido.cliente === 'object') {
+        const nombres = pedido.cliente.nombres || '';
+        const apellidos = pedido.cliente.apellidos || '';
+        return `${nombres} ${apellidos}`.trim();
+    } else if (pedido.cliente && typeof pedido.cliente === 'string') {
+        return pedido.cliente;
+    }
+    return 'Cliente no especificado';
+}
+
+// OBTENER TELÉFONO DEL CLIENTE
+function obtenerTelefonoCliente(pedido) {
+    if (pedido.cliente && typeof pedido.cliente === 'object') {
+        return pedido.cliente.telefono || 'No especificado';
+    }
+    return 'No especificado';
+}
+
+// FORMATEAR FECHA COMPLETA
 function formatearFecha(fechaString) {
     if (!fechaString) return 'Fecha no disponible';
 
-    const fecha = new Date(fechaString);
-    return fecha.toLocaleTimeString('es-ES', {
-        hour: '2-digit',
-        minute: '2-digit'
-    });
-}
+    try {
+        const fecha = new Date(fechaString);
+        if (isNaN(fecha.getTime())) return 'Fecha inválida';
 
-// GENERAR COORDENADAS ALEATORIAS CERCA DE UN PUNTO
-function generarCoordenadasAleatorias(puntoCentral, radio = 0.02) {
-    return [
-        puntoCentral[0] + (Math.random() - 0.5) * radio,
-        puntoCentral[1] + (Math.random() - 0.5) * radio
-    ];
-}
-
-// MOSTRAR NOTIFICACIÓN
-function mostrarNotificacion(mensaje, tipo = 'info') {
-    // Implementación básica - puedes integrar con toast de Bootstrap
-    const iconos = {
-        success: 'bi-check-circle',
-        error: 'bi-exclamation-triangle',
-        info: 'bi-info-circle'
-    };
-
-    console.log(`[${tipo.toUpperCase()}] ${mensaje}`);
-
-    // Aquí podrías integrar con un sistema de toast
-    alert(`${tipo.toUpperCase()}: ${mensaje}`);
-}
-
-// CONFIRMAR ACCIÓN CON MODAL
-function confirmarAccion(titulo, mensaje, accionConfirmar) {
-    const tituloElement = document.getElementById('confirmationTitle');
-    const mensajeElement = document.getElementById('confirmationMessage');
-
-    if (tituloElement && mensajeElement) {
-        tituloElement.textContent = titulo;
-        mensajeElement.textContent = mensaje;
-
-        const modal = new bootstrap.Modal(document.getElementById('confirmationModal'));
-        modal.show();
-
-        // Configurar evento del botón aceptar
-        const btnAceptar = document.querySelector('#confirmationModal .btn-primary');
-        const btnOriginal = btnAceptar.cloneNode(true);
-        btnAceptar.parentNode.replaceChild(btnOriginal, btnAceptar);
-
-        btnOriginal.addEventListener('click', () => {
-            modal.hide();
-            accionConfirmar();
+        return fecha.toLocaleDateString('es-PE', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            timeZone: 'America/Lima'
         });
-    } else {
-        // Fallback a confirm básico
-        if (confirm(`${titulo}\n${mensaje}`)) {
-            accionConfirmar();
+    } catch (error) {
+        return 'Fecha inválida';
+    }
+}
+
+// FORMATEAR FECHA CORTA (para items)
+function formatearFechaCorta(fechaString) {
+    if (!fechaString) return '';
+
+    try {
+        const fecha = new Date(fechaString);
+        if (isNaN(fecha.getTime())) return '';
+
+        return fecha.toLocaleTimeString('es-PE', {
+            hour: '2-digit',
+            minute: '2-digit',
+            timeZone: 'America/Lima'
+        });
+    } catch (error) {
+        return '';
+    }
+}
+
+// MANEJAR SESIÓN EXPIRADA
+function manejarSesionExpirada() {
+    mostrarAlerta('🔐 Sesión expirada. Redirigiendo al login...', 'error');
+    setTimeout(() => {
+        window.location.href = '/login?sessionExpired=true';
+    }, 2000);
+}
+
+// MOSTRAR ALERTA TOAST
+function mostrarAlerta(mensaje, tipo = 'info') {
+    const toastEl = document.getElementById('liveAlert');
+    if (!toastEl) {
+        console.log(`[${tipo.toUpperCase()}] ${mensaje}`);
+        return;
+    }
+
+    const toastTitulo = document.getElementById('toast-titulo');
+    const toastMensaje = document.getElementById('toast-mensaje');
+    const toastIcon = document.getElementById('toast-icon');
+
+    const config = {
+        success: {
+            titulo: 'Éxito',
+            icon: 'bi-check-circle-fill',
+            color: 'text-success',
+            bgColor: 'bg-success'
+        },
+        error: {
+            titulo: 'Error',
+            icon: 'bi-exclamation-triangle-fill',
+            color: 'text-danger',
+            bgColor: 'bg-danger'
+        },
+        info: {
+            titulo: 'Información',
+            icon: 'bi-info-circle-fill',
+            color: 'text-info',
+            bgColor: 'bg-info'
         }
+    }[tipo] || config.info;
+
+    toastTitulo.textContent = config.titulo;
+    toastMensaje.textContent = mensaje;
+    toastIcon.className = `bi ${config.icon} me-2 ${config.color}`;
+
+    const toastHeader = toastEl.querySelector('.toast-header');
+    toastHeader.className = `toast-header ${config.bgColor} text-white`;
+
+    const bsToast = new bootstrap.Toast(toastEl);
+    bsToast.show();
+}
+
+// OCULTAR DETALLE
+function ocultarDetalle() {
+    pedidoSeleccionado = null;
+    if (elementos.detalle.contenedor) {
+        elementos.detalle.contenedor.style.display = 'none';
+    }
+}
+
+// ACTUALIZAR HORA Y FECHA EN TIEMPO REAL
+function actualizarHoraYFecha() {
+    const ahora = new Date();
+
+    const headerHora = document.getElementById('header-hora-actual');
+    const headerFecha = document.getElementById('header-fecha-actual');
+
+    if (headerHora) {
+        headerHora.textContent = ahora.toLocaleTimeString('es-PE', {
+            hour: '2-digit',
+            minute: '2-digit',
+            timeZone: 'America/Lima'
+        });
+    }
+
+    if (headerFecha) {
+        headerFecha.textContent = ahora.toLocaleDateString('es-PE', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            timeZone: 'America/Lima'
+        });
     }
 }
 
 // ================== INICIALIZACIÓN ==================
 
-// ACTUALIZAR HORA EN TIEMPO REAL
-function actualizarHora() {
-    const ahora = new Date();
+document.addEventListener('DOMContentLoaded', function () {
+    console.log('🚚 Inicializando módulo de delivery...');
 
-    // Fecha completa
-    const opcionesFecha = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-    const fechaElement = document.getElementById('currentDate');
-    if (fechaElement) {
-        fechaElement.textContent = ahora.toLocaleDateString('es-ES', opcionesFecha);
+    // Verificar token CSRF
+    const csrfToken = getCsrfToken();
+    console.log('🔐 Token CSRF disponible:', csrfToken ? 'SÍ' : 'NO');
+
+    // Cargar datos iniciales
+    cargarPedidosDelivery();
+
+    // Configurar eventos de botones
+    const btnCerrarDetalle = document.getElementById('btn-cerrar-detalle');
+    if (btnCerrarDetalle) {
+        btnCerrarDetalle.addEventListener('click', ocultarDetalle);
     }
 
-    // Hora completa
-    const horaElement = document.getElementById('currentTime');
-    if (horaElement) {
-        horaElement.textContent = ahora.toLocaleTimeString('es-ES');
-    }
-
-    // Hora móvil
-    const horaMobile = document.getElementById('mobileTime');
-    if (horaMobile) {
-        horaMobile.textContent = ahora.toLocaleTimeString('es-ES', {
-            hour: '2-digit', minute: '2-digit'
+    // Confirmar iniciar entrega
+    const btnConfirmarIniciar = document.getElementById('btn-confirmar-iniciar-entrega');
+    if (btnConfirmarIniciar) {
+        btnConfirmarIniciar.addEventListener('click', () => {
+            if (pedidoSeleccionado) {
+                const modal = bootstrap.Modal.getInstance(document.getElementById('modalIniciarEntrega'));
+                if (modal) modal.hide();
+                iniciarEntrega(pedidoSeleccionado.id);
+            }
         });
     }
-}
 
-// CONFIGURAR FILTROS
-function configurarFiltros() {
-    elementos.filtros.forEach(filtro => {
-        filtro.addEventListener('click', function() {
-            // Remover active de todos los filtros
-            elementos.filtros.forEach(f => f.classList.remove('active'));
-
-            // Agregar active al filtro clickeado
-            this.classList.add('active');
-
-            // Actualizar filtro actual
-            filtroActual = this.dataset.filter;
-
-            // Volver a mostrar pedidos
-            mostrarPedidos();
-        });
-    });
-}
-
-// CONFIGURAR MENÚ MÓVIL
-function configurarMenuMovil() {
-    const btnMenu = document.getElementById('mobileMenuBtn');
-    const sidebar = document.querySelector('.delivery-sidebar');
-
-    if (btnMenu && sidebar) {
-        btnMenu.addEventListener('click', () => {
-            sidebar.classList.toggle('mobile-open');
+    // Confirmar marcar como entregado
+    const btnConfirmarEntregado = document.getElementById('btn-confirmar-entregado');
+    if (btnConfirmarEntregado) {
+        btnConfirmarEntregado.addEventListener('click', () => {
+            if (pedidoSeleccionado) {
+                const modal = bootstrap.Modal.getInstance(document.getElementById('modalMarcarEntregado'));
+                if (modal) modal.hide();
+                marcarComoEntregado(pedidoSeleccionado.id);
+            }
         });
     }
-}
 
-// INICIALIZAR APLICACIÓN
-async function inicializarAplicacion() {
-    console.log('Inicializando aplicación de delivery...');
+    // Actualizar hora cada segundo
+    actualizarHoraYFecha();
+    setInterval(actualizarHoraYFecha, 1000);
 
-    // Cargar información del usuario
-    await cargarUsuarioDelivery();
-
-    // Cargar pedidos iniciales
-    await cargarPedidosDelivery();
-
-    // Configurar interfaz
-    configurarFiltros();
-    configurarMenuMovil();
-
-    // Iniciar actualización de hora
-    actualizarHora();
-    setInterval(actualizarHora, 1000);
-
-    // Recargar pedidos cada 30 segundos
+    // Recargar datos cada 30 segundos
     setInterval(cargarPedidosDelivery, 30000);
 
-    console.log('Aplicación de delivery inicializada correctamente');
-}
-
-// INICIAR CUANDO EL DOCUMENTO ESTÉ LISTO
-document.addEventListener('DOMContentLoaded', function() {
-    inicializarAplicacion().catch(error => {
-        console.error('Error inicializando aplicación:', error);
-        mostrarNotificacion('Error al inicializar la aplicación', 'error');
-    });
+    console.log('✅ Módulo de delivery inicializado correctamente');
 });

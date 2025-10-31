@@ -1,4 +1,4 @@
-// cocinero.js - SISTEMA KANBAN PARA COCINA - VERSIÓN OPTIMIZADA
+// cocinero.js - SISTEMA KANBAN PARA COCINA - VERSIÓN CORREGIDA
 
 // Variables globales
 let pedidoSeleccionado = null;
@@ -48,7 +48,7 @@ const elementos = {
 
 // ================== FUNCIONES DE CONEXIÓN CON BACKEND ==================
 
-// OBTENER TOKEN CSRF (igual que en cajero.js)
+// OBTENER TOKEN CSRF
 function getCsrfToken() {
     const csrfInput = document.querySelector('input[name="_csrf"]');
     const csrfMeta = document.querySelector('meta[name="_csrf"]');
@@ -82,7 +82,7 @@ async function fetchConCSRF(url, options = {}) {
     return response;
 }
 
-// CARGAR TODOS LOS PEDIDOS DEL COCINERO
+// CARGAR TODOS LOS PEDIDOS DEL COCINERO - VERSIÓN CORREGIDA
 async function cargarPedidosCocina() {
     try {
         console.log('🍳 Cargando pedidos de cocina...');
@@ -93,6 +93,7 @@ async function cargarPedidosCocina() {
             fetchConCSRF('/cocinero/pedidos-listos-hoy').then(r => r.json())
         ]);
 
+        // ✅ CORRECCIÓN: Asegurar que siempre sean arrays
         pedidosPorPreparar = Array.isArray(porPreparar) ? porPreparar : [];
         pedidosEnPreparacion = Array.isArray(enPreparacion) ? enPreparacion : [];
         pedidosListos = Array.isArray(listos) ? listos : [];
@@ -112,7 +113,7 @@ async function cargarPedidosCocina() {
     }
 }
 
-// CARGAR MÉTRICAS DEL COCINERO
+// CARGAR MÉTRICAS DEL COCINERO - VERSIÓN MEJORADA
 async function cargarMetricasCocina() {
     try {
         console.log('📊 Cargando métricas de cocina...');
@@ -127,14 +128,59 @@ async function cargarMetricasCocina() {
 
         if (metricas.success) {
             actualizarMetricas(metricas);
+        } else {
+            // ✅ CORRECCIÓN: Si no hay métricas del servidor, usar datos locales
+            actualizarMetricasConDatosLocales();
         }
 
     } catch (error) {
         console.error('❌ Error cargando métricas:', error);
+        // ✅ CORRECCIÓN: Usar datos locales como fallback
+        actualizarMetricasConDatosLocales();
     }
 }
 
-// INICIAR PREPARACIÓN DE PEDIDO - VERSIÓN MEJORADA
+// ACTUALIZAR MÉTRICAS CON DATOS LOCALES - NUEVA FUNCIÓN
+function actualizarMetricasConDatosLocales() {
+    const metricasData = {
+        totalPorPreparar: pedidosPorPreparar.length,
+        totalEnPreparacion: pedidosEnPreparacion.length,
+        totalListosHoy: pedidosListos.length,
+        tiempoPromedio: calcularTiempoPromedioListos() // ✅ Nueva función para calcular tiempo promedio
+    };
+
+    actualizarMetricas(metricasData);
+}
+
+// CALCULAR TIEMPO PROMEDIO DE PEDIDOS LISTOS - NUEVA FUNCIÓN
+function calcularTiempoPromedioListos() {
+    if (pedidosListos.length === 0) return 0;
+
+    let totalMinutos = 0;
+    let pedidosConTiempo = 0;
+
+    pedidosListos.forEach(pedido => {
+        if (pedido.fecha && pedido.fechaPreparacionCompleta) {
+            try {
+                const fechaInicio = new Date(pedido.fecha);
+                const fechaFin = new Date(pedido.fechaPreparacionCompleta);
+                const diferenciaMs = fechaFin - fechaInicio;
+                const minutos = Math.floor(diferenciaMs / (1000 * 60));
+
+                if (minutos > 0 && minutos < 480) { // ✅ Filtrar tiempos razonables (menos de 8 horas)
+                    totalMinutos += minutos;
+                    pedidosConTiempo++;
+                }
+            } catch (error) {
+                console.warn('Error calculando tiempo para pedido:', pedido.id, error);
+            }
+        }
+    });
+
+    return pedidosConTiempo > 0 ? Math.round(totalMinutos / pedidosConTiempo) : 0;
+}
+
+// INICIAR PREPARACIÓN DE PEDIDO
 async function iniciarPreparacion(pedidoId) {
     try {
         console.log(`🍳 Iniciando preparación del pedido ${pedidoId}...`);
@@ -165,7 +211,6 @@ async function iniciarPreparacion(pedidoId) {
 
     } catch (error) {
         console.error('❌ Error iniciando preparación:', error);
-
         if (error.message.includes('Sesión expirada')) {
             manejarSesionExpirada();
         } else {
@@ -174,7 +219,7 @@ async function iniciarPreparacion(pedidoId) {
     }
 }
 
-// MARCAR PEDIDO COMO LISTO - VERSIÓN MEJORADA
+// MARCAR PEDIDO COMO LISTO
 async function marcarComoListo(pedidoId) {
     try {
         console.log(`✅ Marcando pedido ${pedidoId} como LISTO...`);
@@ -199,13 +244,15 @@ async function marcarComoListo(pedidoId) {
             mostrarAlerta('✅ Pedido marcado como LISTO correctamente', 'success');
             await cargarPedidosCocina();
             ocultarDetalle();
+
+            // ✅ CORRECCIÓN: Forzar actualización de métricas
+            setTimeout(cargarMetricasCocina, 500);
         } else {
             throw new Error(resultado.message || 'Error desconocido');
         }
 
     } catch (error) {
         console.error('❌ Error marcando como listo:', error);
-
         if (error.message.includes('Sesión expirada')) {
             manejarSesionExpirada();
         } else {
@@ -214,23 +261,46 @@ async function marcarComoListo(pedidoId) {
     }
 }
 
-// OBTENER DETALLE COMPLETO DEL PEDIDO
-async function obtenerDetallePedido(pedidoId) {
-    try {
-        const response = await fetchConCSRF(`/cocinero/pedido/${pedidoId}`);
+// ================== FUNCIONES DE INTERFAZ ==================
 
-        if (!response.ok) {
-            throw new Error('Error al cargar detalle del pedido');
-        }
+// ACTUALIZAR MÉTRICAS EN LA INTERFAZ - VERSIÓN CORREGIDA
+function actualizarMetricas(metricas) {
+    const metricasData = {
+        totalPorPreparar: metricas.totalPorPreparar || pedidosPorPreparar.length || 0,
+        totalEnPreparacion: metricas.totalEnPreparacion || pedidosEnPreparacion.length || 0,
+        totalListosHoy: metricas.totalListosHoy || pedidosListos.length || 0,
+        tiempoPromedio: metricas.tiempoPromedio || 0
+    };
 
-        return await response.json();
-    } catch (error) {
-        console.error('❌ Error cargando detalle:', error);
-        return null;
+    console.log('📊 Actualizando métricas:', metricasData);
+
+    // ✅ CORRECCIÓN: Asegurar que todos los elementos existen antes de actualizar
+    if (elementos.metricas.porPreparar) {
+        elementos.metricas.porPreparar.textContent = metricasData.totalPorPreparar;
+    }
+    if (elementos.metricas.enPreparacion) {
+        elementos.metricas.enPreparacion.textContent = metricasData.totalEnPreparacion;
+    }
+    if (elementos.metricas.listos) {
+        elementos.metricas.listos.textContent = metricasData.totalListosHoy;
+    }
+    if (elementos.metricas.tiempoPromedio) {
+        // ✅ CORRECCIÓN: Mostrar correctamente el tiempo promedio
+        elementos.metricas.tiempoPromedio.textContent = `${metricasData.tiempoPromedio} min`;
+        console.log('⏱️ Tiempo promedio mostrado:', metricasData.tiempoPromedio);
+    }
+
+    // Actualizar badges
+    if (elementos.metricas.badges.porPreparar) {
+        elementos.metricas.badges.porPreparar.textContent = metricasData.totalPorPreparar;
+    }
+    if (elementos.metricas.badges.enPreparacion) {
+        elementos.metricas.badges.enPreparacion.textContent = metricasData.totalEnPreparacion;
+    }
+    if (elementos.metricas.badges.listos) {
+        elementos.metricas.badges.listos.textContent = metricasData.totalListosHoy;
     }
 }
-
-// ================== FUNCIONES DE INTERFAZ ==================
 
 // MOSTRAR PEDIDOS EN LAS COLUMNAS KANBAN
 function mostrarPedidos() {
@@ -277,18 +347,22 @@ function mostrarColumnaEnPreparacion() {
     });
 }
 
-// COLUMNA: LISTOS
+// COLUMNA: LISTOS - VERSIÓN CORREGIDA
 function mostrarColumnaListos() {
     if (!elementos.listas.listos) return;
 
     elementos.listas.listos.innerHTML = '';
 
     if (pedidosListos.length === 0) {
-        elementos.mensajes.sinListos.classList.remove('d-none');
+        if (elementos.mensajes.sinListos) {
+            elementos.mensajes.sinListos.classList.remove('d-none');
+        }
         return;
     }
 
-    elementos.mensajes.sinListos.classList.add('d-none');
+    if (elementos.mensajes.sinListos) {
+        elementos.mensajes.sinListos.classList.add('d-none');
+    }
 
     pedidosListos.forEach(pedido => {
         const item = crearItemPedido(pedido, 'listos');
@@ -324,7 +398,231 @@ function crearItemPedido(pedido, columna) {
     return item;
 }
 
-// MOSTRAR DETALLE DEL PEDIDO
+// ================== FUNCIONES UTILITARIAS ==================
+
+// CALCULAR TIEMPO TRANSCURRIDO - VERSIÓN MEJORADA
+function calcularTiempoTranscurrido(fechaString) {
+    if (!fechaString) return { texto: 'N/A', minutosTotales: 0 };
+
+    try {
+        // ✅ CORRECCIÓN: Asegurar que la fecha se parsea correctamente
+        const fechaPedido = new Date(fechaString);
+        if (isNaN(fechaPedido.getTime())) {
+            return { texto: 'N/A', minutosTotales: 0 };
+        }
+
+        const ahora = new Date();
+        const diferenciaMs = ahora - fechaPedido;
+        const minutosTotales = Math.floor(diferenciaMs / (1000 * 60));
+
+        // ✅ CORRECCIÓN: Si son más de 6 horas, probablemente hay error de fecha
+        if (minutosTotales > 360) { // 6 horas
+            console.warn('⚠️ Tiempo muy largo detectado:', minutosTotales, 'minutos para pedido');
+            return { texto: 'Revisar', minutosTotales };
+        }
+
+        if (minutosTotales < 60) {
+            return { texto: `${minutosTotales}min`, minutosTotales };
+        } else {
+            const horas = Math.floor(minutosTotales / 60);
+            const minutos = minutosTotales % 60;
+            return { texto: `${horas}h ${minutos}m`, minutosTotales };
+        }
+    } catch (error) {
+        console.error('Error calculando tiempo:', error);
+        return { texto: 'N/A', minutosTotales: 0 };
+    }
+}
+
+// OBTENER NOMBRE DEL CLIENTE - VERSIÓN CORREGIDA
+function obtenerNombreCliente(pedido) {
+    if (pedido.cliente && typeof pedido.cliente === 'object') {
+        const nombres = pedido.cliente.nombres || '';
+        const apellidos = pedido.cliente.apellidos || '';
+        return `${nombres} ${apellidos}`.trim();
+    } else if (pedido.cliente && typeof pedido.cliente === 'string') {
+        return pedido.cliente;
+    }
+    return 'Cliente no especificado';
+}
+
+// FORMATEAR FECHA COMPLETA
+function formatearFecha(fechaString) {
+    if (!fechaString) return 'Fecha no disponible';
+
+    try {
+        const fecha = new Date(fechaString);
+        if (isNaN(fecha.getTime())) return 'Fecha inválida';
+
+        return fecha.toLocaleDateString('es-PE', { // ✅ Especificar Perú
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            timeZone: 'America/Lima' // ✅ Zona horaria de Perú
+        });
+    } catch (error) {
+        return 'Fecha inválida';
+    }
+}
+
+// FORMATEAR FECHA CORTA (para items)
+function formatearFechaCorta(fechaString) {
+    if (!fechaString) return '';
+
+    try {
+        const fecha = new Date(fechaString);
+        if (isNaN(fecha.getTime())) return '';
+
+        return fecha.toLocaleTimeString('es-PE', {
+            hour: '2-digit',
+            minute: '2-digit',
+            timeZone: 'America/Lima'
+        });
+    } catch (error) {
+        return '';
+    }
+}
+
+// MANEJAR SESIÓN EXPIRADA
+function manejarSesionExpirada() {
+    mostrarAlerta('🔐 Sesión expirada. Redirigiendo al login...', 'error');
+    setTimeout(() => {
+        window.location.href = '/login?sessionExpired=true';
+    }, 2000);
+}
+
+// MOSTRAR ALERTA TOAST
+function mostrarAlerta(mensaje, tipo = 'info') {
+    const toastEl = document.getElementById('liveAlert');
+    if (!toastEl) {
+        console.log(`[${tipo.toUpperCase()}] ${mensaje}`);
+        return;
+    }
+
+    const toastTitulo = document.getElementById('toast-titulo');
+    const toastMensaje = document.getElementById('toast-mensaje');
+    const toastIcon = document.getElementById('toast-icon');
+
+    const config = {
+        success: {
+            titulo: 'Éxito',
+            icon: 'bi-check-circle-fill',
+            color: 'text-success',
+            bgColor: 'bg-success'
+        },
+        error: {
+            titulo: 'Error',
+            icon: 'bi-exclamation-triangle-fill',
+            color: 'text-danger',
+            bgColor: 'bg-danger'
+        },
+        info: {
+            titulo: 'Información',
+            icon: 'bi-info-circle-fill',
+            color: 'text-info',
+            bgColor: 'bg-info'
+        }
+    }[tipo] || config.info;
+
+    toastTitulo.textContent = config.titulo;
+    toastMensaje.textContent = mensaje;
+    toastIcon.className = `bi ${config.icon} me-2 ${config.color}`;
+
+    const toastHeader = toastEl.querySelector('.toast-header');
+    toastHeader.className = `toast-header ${config.bgColor} text-white`;
+
+    const bsToast = new bootstrap.Toast(toastEl);
+    bsToast.show();
+}
+
+// ================== INICIALIZACIÓN ==================
+
+document.addEventListener('DOMContentLoaded', function () {
+    console.log('🍳 Inicializando módulo de cocinero...');
+
+    // Verificar token CSRF
+    const csrfToken = getCsrfToken();
+    console.log('🔐 Token CSRF disponible:', csrfToken ? 'SÍ' : 'NO');
+
+    // Cargar datos iniciales
+    cargarPedidosCocina();
+
+    // Configurar eventos de botones
+    const btnCerrarDetalle = document.getElementById('btn-cerrar-detalle');
+    if (btnCerrarDetalle) {
+        btnCerrarDetalle.addEventListener('click', ocultarDetalle);
+    }
+
+    // Confirmar iniciar preparación
+    const btnConfirmarIniciar = document.getElementById('btn-confirmar-iniciar');
+    if (btnConfirmarIniciar) {
+        btnConfirmarIniciar.addEventListener('click', () => {
+            if (pedidoSeleccionado) {
+                const modal = bootstrap.Modal.getInstance(document.getElementById('modalIniciarPreparacion'));
+                if (modal) modal.hide();
+                iniciarPreparacion(pedidoSeleccionado.id);
+            }
+        });
+    }
+
+    // Confirmar marcar como listo
+    const btnConfirmarListo = document.getElementById('btn-confirmar-listo');
+    if (btnConfirmarListo) {
+        btnConfirmarListo.addEventListener('click', () => {
+            if (pedidoSeleccionado) {
+                const modal = bootstrap.Modal.getInstance(document.getElementById('modalMarcarListo'));
+                if (modal) modal.hide();
+                marcarComoListo(pedidoSeleccionado.id);
+            }
+        });
+    }
+
+    // Actualizar hora cada segundo
+    actualizarHoraYFecha();
+    setInterval(actualizarHoraYFecha, 1000);
+
+    // Recargar datos cada 30 segundos
+    setInterval(cargarPedidosCocina, 30000);
+
+    console.log('✅ Módulo de cocinero inicializado correctamente');
+});
+
+// ACTUALIZAR HORA Y FECHA EN TIEMPO REAL
+function actualizarHoraYFecha() {
+    const ahora = new Date();
+
+    const headerHora = document.getElementById('header-hora-actual');
+    const headerFecha = document.getElementById('header-fecha-actual');
+
+    if (headerHora) {
+        headerHora.textContent = ahora.toLocaleTimeString('es-PE', {
+            hour: '2-digit',
+            minute: '2-digit',
+            timeZone: 'America/Lima'
+        });
+    }
+
+    if (headerFecha) {
+        headerFecha.textContent = ahora.toLocaleDateString('es-PE', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            timeZone: 'America/Lima'
+        });
+    }
+}
+
+// OCULTAR DETALLE
+function ocultarDetalle() {
+    pedidoSeleccionado = null;
+    if (elementos.detalle.contenedor) {
+        elementos.detalle.contenedor.style.display = 'none';
+    }
+}
+
+// MOSTRAR DETALLE DEL PEDIDO (función completa que falta)
 async function mostrarDetallePedido(pedido, columna) {
     try {
         pedidoSeleccionado = pedido;
@@ -431,258 +729,25 @@ function mostrarAccionesCocinero(columna) {
 
     if (btnIniciar) {
         btnIniciar.addEventListener('click', () => {
-            const modal = new bootstrap.Modal(document.getElementById('modalIniciarPreparacion'));
-            document.getElementById('modal-numero-pedido').textContent =
-                pedidoSeleccionado.numeroPedido || `#${pedidoSeleccionado.id}`;
-            modal.show();
+            const modalElement = document.getElementById('modalIniciarPreparacion');
+            if (modalElement) {
+                const modal = new bootstrap.Modal(modalElement);
+                document.getElementById('modal-numero-pedido').textContent =
+                    pedidoSeleccionado.numeroPedido || `#${pedidoSeleccionado.id}`;
+                modal.show();
+            }
         });
     }
 
     if (btnListo) {
         btnListo.addEventListener('click', () => {
-            const modal = new bootstrap.Modal(document.getElementById('modalMarcarListo'));
-            document.getElementById('modal-numero-pedido-listo').textContent =
-                pedidoSeleccionado.numeroPedido || `#${pedidoSeleccionado.id}`;
-            modal.show();
-        });
-    }
-}
-
-// OCULTAR DETALLE
-function ocultarDetalle() {
-    pedidoSeleccionado = null;
-    elementos.detalle.contenedor.style.display = 'none';
-}
-
-// ACTUALIZAR MÉTRICAS EN LA INTERFAZ
-function actualizarMetricas(metricas) {
-    const metricasData = {
-        totalPorPreparar: metricas.totalPorPreparar || pedidosPorPreparar.length || 0,
-        totalEnPreparacion: metricas.totalEnPreparacion || pedidosEnPreparacion.length || 0,
-        totalListosHoy: metricas.totalListosHoy || pedidosListos.length || 0,
-        tiempoPromedio: metricas.tiempoPromedio || 0
-    };
-
-    if (elementos.metricas.porPreparar) {
-        elementos.metricas.porPreparar.textContent = metricasData.totalPorPreparar;
-    }
-    if (elementos.metricas.enPreparacion) {
-        elementos.metricas.enPreparacion.textContent = metricasData.totalEnPreparacion;
-    }
-    if (elementos.metricas.listos) {
-        elementos.metricas.listos.textContent = metricasData.totalListosHoy;
-    }
-    if (elementos.metricas.tiempoPromedio) {
-        elementos.metricas.tiempoPromedio.textContent = `${metricasData.tiempoPromedio}min`;
-    }
-
-    // Actualizar badges
-    if (elementos.metricas.badges.porPreparar) {
-        elementos.metricas.badges.porPreparar.textContent = metricasData.totalPorPreparar;
-    }
-    if (elementos.metricas.badges.enPreparacion) {
-        elementos.metricas.badges.enPreparacion.textContent = metricasData.totalEnPreparacion;
-    }
-    if (elementos.metricas.badges.listos) {
-        elementos.metricas.badges.listos.textContent = metricasData.totalListosHoy;
-    }
-}
-
-// ================== FUNCIONES UTILITARIAS ==================
-
-// CALCULAR TIEMPO TRANSCURRIDO
-function calcularTiempoTranscurrido(fechaString) {
-    if (!fechaString) return { texto: 'N/A', minutosTotales: 0 };
-
-    try {
-        const fechaPedido = new Date(fechaString);
-        const ahora = new Date();
-        const diferenciaMs = ahora - fechaPedido;
-        const minutosTotales = Math.floor(diferenciaMs / (1000 * 60));
-
-        if (minutosTotales < 60) {
-            return { texto: `${minutosTotales}min`, minutosTotales };
-        } else {
-            const horas = Math.floor(minutosTotales / 60);
-            const minutos = minutosTotales % 60;
-            return { texto: `${horas}h ${minutos}m`, minutosTotales };
-        }
-    } catch (error) {
-        return { texto: 'N/A', minutosTotales: 0 };
-    }
-}
-
-// OBTENER NOMBRE DEL CLIENTE
-// OBTENER NOMBRE DEL CLIENTE - VERSIÓN CORREGIDA
-function obtenerNombreCliente(pedido) {
-    // ✅ CORRECCIÓN: Verificar si cliente es objeto o string
-    if (pedido.cliente && typeof pedido.cliente === 'object') {
-        // Si es objeto, acceder a las propiedades
-        const nombres = pedido.cliente.nombres || '';
-        const apellidos = pedido.cliente.apellidos || '';
-        return `${nombres} ${apellidos}`.trim();
-    } else if (pedido.cliente && typeof pedido.cliente === 'string') {
-        // Si ya es string, devolver directamente
-        return pedido.cliente;
-    }
-    return 'Cliente no especificado';
-}
-
-// FORMATEAR FECHA COMPLETA
-function formatearFecha(fechaString) {
-    if (!fechaString) return 'Fecha no disponible';
-
-    try {
-        const fecha = new Date(fechaString);
-        return fecha.toLocaleDateString('es-ES', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
-    } catch (error) {
-        return 'Fecha inválida';
-    }
-}
-
-// FORMATEAR FECHA CORTA (para items)
-function formatearFechaCorta(fechaString) {
-    if (!fechaString) return '';
-
-    try {
-        const fecha = new Date(fechaString);
-        return fecha.toLocaleTimeString('es-ES', {
-            hour: '2-digit',
-            minute: '2-digit'
-        });
-    } catch (error) {
-        return '';
-    }
-}
-
-// MANEJAR SESIÓN EXPIRADA
-function manejarSesionExpirada() {
-    mostrarAlerta('🔐 Sesión expirada. Redirigiendo al login...', 'error');
-    setTimeout(() => {
-        window.location.href = '/login?sessionExpired=true';
-    }, 2000);
-}
-
-// MOSTRAR ALERTA TOAST (igual que en cajero.js)
-function mostrarAlerta(mensaje, tipo = 'info') {
-    const toastEl = document.getElementById('liveAlert');
-    if (!toastEl) {
-        console.log(`[${tipo.toUpperCase()}] ${mensaje}`);
-        return;
-    }
-
-    const toastTitulo = document.getElementById('toast-titulo');
-    const toastMensaje = document.getElementById('toast-mensaje');
-    const toastIcon = document.getElementById('toast-icon');
-
-    const config = {
-        success: {
-            titulo: 'Éxito',
-            icon: 'bi-check-circle-fill',
-            color: 'text-success',
-            bgColor: 'bg-success'
-        },
-        error: {
-            titulo: 'Error',
-            icon: 'bi-exclamation-triangle-fill',
-            color: 'text-danger',
-            bgColor: 'bg-danger'
-        },
-        info: {
-            titulo: 'Información',
-            icon: 'bi-info-circle-fill',
-            color: 'text-info',
-            bgColor: 'bg-info'
-        }
-    }[tipo] || config.info;
-
-    toastTitulo.textContent = config.titulo;
-    toastMensaje.textContent = mensaje;
-    toastIcon.className = `bi ${config.icon} me-2 ${config.color}`;
-
-    const toastHeader = toastEl.querySelector('.toast-header');
-    toastHeader.className = `toast-header ${config.bgColor} text-white`;
-
-    const bsToast = new bootstrap.Toast(toastEl);
-    bsToast.show();
-}
-
-// ================== FUNCIONES DE INICIALIZACIÓN ==================
-
-// ACTUALIZAR HORA Y FECHA EN TIEMPO REAL
-function actualizarHoraYFecha() {
-    const ahora = new Date();
-
-    const headerHora = document.getElementById('header-hora-actual');
-    const headerFecha = document.getElementById('header-fecha-actual');
-
-    if (headerHora) {
-        headerHora.textContent = ahora.toLocaleTimeString('es-ES', {
-            hour: '2-digit',
-            minute: '2-digit'
-        });
-    }
-
-    if (headerFecha) {
-        headerFecha.textContent = ahora.toLocaleDateString('es-ES', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric'
-        });
-    }
-}
-
-// ================== EVENT LISTENERS ==================
-
-document.addEventListener('DOMContentLoaded', function () {
-    console.log('🍳 Inicializando módulo de cocinero...');
-
-    // Verificar token CSRF
-    const csrfToken = getCsrfToken();
-    console.log('🔐 Token CSRF disponible:', csrfToken ? 'SÍ' : 'NO');
-
-    // Cargar datos iniciales
-    cargarPedidosCocina();
-
-    // Configurar eventos de botones
-    document.getElementById('btn-cerrar-detalle').addEventListener('click', ocultarDetalle);
-
-    // Confirmar iniciar preparación
-    const btnConfirmarIniciar = document.getElementById('btn-confirmar-iniciar');
-    if (btnConfirmarIniciar) {
-        btnConfirmarIniciar.addEventListener('click', () => {
-            if (pedidoSeleccionado) {
-                const modal = bootstrap.Modal.getInstance(document.getElementById('modalIniciarPreparacion'));
-                modal.hide();
-                iniciarPreparacion(pedidoSeleccionado.id);
+            const modalElement = document.getElementById('modalMarcarListo');
+            if (modalElement) {
+                const modal = new bootstrap.Modal(modalElement);
+                document.getElementById('modal-numero-pedido-listo').textContent =
+                    pedidoSeleccionado.numeroPedido || `#${pedidoSeleccionado.id}`;
+                modal.show();
             }
         });
     }
-
-    // Confirmar marcar como listo
-    const btnConfirmarListo = document.getElementById('btn-confirmar-listo');
-    if (btnConfirmarListo) {
-        btnConfirmarListo.addEventListener('click', () => {
-            if (pedidoSeleccionado) {
-                const modal = bootstrap.Modal.getInstance(document.getElementById('modalMarcarListo'));
-                modal.hide();
-                marcarComoListo(pedidoSeleccionado.id);
-            }
-        });
-    }
-
-    // Actualizar hora cada segundo
-    actualizarHoraYFecha();
-    setInterval(actualizarHoraYFecha, 1000);
-
-    // Recargar datos cada 30 segundos
-    setInterval(cargarPedidosCocina, 10000);
-
-    console.log('✅ Módulo de cocinero inicializado correctamente');
-});
+}

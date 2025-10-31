@@ -1,6 +1,7 @@
 package com.sistemaapollo.sistema_apollo.controller;
 
 import com.sistemaapollo.sistema_apollo.model.Pedido;
+import com.sistemaapollo.sistema_apollo.model.ItemPedido;
 import com.sistemaapollo.sistema_apollo.model.Usuario;
 import com.sistemaapollo.sistema_apollo.repository.PedidoRepository;
 import com.sistemaapollo.sistema_apollo.repository.UsuarioRepository;
@@ -9,9 +10,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Controller
@@ -203,22 +204,108 @@ public class DeliveryController {
         }
     }
 
+    // ========== MÉTODOS ACTUALIZADOS PARA CARGAR ITEMS ==========
+
     /**
-     * Obtener pedidos listos para entrega (para AJAX)
+     * Obtener pedidos listos para entrega (para AJAX) - CON ITEMS CARGADOS
      */
     @GetMapping("/pedidos-para-entrega")
     @ResponseBody
-    public List<Pedido> obtenerPedidosParaEntrega() {
-        return pedidoRepository.findByEstadoOrderByFechaAsc("LISTO");
+    public List<Map<String, Object>> obtenerPedidosParaEntrega() {
+        try {
+            // Usa el método que carga los items
+            List<Pedido> pedidos = pedidoRepository.findByEstadoWithItems("LISTO");
+            return mapearPedidosParaFrontend(pedidos);
+        } catch (Exception e) {
+            // Fallback si el método nuevo no existe
+            List<Pedido> pedidos = pedidoRepository.findByEstadoOrderByFechaAsc("LISTO");
+            return mapearPedidosParaFrontend(pedidos);
+        }
     }
 
     /**
-     * Obtener pedidos en camino (para AJAX)
+     * Obtener pedidos en camino (para AJAX) - CON ITEMS CARGADOS
      */
     @GetMapping("/pedidos-en-camino")
     @ResponseBody
-    public List<Pedido> obtenerPedidosEnCamino() {
-        return pedidoRepository.findByEstadoOrderByFechaAsc("EN_CAMINO");
+    public List<Map<String, Object>> obtenerPedidosEnCamino() {
+        try {
+            List<Pedido> pedidos = pedidoRepository.findByEstadoWithItems("EN_CAMINO");
+            return mapearPedidosParaFrontend(pedidos);
+        } catch (Exception e) {
+            // Fallback si el método nuevo no existe
+            List<Pedido> pedidos = pedidoRepository.findByEstadoOrderByFechaAsc("EN_CAMINO");
+            return mapearPedidosParaFrontend(pedidos);
+        }
+    }
+
+    /**
+     * Mapear pedidos a estructura que espera el frontend CON ITEMS
+     */
+    private List<Map<String, Object>> mapearPedidosParaFrontend(List<Pedido> pedidos) {
+        return pedidos.stream().map(pedido -> {
+            Map<String, Object> pedidoMap = new HashMap<>();
+
+            // Información básica del pedido
+            pedidoMap.put("id", pedido.getId());
+            pedidoMap.put("numeroPedido", pedido.getNumeroPedido());
+            pedidoMap.put("total", pedido.getTotal());
+            pedidoMap.put("fecha", pedido.getFecha());
+            pedidoMap.put("tipoEntrega", pedido.getTipoEntrega());
+            pedidoMap.put("direccionEntrega", pedido.getDireccionEntrega());
+            pedidoMap.put("referenciaDireccion", pedido.getInstrucciones()); // Usando instrucciones como referencia
+            pedidoMap.put("observaciones", pedido.getObservaciones());
+
+            // Información del cliente (desde usuario)
+            if (pedido.getUsuario() != null) {
+                Map<String, Object> clienteMap = new HashMap<>();
+                clienteMap.put("nombres", pedido.getUsuario().getNombres());
+                clienteMap.put("apellidos", pedido.getUsuario().getApellidos());
+                clienteMap.put("telefono", pedido.getUsuario().getTelefono());
+                pedidoMap.put("cliente", clienteMap);
+            } else {
+                // Fallback si no hay usuario
+                Map<String, Object> clienteMap = new HashMap<>();
+                clienteMap.put("nombres", "Cliente");
+                clienteMap.put("apellidos", "No especificado");
+                clienteMap.put("telefono", "No disponible");
+                pedidoMap.put("cliente", clienteMap);
+            }
+
+            // Items del pedido - ¡ESTO ES LO QUE FALTABA!
+            pedidoMap.put("items", obtenerItemsDelPedido(pedido));
+
+            return pedidoMap;
+        }).collect(Collectors.toList());
+    }
+
+    /**
+     * Obtener items del pedido desde ItemPedido
+     */
+    private List<Map<String, Object>> obtenerItemsDelPedido(Pedido pedido) {
+        List<Map<String, Object>> items = new ArrayList<>();
+
+        // Verificar si el pedido tiene items cargados
+        if (pedido.getItems() != null && !pedido.getItems().isEmpty()) {
+            for (ItemPedido item : pedido.getItems()) {
+                Map<String, Object> itemMap = new HashMap<>();
+                itemMap.put("nombreProducto", item.getNombreProductoSeguro());
+                itemMap.put("cantidad", item.getCantidad());
+                itemMap.put("precio", item.getPrecio());
+                itemMap.put("subtotal", item.getSubtotal());
+                items.add(itemMap);
+            }
+        } else {
+            // Si no hay items, agregar un mensaje
+            Map<String, Object> itemMap = new HashMap<>();
+            itemMap.put("nombreProducto", "Items no disponibles");
+            itemMap.put("cantidad", 0);
+            itemMap.put("precio", 0.0);
+            itemMap.put("subtotal", 0.0);
+            items.add(itemMap);
+        }
+
+        return items;
     }
 
     /**

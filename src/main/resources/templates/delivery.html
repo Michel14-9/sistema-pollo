@@ -4,277 +4,249 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Delivery - Luren Chicken</title>
+    <title>Delivery - Luren Chicken</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css">
     <link th:href="@{/css/delivery.css}" rel="stylesheet">
 </head>
 
 <body>
-    <!-- Layout principal con sidebar -->
-    <div class="app-container">
-        <!-- Sidebar oscuro -->
-        <div class="delivery-sidebar">
-            <div class="sidebar-header">
-                <div class="company-logo">
-                    <img th:src="@{/imagenes/LurenChicken.jpg}" alt="Luren Chicken" class="logo-image">
-                </div>
-                <div class="company-info">
-                    <h1 class="company-name">Luren Chicken</h1>
-                    <small class="company-location">Delivery System</small>
-                </div>
-            </div>
+<input type="hidden" id="csrfToken" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
 
-            <!-- Información del repartidor -->
-            <div class="driver-info-sidebar">
-                <div class="driver-avatar">
-                    <span id="driverInitials">DL</span>
-                </div>
-                <div class="driver-details">
-                    <div class="text-white-50">Repartidor</div>
-                    <div class="fw-bold" id="driverName">Cargando...</div>
-                </div>
+<header class="delivery-header">
+    <div class="header-top">
+        <div class="empresa-info">
+            <div class="logo">
+                <img th:src="@{/imagenes/LurenChicken.jpg}" alt="Luren Chicken">
             </div>
+            <span class="empresa-nombre">Luren Chicken - Delivery</span>
+        </div>
+        <div class="usuario-info">
+            <span class="usuario" th:text="'Delivery: ' + ${usuario.nombres} + ' ' + ${usuario.apellidos}">Delivery: Cargando...</span>
+            <span class="hora" id="header-hora-actual"></span>
 
-            <!-- Fecha y hora en tiempo real -->
-            <div class="datetime-sidebar">
-                <div class="date-display" id="currentDate"></div>
-                <div class="time-display" id="currentTime"></div>
-            </div>
+            <!-- ✅ BOTÓN CERRAR SESIÓN -->
+            <a href="/logout" class="btn btn-outline-danger btn-sm ms-2">
+                <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+            </a>
+        </div>
+    </div>
 
-            <!-- Estadísticas rápidas -->
-            <div class="sidebar-stats">
-                <div class="stat-item">
-                    <i class="bi bi-clock text-warning"></i>
-                    <span class="stat-value" id="sidebarPendingCount">0</span>
-                    <span class="stat-label">Pendientes</span>
-                </div>
-                <div class="stat-item">
-                    <i class="bi bi-truck text-info"></i>
-                    <span class="stat-value" id="sidebarProgressCount">0</span>
-                    <span class="stat-label">En Camino</span>
-                </div>
+    <nav class="delivery-nav">
+        <div class="estado-delivery">
+            <span class="estado" id="estado-delivery">Delivery - Activo</span>
+            <span class="fecha" id="header-fecha-actual"></span>
+        </div>
+    </nav>
+</header>
+
+<div class="container-fluid my-4">
+    <!-- Métricas Rápidas -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card stat-card text-success">
+                <i class="bi bi-check-circle"></i>
+                <div class="number" id="total-pendientes-entrega">0</div>
+                <div class="label">Pendientes Entrega</div>
             </div>
         </div>
-
-        <!-- Contenido principal -->
-        <div class="main-content">
-            <!-- Header móvil -->
-            <div class="mobile-header d-lg-none">
-                <div class="mobile-header-content">
-                    <button class="btn btn-menu" id="mobileMenuBtn">
-                        <i class="bi bi-list"></i>
-                    </button>
-                    <div class="mobile-logo">
-                        <span class="text-danger fw-bold">LC</span>
-                    </div>
-                    <div class="mobile-time" id="mobileTime"></div>
-                </div>
+        <div class="col-md-4">
+            <div class="card stat-card text-primary">
+                <i class="bi bi-truck"></i>
+                <div class="number" id="total-en-camino">0</div>
+                <div class="label">En Camino</div>
             </div>
-
-            <div class="container-fluid my-4">
-                <!-- Estadísticas principales -->
-                <div class="stats-grid">
-                    <div class="stats-card pending">
-                        <div class="stats-icon">
-                            <i class="bi bi-clock"></i>
-                        </div>
-                        <div class="stats-content">
-                            <div class="stats-number" id="pendingCount">0</div>
-                            <div class="stats-label">Pendientes</div>
-                        </div>
-                    </div>
-                    <div class="stats-card progress">
-                        <div class="stats-icon">
-                            <i class="bi bi-truck"></i>
-                        </div>
-                        <div class="stats-content">
-                            <div class="stats-number" id="inProgressCount">0</div>
-                            <div class="stats-label">En Camino</div>
-                        </div>
-                    </div>
-                    <div class="stats-card delivered">
-                        <div class="stats-icon">
-                            <i class="bi bi-check-circle"></i>
-                        </div>
-                        <div class="stats-content">
-                            <div class="stats-number" id="deliveredCount">0</div>
-                            <div class="stats-label">Entregados Hoy</div>
-                        </div>
-                    </div>
-                    <div class="stats-card total">
-                        <div class="stats-icon">
-                            <i class="bi bi-clipboard-data"></i>
-                        </div>
-                        <div class="stats-content">
-                            <div class="stats-number" id="totalCount">0</div>
-                            <div class="stats-label">Total Pedidos</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Filtros y título -->
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h2 class="h4 mb-0">Gestión de Entregas</h2>
-                    <div class="filter-buttons">
-                        <button class="btn btn-filter active" data-filter="all">
-                            <i class="bi bi-grid"></i> Todos
-                        </button>
-                        <button class="btn btn-filter" data-filter="pending">
-                            <i class="bi bi-clock"></i> Pendientes
-                        </button>
-                        <button class="btn btn-filter" data-filter="in-progress">
-                            <i class="bi bi-truck"></i> En Camino
-                        </button>
-                        <button class="btn btn-filter" data-filter="delivered">
-                            <i class="bi bi-check-circle"></i> Entregados
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Lista de Pedidos -->
-                <div id="deliveryList">
-                    <!-- Los pedidos se cargarán dinámicamente desde JavaScript -->
-                </div>
-
-                <!-- Estado vacío -->
-                <div id="emptyState" class="empty-state d-none">
-                    <i class="bi bi-check-circle"></i>
-                    <h3>¡No hay pedidos!</h3>
-                    <p>No tienes pedidos pendientes en este momento.</p>
-                </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card stat-card text-info">
+                <i class="bi bi-check2-all"></i>
+                <div class="number" id="total-entregados-hoy">0</div>
+                <div class="label">Entregados Hoy</div>
             </div>
         </div>
     </div>
 
-    <!-- Modal para Mapa de Delivery -->
-    <div class="modal fade map-modal" id="mapModal" tabindex="-1" aria-labelledby="mapModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-xl">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="mapModalLabel">
-                        <i class="bi bi-map me-2"></i>Seguimiento de Delivery
+    <div class="row">
+        <!-- Columna: Pedidos Listos para Entrega -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-check-circle me-2"></i>Listos para Entrega
+                        <span class="badge bg-light text-dark float-end" id="badge-pendientes">0</span>
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-                    <div class="row mb-3">
-                        <div class="col-md-8">
-                            <h6 id="modalOrderNumber" class="order-number"></h6>
-                            <p id="modalCustomerInfo" class="mb-1 customer-info"></p>
-                            <p id="modalDeliveryAddress" class="mb-0 delivery-address"></p>
-                            <span class="location-badge" id="modalDistrict"></span>
-                        </div>
-                        <div class="col-md-4 text-end">
-                            <div class="order-total" id="modalOrderTotal"></div>
-                            <div class="order-time" id="modalOrderTime"></div>
-                        </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush" id="lista-pendientes-entrega">
+                        <!-- Pedidos LISTOS que esperan delivery -->
                     </div>
-
-                    <!-- Barra de progreso -->
-                    <div class="progress-container">
-                        <div class="d-flex justify-content-between mb-2">
-                            <small class="text-muted">Restaurante</small>
-                            <small id="progressPercentage" class="fw-bold">0%</small>
-                            <small class="text-muted">Destino</small>
-                        </div>
-                        <div class="progress" style="height: 10px;">
-                            <div id="deliveryProgress" class="progress-bar" role="progressbar" style="width: 0%"></div>
-                        </div>
-                    </div>
-
-                    <!-- Mapa en tiempo real -->
-                    <div class="map-section">
-                        <div class="map-header">
-                            <h6><i class="bi bi-geo-alt me-1"></i>Ruta de Entrega</h6>
-                            <div class="map-legend">
-                                <div class="legend-item">
-                                    <span class="legend-color restaurant"></span>
-                                    <small>Restaurante</small>
-                                </div>
-                                <div class="legend-item">
-                                    <span class="legend-color driver"></span>
-                                    <small>Repartidor</small>
-                                </div>
-                                <div class="legend-item">
-                                    <span class="legend-color customer"></span>
-                                    <small>Cliente</small>
-                                </div>
-                            </div>
-                        </div>
-                        <div id="deliveryMap" class="map-container"></div>
-                    </div>
-
-                    <div class="route-info">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <h6><i class="bi bi-info-circle me-1"></i>Información de Ruta</h6>
-                                <p class="mb-2"><strong>Distancia:</strong> <span id="routeDistance">0 km</span></p>
-                                <p class="mb-2"><strong>Tiempo estimado:</strong> <span id="routeTime">0 min</span></p>
-                                <p class="mb-0"><strong>Estado:</strong> <span id="routeStatus"
-                                        class="badge bg-warning">Pendiente</span></p>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="driver-info-card">
-                                    <div class="driver-avatar-lg">
-                                        <span id="modalDriverInitials">DL</span>
-                                    </div>
-                                    <div class="driver-details">
-                                        <h6 class="mb-1" id="modalDriverName">Cargando...</h6>
-                                        <p class="mb-2 text-muted">Repartidor</p>
-                                        <div class="driver-rating">
-                                            <i class="bi bi-star-fill"></i>
-                                            <i class="bi bi-star-fill"></i>
-                                            <i class="bi bi-star-fill"></i>
-                                            <i class="bi bi-star-fill"></i>
-                                            <i class="bi bi-star-half"></i>
-                                            <span class="text-muted ms-1">4.5</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                    <div id="sin-pedidos-pendientes" class="text-center py-5 d-none">
+                        <i class="bi bi-check-circle text-muted fs-1"></i>
+                        <p class="text-muted mt-2">No hay pedidos listos para entrega</p>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        <i class="bi bi-x-circle me-1"></i>Cerrar
-                    </button>
-                    <button type="button" class="btn btn-success" id="markDeliveredModal">
-                        <i class="bi bi-check-circle me-1"></i>Marcar como Entregado
-                    </button>
-                    <button type="button" class="btn btn-primary" id="startDeliveryBtn">
-                        <i class="bi bi-play-circle me-1"></i>Iniciar Entrega
-                    </button>
+            </div>
+        </div>
+
+        <!-- Columna: Pedidos En Camino -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-truck me-2"></i>En Camino
+                        <span class="badge bg-light text-dark float-end" id="badge-en-camino">0</span>
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush" id="lista-en-camino">
+                        <!-- Pedidos en estado EN_CAMINO -->
+                    </div>
+                    <div id="sin-pedidos-camino" class="text-center py-5 d-none">
+                        <i class="bi bi-truck text-muted fs-1"></i>
+                        <p class="text-muted mt-2">No hay pedidos en camino</p>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal de confirmación -->
-    <div class="modal fade" id="confirmationModal" tabindex="-1">
-        <div class="modal-dialog modal-sm">
-            <div class="modal-content">
-                <div class="modal-body text-center">
-                    <div class="confirmation-icon">
-                        <i class="bi bi-check-circle"></i>
-                    </div>
-                    <h5 id="confirmationTitle" class="mt-3"></h5>
-                    <p id="confirmationMessage" class="text-muted"></p>
+    <!-- Pedido Seleccionado (Detalle) -->
+    <div class="row mt-4" id="detalle-pedido-container" style="display: none;">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Detalle del Pedido - Delivery
+                        <span id="detalle-numero-pedido" class="badge bg-primary">#</span>
+                        <button class="btn btn-sm btn-outline-secondary float-end" id="btn-cerrar-detalle">
+                            <i class="bi bi-x"></i> Cerrar
+                        </button>
+                    </h5>
                 </div>
-                <div class="modal-footer justify-content-center">
-                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Aceptar</button>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Items del Pedido:</h6>
+                            <div id="detalle-items-pedido">
+                                <!-- Los items se cargarán dinámicamente -->
+                            </div>
+                            <div class="mt-3">
+                                <strong>Total: </strong><span id="detalle-total-pedido"
+                                                              class="fw-bold text-success">S/ 0.00</span>
+                            </div>
+
+                            <!-- OBSERVACIONES ESPECIALES -->
+                            <div class="mt-3" id="detalle-observaciones-container" style="display: none;">
+                                <h6>Observaciones:</h6>
+                                <div class="alert alert-info" id="detalle-observaciones">
+                                    <!-- Observaciones del pedido -->
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Información del Cliente:</h6>
+                            <p><strong>Cliente:</strong> <span id="detalle-cliente">Cargando...</span></p>
+                            <p><strong>Teléfono:</strong> <span id="detalle-telefono">Cargando...</span></p>
+                            <p><strong>Dirección:</strong> <span id="detalle-direccion">Cargando...</span></p>
+                            <p><strong>Referencia:</strong> <span id="detalle-referencia">Cargando...</span></p>
+
+                            <h6 class="mt-3">Información del Pedido:</h6>
+                            <p><strong>Tipo de Entrega:</strong> <span id="detalle-tipo-entrega">Cargando...</span></p>
+                            <p><strong>Hora del Pedido:</strong> <span id="detalle-hora-pedido">Cargando...</span></p>
+                            <p><strong>Tiempo Transcurrido:</strong> <span id="detalle-tiempo-transcurrido"
+                                                                           class="badge bg-warning">0min</span></p>
+
+                            <div class="mt-3" id="acciones-delivery">
+                                <!-- Los botones de acción se cargarán según el estado -->
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
-    <script th:src="@{/script/delivery.js}"></script>
+<!-- ✅ MODAL PARA INICIAR ENTREGA -->
+<div class="modal fade" id="modalIniciarEntrega" tabindex="-1" aria-labelledby="modalIniciarEntregaLabel"
+     aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="modalIniciarEntregaLabel">
+                    <i class="bi bi-truck me-2"></i>Iniciar Entrega
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Está seguro de que desea iniciar la entrega del pedido?</p>
+                <div class="mb-3">
+                    <strong>Pedido:</strong> <span id="modal-numero-pedido" class="badge bg-primary">#</span>
+                </div>
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    El pedido pasará al estado "En Camino".
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="btn-confirmar-iniciar-entrega">
+                    <i class="bi bi-truck"></i> Iniciar Entrega
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ✅ MODAL PARA MARCAR COMO ENTREGADO -->
+<div class="modal fade" id="modalMarcarEntregado" tabindex="-1" aria-labelledby="modalMarcarEntregadoLabel"
+     aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="modalMarcarEntregadoLabel">
+                    <i class="bi bi-check2-all me-2"></i>Marcar como Entregado
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Confirmar que el pedido ha sido entregado al cliente?</p>
+                <div class="mb-3">
+                    <strong>Pedido:</strong> <span id="modal-numero-pedido-entregado" class="badge bg-success">#</span>
+                </div>
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i>
+                    El pedido pasará al estado "ENTREGADO" y se completará el proceso.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-success" id="btn-confirmar-entregado">
+                    <i class="bi bi-check2-all"></i> Marcar como Entregado
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast para Alertas -->
+<div class="toast-container position-fixed top-0 end-0 p-3">
+    <div id="liveAlert" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <i class="bi me-2" id="toast-icon"></i>
+            <strong class="me-auto" id="toast-titulo">Notificación</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body" id="toast-mensaje">
+            Mensaje de notificación
+        </div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/script/delivery.js}"></script>
 </body>
 
 </html>

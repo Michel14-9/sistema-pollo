@@ -1,0 +1,347 @@
+/* 🎨 PALETA DE COLORES LUREN - DELIVERY */
+:root {
+  --verde: #81c784;        /* Frescura y confirmación */
+  --naranja: #ffb74d;      /* Energía y apetito */
+  --amarillo: #fff9c4;     /* Suavidad y calidez */
+  --rojo: #e53935;         /* Resaltado o error */
+  --gris: #6c757d;         /* Texto secundario */
+  --blanco: #fafafa;       /* Fondo cálido */
+  --azul: #64b5f6;         /* En camino */
+}
+
+/* ====== ESTILOS GENERALES ====== */
+body {
+  background-color: var(--blanco);
+  font-family: 'Poppins', sans-serif;
+  color: #333;
+  margin: 0;
+}
+
+/* ====== HEADER DELIVERY ====== */
+.delivery-header {
+  background: linear-gradient(90deg, var(--naranja), var(--amarillo));
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  padding: 10px 20px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.empresa-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.empresa-info img {
+  width: 50px;
+  height: 50px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+.empresa-nombre {
+  font-weight: bold;
+  font-size: 1.3rem;
+  color: #333;
+}
+
+.usuario-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 500;
+  color: #333;
+}
+
+.usuario-info .btn-outline-danger {
+  border-color: var(--rojo);
+  color: var(--rojo);
+  transition: 0.3s;
+}
+
+.usuario-info .btn-outline-danger:hover {
+  background-color: var(--rojo);
+  color: #fff;
+}
+
+/* ====== NAV BAR (ESTADO DELIVERY) ====== */
+.delivery-nav {
+  border-top: 1px solid rgba(255,255,255,0.4);
+  padding-top: 8px;
+  text-align: center;
+  color: #333;
+}
+
+.estado-delivery {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 10px;
+  font-weight: 600;
+}
+
+/* ====== TARJETAS DE MÉTRICAS ====== */
+.stat-card {
+  background: white;
+  border-radius: 15px;
+  padding: 20px;
+  text-align: center;
+  border: 1px solid #eee;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  transition: transform 0.2s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+}
+
+.stat-card i {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+.stat-card .number {
+  font-size: 1.8rem;
+  font-weight: bold;
+}
+
+/* ====== COLORES ESPECÍFICOS PARA DELIVERY ====== */
+.stat-card.text-success {
+  color: var(--verde) !important;
+}
+
+.stat-card.text-primary {
+  color: var(--azul) !important;
+}
+
+.stat-card.text-info {
+  color: var(--naranja) !important;
+}
+
+/* ====== TABLAS Y LISTAS ====== */
+.card {
+  background: #fff;
+  border-radius: 15px;
+  border: 1px solid #e0e0e0;
+}
+
+.card-header {
+  border-radius: 15px 15px 0 0;
+  font-weight: bold;
+}
+
+/* HEADER PARA PEDIDOS LISTOS */
+.card-header.bg-success {
+  background-color: var(--verde) !important;
+  color: #333;
+}
+
+/* HEADER PARA PEDIDOS EN CAMINO */
+.card-header.bg-primary {
+  background-color: var(--azul) !important;
+  color: #fff;
+}
+
+.list-group-item {
+  border: none;
+  border-bottom: 1px solid #eee;
+  transition: background-color 0.2s;
+}
+
+.list-group-item:hover {
+  background-color: var(--amarillo);
+}
+
+/* ESTILOS ESPECÍFICOS PARA ITEMS DE DELIVERY */
+.estado-pendientes:hover {
+  background-color: rgba(129, 199, 132, 0.1) !important;
+}
+
+.estado-en-camino:hover {
+  background-color: rgba(100, 181, 246, 0.1) !important;
+}
+
+/* ====== BOTONES ====== */
+.btn {
+  border-radius: 10px;
+  transition: all 0.3s;
+}
+
+.btn-success {
+  background-color: var(--verde);
+  border: none;
+}
+
+.btn-success:hover {
+  background-color: #9be7a8;
+  color: #333;
+}
+
+.btn-primary {
+  background-color: var(--azul);
+  border: none;
+}
+
+.btn-primary:hover {
+  background-color: #90caf9;
+  color: #333;
+}
+
+.btn-danger {
+  background-color: var(--rojo);
+  border: none;
+}
+
+.btn-danger:hover {
+  background-color: #ff6659;
+}
+
+.btn-outline-danger {
+  border: 1px solid var(--rojo);
+  color: var(--rojo);
+}
+
+.btn-outline-danger:hover {
+  background-color: var(--rojo);
+  color: white;
+}
+
+/* ====== DETALLE DE PEDIDO ====== */
+#detalle-pedido-container {
+  background-color: #fff;
+  border: 1px solid #eee;
+  border-radius: 12px;
+}
+
+/* ESTILOS PARA INFORMACIÓN DE DIRECCIÓN */
+#detalle-direccion {
+  font-weight: 500;
+  color: var(--azul);
+}
+
+#detalle-referencia {
+  font-style: italic;
+  color: var(--gris);
+}
+
+/* ====== BADGES DE TIEMPO ====== */
+.badge-tiempo {
+  font-size: 0.75rem;
+  padding: 4px 8px;
+}
+
+/* ====== MODALES ====== */
+.modal-content {
+  border-radius: 15px;
+  border: none;
+}
+
+.modal-header {
+  border-radius: 15px 15px 0 0;
+}
+
+/* MODAL INICIAR ENTREGA */
+.modal-header.bg-primary {
+  background-color: var(--azul) !important;
+  color: #fff;
+}
+
+/* MODAL ENTREGADO */
+.modal-header.bg-success {
+  background-color: var(--verde) !important;
+  color: #333;
+}
+
+.modal-footer .btn-success {
+  background-color: var(--verde);
+}
+
+.modal-footer .btn-primary {
+  background-color: var(--azul);
+}
+
+/* ====== TOAST ====== */
+.toast {
+  border-radius: 10px;
+  background-color: white;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.toast-header {
+  background-color: var(--amarillo);
+  color: #333;
+  border-bottom: 1px solid #eee;
+}
+
+/* ====== SIN PEDIDOS ====== */
+#sin-pedidos-pendientes,
+#sin-pedidos-camino {
+  color: var(--gris);
+}
+
+#sin-pedidos-pendientes i,
+#sin-pedidos-camino i {
+  color: var(--naranja);
+}
+
+/* ====== ICONOS ESPECIALES DELIVERY ====== */
+.bi-truck {
+  color: var(--azul);
+}
+
+.bi-check2-all {
+  color: var(--verde);
+}
+
+.bi-geo-alt {
+  color: var(--rojo);
+}
+
+/* ====== RESPONSIVE ====== */
+@media (max-width: 768px) {
+  .header-top {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .estado-delivery {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .stat-card {
+    padding: 15px;
+  }
+
+  .stat-card .number {
+    font-size: 1.5rem;
+  }
+}
+
+/* ====== ANIMACIONES ESPECIALES DELIVERY ====== */
+@keyframes pulse-delivery {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.estado-en-camino {
+  animation: pulse-delivery 2s infinite;
+}
+
+/* ====== ESTILOS PARA INFORMACIÓN DE CONTACTO ====== */
+#detalle-telefono {
+  font-weight: 500;
+  color: var(--verde);
+}
+
+#detalle-cliente {
+  font-weight: 600;
+  color: #333;
+}

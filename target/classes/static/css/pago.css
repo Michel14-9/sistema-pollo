@@ -1,161 +1,371 @@
-/* Estilos específicos para la página de pago */
+
+       
+
+/* ======== PALETA DE COLORES ======== */
+:root {
+  --verde: #81c784;        /* Verde claro (frescura) */
+  --naranja: #ffb74d;      /* Naranja (energía y apetito) */
+  --amarillo: #fff9c4;     /* Amarillo claro (comida deliciosa) */
+  --rojo: #e53935;         /* Toque rojo (resaltado) */
+  --gris: #6c757d;         /* Gris suave (texto) */
+  --blanco: #fafafa;       /* Fondo cálido */
+}
+
+/* ======= ESTILO GENERAL ======= */
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: var(--blanco);
+  color: var(--gris);
+  margin: 0;
+  padding: 0;
+}
+
+/* ======= HEADER ======= */
+header .navbar {
+  background-color: var(--amarillo);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+  padding: 0.8rem 1.5rem;
+  border-bottom: 3px solid var(--naranja);
+}
+
+.navbar-brand img {
+  width: 3rem;
+  border-radius: 50%;
+  transition: transform 0.3s ease;
+}
+
+.navbar-brand img:hover {
+  transform: scale(1.1);
+}
+
+.nav-link {
+  color: #333 !important;
+  font-weight: 500;
+  transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.nav-link:hover {
+  color: var(--rojo) !important;
+  transform: translateY(-2px);
+}
+
+header .navbar-toggler {
+  border-color: var(--naranja);
+}
+
+/* ======= BOTONES ======= */
+.btn {
+  border-radius: 25px;
+  padding: 0.6rem 1.3rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+/* Verde - principal */
+.btn-verde {
+  background-color: var(--verde);
+  color: white;
+}
+
+.btn-verde:hover {
+  background-color: #66BB6A;
+  box-shadow: 0 4px 10px rgba(129, 199, 132, 0.4);
+}
+
+/* Naranja - secundario */
+.btn-naranja {
+  background-color: var(--naranja);
+  color: white;
+}
+
+.btn-naranja:hover {
+  background-color: #FFA726;
+  box-shadow: 0 4px 10px rgba(255, 183, 77, 0.4);
+}
+
+/* Rojo - advertencia o eliminar */
+.btn-rojo {
+  background-color: var(--rojo);
+  color: white;
+}
+
+.btn-rojo:hover {
+  background-color: #EF5350;
+  box-shadow: 0 4px 10px rgba(229, 115, 115, 0.4);
+}
+
+/* Amarillo claro - informativo */
+.btn-amarillo {
+  background-color: var(--amarillo);
+  color: #333;
+}
+
+.btn-amarillo:hover {
+  background-color: #FFECB3;
+  box-shadow: 0 4px 10px rgba(255, 248, 225, 0.3);
+}
+
+/* ======= FOOTER ======= */
+footer {
+  background-color: var(--amarillo);
+  color: #333;
+  border-top: 4px solid var(--naranja);
+  padding-top: 2rem;
+  padding-bottom: 1.5rem;
+}
+
+footer h5 {
+  color: var(--verde);
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+footer a {
+  color: #333;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+footer a:hover {
+  color: var(--rojo);
+}
+
+/* Redes sociales */
+footer .btn-outline-secondary {
+  border-color: var(--verde);
+  color: var(--verde);
+  transition: all 0.3s ease;
+}
+
+footer .btn-outline-secondary:hover {
+  background-color: var(--verde);
+  color: white;
+}
+
+/* Línea separadora y copyright */
+footer hr {
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+footer small {
+  color: var(--gris);
+  font-size: 0.9rem;
+}
+
+/* ======= EFECTOS SUAVES ======= */
+img, .btn, .nav-link {
+  transition: all 0.3s ease;
+}
+
+/* ======= RESPONSIVO ======= */
+@media (max-width: 768px) {
+  header .navbar-nav {
+    text-align: center;
+  }
+
+  footer .row {
+    text-align: center;
+  }
+
+  footer .d-flex {
+    justify-content: center;
+  }
+}
+
+
+/* ==== PALETA DE COLORES LUREN CHICKEN ==== */
+:root {
+  --verde: #81c784;        /* Verde claro (frescura) */
+  --naranja: #ffb74d;      /* Naranja (energía y apetito) */
+  --amarillo: #fff9c4;     /* Amarillo claro (comida deliciosa) */
+  --rojo: #e53935;         /* Toque rojo (resaltado) */
+  --gris: #6c757d;         /* Gris suave (texto) */
+  --blanco: #fafafa;       /* Fondo cálido */
+}
+
+/* ==== ESTILOS GENERALES ==== */
 .pago-page {
-    background-color: #f8f9fa;
-    min-height: calc(100vh - 200px);
+  background-color: var(--blanco);
+  color: var(--gris);
+  font-family: 'Poppins', sans-serif;
 }
 
-/* Header del pago */
+/* ==== PROGRESO DEL PEDIDO ==== */
+.progreso-paso {
+  background-color: var(--amarillo);
+  color: var(--gris);
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  transition: 0.3s;
+}
+
+.progreso-paso.completado {
+  background-color: var(--verde);
+  color: white;
+}
+
+.progreso-paso.activo {
+  background-color: var(--naranja);
+  color: white;
+  transform: scale(1.1);
+}
+
+.progreso-linea {
+  flex: 1;
+  height: 5px;
+  background-color: var(--amarillo);
+  margin: 0 10px;
+  border-radius: 2px;
+  transition: 0.3s;
+}
+
+.progreso-linea.completado {
+  background-color: var(--verde);
+}
+
+/* ==== HEADER DEL PAGO ==== */
 .pago-header {
-    padding: 1rem 0;
-}
-
-.btn-volver {
-    border-radius: 20px;
-    padding: 0.5rem 1.5rem;
+  border-bottom: 2px solid var(--amarillo);
+  padding-bottom: 10px;
 }
 
 .pago-title {
-    color: #333;
-    font-weight: 700;
+  color: var(--naranja);
+  font-weight: 700;
+  text-transform: uppercase;
 }
 
-/* Cards generales */
+/* ==== TARJETAS ==== */
 .card {
-    border: none;
-    border-radius: 15px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  border: none;
+  border-radius: 15px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+  background-color: white;
 }
 
 .card-header {
-    border-radius: 15px 15px 0 0 !important;
-    border: none;
-    padding: 1rem 1.5rem;
+  background-color: var(--amarillo) !important;
+  border-bottom: none;
+  border-top-left-radius: 15px;
+  border-top-right-radius: 15px;
+  font-weight: bold;
 }
 
-.bg-orange {
-    background-color: #ff6b00 !important;
+/* ==== FORMULARIOS ==== */
+.form-label {
+  color: var(--gris);
 }
 
-/* Resumen del pedido */
-.resumen-pedido .card-body {
-    padding: 1.5rem;
-}
-
-.productos-lista {
-    max-height: 200px;
-    overflow-y: auto;
-}
-
-.producto-item {
-    padding: 0.5rem 0;
-    border-bottom: 1px solid #f0f0f0;
-}
-
-.producto-item:last-child {
-    border-bottom: none;
-}
-
-/* Métodos de pago */
-.metodo-item {
-    padding: 1rem;
-    border: 2px solid #e9ecef;
-    border-radius: 10px;
-    transition: all 0.3s ease;
-}
-
-.metodo-item:hover {
-    border-color: #ff6b00;
-    background-color: #fff9f5;
-}
-
-.form-check-input:checked {
-    background-color: #ff6b00;
-    border-color: #ff6b00;
-}
-
-.tarjetas-icons img {
-    border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-
-/* Formularios */
 .form-control, .form-select {
-    border-radius: 10px;
-    border: 2px solid #e9ecef;
-    padding: 0.75rem 1rem;
-    transition: all 0.3s ease;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  transition: border 0.3s;
 }
 
 .form-control:focus, .form-select:focus {
-    border-color: #ff6b00;
-    box-shadow: 0 0 0 0.2rem rgba(255, 107, 0, 0.25);
+  border-color: var(--naranja);
+  box-shadow: 0 0 4px rgba(255, 183, 77, 0.4);
 }
 
-.form-label {
-    color: #333;
-    margin-bottom: 0.5rem;
+/* ==== MÉTODOS DE PAGO ==== */
+.metodo-item {
+  background-color: var(--blanco);
+  transition: 0.3s;
 }
 
-/* Botón de confirmar */
+.metodo-item:hover {
+  background-color: var(--amarillo);
+  border-color: var(--naranja);
+}
+
+.metodo-item input:checked + label {
+  color: var(--naranja);
+}
+
+/* ==== RESUMEN DEL PEDIDO ==== */
+.resumen-pedido .card-header {
+  background-color: var(--naranja);
+  color: white;
+  border-radius: 15px 15px 0 0;
+}
+
+.producto-resumen:hover {
+  background-color: var(--amarillo);
+  border-radius: 8px;
+}
+
+.resumen-total span {
+  color: var(--naranja);
+}
+
+.tiempo-entrega {
+  background-color: var(--amarillo);
+  border: 1px dashed var(--naranja);
+  color: var(--gris);
+}
+
+/* ==== BOTÓN PRINCIPAL ==== */
 .btn-confirmar {
-    background: linear-gradient(135deg, #28a745, #20c997);
-    border: none;
-    border-radius: 25px;
-    color: white;
-    font-weight: 700;
-    font-size: 1.2rem;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+  background-color: var(--verde);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  transition: 0.3s;
 }
 
 .btn-confirmar:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
-    background: linear-gradient(135deg, #20c997, #28a745);
+  background-color: #66bb6a;
+  transform: translateY(-2px);
 }
 
-.btn-confirmar:disabled {
-    background: #6c757d;
-    transform: none;
-    box-shadow: none;
+.btn-volver {
+  border-radius: 25px;
+  color: var(--gris);
 }
 
-/* Texto naranja */
+.btn-volver:hover {
+  background-color: var(--naranja);
+  color: white;
+}
+
+/* ==== GARANTÍAS ==== */
+.garantias .card-body i {
+  transition: 0.3s;
+}
+
+.garantias .card-body i:hover {
+  transform: scale(1.2);
+  color: var(--naranja);
+}
+
+/* ==== ALERTAS E INFORMACIÓN ==== */
+.alert-info {
+  background-color: #e3f2fd;
+  border: none;
+  color: var(--gris);
+}
+
 .text-orange {
-    color: #ff6b00 !important;
+  color: var(--naranja) !important;
 }
 
-.text-orange:hover {
-    color: #e55a00 !important;
+/* ==== CHECKBOX ==== */
+.form-check-input:checked {
+  background-color: var(--naranja);
+  border-color: var(--naranja);
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-    .pago-title {
-        font-size: 1.5rem;
-    }
-
-    .card-body {
-        padding: 1rem;
-    }
-
-    .metodo-item {
-        padding: 0.75rem;
-    }
-
-    .btn-confirmar {
-        font-size: 1.1rem;
-        padding: 0.75rem;
-    }
-}
-
-/* Animaciones */
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
-}
-
-.pulse {
-    animation: pulse 2s infinite;
+/* ==== EFECTOS ==== */
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
 }

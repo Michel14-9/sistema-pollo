@@ -295,11 +295,9 @@ function gestionarDireccion(tipo) {
     }, 1000);
 }
 
-// ==========================
-// UTILIDADES
-// ==========================
+
 function inicializarEventListeners() {
-    console.log("🔧 Inicializando event listeners...");
+    console.log(" Inicializando event listeners...");
 
     // Listeners para botones de acción
     const botonesGestion = document.querySelectorAll('[onclick*="gestionarDireccion"]');
@@ -434,7 +432,7 @@ function inicializarAvanzada() {
     iniciarActualizacionesAutomaticas();
 
     // Mostrar información de debug en consola
-    console.log("🔧 Configuración del sistema:");
+    console.log("Configuración del sistema:");
     console.log("- API Base URL:", API_BASE_URL);
     console.log("- Online:", navigator.onLine);
     console.log("- User Agent:", navigator.userAgent);

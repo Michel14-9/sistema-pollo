@@ -8,6 +8,6 @@ import java.util.List;
 public interface CarritoRepository extends JpaRepository<CarritoItem, Long> {
     List<CarritoItem> findByUsuarioId(Long usuarioId);
     void deleteByUsuarioId(Long usuarioId);
-    //  findById por defecto con JpaRepository
+
 
 }

@@ -1,182 +1,371 @@
-/* Estilos específicos para la página de mis cuentas */
-.text-orange {
-    color: #ff6600 !important;
+
+       
+
+/* ======== PALETA DE COLORES ======== */
+:root {
+  --verde: #81c784;        /* Verde claro (frescura) */
+  --naranja: #ffb74d;      /* Naranja (energía y apetito) */
+  --amarillo: #fff9c4;     /* Amarillo claro (comida deliciosa) */
+  --rojo: #e53935;         /* Toque rojo (resaltado) */
+  --gris: #6c757d;         /* Gris suave (texto) */
+  --blanco: #fafafa;       /* Fondo cálido */
 }
 
-.cuentas-container {
-    min-height: 60vh;
-    padding: 2rem 0;
+/* ======= ESTILO GENERAL ======= */
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: var(--blanco);
+  color: var(--gris);
+  margin: 0;
+  padding: 0;
 }
 
-.cuentas-title {
-    color: #333;
-    font-weight: bold;
-    margin-bottom: 1.5rem;
-    font-size: 2.5rem;
+/* ======= HEADER ======= */
+header .navbar {
+  background-color: var(--amarillo);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+  padding: 0.8rem 1.5rem;
+  border-bottom: 3px solid var(--naranja);
 }
 
-.menu-lateral {
-    background-color: #f8f9fa;
-    border-radius: 10px;
-    padding: 1.5rem;
-    height: fit-content;
+.navbar-brand img {
+  width: 3rem;
+  border-radius: 50%;
+  transition: transform 0.3s ease;
 }
 
-.menu-lateral ul {
-    list-style: none;
-    padding-left: 0;
+.navbar-brand img:hover {
+  transform: scale(1.1);
 }
 
-.menu-lateral li {
-    margin-bottom: 0.8rem;
-    padding: 0.5rem 0;
-    border-bottom: 1px solid #e9ecef;
+.nav-link {
+  color: #333 !important;
+  font-weight: 500;
+  transition: color 0.3s ease, transform 0.3s ease;
 }
 
-.menu-lateral li:last-child {
-    border-bottom: none;
+.nav-link:hover {
+  color: var(--rojo) !important;
+  transform: translateY(-2px);
 }
 
-.menu-lateral a {
-    color: #333;
-    text-decoration: none;
-    font-weight: 500;
-    display: block;
-    transition: all 0.3s;
+header .navbar-toggler {
+  border-color: var(--naranja);
 }
 
-.menu-lateral a:hover {
-    color: #ff6600;
-    padding-left: 5px;
+/* ======= BOTONES ======= */
+.btn {
+  border-radius: 25px;
+  padding: 0.6rem 1.3rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
-.menu-lateral a.active {
-    color: #ff6600;
-    font-weight: bold;
-    border-left: 3px solid #ff6600;
-    padding-left: 10px;
+/* Verde - principal */
+.btn-verde {
+  background-color: var(--verde);
+  color: white;
 }
 
-.contenido-cuentas {
-    padding: 1.5rem;
+.btn-verde:hover {
+  background-color: #66BB6A;
+  box-shadow: 0 4px 10px rgba(129, 199, 132, 0.4);
 }
 
-.volver-btn {
-    background-color: #f8f9fa;
-    border: 1px solid #dee2e6;
-    border-radius: 5px;
-    padding: 8px 15px;
-    color: #333;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    margin-bottom: 1.5rem;
-    transition: all 0.3s;
+/* Naranja - secundario */
+.btn-naranja {
+  background-color: var(--naranja);
+  color: white;
 }
 
-.volver-btn:hover {
-    background-color: #e9ecef;
-    color: #ff6600;
+.btn-naranja:hover {
+  background-color: #FFA726;
+  box-shadow: 0 4px 10px rgba(255, 183, 77, 0.4);
 }
 
-.seccion-titulo {
-    color: #333;
-    font-weight: bold;
-    margin-bottom: 1rem;
-    border-bottom: 2px solid #ff6600;
-    padding-bottom: 0.5rem;
+/* Rojo - advertencia o eliminar */
+.btn-rojo {
+  background-color: var(--rojo);
+  color: white;
 }
 
-.estadistica-cuenta {
-    text-align: center;
-    padding: 1rem;
+.btn-rojo:hover {
+  background-color: #EF5350;
+  box-shadow: 0 4px 10px rgba(229, 115, 115, 0.4);
 }
 
-.estadistica-valor {
-    font-size: 2rem;
-    font-weight: bold;
-    color: #ff6600;
-    margin: 0;
+/* Amarillo claro - informativo */
+.btn-amarillo {
+  background-color: var(--amarillo);
+  color: #333;
 }
 
-.datos-usuario {
-    background-color: #f8f9fa;
-    padding: 1rem;
-    border-radius: 5px;
+.btn-amarillo:hover {
+  background-color: #FFECB3;
+  box-shadow: 0 4px 10px rgba(255, 248, 225, 0.3);
 }
 
-.dato-item {
-    padding: 0.5rem 0;
-    border-bottom: 1px solid #dee2e6;
+/* ======= FOOTER ======= */
+footer {
+  background-color: var(--amarillo);
+  color: #333;
+  border-top: 4px solid var(--naranja);
+  padding-top: 2rem;
+  padding-bottom: 1.5rem;
 }
 
-.dato-item:last-child {
-    border-bottom: none;
+footer h5 {
+  color: var(--verde);
+  font-weight: 700;
+  margin-bottom: 1rem;
 }
 
-.acciones-datos {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
+footer a {
+  color: #333;
+  text-decoration: none;
+  transition: color 0.3s ease;
 }
 
-.btn-outline-primary {
-    border-color: #ff6600;
-    color: #ff6600;
+footer a:hover {
+  color: var(--rojo);
 }
 
-.btn-outline-primary:hover {
-    background-color: #ff6600;
-    border-color: #ff6600;
+/* Redes sociales */
+footer .btn-outline-secondary {
+  border-color: var(--verde);
+  color: var(--verde);
+  transition: all 0.3s ease;
 }
 
-/* Estados de sesión */
-.estado-sesion .alert {
-    border-radius: 10px;
+footer .btn-outline-secondary:hover {
+  background-color: var(--verde);
+  color: white;
 }
 
-/* Tarjetas de direcciones */
-.card {
-    border: 1px solid #e9ecef;
-    border-radius: 10px;
-    margin-bottom: 1rem;
+/* Línea separadora y copyright */
+footer hr {
+  border-color: rgba(0, 0, 0, 0.1);
 }
 
-.card-title {
-    color: #333;
-    font-weight: bold;
+footer small {
+  color: var(--gris);
+  font-size: 0.9rem;
 }
 
-/* Responsive */
+/* ======= EFECTOS SUAVES ======= */
+img, .btn, .nav-link {
+  transition: all 0.3s ease;
+}
+
+/* ======= RESPONSIVO ======= */
 @media (max-width: 768px) {
-    .menu-lateral {
-        margin-bottom: 2rem;
-    }
+  header .navbar-nav {
+    text-align: center;
+  }
 
-    .cuentas-title {
-        font-size: 2rem;
-    }
+  footer .row {
+    text-align: center;
+  }
 
-    .acciones-datos {
-        flex-direction: column;
-    }
-
-    .acciones-datos .btn {
-        width: 100%;
-    }
-
-    .estadistica-valor {
-        font-size: 1.5rem;
-    }
+  footer .d-flex {
+    justify-content: center;
+  }
 }
 
-/* Animaciones */
-.fade-in {
-    animation: fadeIn 0.5s ease-in;
+
+
+
+
+
+
+
+
+
+/*  ESTILOS "MI CUENTA" */
+
+/* ===== CONTENEDOR PRINCIPAL ===== */
+main.container {
+  color: var(--gris);
+  font-family: "Poppins", sans-serif;
 }
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
+/* ===== TÍTULO Y SUBTÍTULO ===== */
+h1.h2.text-luren {
+  color: var(--verde-oscuro);
+  font-weight: 600;
+}
+
+.text-muted {
+  color: #777 !important;
+}
+
+/* ===== SIDEBAR ===== */
+.sidebar-menu {
+  border: none;
+  border-radius: 12px;
+  background-color: var(--blanco);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.sidebar-menu .card-header {
+  background-color: var(--naranja);
+  color: #fff;
+  border-radius: 12px 12px 0 0;
+  font-weight: 600;
+}
+
+.sidebar-menu .list-group-item {
+  border: none;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  color: var(--gris);
+}
+
+.sidebar-menu .list-group-item:hover {
+  background-color: var(--amarillo);
+  color: var(--verde-oscuro);
+}
+
+.sidebar-menu .list-group-item.active {
+  background-color: var(--verde);
+  color: #fff;
+}
+
+/* ===== TARJETAS ===== */
+.card {
+  border: none;
+  border-radius: 12px;
+  background-color: var(--blanco);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.card-header.bg-light {
+  background-color: #f8f9fa !important;
+  border-bottom: 1px solid #eee;
+}
+
+/* ===== INFORMACIÓN PERSONAL ===== */
+.info-item {
+  padding: 6px 0;
+  border-bottom: 1px dashed #e4e4e4;
+}
+
+.info-label {
+  color: var(--verde-oscuro);
+  font-weight: 600;
+}
+
+.info-value {
+  margin-left: 5px;
+  color: var(--gris);
+}
+
+/* ===== RESUMEN DE CUENTA ===== */
+#totalPedidos,
+#totalFavoritos {
+  font-weight: 700;
+}
+
+.bg-primary.bg-opacity-10,
+.bg-warning.bg-opacity-10 {
+  background-color: rgba(0, 0, 0, 0.05) !important;
+}
+
+/* ===== ACCIONES RÁPIDAS ===== */
+.card .btn {
+  border-radius: 10px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.card .btn i {
+  font-size: 1.4rem;
+}
+
+.card .btn-outline-primary:hover {
+  background-color: var(--verde);
+  color: #fff;
+  border-color: var(--verde);
+}
+
+.card .btn-outline-success:hover {
+  background-color: var(--naranja);
+  color: #fff;
+  border-color: var(--naranja);
+}
+
+.card .btn-outline-warning:hover {
+  background-color: var(--amarillo);
+  color: var(--verde-oscuro);
+}
+
+/* ===== ALERTAS ===== */
+.alert-warning {
+  background-color: var(--amarillo);
+  color: var(--gris);
+  border: none;
+  border-radius: 10px;
+  font-weight: 500;
+}
+
+/* ===== BOTONES ===== */
+.btn-luren {
+  background-color: var(--verde);
+  color: #fff;
+  font-weight: 600;
+  border-radius: 8px;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.btn-luren:hover {
+  background-color: var(--verde-oscuro);
+}
+
+.btn-outline-luren {
+  border: 2px solid var(--naranja);
+  color: var(--naranja);
+  background: transparent;
+  font-weight: 600;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.btn-outline-luren:hover {
+  background-color: var(--naranja);
+  color: #fff;
+}
+
+/* ===== ÍCONOS ===== */
+.text-luren {
+  color: var(--verde-oscuro);
+}
+
+/* ===== EFECTOS DE ENLACES ===== */
+a {
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+a:hover {
+  color: var(--verde-oscuro);
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .sidebar-menu {
+    margin-bottom: 20px;
+  }
+
+  .card .btn span {
+    font-size: 0.9rem;
+  }
 }

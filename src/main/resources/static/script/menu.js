@@ -1,4 +1,4 @@
-// menu.js - Funcionalidades para el menú y carrito
+// menu.js
 document.addEventListener('DOMContentLoaded', function() {
     console.log('=== MENÚ - INICIADO ===');
 

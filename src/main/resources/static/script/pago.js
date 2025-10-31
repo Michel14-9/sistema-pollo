@@ -1,4 +1,4 @@
-// pago.js - CON FORMULARIO HTML
+// pago.js -
 document.addEventListener('DOMContentLoaded', function() {
     console.log('=== PAGO - INICIADO ===');
     inicializarPago();

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,6 +12,7 @@
     <!-- CSS -->
     <link rel="stylesheet" th:href="@{/css/sigue-tu-pedido.css}">
 </head>
+
 <body>
 
 <!-- HEADER -->
@@ -23,9 +25,8 @@
             </a>
 
             <!-- Botón móvil -->
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                    data-bs-target="#navbarLuren" aria-controls="navbarLuren"
-                    aria-expanded="false" aria-label="Toggle navigation">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarLuren"
+                    aria-controls="navbarLuren" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
@@ -57,11 +58,13 @@
 
                 <!-- Lado derecho (escritorio) -->
                 <ul class="navbar-nav ms-auto gap-3 align-items-center">
-                    <li class="nav-item d-flex align-items-center" style="font-weight: bold; font-size: 14px; gap: 0.2rem;">
+                    <li class="nav-item d-flex align-items-center"
+                        style="font-weight: bold; font-size: 14px; gap: 0.2rem;">
                         <i class="fa-brands fa-whatsapp" style="font-size: 1.8rem;"></i>
                         <div>Pide por <br><span class="text-orange">WHATSAPP</span></div>
                     </li>
-                    <li class="nav-item d-flex align-items-center" style="font-weight: bold; font-size: 14px; gap: 0.2rem;">
+                    <li class="nav-item d-flex align-items-center"
+                        style="font-weight: bold; font-size: 14px; gap: 0.2rem;">
                         <i class="fa-solid fa-phone" style="font-size: 1.5rem;"></i>
                         <div>Llámanos <br><span class="text-orange">123-456-7890</span></div>
                     </li>
@@ -79,13 +82,15 @@
                             <div th:if="${#authorization.expression('isAuthenticated()')}">
                                 <span th:text="'Hola, ' + ${#authentication.principal.username}"></span>
                                 <br>
-                                <a th:href="@{/logout}" class="text-decoration-none text-muted small">Cerrar sesión</a>
+                                <a th:href="@{/logout}" class="text-decoration-none text-muted small">Cerrar
+                                    sesión</a>
                             </div>
                         </div>
                     </li>
 
                     <li class="nav-item">
-                        <a th:href="@{/carrito}" class="btn btn-success" style="border-radius: 20px; text-decoration: none;">
+                        <a th:href="@{/carrito}" class="btn btn-success"
+                           style="border-radius: 20px; text-decoration: none;">
                             <i class="fa-solid fa-cart-shopping"></i> S/. 0.00
                         </a>
                     </li>
@@ -116,7 +121,8 @@
                 <div class="pedido-banner text-center mb-5">
                     <h1 class="pedido-title">¡Sigue tu pedido!</h1>
                     <p class="pedido-subtitle">
-                        Para saber el estado de tu pedido, ingresa el número de pedido que te envíamos al correo en el momento de realizar tu compra
+                        Para saber el estado de tu pedido, ingresa el número de pedido que te envíamos al correo en
+                        el momento de realizar tu compra
                     </p>
                 </div>
 
@@ -124,25 +130,24 @@
                 <div class="pedido-form-container">
                     <div class="card shadow-sm">
                         <div class="card-body p-4">
-                            <!--   Cambiada la acción del formulario -->
-                            <form id="formSeguimientoPedido" class="pedido-form" th:action="@{/sigue-tu-pedido/buscar}" method="post">
+                            <form id="formSeguimientoPedido" class="pedido-form"
+                                  th:action="@{/sigue-tu-pedido/buscar}" method="post">
                                 <div class="row mb-4">
                                     <div class="col-md-6">
-                                        <label class="form-label fw-bold">Elige tu canal</label>
-                                        <!--  Campo opcional -->
-                                        <select class="form-select" id="canalPedido" name="canalPedido">
-                                            <option value="">Selecciona (opcional)</option>
+                                        <label class="form-label fw-bold">Canal de pedido</label>
+                                        <select class="form-select" id="canalPedido" name="canalPedido" required>
                                             <option value="WEB">Página Web</option>
-                                            <option value="WHATSAPP">WhatsApp</option>
-                                            <option value="TELEFONO">Teléfono</option>
-                                            <option value="PRESENCIAL">Presencial</option>
                                         </select>
+                                        <div class="form-text">Todos los pedidos se realizan a través de nuestra página web</div>
                                     </div>
                                     <div class="col-md-6">
-                                        <label class="form-label fw-bold">Escribe tu número de pedido</label>
-                                        <!--  Placeholder actualizado -->
-                                        <input type="text" class="form-control" id="numeroPedido" name="numeroPedido"
-                                               placeholder="Ej: LR000123, LR000124, etc." required>
+                                        <label class="form-label fw-bold">Número de pedido</label>
+                                        <input type="text" class="form-control" id="numeroPedido"
+                                               name="numeroPedido" placeholder="Ej: LR000001, LR000002, etc."
+                                               pattern="LR\d{6}"
+                                               title="Formato: LR seguido de 6 números (Ej: LR000001)"
+                                               required>
+                                        <div class="form-text">Ingresa el número que recibiste en tu correo</div>
                                     </div>
                                 </div>
 
@@ -166,19 +171,18 @@
                             <!-- Timeline del estado -->
                             <div class="timeline-pedido mb-4">
                                 <div class="progress" style="height: 8px;">
-                                    <div class="progress-bar bg-luren" role="progressbar"
-                                         th:style="|width: ${
-         pedido.estado == 'ENTREGADO' ? '100%' :
-         pedido.estado == 'EN_CAMINO' ? '75%' :
-         pedido.estado == 'PREPARACION' ? '50%' :
-         pedido.estado == 'CONFIRMADO' ? '25%' : '0%'
-     }|">
+                                    <div class="progress-bar bg-luren" role="progressbar" th:style="|width: ${
+     pedido.estado == 'ENTREGADO' ? '100%' :
+     pedido.estado == 'EN_CAMINO' ? '75%' :
+     pedido.estado == 'PREPARACION' ? '50%' :
+     pedido.estado == 'CONFIRMADO' ? '25%' : '0%'
+ }|">
                                     </div>
                                 </div>
                                 <div class="d-flex justify-content-between mt-2">
                                     <span th:class="${pedido.estado == 'PENDIENTE'} ? 'text-luren fw-bold' : 'text-muted'">Pendiente</span>
-                                    <span th:class="${pedido.estado == 'CONFIRMADO'} ? 'text-luren fw-bold' : 'text-muted'">Confirmado</span>
-                                    <span th:class="${pedido.estado == 'PREPARACION'} ? 'text-luren fw-bold' : 'text-muted'">En Preparación</span>
+                                    <span th:class="${pedido.estado == 'CONFIRMADO'} ? 'text-luren fw-bold' : 'text-muted'">Pagado</span>
+                                    <span th:class="${pedido.estado == 'PREPARACION'} ? 'text-luren fw-bold' : 'text-muted'">Preparación</span>
                                     <span th:class="${pedido.estado == 'EN_CAMINO'} ? 'text-luren fw-bold' : 'text-muted'">En Camino</span>
                                     <span th:class="${pedido.estado == 'ENTREGADO'} ? 'text-luren fw-bold' : 'text-muted'">Entregado</span>
                                 </div>
@@ -189,15 +193,21 @@
                                 <div class="col-md-6">
                                     <div class="info-pedido">
                                         <h6 class="text-muted mb-2">Información del Pedido</h6>
-                                        <!--  CORREGIDO: Mostrar número de pedido generado -->
                                         <p><strong>Número de Pedido:</strong> <span th:text="${pedido.numeroPedido}"></span></p>
                                         <p><strong>Canal:</strong> <span th:text="${pedido.canal}"></span></p>
                                         <p><strong>Estado:</strong>
-                                            <span th:class="${pedido.estado == 'ENTREGADO'} ? 'badge bg-success' :
-                                                           ${pedido.estado == 'EN_CAMINO'} ? 'badge bg-info' :
-                                                           ${pedido.estado == 'PREPARACION'} ? 'badge bg-primary' :
-                                                           ${pedido.estado == 'CONFIRMADO'} ? 'badge bg-warning' : 'badge bg-secondary'"
-                                                  th:text="${pedido.estado}"></span>
+                                            <span th:if="${pedido.estado != null}"
+                                                  th:class="${pedido.estado == 'ENTREGADO'} ? 'badge bg-success' :
+               (${pedido.estado == 'EN_CAMINO'} ? 'badge bg-info' :
+               (${pedido.estado == 'PREPARACION'} ? 'badge bg-primary' :
+               (${pedido.estado == 'CONFIRMADO'} ? 'badge bg-warning' : 'badge bg-secondary')))"
+                                                  th:text="${pedido.estado == 'CONFIRMADO'} ? 'Pagado' :
+                 (${pedido.estado == 'PREPARACION'} ? 'En Preparación' :
+                 (${pedido.estado == 'EN_CAMINO'} ? 'En Camino' :
+                 (${pedido.estado == 'ENTREGADO'} ? 'Entregado' :
+                 (${pedido.estado == 'PENDIENTE'} ? 'Pendiente' : ${pedido.estado}))))">
+    </span>
+                                            <span th:if="${pedido.estado == null}" class="badge bg-secondary">Estado no disponible</span>
                                         </p>
                                         <p><strong>Fecha:</strong>
                                             <span th:text="${#temporals.format(pedido.fecha, 'dd/MM/yyyy HH:mm')}"></span>
@@ -206,7 +216,8 @@
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <div th:if="${pedido.observaciones != null && !pedido.observaciones.isEmpty()}" class="observaciones-pedido">
+                                    <div th:if="${pedido.observaciones != null && !pedido.observaciones.isEmpty()}"
+                                         class="observaciones-pedido">
                                         <h6 class="text-muted mb-2">Observaciones</h6>
                                         <p class="text-muted" th:text="${pedido.observaciones}"></p>
                                     </div>
@@ -216,11 +227,13 @@
                                         <button class="btn btn-outline-luren btn-sm" onclick="repetirPedido()">
                                             <i class="fas fa-redo me-1"></i>Repetir Pedido
                                         </button>
-                                        <button class="btn btn-outline-secondary btn-sm ms-2" onclick="descargarComprobante()">
+                                        <button class="btn btn-outline-secondary btn-sm ms-2"
+                                                onclick="descargarComprobante()">
                                             <i class="fas fa-download me-1"></i>Descargar
                                         </button>
-                                        <!--   Botón para copiar número de pedido -->
-                                        <button class="btn btn-outline-primary btn-sm ms-2" onclick="copiarNumeroPedido()">
+                                        <!-- Botón para copiar número de pedido -->
+                                        <button class="btn btn-outline-primary btn-sm ms-2"
+                                                onclick="copiarNumeroPedido()">
                                             <i class="fas fa-copy me-1"></i>Copiar Número
                                         </button>
                                     </div>
@@ -228,7 +241,8 @@
                             </div>
 
                             <!-- Items del pedido -->
-                            <div th:if="${pedido.items != null && !pedido.items.isEmpty()}" class="items-pedido mt-4">
+                            <div th:if="${pedido.items != null && !pedido.items.isEmpty()}"
+                                 class="items-pedido mt-4">
                                 <h6 class="text-muted mb-3">Productos del Pedido</h6>
                                 <div class="table-responsive">
                                     <table class="table table-sm">
@@ -244,14 +258,20 @@
                                         <tr th:each="item : ${pedido.items}">
                                             <td th:text="${item.nombreProducto}"></td>
                                             <td class="text-center" th:text="${item.cantidad}"></td>
-                                            <td class="text-end" th:text="'S/. ' + ${#numbers.formatDecimal(item.precio, 1, 2)}"></td>
-                                            <td class="text-end" th:text="'S/. ' + ${#numbers.formatDecimal(item.subtotal, 1, 2)}"></td>
+                                            <td class="text-end"
+                                                th:text="'S/. ' + ${#numbers.formatDecimal(item.precio, 1, 2)}">
+                                            </td>
+                                            <td class="text-end"
+                                                th:text="'S/. ' + ${#numbers.formatDecimal(item.subtotal, 1, 2)}">
+                                            </td>
                                         </tr>
                                         </tbody>
                                         <tfoot th:if="${pedido.total != null}">
                                         <tr>
                                             <td colspan="3" class="text-end"><strong>Total:</strong></td>
-                                            <td class="text-end"><strong th:text="'S/. ' + ${#numbers.formatDecimal(pedido.total, 1, 2)}"></strong></td>
+                                            <td class="text-end"><strong
+                                                    th:text="'S/. ' + ${#numbers.formatDecimal(pedido.total, 1, 2)}"></strong>
+                                            </td>
                                         </tr>
                                         </tfoot>
                                     </table>
@@ -287,12 +307,14 @@
                                 <div class="col-md-6 mb-3 mb-md-0">
                                     <i class="fas fa-phone fa-2x text-luren mb-2"></i>
                                     <p class="mb-1">Llámanos</p>
-                                    <a href="tel:123456789" class="fw-bold text-decoration-none text-dark">123-456-789</a>
+                                    <a href="tel:123456789"
+                                       class="fw-bold text-decoration-none text-dark">123-456-789</a>
                                 </div>
                                 <div class="col-md-6">
                                     <i class="fab fa-whatsapp fa-2x text-success mb-2"></i>
                                     <p class="mb-1">Escríbenos por WhatsApp</p>
-                                    <a href="https://wa.me/123456789" class="fw-bold text-decoration-none text-dark">+51 123 456 789</a>
+                                    <a href="https://wa.me/123456789"
+                                       class="fw-bold text-decoration-none text-dark">+51 123 456 789</a>
                                 </div>
                             </div>
                         </div>
@@ -331,11 +353,13 @@
             <div class="col-md-3 mb-4">
                 <h5 class="fw-bold mb-3">Nuestros Productos</h5>
                 <ul class="list-unstyled">
-                    <li><a th:href="@{/menu#pollos}" class="text-decoration-none text-dark">Pollo a la brasa</a></li>
+                    <li><a th:href="@{/menu#pollos}" class="text-decoration-none text-dark">Pollo a la brasa</a>
+                    </li>
                     <li><a th:href="@{/menu#parrillas}" class="text-decoration-none text-dark">Parrillas</a></li>
                     <li><a th:href="@{/menu#chicharron}" class="text-decoration-none text-dark">Chicharrón</a></li>
                     <li><a th:href="@{/menu#broaster}" class="text-decoration-none text-dark">Broster</a></li>
-                    <li><a th:href="@{/menu#hamburguesas}" class="text-decoration-none text-dark">Hamburguesas</a></li>
+                    <li><a th:href="@{/menu#hamburguesas}" class="text-decoration-none text-dark">Hamburguesas</a>
+                    </li>
                     <li><a th:href="@{/menu#criollos}" class="text-decoration-none text-dark">Criollos</a></li>
                     <li><a th:href="@{/menu#combos}" class="text-decoration-none text-dark">Combos</a></li>
                 </ul>
@@ -345,10 +369,14 @@
             <div class="col-md-3 mb-4">
                 <h5 class="fw-bold mb-3">Ayuda</h5>
                 <ul class="list-unstyled">
-                    <li><a th:href="@{/politica-datos}" class="text-decoration-none text-dark">Política de Datos Personales</a></li>
-                    <li><a th:href="@{/terminos}" class="text-decoration-none text-dark">Términos y Condiciones</a></li>
-                    <li><a th:href="@{/nuestros-locales}" class="text-decoration-none text-dark">Nuestro Local</a></li>
-                    <li><a th:href="@{/politica-cookies}" class="text-decoration-none text-dark">Política de cookies</a></li>
+                    <li><a th:href="@{/politica-datos}" class="text-decoration-none text-dark">Política de Datos
+                        Personales</a></li>
+                    <li><a th:href="@{/terminos}" class="text-decoration-none text-dark">Términos y Condiciones</a>
+                    </li>
+                    <li><a th:href="@{/nuestros-locales}" class="text-decoration-none text-dark">Nuestro Local</a>
+                    </li>
+                    <li><a th:href="@{/politica-cookies}" class="text-decoration-none text-dark">Política de
+                        cookies</a></li>
                 </ul>
             </div>
 
@@ -356,12 +384,14 @@
             <div class="col-md-3 mb-4">
                 <h5 class="fw-bold mb-3">Libro de reclamaciones</h5>
                 <a th:href="@{/libro-reclamaciones}">
-                    <img th:src="@{/archivos/libro.png}" alt="Libro de Reclamaciones" style="width: 120px;" class="mb-3">
+                    <img th:src="@{/archivos/libro.png}" alt="Libro de Reclamaciones" style="width: 120px;"
+                         class="mb-3">
                 </a>
                 <h5 class="fw-bold mb-3">Métodos de Pago</h5>
                 <div class="d-flex gap-2 align-items-center">
                     <img th:src="@{/archivos/visa_PNG30.png}" alt="Visa" style="width: 50px; border-radius: 10px;">
-                    <img th:src="@{/archivos/mastercard-og-image.png}" alt="Mastercard" style="width: 50px; border-radius: 10px;">
+                    <img th:src="@{/archivos/mastercard-og-image.png}" alt="Mastercard"
+                         style="width: 50px; border-radius: 10px;">
                 </div>
             </div>
         </div>
@@ -377,8 +407,6 @@
 <!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 <script th:src="@{/script/sigue-tu-pedido.js}" defer></script>
-
-
 
 </body>
 </html>

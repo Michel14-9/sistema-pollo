@@ -1,340 +1,366 @@
-/* Estilos específicos para la página de seguimiento de pedido */
-.seguimiento-pedido {
-    background-color: #f8f9fa;
-    min-height: calc(100vh - 200px);
-    padding: 2rem 0;
+
+       
+
+/* ======== PALETA DE COLORES ======== */
+:root {
+  --verde: #81c784;        /* Verde claro (frescura) */
+  --naranja: #ffb74d;      /* Naranja (energía y apetito) */
+  --amarillo: #fff9c4;     /* Amarillo claro (comida deliciosa) */
+  --rojo: #e53935;         /* Toque rojo (resaltado) */
+  --gris: #6c757d;         /* Gris suave (texto) */
+  --blanco: #fafafa;       /* Fondo cálido */
 }
 
-/* Banner del pedido */
+/* ======= ESTILO GENERAL ======= */
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: var(--blanco);
+  color: var(--gris);
+  margin: 0;
+  padding: 0;
+}
+
+/* ======= HEADER ======= */
+header .navbar {
+  background-color: var(--amarillo);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+  padding: 0.8rem 1.5rem;
+  border-bottom: 3px solid var(--naranja);
+}
+
+.navbar-brand img {
+  width: 3rem;
+  border-radius: 50%;
+  transition: transform 0.3s ease;
+}
+
+.navbar-brand img:hover {
+  transform: scale(1.1);
+}
+
+.nav-link {
+  color: #333 !important;
+  font-weight: 500;
+  transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.nav-link:hover {
+  color: var(--rojo) !important;
+  transform: translateY(-2px);
+}
+
+header .navbar-toggler {
+  border-color: var(--naranja);
+}
+
+/* ======= BOTONES ======= */
+.btn {
+  border-radius: 25px;
+  padding: 0.6rem 1.3rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+/* Verde - principal */
+.btn-verde {
+  background-color: var(--verde);
+  color: white;
+}
+
+.btn-verde:hover {
+  background-color: #66BB6A;
+  box-shadow: 0 4px 10px rgba(129, 199, 132, 0.4);
+}
+
+/* Naranja - secundario */
+.btn-naranja {
+  background-color: var(--naranja);
+  color: white;
+}
+
+.btn-naranja:hover {
+  background-color: #FFA726;
+  box-shadow: 0 4px 10px rgba(255, 183, 77, 0.4);
+}
+
+/* Rojo - advertencia o eliminar */
+.btn-rojo {
+  background-color: var(--rojo);
+  color: white;
+}
+
+.btn-rojo:hover {
+  background-color: #EF5350;
+  box-shadow: 0 4px 10px rgba(229, 115, 115, 0.4);
+}
+
+/* Amarillo claro - informativo */
+.btn-amarillo {
+  background-color: var(--amarillo);
+  color: #333;
+}
+
+.btn-amarillo:hover {
+  background-color: #FFECB3;
+  box-shadow: 0 4px 10px rgba(255, 248, 225, 0.3);
+}
+
+/* ======= FOOTER ======= */
+footer {
+  background-color: var(--amarillo);
+  color: #333;
+  border-top: 4px solid var(--naranja);
+  padding-top: 2rem;
+  padding-bottom: 1.5rem;
+}
+
+footer h5 {
+  color: var(--verde);
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+footer a {
+  color: #333;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+footer a:hover {
+  color: var(--rojo);
+}
+
+/* Redes sociales */
+footer .btn-outline-secondary {
+  border-color: var(--verde);
+  color: var(--verde);
+  transition: all 0.3s ease;
+}
+
+footer .btn-outline-secondary:hover {
+  background-color: var(--verde);
+  color: white;
+}
+
+/* Línea separadora y copyright */
+footer hr {
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+footer small {
+  color: var(--gris);
+  font-size: 0.9rem;
+}
+
+/* ======= EFECTOS SUAVES ======= */
+img, .btn, .nav-link {
+  transition: all 0.3s ease;
+}
+
+/* ======= RESPONSIVO ======= */
+@media (max-width: 768px) {
+  header .navbar-nav {
+    text-align: center;
+  }
+
+  footer .row {
+    text-align: center;
+  }
+
+  footer .d-flex {
+    justify-content: center;
+  }
+}
+
+
+
+
+:root {
+  --verde: #81c784;        /* Verde claro (frescura) */
+  --naranja: #ffb74d;      /* Naranja (energía y apetito) */
+  --amarillo: #fff9c4;     /* Amarillo claro (comida deliciosa) */
+  --rojo: #e53935;         /* Toque rojo (resaltado) */
+  --gris: #6c757d;         /* Gris suave (texto) */
+  --blanco: #fafafa;       /* Fondo cálido */
+}
+
+/* ======== ESTRUCTURA GENERAL ======== */
+body {
+  background-color: var(--blanco);
+  color: var(--gris);
+  font-family: 'Poppins', sans-serif;
+}
+
+.seguimiento-pedido {
+  padding: 2rem 0 4rem;
+}
+
+/* ======== BANNER ======== */
 .pedido-banner {
-    padding: 2rem 0;
+  background: linear-gradient(135deg, var(--amarillo), var(--naranja));
+  color: var(--gris);
+  border-radius: 15px;
+  padding: 2rem;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
 .pedido-title {
-    color: #333;
-    font-weight: 700;
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
+  color: var(--rojo);
+  font-weight: 700;
+  margin-bottom: 0.5rem;
 }
 
 .pedido-subtitle {
-    color: #666;
-    font-size: 1.1rem;
-    line-height: 1.6;
-    max-width: 600px;
-    margin: 0 auto;
+  color: #555;
+  font-size: 1.05rem;
 }
 
-/* Formulario de búsqueda */
+/* ======== FORMULARIO ======== */
 .pedido-form-container .card {
-    border: none;
-    border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-}
-
-.pedido-form-container .card-body {
-    padding: 2rem;
+  border: none;
+  border-radius: 15px;
+  background-color: white;
 }
 
 .form-label {
-    color: #333;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
+  color: var(--gris);
 }
 
 .form-control, .form-select {
-    border-radius: 10px;
-    border: 2px solid #e9ecef;
-    padding: 0.75rem 1rem;
-    transition: all 0.3s ease;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .form-control:focus, .form-select:focus {
-    border-color: #ff6b00;
-    box-shadow: 0 0 0 0.2rem rgba(255, 107, 0, 0.25);
+  border-color: var(--naranja);
+  box-shadow: 0 0 5px var(--naranja);
 }
 
-/* Botón de búsqueda */
+/* ======== BOTONES ======== */
 .btn-luren {
-    background: linear-gradient(135deg, #ff6b00, #ff8c00);
-    border: none;
-    border-radius: 25px;
-    color: white;
-    font-weight: 700;
-    padding: 0.75rem 2rem;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(255, 107, 0, 0.3);
+  background-color: var(--naranja);
+  color: white;
+  font-weight: 600;
+  border-radius: 10px;
+  border: none;
+  transition: all 0.3s ease;
 }
 
 .btn-luren:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(255, 107, 0, 0.4);
-    background: linear-gradient(135deg, #ff8c00, #ff6b00);
-    color: white;
+  background-color: var(--verde);
+  transform: scale(1.03);
 }
 
-.btn-luren:disabled {
-    background: #6c757d;
-    transform: none;
-    box-shadow: none;
+.btn-outline-luren {
+  border: 2px solid var(--naranja);
+  color: var(--naranja);
+  border-radius: 8px;
+  transition: all 0.3s ease;
 }
 
-/* Resultados del pedido */
-.pedido-resultado {
-    background: white;
-    border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    padding: 2rem;
-    animation: fadeIn 0.5s ease-out;
+.btn-outline-luren:hover {
+  background-color: var(--naranja);
+  color: white;
 }
 
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+.btn-outline-secondary {
+  border-color: var(--gris);
+  color: var(--gris);
+}
+.btn-outline-secondary:hover {
+  background-color: var(--gris);
+  color: white;
 }
 
-.estado-pedido {
-    margin-bottom: 2rem;
+/* ======== RESULTADOS DEL PEDIDO ======== */
+.pedido-resultado .card {
+  border-radius: 15px;
+  overflow: hidden;
+  border: none;
 }
 
-.estado-pedido h3 {
-    color: #333;
-    font-weight: 700;
-    margin-bottom: 1.5rem;
-    text-align: center;
+.card-header.bg-luren {
+  background-color: var(--verde);
 }
 
-/* Timeline del pedido */
-.timeline-pedido {
-    position: relative;
-    padding-left: 2rem;
-    margin: 2rem 0;
+.timeline-pedido .progress {
+  background-color: #e0e0e0;
+  border-radius: 20px;
+}
+.timeline-pedido .progress-bar {
+  background-color: var(--naranja);
+  border-radius: 20px;
 }
 
-.timeline-pedido::before {
-    content: '';
-    position: absolute;
-    left: 15px;
-    top: 0;
-    bottom: 0;
-    width: 2px;
-    background: #e9ecef;
+.text-luren {
+  color: var(--naranja);
 }
 
-.etapa-pedido {
-    position: relative;
-    margin-bottom: 2rem;
-    padding-bottom: 1rem;
+/* ======== INFO DEL PEDIDO ======== */
+.info-pedido p {
+  margin-bottom: 0.5rem;
 }
 
-.etapa-pedido:last-child {
-    margin-bottom: 0;
+.badge {
+  font-size: 0.85rem;
+  padding: 0.5em 0.75em;
+  border-radius: 8px;
 }
 
-.etapa-icono {
-    position: absolute;
-    left: -2rem;
-    top: 0;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    background: #e9ecef;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #666;
-    font-size: 0.8rem;
+/* ======== TABLA DE ITEMS ======== */
+.items-pedido table {
+  background-color: white;
+  border-radius: 10px;
+  overflow: hidden;
 }
 
-.etapa-pedido.activo .etapa-icono {
-    background: #ff6b00;
-    color: white;
+.items-pedido thead {
+  background-color: var(--amarillo);
 }
 
-.etapa-pedido.completado .etapa-icono {
-    background: #28a745;
-    color: white;
+.items-pedido th {
+  color: var(--gris);
+  font-weight: 600;
 }
 
-.etapa-contenido h5 {
-    color: #333;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
+.items-pedido td {
+  vertical-align: middle;
 }
 
-.etapa-contenido p {
-    color: #666;
-    margin: 0;
-    font-size: 0.9rem;
+tfoot tr td {
+  background-color: var(--blanco);
+  color: var(--rojo);
 }
 
-.etapa-pedido.activo .etapa-contenido h5 {
-    color: #ff6b00;
-}
-
-.etapa-pedido.completado .etapa-contenido h5 {
-    color: #28a745;
-}
-
-/* Información del pedido */
-.info-pedido {
-    background: #f8f9fa;
-    border-radius: 10px;
-    padding: 1.5rem;
-    margin-top: 1rem;
-}
-
-.info-pedido h5 {
-    color: #333;
-    font-weight: 600;
-    margin-bottom: 1rem;
-}
-
-.info-item {
-    display: flex;
-    justify-content: space-between;
-    padding: 0.5rem 0;
-    border-bottom: 1px solid #e9ecef;
-}
-
-.info-item:last-child {
-    border-bottom: none;
-}
-
-.info-label {
-    color: #666;
-    font-weight: 500;
-}
-
-.info-valor {
-    color: #333;
-    font-weight: 600;
-}
-
-/* Contacto info */
-.contacto-info {
-    color: #666;
-    font-size: 0.9rem;
-}
-
-.contacto-info a {
-    color: #ff6b00;
-    text-decoration: none;
-    font-weight: 600;
-}
-
-.contacto-info a:hover {
-    color: #e55a00;
-    text-decoration: underline;
-}
-
-/* Estados del pedido */
-.estado-badge {
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-    font-weight: 600;
-    font-size: 0.9rem;
-}
-
-.estado-recibido {
-    background: #fff3cd;
-    color: #856404;
-}
-
-.estado-preparacion {
-    background: #cce7ff;
-    color: #004085;
-}
-
-.estado-listo {
-    background: #d4edda;
-    color: #155724;
-}
-
-.estado-entregado {
-    background: #d1ecf1;
-    color: #0c5460;
-}
-
-/* Mensajes de error y éxito */
-.alert {
-    border: none;
-    border-radius: 10px;
-    padding: 1rem 1.5rem;
-}
-
+/* ======== ALERTAS ======== */
 .alert-danger {
-    background: #f8d7da;
-    color: #721c24;
+  background-color: #ffe5e5;
+  border-color: #ffcdd2;
+  color: var(--rojo);
+  border-radius: 10px;
 }
 
-.alert-success {
-    background: #d4edda;
-    color: #155724;
+/* ======== CONTACTO ======== */
+.contacto-info .card {
+  background-color: var(--amarillo);
+  border-radius: 15px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
-/* Texto naranja */
-.text-orange {
-    color: #ff6b00 !important;
+.contacto-info i {
+  color: var(--naranja);
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-    .pedido-title {
-        font-size: 2rem;
-    }
-
-    .pedido-subtitle {
-        font-size: 1rem;
-    }
-
-    .pedido-form-container .card-body {
-        padding: 1.5rem;
-    }
-
-    .pedido-resultado {
-        padding: 1.5rem;
-    }
-
-    .timeline-pedido {
-        padding-left: 1.5rem;
-    }
-
-    .etapa-icono {
-        left: -1.5rem;
-        width: 25px;
-        height: 25px;
-    }
+/* ======== EFECTOS ======== */
+.card, .btn {
+  transition: all 0.3s ease;
 }
 
-@media (max-width: 576px) {
-    .seguimiento-pedido {
-        padding: 1rem 0;
-    }
-
-    .pedido-title {
-        font-size: 1.5rem;
-    }
-
-    .pedido-banner {
-        padding: 1rem 0;
-    }
-
-    .pedido-form-container .card-body {
-        padding: 1rem;
-    }
-
-    .row.mb-4 {
-        margin-bottom: 1rem !important;
-    }
-
-    .col-md-6 {
-        margin-bottom: 1rem;
-    }
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
+

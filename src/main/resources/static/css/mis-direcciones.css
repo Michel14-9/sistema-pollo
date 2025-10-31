@@ -1,249 +1,414 @@
-/* Estilos específicos para la página de mis direcciones */
-.text-orange {
-    color: #ff6600 !important;
+
+       
+
+/* ======== PALETA DE COLORES ======== */
+:root {
+  --verde: #81c784;        /* Verde claro (frescura) */
+  --naranja: #ffb74d;      /* Naranja (energía y apetito) */
+  --amarillo: #fff9c4;     /* Amarillo claro (comida deliciosa) */
+  --rojo: #e53935;         /* Toque rojo (resaltado) */
+  --gris: #6c757d;         /* Gris suave (texto) */
+  --blanco: #fafafa;       /* Fondo cálido */
 }
 
+/* ======= ESTILO GENERAL ======= */
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: var(--blanco);
+  color: var(--gris);
+  margin: 0;
+  padding: 0;
+}
+
+/* ======= HEADER ======= */
+header .navbar {
+  background-color: var(--amarillo);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+  padding: 0.8rem 1.5rem;
+  border-bottom: 3px solid var(--naranja);
+}
+
+.navbar-brand img {
+  width: 3rem;
+  border-radius: 50%;
+  transition: transform 0.3s ease;
+}
+
+.navbar-brand img:hover {
+  transform: scale(1.1);
+}
+
+.nav-link {
+  color: #333 !important;
+  font-weight: 500;
+  transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.nav-link:hover {
+  color: var(--rojo) !important;
+  transform: translateY(-2px);
+}
+
+header .navbar-toggler {
+  border-color: var(--naranja);
+}
+
+/* ======= BOTONES ======= */
+.btn {
+  border-radius: 25px;
+  padding: 0.6rem 1.3rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+/* Verde - principal */
+.btn-verde {
+  background-color: var(--verde);
+  color: white;
+}
+
+.btn-verde:hover {
+  background-color: #66BB6A;
+  box-shadow: 0 4px 10px rgba(129, 199, 132, 0.4);
+}
+
+/* Naranja - secundario */
+.btn-naranja {
+  background-color: var(--naranja);
+  color: white;
+}
+
+.btn-naranja:hover {
+  background-color: #FFA726;
+  box-shadow: 0 4px 10px rgba(255, 183, 77, 0.4);
+}
+
+/* Rojo - advertencia o eliminar */
+.btn-rojo {
+  background-color: var(--rojo);
+  color: white;
+}
+
+.btn-rojo:hover {
+  background-color: #EF5350;
+  box-shadow: 0 4px 10px rgba(229, 115, 115, 0.4);
+}
+
+/* Amarillo claro - informativo */
+.btn-amarillo {
+  background-color: var(--amarillo);
+  color: #333;
+}
+
+.btn-amarillo:hover {
+  background-color: #FFECB3;
+  box-shadow: 0 4px 10px rgba(255, 248, 225, 0.3);
+}
+
+/* ======= FOOTER ======= */
+footer {
+  background-color: var(--amarillo);
+  color: #333;
+  border-top: 4px solid var(--naranja);
+  padding-top: 2rem;
+  padding-bottom: 1.5rem;
+}
+
+footer h5 {
+  color: var(--verde);
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+footer a {
+  color: #333;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+footer a:hover {
+  color: var(--rojo);
+}
+
+/* Redes sociales */
+footer .btn-outline-secondary {
+  border-color: var(--verde);
+  color: var(--verde);
+  transition: all 0.3s ease;
+}
+
+footer .btn-outline-secondary:hover {
+  background-color: var(--verde);
+  color: white;
+}
+
+/* Línea separadora y copyright */
+footer hr {
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+footer small {
+  color: var(--gris);
+  font-size: 0.9rem;
+}
+
+/* ======= EFECTOS SUAVES ======= */
+img, .btn, .nav-link {
+  transition: all 0.3s ease;
+}
+
+/* ======= RESPONSIVO ======= */
+@media (max-width: 768px) {
+  header .navbar-nav {
+    text-align: center;
+  }
+
+  footer .row {
+    text-align: center;
+  }
+
+  footer .d-flex {
+    justify-content: center;
+  }
+}
+
+
+
+
+
+
+
+/* ESTILOS "MIS DIRECCIONES" */
+
+/* ===== CONTENEDOR PRINCIPAL ===== */
+main.container {
+  color: var(--gris);
+  font-family: "Poppins", sans-serif;
+}
+
+/* ===== TÍTULOS ===== */
+h1.h2.text-luren {
+  color: var(--verde);
+  font-weight: 600;
+}
+
+.text-muted {
+  color: #777 !important;
+}
+
+/* ===== SIDEBAR ===== */
+.sidebar-menu {
+  border: none;
+  border-radius: 12px;
+  background-color: var(--blanco);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.sidebar-menu .card-header {
+  background-color: var(--naranja);
+  color: #fff;
+  border-radius: 12px 12px 0 0;
+}
+
+.sidebar-menu .list-group-item {
+  border: none;
+  font-weight: 500;
+  color: var(--gris);
+  transition: all 0.3s ease;
+}
+
+.sidebar-menu .list-group-item:hover {
+  background-color: var(--amarillo);
+  color: var(--verde);
+}
+
+.sidebar-menu .list-group-item.active {
+  background-color: var(--verde);
+  color: #fff;
+}
+
+/* ===== TARJETAS Y SECCIONES ===== */
+.card {
+  border: none;
+  border-radius: 12px;
+  background-color: var(--blanco);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.card-header.bg-light {
+  background-color: #f8f9fa !important;
+  border-bottom: 1px solid #eee;
+}
+
+/* ===== BOTONES ===== */
 .btn-luren {
-    background-color: #ff6600;
-    border-color: #ff6600;
-    color: white;
+  background-color: var(--verde);
+  color: #fff;
+  font-weight: 600;
+  border-radius: 8px;
+  border: none;
+  transition: all 0.3s ease;
 }
 
 .btn-luren:hover {
-    background-color: #e55a00;
-    border-color: #e55a00;
-    color: white;
+  background-color: var(--verde-oscuro);
 }
 
-.direcciones-container {
-    min-height: 60vh;
-    padding: 2rem 0;
+.btn-outline-luren {
+  border: 2px solid var(--naranja);
+  color: var(--naranja);
+  background: transparent;
+  font-weight: 600;
+  border-radius: 8px;
+  transition: all 0.3s ease;
 }
 
-.direcciones-title {
-    color: #333;
-    font-weight: bold;
-    margin-bottom: 1.5rem;
-    font-size: 2.5rem;
+.btn-outline-luren:hover {
+  background-color: var(--naranja);
+  color: #fff;
 }
 
-.menu-lateral {
-    background-color: #f8f9fa;
-    border-radius: 10px;
-    padding: 1.5rem;
-    height: fit-content;
+/* ===== ALERTAS ===== */
+.alert-warning {
+  background-color: var(--amarillo);
+  color: var(--gris);
+  border: none;
+  border-radius: 10px;
+  font-weight: 500;
 }
 
-.menu-lateral ul {
-    list-style: none;
-    padding-left: 0;
+/* ===== MODAL ===== */
+.modal-content {
+  border-radius: 12px;
+  background-color: var(--blanco);
+  border: 2px solid var(--amarillo);
 }
 
-.menu-lateral li {
-    margin-bottom: 0.8rem;
-    padding: 0.5rem 0;
-    border-bottom: 1px solid #e9ecef;
-}
-
-.menu-lateral li:last-child {
-    border-bottom: none;
-}
-
-.menu-lateral a {
-    color: #333;
-    text-decoration: none;
-    font-weight: 500;
-    display: block;
-    transition: all 0.3s;
-}
-
-.menu-lateral a:hover {
-    color: #ff6600;
-    padding-left: 5px;
-}
-
-.menu-lateral a.active {
-    color: #ff6600;
-    font-weight: bold;
-    border-left: 3px solid #ff6600;
-    padding-left: 10px;
-}
-
-.contenido-direcciones {
-    padding: 1.5rem;
-}
-
-.volver-btn {
-    background-color: #f8f9fa;
-    border: 1px solid #dee2e6;
-    border-radius: 5px;
-    padding: 8px 15px;
-    color: #333;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    margin-bottom: 1.5rem;
-    transition: all 0.3s;
-}
-
-.volver-btn:hover {
-    background-color: #e9ecef;
-    color: #ff6600;
-}
-
-.seccion-titulo {
-    color: #333;
-    font-weight: bold;
-    margin-bottom: 1rem;
-    border-bottom: 2px solid #ff6600;
-    padding-bottom: 0.5rem;
-}
-
-/* Tarjetas de direcciones */
-.direccion-card {
-    border: 1px solid #e9ecef;
-    border-radius: 10px;
-    padding: 1.5rem;
-    margin-bottom: 1rem;
-    transition: all 0.3s;
-    position: relative;
-}
-
-.direccion-card:hover {
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-}
-
-.direccion-card.predeterminada {
-    border-color: #ff6600;
-    background-color: #fff9f5;
-}
-
-.direccion-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 1rem;
-}
-
-.direccion-titulo {
-    font-weight: bold;
-    font-size: 1.2rem;
-    color: #333;
-    margin: 0;
-}
-
-.direccion-predeterminada {
-    background-color: #ff6600;
-    color: white;
-    padding: 2px 8px;
-    border-radius: 4px;
-    font-size: 0.8rem;
-    font-weight: bold;
-}
-
-.direccion-info p {
-    margin-bottom: 0.5rem;
-    color: #666;
-}
-
-.direccion-acciones {
-    display: flex;
-    gap: 10px;
-    margin-top: 1rem;
-}
-
-.btn-editar {
-    background-color: transparent;
-    border: 1px solid #ff6600;
-    color: #ff6600;
-    padding: 5px 15px;
-    border-radius: 5px;
-    transition: all 0.3s;
-}
-
-.btn-editar:hover {
-    background-color: #ff6600;
-    color: white;
-}
-
-.btn-eliminar {
-    background-color: transparent;
-    border: 1px solid #dc3545;
-    color: #dc3545;
-    padding: 5px 15px;
-    border-radius: 5px;
-    transition: all 0.3s;
-}
-
-.btn-eliminar:hover {
-    background-color: #dc3545;
-    color: white;
-}
-
-.btn-establecer-predeterminada {
-    background-color: transparent;
-    border: 1px solid #28a745;
-    color: #28a745;
-    padding: 5px 15px;
-    border-radius: 5px;
-    transition: all 0.3s;
-}
-
-.btn-establecer-predeterminada:hover {
-    background-color: #28a745;
-    color: white;
-}
-
-/* Estados de sesión */
-.no-sesion, .direcciones-vacias {
-    background-color: #f8f9fa;
-    border-radius: 10px;
-    padding: 2rem;
-}
-
-/* Modal */
 .modal-header {
-    border-bottom: 2px solid #ff6600;
+  background-color: var(--naranja);
+  color: #fff;
+  border-radius: 12px 12px 0 0;
 }
 
-.modal-title {
-    color: #333;
-    font-weight: bold;
+.modal-footer {
+  background-color: #fdfdfd;
+  border-top: 1px solid #eee;
 }
 
-/* Responsive */
+/* ===== FORMULARIO DE DIRECCIONES ===== */
+form label.form-label {
+  font-weight: 600;
+  color: var(--verde);
+}
+
+.form-control,
+.form-select {
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  transition: all 0.3s ease;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--verde);
+  box-shadow: 0 0 0 0.15rem rgba(129, 199, 132, 0.25);
+}
+
+.form-check-input:checked {
+  background-color: var(--verde);
+  border-color: var(--verde);
+}
+
+/* ===== LISTA DE DIRECCIONES ===== */
+#direccionesLista .card {
+  background-color: var(--blanco);
+  border-left: 6px solid var(--verde);
+  padding: 10px;
+  transition: all 0.3s ease;
+}
+
+#direccionesLista .card:hover {
+  border-left-color: var(--naranja);
+  transform: translateY(-3px);
+}
+
+/* ===== ESTADO VACÍO ===== */
+#direccionesVacias {
+  border: 2px dashed var(--naranja);
+  background-color: var(--amarillo);
+  color: var(--gris);
+}
+
+#direccionesVacias .btn-luren {
+  background-color: var(--verde);
+}
+
+/* ===== INFORMACIÓN IMPORTANTE ===== */
+.card.mt-4 h6 {
+  color: var(--verde);
+  font-weight: 600;
+}
+
+.card.mt-4 .text-muted {
+  color: var(--gris);
+}
+
+/* ===== EFECTOS DE INTERACCIÓN ===== */
+a {
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+a:hover {
+  color: var(--verde);
+}
+
+#btnAgregarDireccion,
+#btnAgregarPrimeraDireccion {
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
-    .menu-lateral {
-        margin-bottom: 2rem;
-    }
+  .sidebar-menu {
+    margin-bottom: 20px;
+  }
 
-    .direcciones-title {
-        font-size: 2rem;
-    }
+  .card .btn {
+    width: 100%;
+  }
 
-    .direccion-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
-    }
-
-    .direccion-acciones {
-        flex-direction: column;
-        width: 100%;
-    }
-
-    .direccion-acciones button {
-        width: 100%;
-    }
+  .modal-dialog {
+    margin: 10px;
+  }
 }
 
-/* Animaciones */
-.fade-in {
-    animation: fadeIn 0.5s ease-in;
-}
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
+
+
+
+
+
+
+
+

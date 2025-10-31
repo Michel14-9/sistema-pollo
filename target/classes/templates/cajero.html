@@ -4,159 +4,178 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema POS - Pedido</title>
+    <title>Cajero - Luren Chicken</title>
+
+
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link th:href="@{/css/cajero.css}" rel="stylesheet">
-    <link rel="stylesheet" href="../static/css/cajero.css">
 </head>
 
 <body>
-
+    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" id="csrfToken">
     <header class="cajero-header">
         <div class="header-top">
             <div class="empresa-info">
                 <div class="logo">
-                    <img src="../static/imagenes/LurenChicken.jpg" src="https://via.placeholder.com/80x80?text=LC"
-                        alt="Luren Chicken">
+                    <img th:src="@{/imagenes/LurenChicken.jpg}" alt="Luren Chicken">
                 </div>
                 <span class="empresa-nombre">Luren Chicken</span>
             </div>
             <div class="usuario-info">
-                <!-- Usando Thymeleaf para mostrar información del usuario -->
-                <span class="usuario" th:text="'Cajero: ' + ${usuario.nombre}">Cajero: Maria González</span>
+
+                <span class="usuario" id="cajero-nombre">Cargando...</span>
                 <span class="hora" id="header-hora-actual"></span>
+
+
+                <a href="/logout" class="btn btn-outline-danger btn-sm ms-2">
+                    <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+                </a>
             </div>
         </div>
 
         <nav class="cajero-nav">
             <div class="estado-caja">
-                <!-- Usando Thymeleaf para mostrar estado de caja -->
-                <span class="estado" th:text="${caja.estado} ? 'Caja - Abierta' : 'Caja - Cerrada'">Caja -
-                    Abierta</span>
+
+                <span class="estado" id="estado-caja">Caja - Abierta</span>
                 <span class="fecha" id="header-fecha-actual"></span>
             </div>
         </nav>
     </header>
 
     <div class="container my-4">
+        <!-- Sección de Métricas -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card stat-card text-warning">
+                    <i class="bi bi-clock-history"></i>
+                    <div class="number" id="total-pendientes">0</div>
+                    <div class="label">Pendientes</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card stat-card text-success">
+                    <i class="bi bi-cash-coin"></i>
+                    <div class="number" id="total-pagados-hoy">0</div>
+                    <div class="label">Pagados Hoy</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card stat-card text-info">
+                    <i class="bi bi-graph-up"></i>
+                    <div class="number" id="ingresos-hoy">S/ 0.00</div>
+                    <div class="label">Ingresos Hoy</div>
+                </div>
+            </div>
+        </div>
+
         <div class="row">
             <div class="col-lg-8">
-                <div class="card shadow-sm mb-4 p-3">
-                    <h5 class="mb-3">Información del Pedido</h5>
+                <!-- Lista de Pedidos Pendientes -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="mb-0">
+                            <i class="bi bi-clock me-2"></i>Pedidos Pendientes
+                            <span class="badge bg-dark float-end" id="badge-pendientes">0</span>
+                        </h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="list-group list-group-flush" id="lista-pedidos-pendientes">
+
+                        </div>
+                        <div id="sin-pedidos" class="text-center py-5 d-none">
+                            <i class="bi bi-check-circle text-muted fs-1"></i>
+                            <p class="text-muted mt-2">No hay pedidos pendientes</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detalle del Pedido Seleccionado -->
+                <div class="card shadow-sm mb-4 p-3" id="detalle-pedido" style="display: none;">
+                    <h5 class="mb-3">Información del Pedido
+                        <span id="detalle-numero" class="badge bg-primary"></span>
+                        <button class="btn btn-sm btn-outline-secondary float-end" id="btn-cerrar-detalle">
+                            <i class="bi bi-x"></i>
+                        </button>
+                    </h5>
+
                     <div class="d-flex justify-content-between mb-2">
                         <span>Número de Orden:</span>
-                        <!-- Usando Thymeleaf para mostrar número de orden -->
-                        <span class="fw-bold text-primary" id="order-number"
-                            th:text="${pedido.numero}">#ORD-2024-001234</span>
+                        <span class="fw-bold text-primary" id="order-number">#ORD-2024-001234</span>
                     </div>
                     <hr>
+
                     <div id="order-items-container">
                         <div id="order-items-list">
-                            <!-- Usando Thymeleaf para mostrar items del pedido -->
-                            <div th:each="item : ${pedido.items}"
-                                class="d-flex justify-content-between border-bottom pb-2 mb-3">
-                                <span th:text="${item.nombre} + ' x ' + ${item.cantidad}">Hamburguesa Clásica x 1</span>
-                                <span th:text="'S/ ' + ${#numbers.formatDecimal(item.precio * item.cantidad, 1, 2)}">S/
-                                    12.50</span>
-                            </div>
+
                         </div>
                         <div class="d-flex justify-content-between fw-bold fs-5 text-info">
                             <span>Total:</span>
-                            <!-- Usando Thymeleaf para mostrar total -->
-                            <span id="order-total-display"
-                                th:text="'S/ ' + ${#numbers.formatDecimal(pedido.total, 1, 2)}">S/ 20.00</span>
+                            <span id="order-total-display">S/ 0.00</span>
                         </div>
                     </div>
-                </div>
 
-                <div class="card shadow-sm mb-4 p-3">
-                    <h5 class="mb-3">Tipo de Entrega</h5>
-                    <div class="row g-3">
-                        <div class="col-6">
-                            <div id="delivery-option" class="delivery-option active p-3 text-center border rounded-3">
-                                <i class="bi bi-truck fs-3"></i>
-                                <div>Delivery</div>
+                    <div class="card shadow-sm mb-4 p-3 mt-3">
+                        <h5 class="mb-3">Tipo de Entrega</h5>
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <div id="delivery-option" class="delivery-option p-3 text-center border rounded-3">
+                                    <i class="bi bi-truck fs-3"></i>
+                                    <div>Delivery</div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div id="pickup-option" class="delivery-option p-3 text-center border rounded-3">
+                                    <i class="bi bi-box fs-3"></i>
+                                    <div>Recojo en Tienda</div>
+                                </div>
                             </div>
                         </div>
-                        <div class="col-6">
-                            <div id="pickup-option" class="delivery-option p-3 text-center border rounded-3">
-                                <i class="bi bi-box fs-3"></i>
-                                <div>Recojo en Tienda</div>
+                    </div>
+
+                    <!-- Información de Delivery -->
+                    <div id="content-delivery" class="mb-4" style="display: none;">
+                        <h5 class="mt-4 mb-2">Información de Entrega</h5>
+                        <p><strong>Dirección:</strong> <span id="detalle-direccion"></span></p>
+                        <p><strong>Teléfono:</strong> <span id="detalle-telefono"></span></p>
+                    </div>
+
+                    <!-- Información de Recojo -->
+                    <div id="content-pickup-info" class="card shadow-sm mb-4 p-3" style="display: none;">
+                        <h5 class="mb-3">Información de la Tienda</h5>
+                        <p class="mb-1 text-muted"><i class="bi bi-geo-alt me-2"></i>
+                            <span id="tienda-direccion">Calle Principal 123</span>
+                        </p>
+                        <p class="mb-1 text-muted"><i class="bi bi-clock me-2"></i>
+                            <span id="tienda-horario">Lun-Dom: 11:00 - 23:00</span>
+                        </p>
+                        <p class="mb-0 text-muted"><i class="bi bi-telephone me-2"></i>
+                            <span id="tienda-telefono">+51 123 456 789</span>
+                        </p>
+                    </div>
+
+                    <div class="card shadow-sm mb-4 p-3">
+                        <h5 class="mb-3">Estado del Pedido</h5>
+                        <div id="status-bar" class="order-status-bar d-flex justify-content-between align-items-center">
+                            <div class="status-item active text-center" data-step="1">
+                                <span class="step-circle bg-primary text-white">1</span>
+                                <div class="mt-1">Pendiente</div>
                             </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Contenido para Delivery -->
-                <div id="content-delivery" class="mb-4">
-                    <h5 class="mt-4 mb-2">Número de Teléfono</h5>
-                    <div class="input-group mb-3">
-                        <input type="text" class="form-control" id="phoneNumberInput" placeholder="Ej: +51 987654321"
-                            maxlength="12">
-                    </div>
-                    <small class="text-muted">Se enviará el comprobante por <strong>WhatsApp</strong> a este
-                        número.</small>
-
-                    <!-- Botón para enviar comprobante por WhatsApp (solo visible en Delivery) -->
-                    <div class="mt-3">
-                        <button id="btn-send-whatsapp-receipt" class="btn btn-whatsapp btn-lg w-100">
-                            <i class="bi bi-whatsapp me-2"></i>Enviar Comprobante por WhatsApp
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Contenido para Recojo en Tienda -->
-                <div id="content-pickup" class="mb-4" style="display: none;">
-                    <h5 class="mt-4 mb-2">Datos para Boleta</h5>
-                    <div class="mb-3">
-                        <label for="customerName" class="form-label">Nombre o Razón Social</label>
-                        <input type="text" class="form-control" id="customerName"
-                            placeholder="Ej: HUACHIN OJEDA DENIS ABEL">
-                    </div>
-                    <small class="text-muted">Se generará boleta electrónica con estos datos.</small>
-
-                    <!-- Botón para generar boleta (solo visible en Recojo en Tienda) -->
-                    <div class="mt-3">
-                        <button id="btn-generate-pickup-invoice" class="btn btn-generar-boleta btn-lg w-100">
-                            <i class="bi bi-receipt me-2"></i>Generar Boleta para Recojo
-                        </button>
-                    </div>
-                </div>
-
-                <div id="content-pickup-info" class="card shadow-sm mb-4 p-3" style="display: none;">
-                    <h5 class="mb-3">Información de la Tienda</h5>
-                    <!-- Usando Thymeleaf para mostrar información de la tienda -->
-                    <p class="mb-1 text-muted"><i class="bi bi-geo-alt me-2"></i>
-                        <span th:text="${tienda.direccion}">Calle Mayor 123, 28013 Madrid, España</span>
-                    </p>
-                    <p class="mb-1 text-muted"><i class="bi bi-clock me-2"></i>
-                        <span th:text="${tienda.horario}">Lun-Dom: 11:00 - 23:00</span>
-                    </p>
-                    <p class="mb-0 text-muted"><i class="bi bi-telephone me-2"></i>
-                        <span th:text="${tienda.telefono}">+34 91 123 4567</span>
-                    </p>
-                </div>
-
-                <div class="card shadow-sm mb-4 p-3">
-                    <h5 class="mb-3">Estado del Pedido</h5>
-                    <div id="status-bar" class="order-status-bar d-flex justify-content-between align-items-center">
-                        <!-- Estados del pedido que se actualizarán dinámicamente -->
-                        <div class="status-item active text-center" data-step="1">
-                            <span class="step-circle bg-primary text-white">1</span>
-                            <div class="mt-1">Procesando</div>
-                        </div>
-                        <div class="status-item text-center" data-step="2">
-                            <span class="step-circle">2</span>
-                            <div class="mt-1">Confirmado</div>
-                        </div>
-                        <div class="status-item text-center" data-step="3">
-                            <span class="step-circle">3</span>
-                            <div class="mt-1">Preparando</div>
-                        </div>
-                        <div class="status-item text-center" data-step="4" id="step-4">
-                            <span class="step-circle">4</span>
-                            <div class="mt-1" id="step-4-text">Listo para Entrega</div>
+                            <div class="status-item text-center" data-step="2">
+                                <span class="step-circle">2</span>
+                                <div class="mt-1">Pagado</div>
+                            </div>
+                            <div class="status-item text-center" data-step="3">
+                                <span class="step-circle">3</span>
+                                <div class="mt-1">Preparando</div>
+                            </div>
+                            <div class="status-item text-center" data-step="4">
+                                <span class="step-circle">4</span>
+                                <div class="mt-1">Entregado</div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -165,11 +184,17 @@
             <div class="col-lg-4">
                 <div class="mb-4">
                     <h5>Acciones</h5>
-                    <div class="d-grid gap-2">
-                        <!-- Botón para actualizar estado del pedido -->
-                        <button id="btn-update-status" class="btn btn-primary btn-lg">
-                            Actualizar Estado
+                    <div class="d-grid gap-2" id="acciones-pedido" style="display: none;">
+                        <button class="btn btn-success btn-lg" id="btn-marcar-pagado">
+                            <i class="bi bi-check-circle me-2"></i>Marcar como Pagado
                         </button>
+                        <button class="btn btn-danger btn-lg" id="btn-cancelar-pedido">
+                            <i class="bi bi-x-circle me-2"></i>Cancelar Pedido
+                        </button>
+                    </div>
+                    <div id="sin-pedido-seleccionado" class="text-center text-muted">
+                        <i class="bi bi-cart fs-1"></i>
+                        <p class="mt-2">Selecciona un pedido para ver las acciones</p>
                     </div>
                 </div>
 
@@ -185,114 +210,85 @@
                     </p>
                     <p class="mb-0">
                         <i class="bi bi-person me-2"></i>
-                        <!-- Usando Thymeleaf para mostrar información del cajero -->
-                        <span th:text="'Cajero: ' + ${usuario.nombre}">Cajero: María González</span>
+                        <span id="cajero-info">Cargando...</span>
                     </p>
+
+
+                    <div class="mt-3 pt-3 border-top">
+                        <a href="/logout" class="btn btn-outline-danger btn-sm w-100">
+                            <i class="bi bi-box-arrow-right me-2"></i>Cerrar Sesión
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal para Boleta Electrónica -->
-    <div class="modal fade" id="pickupInvoiceModal" tabindex="-1" aria-labelledby="pickupInvoiceModalLabel"
+    <!-- Modal Confirmación Pago -->
+    <div class="modal fade" id="modalConfirmarPago" tabindex="-1" aria-labelledby="modalConfirmarPagoLabel"
         aria-hidden="true">
-        <div class="modal-dialog modal-xl">
+        <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="pickupInvoiceModalLabel">Boleta Electrónica para Recojo</h5>
+                    <h5 class="modal-title" id="modalConfirmarPagoLabel">Confirmar Pago</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body p-0" id="invoice-to-download">
-                    <div class="invoice-container border p-4">
-                        <div class="d-flex justify-content-between mb-4">
-                            <div class="customer-info">
-                                <h5 class="mb-0">VELARDE CIPRIAN TEODORO</h5>
-                                <p class="mb-0">CAL. JUNIN 617 ALTURA DEL PARQUE LUREN</p>
-                                <p class="mb-0">ICA - ICA - ICA</p>
-                            </div>
-                            <div class="invoice-header text-center border p-2">
-                                <h4 class="mb-1">BOLETA ELECTRÓNICA</h4>
-                                <h5 class="mb-1">RUC: 10214242236</h5>
-                                <h5 class="mb-0" id="invoice-series">B001-58</h5>
-                            </div>
-                        </div>
+                <div class="modal-body">
+                    <p>¿Confirmar que el pedido <strong id="confirmar-numero-pedido"></strong> ha sido pagado?</p>
+                    <p class="text-muted">El pedido pasará a estado "PAGADO" y será enviado a cocina.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-success" id="btn-confirmar-pago">
+                        <i class="bi bi-check-circle me-2"></i>Confirmar Pago
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-                        <div class="invoice-details mb-4">
-                            <div class="row">
-                                <div class="col-6">
-                                    <p class="mb-1"><strong>Fecha de Emisión</strong> : <span
-                                            id="invoice-fecha-emision"></span></p>
-                                    <p class="mb-1"><strong>Hora de Emisión</strong> : <span
-                                            id="invoice-hora-emision"></span></p>
-                                    <p class="mb-1"><strong>Señor(es)</strong> : <span
-                                            id="invoice-customer-name">Consumidor Final</span></p>
-                                    <p class="mb-1"><strong>Establecimiento del Emisor</strong> : CAL. JUNIN 617 ALTURA
-                                        DEL PARQUE LUREN ICA-ICA-ICA</p>
-                                    <p class="mb-1"><strong>Tipo de Moneda</strong> : SOLES (S)</p>
-                                    <p class="mb-1"><strong>Observación</strong> : <span
-                                            id="invoice-observation"></span>
-                                    </p>
-                                </div>
-                                <div class="col-6 text-end">
-                                    <p class="mb-1"><strong>Forma de pago:</strong> Contado</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <table class="table table-bordered mb-0">
-                            <thead>
-                                <tr>
-                                    <th style="width: 10%;">Cantidad</th>
-                                    <th style="width: 15%;">Unidad Medida</th>
-                                    <th style="width: 45%;">Descripción</th>
-                                    <th class="text-end" style="width: 15%;">Valor Unitario (S)</th>
-                                    <th class="text-end" style="width: 15%;">Total (S)</th>
-                                </tr>
-                            </thead>
-                            <tbody id="invoice-items-body">
-                            </tbody>
-                        </table>
-
-                        <div class="row mt-0 border-start border-end border-bottom">
-                            <div class="col-8 p-3">
-                                <p class="mb-1">Valor de Venta de Operaciones Gratuitas : <input type="text"
-                                        class="form-control d-inline-block w-auto" value="S/ 0.00" disabled></p>
-                                <h5 class="mt-4" id="invoice-total-letras">SON: </h5>
-                            </div>
-                            <div class="col-4 p-0">
-                                <table class="table table-sm table-borderless bg-light mb-0">
-                                    <tbody>
-                                        <tr class="fw-bold">
-                                            <td class="text-end">Importe Total:</td>
-                                            <td class="text-end" id="invoice-total">S/ 0.00</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                        <p class="mt-3 text-center fst-italic border-top pt-2">
-                            Esta es una representación impresa de la boleta electrónica.
-                        </p>
+    <!-- Modal Cancelación -->
+    <div class="modal fade" id="modalCancelar" tabindex="-1" aria-labelledby="modalCancelarLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalCancelarLabel">Cancelar Pedido</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Está seguro de que desea cancelar el pedido <strong id="cancelar-numero-pedido"></strong>?</p>
+                    <div class="mb-3">
+                        <label for="motivoCancelacion" class="form-label">Motivo de cancelación (opcional):</label>
+                        <textarea class="form-control" id="motivoCancelacion" rows="3"
+                            placeholder="Ej: Cliente no contestó, producto no disponible..."></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                    <button type="button" class="btn btn-success" id="btn-download-boleta-pdf-modal">
-                        <i class="bi bi-file-earmark-pdf me-2"></i>Descargar Boleta (PDF)
-                    </button>
-                    <button type="button" class="btn btn-info" id="btn-download-boleta-excel-modal">
-                        <i class="bi bi-file-earmark-spreadsheet me-2"></i>Descargar Boleta (Excel)
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Volver</button>
+                    <button type="button" class="btn btn-danger" id="btn-confirmar-cancelacion">
+                        <i class="bi bi-x-circle me-2"></i>Confirmar Cancelación
                     </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- Alertas Toast -->
+    <div class="position-fixed top-0 end-0 p-3" style="z-index: 11">
+        <div id="liveAlert" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <i class="bi bi-info-circle me-2" id="toast-icon"></i>
+                <strong class="me-auto" id="toast-titulo">Notificación</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body" id="toast-mensaje">
+                Mensaje de notificación
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script th:src="@{/script/cajero.js}"></script>
-    <script src="../static/script/cajero.js"></script>
 </body>
 
 </html>

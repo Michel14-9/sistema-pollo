@@ -1,17 +1,17 @@
-// sigue-tu-pedido.js - Funcionalidades para seguir pedidos
+// sigue-tu-pedido.js
 document.addEventListener('DOMContentLoaded', function() {
     console.log('=== SIGUE TU PEDIDO - INICIADO ===');
     inicializarSeguimiento();
 });
 
-// ✅ Inicializar página de seguimiento
+
 function inicializarSeguimiento() {
     configurarEventos();
     cargarPedidoDesdeURL();
     console.log('Página de seguimiento inicializada');
 }
 
-// ✅ Configurar eventos
+
 function configurarEventos() {
     const form = document.getElementById('formSeguimientoPedido');
     if (form) {
@@ -22,7 +22,20 @@ function configurarEventos() {
                 mostrarError('Por favor ingresa un número de pedido');
                 return;
             }
-            console.log('🔍 Buscando pedido:', numeroPedido);
+            console.log(' Buscando pedido:', numeroPedido);
+
+            // Mostrar loading state
+            const btnBuscar = document.getElementById('btnBuscar');
+            if (btnBuscar) {
+                btnBuscar.disabled = true;
+                btnBuscar.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Buscando...';
+
+                // Restaurar después de 2 segundos (por si hay error)
+                setTimeout(() => {
+                    btnBuscar.disabled = false;
+                    btnBuscar.innerHTML = '<i class="fas fa-search me-2"></i>Buscar Pedido';
+                }, 2000);
+            }
         });
     }
 
@@ -33,7 +46,7 @@ function configurarEventos() {
             setTimeout(() => {
                 const valor = this.value.trim().toUpperCase();
                 if (valor.startsWith('LR')) {
-                    console.log('📋 Número de pedido pegado:', valor);
+                    console.log(' Número de pedido pegado:', valor);
                     // Auto-enfocar el botón de búsqueda
                     document.getElementById('btnBuscar')?.focus();
                 }
@@ -48,124 +61,84 @@ function configurarEventos() {
             }
         });
     }
+
+    // Configurar eventos de botones de acción (si existen)
+    configurarEventosResultados();
 }
 
-// ✅ Cargar pedido desde parámetro URL
+
 function cargarPedidoDesdeURL() {
     const urlParams = new URLSearchParams(window.location.search);
     const numeroPedido = urlParams.get('numero');
 
     if (numeroPedido) {
-        console.log('📥 Cargando pedido desde URL:', numeroPedido);
+        console.log(' Cargando pedido desde URL:', numeroPedido);
         document.getElementById('numeroPedido').value = numeroPedido;
 
-        // Auto-buscar si hay un número en la URL
+        // Mostrar loading state
+        const btnBuscar = document.getElementById('btnBuscar');
+        if (btnBuscar) {
+            btnBuscar.disabled = true;
+            btnBuscar.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Buscando...';
+        }
+
+        // Auto-enviar el formulario después de un breve delay
         setTimeout(() => {
-            buscarPedidoPorNumero(numeroPedido);
-        }, 500);
+            document.getElementById('formSeguimientoPedido').submit();
+        }, 1000);
     }
 }
 
-// ✅ Buscar pedido por número (AJAX)
-function buscarPedidoPorNumero(numeroPedido) {
-    const btnBuscar = document.getElementById('btnBuscar');
-    if (!btnBuscar) return;
 
-    const textoOriginal = btnBuscar.innerHTML;
-
-    btnBuscar.disabled = true;
-    btnBuscar.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Buscando...';
-
-    fetch(`/sigue-tu-pedido/buscar?numero=${encodeURIComponent(numeroPedido)}`)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Error en la respuesta del servidor');
-            }
-            return response.text();
-        })
-        .then(html => {
-            // Reemplazar la sección de resultados
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(html, 'text/html');
-            const nuevoResultado = doc.querySelector('.pedido-resultado');
-
-            if (nuevoResultado) {
-                const resultadoActual = document.querySelector('.pedido-resultado');
-                if (resultadoActual) {
-                    resultadoActual.replaceWith(nuevoResultado);
-                } else {
-                    const formContainer = document.querySelector('.pedido-form-container');
-                    if (formContainer) {
-                        formContainer.after(nuevoResultado);
-                    }
-                }
-                console.log('✅ Resultados actualizados');
-
-                // Re-configurar eventos en los nuevos botones
-                configurarEventosResultados();
-            }
-        })
-        .catch(error => {
-            console.error('❌ Error en búsqueda:', error);
-            mostrarError('Error al buscar el pedido. Intenta nuevamente.');
-        })
-        .finally(() => {
-            btnBuscar.disabled = false;
-            btnBuscar.innerHTML = textoOriginal;
-        });
-}
-
-// ✅ Configurar eventos en los resultados
 function configurarEventosResultados() {
     // Configurar botón de copiar número
-    const btnCopiar = document.querySelector('[onclick="copiarNumeroPedido()"]');
+    const btnCopiar = document.querySelector('[onclick*="copiarNumeroPedido"]');
     if (btnCopiar) {
         btnCopiar.addEventListener('click', copiarNumeroPedido);
     }
 
     // Configurar botón de repetir pedido
-    const btnRepetir = document.querySelector('[onclick="repetirPedido()"]');
+    const btnRepetir = document.querySelector('[onclick*="repetirPedido"]');
     if (btnRepetir) {
         btnRepetir.addEventListener('click', repetirPedido);
     }
 
     // Configurar botón de descargar
-    const btnDescargar = document.querySelector('[onclick="descargarComprobante()"]');
+    const btnDescargar = document.querySelector('[onclick*="descargarComprobante"]');
     if (btnDescargar) {
         btnDescargar.addEventListener('click', descargarComprobante);
     }
 }
 
-// ✅ Copiar número de pedido
+
 function copiarNumeroPedido() {
     const numeroPedidoElement = document.querySelector('.info-pedido p:first-child span');
     if (numeroPedidoElement) {
         const texto = numeroPedidoElement.textContent;
         navigator.clipboard.writeText(texto).then(() => {
-            mostrarNotificacion('✅ Número de pedido copiado: ' + texto, 'success');
+            mostrarNotificacion('Número de pedido copiado: ' + texto, 'success');
         }).catch(() => {
-            mostrarNotificacion('❌ Error al copiar el número', 'error');
+            mostrarNotificacion(' Error al copiar el número', 'error');
         });
     } else {
-        mostrarNotificacion('❌ No se encontró el número de pedido', 'error');
+        mostrarNotificacion(' No se encontró el número de pedido', 'error');
     }
 }
 
-// ✅ Repetir pedido
+
 function repetirPedido() {
-    mostrarNotificacion('🔄 Preparando para repetir pedido...', 'info');
-    // Aquí iría la lógica para repetir el pedido
-    // Por ejemplo: window.location.href = '/menu?repetir-pedido=' + pedidoId;
+    mostrarNotificacion(' Preparando para repetir pedido...', 'info');
+
 }
 
-// ✅ Descargar comprobante
+
 function descargarComprobante() {
-    mostrarNotificacion('📄 Generando comprobante...', 'info');
-    // Aquí iría la lógica para descargar el comprobante
-    // Por ejemplo: window.open('/pedido/comprobante/' + pedidoId, '_blank');
+    mostrarNotificacion(' Generando comprobante...', 'info');
+
+
 }
 
-// ✅ Mostrar notificación
+
 function mostrarNotificacion(mensaje, tipo = 'info') {
     // Remover notificación anterior si existe
     const notificacionAnterior = document.querySelector('.notificacion-flotante');
@@ -214,12 +187,12 @@ function mostrarNotificacion(mensaje, tipo = 'info') {
     }, 5000);
 }
 
-// ✅ Mostrar error
+
 function mostrarError(mensaje) {
     mostrarNotificacion(mensaje, 'error');
 }
 
-// ✅ CSS dinámico para animaciones
+
 const style = document.createElement('style');
 style.textContent = `
     @keyframes slideInRight {

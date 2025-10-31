@@ -150,7 +150,7 @@ public class PedidoController {
         }
     }
 
-    //  OBTENER PEDIDO POR ID (API)
+    //  OBTENER PEDIDO POR ID
     @GetMapping("/api/{pedidoId}")
     @ResponseBody
     public ResponseEntity<?> obtenerPedido(@PathVariable Long pedidoId, Authentication authentication) {

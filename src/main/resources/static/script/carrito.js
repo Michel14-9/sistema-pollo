@@ -1,4 +1,4 @@
-// carrito.js - Versión final corregida
+// carrito.js
 document.addEventListener('DOMContentLoaded', function() {
     console.log('=== CARRITO - INICIADO ===');
     inicializarCarrito();
@@ -204,7 +204,7 @@ async function vaciarCarrito() {
     );
 }
 
-//  Mostrar modal de confirmación (CORREGIDO)
+//  Mostrar modal de confirmación
 function mostrarModalConfirmacion(mensaje, callbackConfirmar) {
     const modal = document.getElementById('modalConfirmacion');
     const modalMensaje = document.getElementById('modalMensaje');

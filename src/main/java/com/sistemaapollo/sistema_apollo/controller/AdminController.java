@@ -1,9 +1,14 @@
 package com.sistemaapollo.sistema_apollo.controller;
+import com.sistemaapollo.sistema_apollo.model.ItemPedido;
 import org.springframework.http.ResponseEntity;
-import java.util.HashMap;
+
+import java.util.*;
+
 import com.sistemaapollo.sistema_apollo.model.ProductoFinal;
 import com.sistemaapollo.sistema_apollo.model.Usuario;
+import com.sistemaapollo.sistema_apollo.model.Pedido;
 import com.sistemaapollo.sistema_apollo.repository.UsuarioRepository;
+import com.sistemaapollo.sistema_apollo.repository.PedidoRepository;
 import com.sistemaapollo.sistema_apollo.service.ProductoFinalService;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -19,9 +24,6 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Controller
@@ -34,12 +36,14 @@ public class AdminController {
     private UsuarioRepository usuarioRepository;
 
     @Autowired
+    private PedidoRepository pedidoRepository;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     public AdminController(ProductoFinalService productoFinalService) {
         this.productoFinalService = productoFinalService;
     }
-
 
     @GetMapping("")
     public String adminMenu(Model model) {
@@ -48,6 +52,202 @@ public class AdminController {
         model.addAttribute("pagina", "dashboard");
         return "admin-menu";
     }
+
+
+
+    @GetMapping("/estadisticas-dashboard")
+    @ResponseBody
+    public Map<String, Object> obtenerEstadisticasDashboard() {
+        Map<String, Object> estadisticas = new HashMap<>();
+
+        try {
+            // Obtener fechas para hoy
+            LocalDate hoy = LocalDate.now();
+            LocalDateTime hoyInicio = hoy.atStartOfDay();
+            LocalDateTime hoyFin = hoy.atTime(23, 59, 59);
+
+            // Obtener fechas para el mes actual
+            LocalDate primerDiaMes = hoy.withDayOfMonth(1);
+            LocalDateTime mesInicio = primerDiaMes.atStartOfDay();
+            LocalDateTime mesFin = hoy.atTime(23, 59, 59);
+
+            // Estadísticas básicas
+            List<ProductoFinal> productos = productoFinalService.obtenerTodos();
+            List<Usuario> usuarios = usuarioRepository.findAll();
+
+            // Obtener todos los pedidos
+            List<Pedido> todosLosPedidos = pedidoRepository.findAll();
+
+            // Pedidos de hoy
+            List<Pedido> pedidosHoy = todosLosPedidos.stream()
+                    .filter(pedido -> {
+                        if (pedido.getFecha() == null) return false;
+                        LocalDateTime fechaPedido = pedido.getFecha();
+                        return !fechaPedido.isBefore(hoyInicio) && !fechaPedido.isAfter(hoyFin);
+                    })
+                    .collect(Collectors.toList());
+
+            // Calcular ingresos de hoy (solo pedidos entregados)
+            double ingresosHoy = pedidosHoy.stream()
+                    .filter(p -> "ENTREGADO".equals(p.getEstado()))
+                    .mapToDouble(Pedido::getTotal)
+                    .sum();
+
+            // Pedidos del mes
+            List<Pedido> pedidosMes = todosLosPedidos.stream()
+                    .filter(pedido -> {
+                        if (pedido.getFecha() == null) return false;
+                        LocalDateTime fechaPedido = pedido.getFecha();
+                        return !fechaPedido.isBefore(mesInicio) && !fechaPedido.isAfter(mesFin);
+                    })
+                    .collect(Collectors.toList());
+
+            // Estadísticas del mes
+            double ventasMesTotal = pedidosMes.stream()
+                    .filter(p -> "ENTREGADO".equals(p.getEstado()))
+                    .mapToDouble(Pedido::getTotal)
+                    .sum();
+
+            long totalPedidosMes = pedidosMes.size();
+
+            // Venta más alta del mes
+            double ventaMaxima = pedidosMes.stream()
+                    .filter(p -> "ENTREGADO".equals(p.getEstado()))
+                    .mapToDouble(Pedido::getTotal)
+                    .max()
+                    .orElse(0.0);
+
+            // Promedio diario
+            double promedioDiario = hoy.getDayOfMonth() > 0 ? ventasMesTotal / hoy.getDayOfMonth() : 0.0;
+
+            // Llenar las estadísticas
+            estadisticas.put("totalProductos", productos.size());
+            estadisticas.put("totalUsuarios", usuarios.size());
+            estadisticas.put("pedidosHoy", pedidosHoy.size());
+            estadisticas.put("ingresosHoy", ingresosHoy);
+            estadisticas.put("ventasMesTotal", ventasMesTotal);
+            estadisticas.put("totalPedidos", totalPedidosMes);
+            estadisticas.put("ventaMaxima", ventaMaxima);
+            estadisticas.put("promedioDiario", promedioDiario);
+
+            estadisticas.put("success", true);
+
+        } catch (Exception e) {
+            estadisticas.put("success", false);
+            estadisticas.put("error", e.getMessage());
+            e.printStackTrace();
+        }
+
+        return estadisticas;
+    }
+
+
+    @GetMapping("/ventas-recientes")
+    @ResponseBody
+    public List<Map<String, Object>> obtenerVentasRecientes() {
+        try {
+            // Usar la nueva consulta que carga items y productos
+            List<Pedido> pedidos = pedidoRepository.findAllWithItemsAndProducts()
+                    .stream()
+                    .limit(10)
+                    .collect(Collectors.toList());
+
+            List<Map<String, Object>> ventas = new ArrayList<>();
+
+            for (Pedido pedido : pedidos) {
+                Map<String, Object> venta = new HashMap<>();
+                venta.put("id", pedido.getId());
+                venta.put("numeroPedido", pedido.getNumeroPedido());
+                venta.put("total", pedido.getTotal());
+                venta.put("fecha", pedido.getFecha());
+                venta.put("estado", pedido.getEstado());
+
+                // Información del cliente
+                if (pedido.getUsuario() != null) {
+                    venta.put("usuario", Map.of(
+                            "nombres", pedido.getUsuario().getNombres(),
+                            "apellidos", pedido.getUsuario().getApellidos()
+                    ));
+                } else {
+                    venta.put("usuario", null);
+                }
+
+                // === PARTE CRÍTICA: INCLUIR ITEMS CON PRODUCTOS ===
+                List<Map<String, Object>> itemsData = new ArrayList<>();
+                if (pedido.getItems() != null && !pedido.getItems().isEmpty()) {
+                    for (ItemPedido item : pedido.getItems()) {
+                        Map<String, Object> itemData = new HashMap<>();
+                        itemData.put("nombreProducto", item.getNombreProducto());
+                        itemData.put("nombreProductoSeguro", item.getNombreProductoSeguro()); // NUEVO MÉTODO
+                        itemData.put("cantidad", item.getCantidad());
+                        itemData.put("precio", item.getPrecio());
+                        itemData.put("subtotal", item.getSubtotal());
+                        itemsData.add(itemData);
+                    }
+                }
+                venta.put("items", itemsData);
+
+                ventas.add(venta);
+            }
+
+            return ventas;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
+
+    @GetMapping("/estadisticas-ventas")
+    @ResponseBody
+    public Map<String, Object> obtenerEstadisticasVentas() {
+        Map<String, Object> estadisticas = new HashMap<>();
+
+        try {
+            // Últimos 7 días para el gráfico
+            LocalDate hoy = LocalDate.now();
+            Map<String, Double> ventasUltimaSemana = new LinkedHashMap<>();
+
+            List<Pedido> todosLosPedidos = pedidoRepository.findAll();
+
+            for (int i = 6; i >= 0; i--) {
+                LocalDate fecha = hoy.minusDays(i);
+                LocalDateTime inicioDia = fecha.atStartOfDay();
+                LocalDateTime finDia = fecha.atTime(23, 59, 59);
+
+                // Filtrar pedidos del día
+                double ventasDia = todosLosPedidos.stream()
+                        .filter(pedido -> {
+                            if (pedido.getFecha() == null) return false;
+                            LocalDateTime fechaPedido = pedido.getFecha();
+                            return !fechaPedido.isBefore(inicioDia) &&
+                                    !fechaPedido.isAfter(finDia) &&
+                                    "ENTREGADO".equals(pedido.getEstado());
+                        })
+                        .mapToDouble(Pedido::getTotal)
+                        .sum();
+
+                ventasUltimaSemana.put(
+                        fecha.format(DateTimeFormatter.ofPattern("dd/MM")),
+                        ventasDia
+                );
+            }
+
+            estadisticas.put("ventasPorDia", ventasUltimaSemana);
+            estadisticas.put("success", true);
+
+        } catch (Exception e) {
+            estadisticas.put("success", false);
+            estadisticas.put("error", e.getMessage());
+            e.printStackTrace();
+        }
+
+        return estadisticas;
+    }
+
+
+
+
 
     @GetMapping("/exportar-dashboard-excel")
     public void exportarDashboardExcel(HttpServletResponse response) throws IOException {
@@ -160,7 +360,7 @@ public class AdminController {
                 statsRow.createCell(5).setCellValue(valorTotal);
             }
 
-            // LISTA COMPLETA DE PRODUCTOS (como respaldo)
+            // LISTA COMPLETA DE PRODUCTOS
             Sheet productosSheet = workbook.createSheet("Todos los Productos");
             Row productosHeader = productosSheet.createRow(0);
             String[] productosHeaders = {"ID", "Nombre", "Categoría", "Precio", "Descripción"};
@@ -440,7 +640,6 @@ public class AdminController {
         return usuarios;
     }
 
-    // Endpoint para crear usuario
     @PostMapping("/usuarios/guardar")
     @ResponseBody
     public ResponseEntity<?> guardarUsuario(
@@ -459,6 +658,15 @@ public class AdminController {
             System.out.println("Nombres: " + nombres);
             System.out.println("Email: " + email);
             System.out.println("Rol: " + rol);
+
+            // Validar que el rol sea válido (AGREGAR "delivery")
+            List<String> rolesValidos = Arrays.asList("admin", "cajero", "cocinero", "delivery");
+            if (!rolesValidos.contains(rol.toLowerCase())) {
+                return ResponseEntity.badRequest().body(Map.of(
+                        "success", false,
+                        "error", "Rol no válido. Roles permitidos: admin, cajero, cocinero, delivery"
+                ));
+            }
 
             // Validar que el email no exista
             if (usuarioRepository.findByUsername(email).isPresent()) {
@@ -485,7 +693,7 @@ public class AdminController {
             usuario.setTelefono(telefono.trim());
             usuario.setFechaNacimiento(LocalDate.parse(fechaNacimiento));
             usuario.setUsername(email.trim());
-            usuario.setRol(rol.toUpperCase());
+            usuario.setRol(rol.toUpperCase()); // Esto convertirá "delivery" a "DELIVERY"
             usuario.setPassword(passwordEncoder.encode(password));
 
             // Guardar en la base de datos

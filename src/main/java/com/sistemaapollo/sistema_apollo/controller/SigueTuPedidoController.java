@@ -1,10 +1,12 @@
 package com.sistemaapollo.sistema_apollo.controller;
 
 import com.sistemaapollo.sistema_apollo.model.Pedido;
-import com.sistemaapollo.sistema_apollo.service.PedidoService;
+import com.sistemaapollo.sistema_apollo.repository.PedidoRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.Optional;
 
@@ -12,78 +14,96 @@ import java.util.Optional;
 @RequestMapping("/sigue-tu-pedido")
 public class SigueTuPedidoController {
 
-    private final PedidoService pedidoService;
+    @Autowired
+    private PedidoRepository pedidoRepository;
 
-    public SigueTuPedidoController(PedidoService pedidoService) {
-        this.pedidoService = pedidoService;
-    }
-
-
+    /**
+     * Muestra el formulario de búsqueda de pedidos
+     */
     @GetMapping
-    public String mostrarPaginaSeguimiento() {
+    public String mostrarFormularioSeguimiento(Model model) {
+        // Agregar atributos vacíos para evitar errores en Thymeleaf
+        model.addAttribute("pedido", null);
+        model.addAttribute("error", null);
         return "sigue-tu-pedido";
     }
 
-
+    /**
+     * Busca un pedido por número de pedido
+     */
     @PostMapping("/buscar")
-    public String buscarPedido(@RequestParam(required = false) String canalPedido,
-                               @RequestParam String numeroPedido,
-                               Model model) {
+    public String buscarPedido(
+            @RequestParam("numeroPedido") String numeroPedido,
+            @RequestParam(value = "canalPedido", required = false, defaultValue = "WEB") String canalPedido,
+            Model model,
+            RedirectAttributes redirectAttributes) {
+
         try {
-            System.out.println(" Buscando pedido - Número: " + numeroPedido);
+            // Limpiar y formatear el número de pedido
+            String numeroLimpio = numeroPedido.trim().toUpperCase();
 
 
-            Optional<Pedido> pedidoOpt = pedidoService.buscarPorNumeroPedido(numeroPedido);
+            Optional<Pedido> pedidoOpt = pedidoRepository.findByNumeroPedido(numeroLimpio);
+
 
             if (!pedidoOpt.isPresent()) {
-
-                if (canalPedido != null && !canalPedido.trim().isEmpty()) {
-                    System.out.println(" Buscando por canal: " + canalPedido);
-                    pedidoOpt = pedidoService.buscarPedido(canalPedido, numeroPedido);
-                }
+                pedidoOpt = pedidoRepository.findByNumero(numeroLimpio);
             }
+
+
+            System.out.println("=== DEBUG SIGUE TU PEDIDO ===");
+            System.out.println("Buscando: " + numeroLimpio);
+            System.out.println("Encontrado: " + pedidoOpt.isPresent());
 
             if (pedidoOpt.isPresent()) {
                 Pedido pedido = pedidoOpt.get();
-                System.out.println(" Pedido encontrado: " + pedido.getNumeroPedido() + " - Estado: " + pedido.getEstado());
-                model.addAttribute("pedido", pedido);
+                System.out.println("ID Pedido: " + pedido.getId());
+                System.out.println("Número: " + pedido.getNumero());
+                System.out.println("Número Pedido: " + pedido.getNumeroPedido());
+                System.out.println("Estado: " + pedido.getEstado());
+                System.out.println("Canal: " + pedido.getCanal());
+            }
+            System.out.println("=============================");
+
+            if (pedidoOpt.isPresent()) {
+                Pedido pedido = pedidoOpt.get();
+
+                // Verificar que el canal coincida (si se especificó)
+                if (canalPedido != null && !canalPedido.isEmpty() &&
+                        !canalPedido.equals(pedido.getCanal())) {
+                    model.addAttribute("error",
+                            "El pedido " + numeroLimpio + " no fue realizado a través de " +
+                                    (canalPedido.equals("WEB") ? "Página Web" : canalPedido));
+                    model.addAttribute("pedido", null);
+                } else {
+                    model.addAttribute("pedido", pedido);
+                    model.addAttribute("error", null);
+                }
             } else {
-                System.out.println(" Pedido no encontrado");
-                model.addAttribute("error", "No se encontró ningún pedido con el número: " + numeroPedido);
+                model.addAttribute("error",
+                        "No se encontró ningún pedido con el número: " + numeroLimpio +
+                                ". Verifica que el número sea correcto.");
+                model.addAttribute("pedido", null);
             }
 
-            return "sigue-tu-pedido";
-
         } catch (Exception e) {
-            System.err.println(" Error al buscar pedido: " + e.getMessage());
-            model.addAttribute("error", "Error al buscar el pedido: " + e.getMessage());
-            return "sigue-tu-pedido";
+            System.err.println("Error en buscarPedido: " + e.getMessage());
+            model.addAttribute("error",
+                    "Error al buscar el pedido. Por favor, intenta nuevamente.");
+            model.addAttribute("pedido", null);
         }
+
+        return "sigue-tu-pedido";
     }
 
+    /**
+     * Endpoint alternativo para búsqueda por número simple (sin canal)
+     */
+    @PostMapping("/buscar-simple")
+    public String buscarPedidoSimple(
+            @RequestParam("numeroPedido") String numeroPedido,
+            Model model) {
 
-    @GetMapping("/buscar")
-    public String buscarPedidoGet(@RequestParam String numero, Model model) {
-        try {
-            System.out.println(" Buscando pedido por GET - Número: " + numero);
-
-            Optional<Pedido> pedidoOpt = pedidoService.buscarPorNumeroPedido(numero);
-
-            if (pedidoOpt.isPresent()) {
-                Pedido pedido = pedidoOpt.get();
-                System.out.println(" Pedido encontrado: " + pedido.getNumeroPedido());
-                model.addAttribute("pedido", pedido);
-            } else {
-                System.out.println(" Pedido no encontrado");
-                model.addAttribute("error", "No se encontró ningún pedido con el número: " + numero);
-            }
-
-            return "sigue-tu-pedido";
-
-        } catch (Exception e) {
-            System.err.println(" Error al buscar pedido: " + e.getMessage());
-            model.addAttribute("error", "Error al buscar el pedido: " + e.getMessage());
-            return "sigue-tu-pedido";
-        }
+        return buscarPedido(numeroPedido, "WEB", model, null);
     }
 }

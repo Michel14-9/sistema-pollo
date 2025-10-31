@@ -1,4 +1,4 @@
-// SISTEMA DE GESTIÓN DE DIRECCIONES - VERSIÓN CORREGIDA
+// SISTEMA DE GESTIÓN DE DIRECCIONES
 console.log(" INICIANDO SISTEMA DE DIRECCIONES");
 
 // Variables globales
@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // CONFIGURAR EVENT LISTENERS
 function configurarEventListeners() {
-    console.log("🔗 Configurando event listeners...");
+    console.log(" Configurando event listeners...");
 
     // Botón "Agregar Dirección"
     const btnAgregar = document.getElementById('btnAgregarDireccion');

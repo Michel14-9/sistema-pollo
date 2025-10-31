@@ -1,261 +1,368 @@
-/* Estilos específicos para la página de locales */
-.locales {
-    background-color: #f8f9fa;
-    min-height: calc(100vh - 200px);
+/* ======== PALETA DE COLORES ======== */
+:root {
+  --verde: #81c784;        /* Verde claro (frescura) */
+  --naranja: #ffb74d;      /* Naranja (energía y apetito) */
+  --amarillo: #fff9c4;     /* Amarillo claro (comida deliciosa) */
+  --rojo: #e53935;         /* Toque rojo (resaltado) */
+  --gris: #6c757d;         /* Gris suave (texto) */
+  --blanco: #fafafa;       /* Fondo cálido */
 }
 
-/* Banner */
-.locales-banner {
-    padding: 2rem 0;
+/* ======= ESTILO GENERAL ======= */
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: var(--blanco);
+  color: var(--gris);
+  margin: 0;
+  padding: 0;
 }
 
-.locales-title {
-    color: #333;
-    font-weight: 700;
-    font-size: 2.5rem;
-    margin-bottom: 0;
+/* ======= HEADER ======= */
+header .navbar {
+  background-color: var(--amarillo);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+  padding: 0.8rem 1.5rem;
+  border-bottom: 3px solid var(--naranja);
 }
 
-/* Información del local */
-.local-info {
-    background: white;
-    padding: 2rem;
-    border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+.navbar-brand img {
+  width: 3rem;
+  border-radius: 50%;
+  transition: transform 0.3s ease;
 }
 
-.local-address {
-    color: #333;
-    font-weight: 700;
-    font-size: 1.5rem;
+.navbar-brand img:hover {
+  transform: scale(1.1);
 }
 
-.local-options {
-    padding: 1rem 0;
+.nav-link {
+  color: #333 !important;
+  font-weight: 500;
+  transition: color 0.3s ease, transform 0.3s ease;
 }
 
-.option-item {
-    color: #666;
-    font-size: 1.1rem;
+.nav-link:hover {
+  color: var(--rojo) !important;
+  transform: translateY(-2px);
 }
 
-.despacho-options {
-    padding: 1rem 0;
+header .navbar-toggler {
+  border-color: var(--naranja);
 }
 
-.form-check-input:checked {
-    background-color: #ff6b00;
-    border-color: #ff6b00;
+/* ======= BOTONES ======= */
+.btn {
+  border-radius: 25px;
+  padding: 0.6rem 1.3rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
-.form-check-label {
-    color: #333;
-    font-weight: 500;
+/* Verde - principal */
+.btn-verde {
+  background-color: var(--verde);
+  color: white;
 }
 
-/* Botón VER DIRECCIÓN */
-.btn-luren {
-    background: linear-gradient(135deg, #ff6b00, #ff8c00);
-    border: none;
-    border-radius: 25px;
-    color: white;
-    font-weight: 700;
-    padding: 0.75rem 2rem;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(255, 107, 0, 0.3);
+.btn-verde:hover {
+  background-color: #66BB6A;
+  box-shadow: 0 4px 10px rgba(129, 199, 132, 0.4);
 }
 
-.btn-luren:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(255, 107, 0, 0.4);
-    background: linear-gradient(135deg, #ff8c00, #ff6b00);
-    color: white;
+/* Naranja - secundario */
+.btn-naranja {
+  background-color: var(--naranja);
+  color: white;
 }
 
-/* Horario del local */
-.local-horario {
-    background: #f8f9fa;
-    padding: 1.5rem;
-    border-radius: 10px;
-    border: 2px solid #e9ecef;
+.btn-naranja:hover {
+  background-color: #FFA726;
+  box-shadow: 0 4px 10px rgba(255, 183, 77, 0.4);
 }
 
-.local-horario h5 {
-    color: #333;
-    font-weight: 700;
+/* Rojo - advertencia o eliminar */
+.btn-rojo {
+  background-color: var(--rojo);
+  color: white;
 }
 
-/* Mapa */
-.mapa-container {
-    border-radius: 15px;
-    overflow: hidden;
+.btn-rojo:hover {
+  background-color: #EF5350;
+  box-shadow: 0 4px 10px rgba(229, 115, 115, 0.4);
 }
 
-.mapa-google {
-    width: 100%;
-    height: 400px;
-    background: #e9ecef;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #666;
-    font-size: 1.1rem;
+/* Amarillo claro - informativo */
+.btn-amarillo {
+  background-color: var(--amarillo);
+  color: #333;
 }
 
-/* Preguntas frecuentes */
-.preguntas-locales {
-    background: white;
-    padding: 2rem;
-    border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+.btn-amarillo:hover {
+  background-color: #FFECB3;
+  box-shadow: 0 4px 10px rgba(255, 248, 225, 0.3);
 }
 
-.table-preguntas {
-    border: none;
-    border-radius: 10px;
-    overflow: hidden;
+/* ======= FOOTER ======= */
+footer {
+  background-color: var(--amarillo);
+  color: #333;
+  border-top: 4px solid var(--naranja);
+  padding-top: 2rem;
+  padding-bottom: 1.5rem;
 }
 
-.table-preguntas td {
-    border: 1px solid #dee2e6;
-    padding: 1.5rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
+footer h5 {
+  color: var(--verde);
+  font-weight: 700;
+  margin-bottom: 1rem;
 }
 
-.table-preguntas td:hover {
-    background-color: #f8f9fa;
+footer a {
+  color: #333;
+  text-decoration: none;
+  transition: color 0.3s ease;
 }
 
-.pregunta-item {
-    border: none !important;
+footer a:hover {
+  color: var(--rojo);
 }
 
-.pregunta-item > div:first-child {
-    color: #333;
-    font-weight: 600;
-    font-size: 1.1rem;
+/* Redes sociales */
+footer .btn-outline-secondary {
+  border-color: var(--verde);
+  color: var(--verde);
+  transition: all 0.3s ease;
 }
 
-.pregunta-respuesta {
-    color: #666;
-    font-size: 0.95rem;
-    line-height: 1.5;
-    padding: 0.5rem 0;
+footer .btn-outline-secondary:hover {
+  background-color: var(--verde);
+  color: white;
 }
 
-/* Collapse animations */
-.collapse {
-    transition: all 0.3s ease;
+/* Línea separadora y copyright */
+footer hr {
+  border-color: rgba(0, 0, 0, 0.1);
 }
 
-.fa-chevron-down {
-    transition: transform 0.3s ease;
+footer small {
+  color: var(--gris);
+  font-size: 0.9rem;
 }
 
-.collapsed .fa-chevron-down {
-    transform: rotate(0deg);
+/* ======= EFECTOS SUAVES ======= */
+img, .btn, .nav-link {
+  transition: all 0.3s ease;
 }
 
-:not(.collapsed) .fa-chevron-down {
-    transform: rotate(180deg);
-}
-
-/* Newsletter */
-.newsletter-locales .card {
-    border: none;
-    border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-}
-
-.newsletter-locales .card-title {
-    color: #333;
-    font-weight: 700;
-    font-size: 1.3rem;
-}
-
-.newsletter-locales .card-text {
-    color: #666;
-    font-size: 1rem;
-}
-
-.btn-orange {
-    background: linear-gradient(135deg, #ff6b00, #ff8c00);
-    border: none;
-    border-radius: 0 8px 8px 0;
-    color: white;
-    font-weight: 600;
-    padding: 0.75rem 1.5rem;
-    transition: all 0.3s ease;
-}
-
-.btn-orange:hover {
-    background: linear-gradient(135deg, #ff8c00, #ff6b00);
-    color: white;
-}
-
-.newsletter-locales .form-control {
-    border-radius: 8px 0 0 8px;
-    border: 2px solid #e9ecef;
-    padding: 0.75rem 1rem;
-}
-
-.newsletter-locales .form-control:focus {
-    border-color: #ff6b00;
-    box-shadow: 0 0 0 0.2rem rgba(255, 107, 0, 0.25);
-}
-
-/* Texto naranja */
-.text-orange {
-    color: #ff6b00 !important;
-}
-
-/* Responsive */
+/* ======= RESPONSIVO ======= */
 @media (max-width: 768px) {
-    .locales-title {
-        font-size: 2rem;
-    }
+  header .navbar-nav {
+    text-align: center;
+  }
 
-    .local-address {
-        font-size: 1.3rem;
-    }
+  footer .row {
+    text-align: center;
+  }
 
-    .local-info {
-        padding: 1.5rem;
-    }
-
-    .mapa-google {
-        height: 300px;
-    }
-
-    .table-preguntas td {
-        padding: 1rem;
-    }
-
-    .pregunta-item > div:first-child {
-        font-size: 1rem;
-    }
-
-    .newsletter-locales .col-md-6 {
-        width: 100%;
-    }
+  footer .d-flex {
+    justify-content: center;
+  }
 }
 
-@media (max-width: 576px) {
-    .locales-title {
-        font-size: 1.5rem;
-    }
 
-    .despacho-options {
-        flex-direction: column;
-        gap: 0.5rem;
-    }
 
-    .form-check-inline {
-        margin-right: 0 !important;
-    }
 
-    .table-preguntas {
-        font-size: 0.9rem;
-    }
+
+
+
+
+/* ======== ESTILO GENERAL ======== */
+.locales-page {
+  background-color: var(--blanco);
+  font-family: "Poppins", sans-serif;
+  color: var(--gris);
 }
+
+/* ======== TÍTULO PRINCIPAL ======== */
+.text-luren {
+  color: var(--naranja);
+  text-shadow: 0 1px 3px rgba(255, 140, 0, 0.3);
+}
+
+/* ======== TARJETAS ======== */
+.card {
+  border: none;
+  border-radius: 12px;
+  background-color: white;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 15px rgba(255, 183, 77, 0.3);
+}
+
+.card-header {
+  border-bottom: none;
+  background-color: var(--amarillo);
+  font-weight: 600;
+  color: var(--gris);
+}
+
+/* ======== MAPA ======== */
+.mapa-google {
+  border-radius: 0 0 12px 12px;
+  overflow: hidden;
+}
+
+/* ======== INFORMACIÓN DEL LOCAL ======== */
+.local-nombre {
+  color: var(--verde);
+  font-weight: 700;
+}
+
+.local-direccion i {
+  color: var(--naranja);
+}
+
+.servicios-local .badge {
+  border-radius: 20px;
+  font-size: 0.85rem;
+  padding: 8px 12px;
+  color: white;
+}
+
+.badge.bg-primary {
+  background-color: var(--verde) !important;
+}
+
+.badge.bg-info {
+  background-color: var(--naranja) !important;
+}
+
+.badge.bg-warning {
+  background-color: var(--amarillo) !important;
+  color: #333 !important;
+}
+
+/* ======== BOTONES ======== */
+.btn-outline-luren {
+  border: 2px solid var(--naranja);
+  color: var(--naranja);
+  background-color: transparent;
+  transition: all 0.3s ease;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.btn-outline-luren:hover {
+  background-color: var(--naranja);
+  color: white;
+  box-shadow: 0 0 8px rgba(255, 140, 0, 0.4);
+}
+
+.btn-outline-success {
+  border-color: var(--verde);
+  color: var(--verde);
+}
+
+.btn-outline-success:hover {
+  background-color: var(--verde);
+  color: white;
+  box-shadow: 0 0 8px rgba(129, 199, 132, 0.4);
+}
+
+.btn-outline-primary {
+  border-color: #25d366;
+  color: #25d366;
+}
+
+.btn-outline-primary:hover {
+  background-color: #25d366;
+  color: white;
+  box-shadow: 0 0 8px rgba(37, 211, 102, 0.4);
+}
+
+/* ======== HORARIO ======== */
+.info-horario {
+  background-color: var(--amarillo);
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 2px 8px rgba(255, 213, 79, 0.2);
+}
+
+.info-horario h6 {
+  color: var(--naranja);
+}
+
+.estado-local .badge {
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  border-radius: 20px;
+}
+
+/* ======== DETALLES ======== */
+.info-detalle strong {
+  color: var(--gris);
+}
+
+.info-detalle span {
+  color: var(--verde);
+  font-weight: 600;
+}
+
+/* ======== SERVICIOS ADICIONALES ======== */
+.servicios-list i {
+  color: var(--verde);
+}
+
+/* ======== PREGUNTAS FRECUENTES ======== */
+.bg-luren {
+  background-color: var(--naranja) !important;
+}
+
+.accordion-button {
+  background-color: var(--amarillo);
+  font-weight: 600;
+  color: var(--gris);
+  transition: all 0.3s ease;
+}
+
+.accordion-button:not(.collapsed) {
+  background-color: var(--naranja);
+  color: white;
+}
+
+.accordion-item {
+  border: none;
+  margin-bottom: 0.5rem;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(255, 183, 77, 0.3);
+}
+
+/* ======== ÍCONOS ======== */
+.text-orange {
+  color: var(--naranja) !important;
+}
+
+/* ======== EFECTOS SUAVES ======== */
+@keyframes resplandor {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(255, 183, 77, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 15px rgba(255, 138, 0, 0.6);
+  }
+}
+
+#estadoLocal.bg-success {
+  animation: resplandor 2s infinite ease-in-out;
+}
+
+
+
+

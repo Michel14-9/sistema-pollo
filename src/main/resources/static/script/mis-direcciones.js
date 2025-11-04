@@ -81,6 +81,38 @@ function obtenerCsrfToken() {
     return '';
 }
 
+// FUNCIÓN PARA CARGAR EL TELÉFONO DEL USUARIO DESDE EL BACKEND
+async function cargarTelefonoUsuario() {
+    try {
+        console.log(" Cargando teléfono del usuario...");
+
+        const response = await fetch('/api/auth/datos-usuario', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include'
+        });
+
+        if (response.ok) {
+            const usuario = await response.json();
+            const telefono = usuario.telefono || '';
+
+            // Actualizar el campo y el texto informativo
+            document.getElementById('telefono').value = telefono;
+            document.getElementById('telefonoUsuario').textContent = telefono || 'No registrado';
+
+            console.log("Teléfono del usuario cargado:", telefono);
+        } else {
+            console.warn(" No se pudo cargar el teléfono del usuario");
+            document.getElementById('telefonoUsuario').textContent = 'No disponible';
+        }
+    } catch (error) {
+        console.error(" Error cargando teléfono:", error);
+        document.getElementById('telefonoUsuario').textContent = 'Error al cargar';
+    }
+}
+
 // FUNCIÓN PARA ABRIR MODAL DE NUEVA DIRECCIÓN
 function abrirModalNuevaDireccion() {
     console.log(" Abriendo modal para NUEVA dirección");
@@ -93,6 +125,9 @@ function abrirModalNuevaDireccion() {
     if (modalTitle) {
         modalTitle.textContent = 'Agregar Nueva Dirección';
     }
+
+    // Cargar el teléfono del usuario automáticamente
+    cargarTelefonoUsuario();
 
     // Mostrar modal
     if (modalDireccion) {
@@ -388,19 +423,8 @@ async function guardarDireccion() {
         return;
     }
 
-    if (!datosDireccion.telefono) {
-        mostrarError(" El campo 'Teléfono de contacto' es obligatorio");
-        document.getElementById('telefono').focus();
-        return;
-    }
-
-    // Validación de teléfono (9 dígitos)
-    const telefonoRegex = /^[0-9]{9}$/;
-    if (!telefonoRegex.test(datosDireccion.telefono)) {
-        mostrarError(" El teléfono debe tener exactamente 9 dígitos numéricos");
-        document.getElementById('telefono').focus();
-        return;
-    }
+    // ELIMINADO: Validación de teléfono obligatorio
+    // ELIMINADO: Validación de formato de teléfono
 
     try {
         const botonGuardar = document.getElementById('btnGuardarDireccion');

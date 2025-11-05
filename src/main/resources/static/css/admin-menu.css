@@ -1,289 +1,549 @@
+/* ==== PALETA DE COLORES CLAROS ==== */
 :root {
-    --primary-color: #0d6efd;
-    --secondary-color: #6c757d;
-    --success-color: #198754;
-    --danger-color: #dc3545;
-    --warning-color: #ffc107;
-    --info-color: #0dcaf0;
-    --light-color: #f8f9fa;
-    --dark-color: #212529;
+  --verde: #81c784;        /* Verde claro (frescura) */
+  --naranja: #ffb74d;      /* Naranja (energía y apetito) */
+  --amarillo: #fff9c4;     /* Amarillo claro (comida deliciosa) */
+  --rojo: #e53935;         /* Toque rojo (resaltado) */
+  --gris: #6c757d;         /* Gris suave (texto) */
+  --blanco: #fafafa;       /* Fondo cálido */
 }
 
+/* ==== ESTILOS GENERALES ==== */
 body {
-    background-color: #f5f5f5;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    overflow-x: hidden;
+  background-color: var(--blanco);
+  color: var(--gris);
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
 }
 
+#app {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ==== SIDEBAR ==== */
 .sidebar {
-    background-color: var(--dark-color);
-    color: white;
-    height: 100vh;
-    position: fixed;
-    padding-top: 20px;
-    transition: all 0.3s;
-    width: 250px;
-    z-index: 1000;
-}
-
-.sidebar .nav-link {
-    color: rgba(255, 255, 255, 0.8);
-    padding: 10px 15px;
-    margin: 5px 10px;
-    border-radius: 5px;
-    transition: all 0.3s;
-}
-
-.sidebar .nav-link:hover,
-.sidebar .nav-link.active {
-    background-color: var(--primary-color);
-    color: white;
-}
-
-.sidebar .nav-link i {
-    margin-right: 10px;
-    width: 20px;
-    text-align: center;
-}
-
-.main-content {
-    margin-left: 250px;
-    padding: 20px;
-    transition: all 0.3s;
-    min-height: 100vh;
-}
-
-.collapsed .sidebar {
-    width: 70px;
-}
-
-.collapsed .main-content {
-    margin-left: 70px;
-}
-
-.collapsed .sidebar .nav-link span {
-    display: none;
-}
-
-.collapsed .sidebar .logo-text {
-    display: none;
-}
-
-.collapsed .sidebar .logo-icon {
-    display: block;
+  background: linear-gradient(180deg, var(--naranja), var(--amarillo));
+  width: 250px;
+  min-height: 100vh;
+  color: #333;
+  padding: 20px 15px;
+  transition: width 0.3s;
+  box-shadow: 2px 0 10px rgba(0,0,0,0.1);
 }
 
 .sidebar .logo-icon {
-    display: none;
+  color: var(--rojo);
 }
 
-.card {
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    border: none;
-    margin-bottom: 20px;
-    transition: transform 0.3s;
+.sidebar .logo-text h4 {
+  color: #333;
+  font-weight: bold;
 }
 
-.card:hover {
-    transform: translateY(-5px);
+.sidebar .logo-text small {
+  color: var(--gris);
 }
 
-.stat-card {
-    text-align: center;
-    padding: 20px;
+.sidebar .nav-link {
+  color: #333;
+  border-radius: 10px;
+  padding: 10px 15px;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-.stat-card i {
-    font-size: 2rem;
-    margin-bottom: 10px;
+.sidebar .nav-link:hover {
+  background-color: var(--verde);
+  color: white;
 }
 
-.stat-card .number {
-    font-size: 2rem;
-    font-weight: bold;
-}
-
-.stat-card .label {
-    font-size: 0.9rem;
-    color: var(--secondary-color);
-}
-
-.product-card img {
-    height: 200px;
-    object-fit: cover;
-}
-
-.user-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background-color: var(--primary-color);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-}
-
-.table-actions .btn {
-    margin-right: 5px;
-}
-
-.toggle-sidebar {
-    background: none;
-    border: none;
-    color: var(--dark-color);
-    font-size: 1.2rem;
-    cursor: pointer;
+.sidebar .nav-link.active {
+  background-color: var(--rojo);
+  color: white;
+  font-weight: 600;
 }
 
 .logout-btn {
-    background: none;
-    border: none;
-    color: rgba(255, 255, 255, 0.8);
-    padding: 10px 15px;
-    margin: 5px 10px;
-    border-radius: 5px;
-    transition: all 0.3s;
-    text-align: left;
-    width: 100%;
+  color: var(--rojo);
 }
 
 .logout-btn:hover {
-    background-color: var(--danger-color);
-    color: white;
+  background-color: var(--rojo);
+  color: white;
 }
 
-@media (max-width: 768px) {
-    .sidebar {
-        width: 70px;
-    }
-
-    .main-content {
-        margin-left: 70px;
-    }
-
-    .sidebar .nav-link span {
-        display: none;
-    }
-
-    .sidebar .logo-text {
-        display: none;
-    }
-
-    .sidebar .logo-icon {
-        display: block;
-    }
+/* ==== MAIN CONTENT ==== */
+.main-content {
+  flex-grow: 1;
+  padding: 25px;
+  background-color: var(--blanco);
 }
 
-/* Estilos para gráficos */
-.chart-container {
-    position: relative;
-    height: 300px;
-    width: 100%;
+.main-content h2, h3, h4, h5 {
+  color: #333;
 }
 
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
-    margin-bottom: 20px;
+.toggle-sidebar {
+  background: none;
+  border: none;
+  color: var(--rojo);
+  font-size: 1.4rem;
+  cursor: pointer;
 }
 
-.loading-spinner {
-    display: inline-block;
-    width: 20px;
-    height: 20px;
-    border: 3px solid #f3f3f3;
-    border-top: 3px solid #3498db;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
+/* ==== TARJETAS DEL DASHBOARD ==== */
+.stat-card {
+  background: linear-gradient(145deg, white, #f4f4f4);
+  border-radius: 15px;
+  padding: 20px;
+  text-align: center;
+  color: #333;
+  transition: 0.3s;
+  border: 1px solid #e0e0e0;
 }
 
-@keyframes spin {
-    0% {
-        transform: rotate(0deg);
-    }
-
-    100% {
-        transform: rotate(360deg);
-    }
+.stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
-.empty-state {
-    text-align: center;
-    padding: 40px 20px;
-    color: #6c757d;
+.stat-card i {
+  font-size: 2rem;
+  margin-bottom: 10px;
+  color: var(--naranja);
 }
 
-.empty-state i {
-    font-size: 4rem;
-    margin-bottom: 20px;
-    opacity: 0.5;
+.stat-card .number {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: var(--verde);
 }
 
-/* Estilos para formularios modales */
+/* ==== TABLAS ==== */
+.table {
+  color: #333;
+}
+
+.table thead {
+  background-color: var(--naranja);
+  color: #333;
+}
+
+.table-hover tbody tr:hover {
+  background-color: var(--amarillo);
+}
+
+/* ==== BOTONES ==== */
+.btn {
+  border-radius: 10px;
+  transition: all 0.3s;
+  font-weight: 500;
+}
+
+.btn-primary {
+  background-color: var(--naranja);
+  border: none;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #ffcc80;
+  color: #333;
+}
+
+.btn-outline-primary {
+  border: 1px solid var(--naranja);
+  color: var(--naranja);
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--naranja);
+  color: white;
+}
+
+.btn-outline-success {
+  border: 1px solid var(--verde);
+  color: var(--verde);
+}
+
+.btn-outline-success:hover {
+  background-color: var(--verde);
+  color: white;
+}
+
+.btn-danger {
+  background-color: var(--rojo);
+  border: none;
+}
+
+.btn-danger:hover {
+  background-color: #ff6659;
+}
+
+.btn-success {
+  background-color: var(--verde);
+  border: none;
+  color: white;
+}
+
+.btn-success:hover {
+  background-color: #9be7a8;
+  color: #333;
+}
+
+/* ==== CARD HEADERS ==== */
+.card {
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 15px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+}
+
+.card-header {
+  background-color: var(--amarillo);
+  color: #333;
+  font-weight: 600;
+  border-radius: 15px 15px 0 0;
+}
+
+/* ==== INPUTS Y FORMULARIOS ==== */
+.form-control, .form-select {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  color: #333;
+  border-radius: 8px;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: var(--verde);
+  box-shadow: 0 0 6px rgba(129, 199, 132, 0.4);
+}
+
+/* ==== MODALES ==== */
 .modal-content {
-    border-radius: 10px;
-    border: none;
+  background-color: white;
+  color: #333;
+  border-radius: 15px;
 }
 
 .modal-header {
-    background-color: var(--primary-color);
-    color: white;
-    border-radius: 10px 10px 0 0;
+  background-color: var(--naranja);
+  color: #333;
+  border-radius: 15px 15px 0 0;
 }
 
-.form-image-preview {
-    max-width: 200px;
-    max-height: 200px;
-    border-radius: 5px;
-    margin-top: 10px;
+.modal-footer .btn-primary {
+  background-color: var(--verde);
 }
 
-/* Estilos para tablas */
+/* ==== EMPTY STATES ==== */
+.empty-state {
+  color: var(--gris);
+  text-align: center;
+}
+
+.empty-state i {
+  color: var(--naranja);
+}
+
+/* ==== SECCIÓN DE REPORTES - ESTILOS NUEVOS ==== */
+
+/* Contenedores de gráficos */
+.chart-container {
+  position: relative;
+  height: 300px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* Filtros de reportes */
+.report-filters {
+  background: linear-gradient(145deg, var(--amarillo), #fff8e1);
+  border-left: 4px solid var(--naranja);
+  border-radius: 10px;
+}
+
+/* Botones de exportación */
+.export-buttons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.export-buttons .btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 15px;
+  font-weight: 600;
+}
+
+/* Tarjetas de métricas de reportes */
+.report-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.metric-highlight {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--verde);
+}
+
+/* Tablas de reportes */
+#reportTable th {
+  background-color: var(--naranja);
+  color: #333;
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+}
+
+#reportTable tbody tr:nth-child(even) {
+  background-color: rgba(255, 249, 196, 0.3);
+}
+
+#reportTable tbody tr:hover {
+  background-color: var(--amarillo);
+  transform: scale(1.01);
+  transition: all 0.2s ease;
+}
+
+/* Estados de carga para reportes */
+.report-loading {
+  display: none;
+  text-align: center;
+  padding: 40px;
+}
+
+.report-loading.active {
+  display: block;
+}
+
+.report-loading .spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid var(--naranja);
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 2s linear infinite;
+  margin: 0 auto 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Badges para estados en reportes */
+.badge-report {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.badge-ventas {
+  background-color: var(--verde);
+  color: white;
+}
+
+.badge-productos {
+  background-color: var(--naranja);
+  color: white;
+}
+
+.badge-usuarios {
+  background-color: #64b5f6;
+  color: white;
+}
+
+.badge-pedidos {
+  background-color: #ba68c8;
+  color: white;
+}
+
+/* Tooltips personalizados para gráficos */
+.chart-tooltip {
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 10px;
+  border-radius: 5px;
+  font-size: 0.9rem;
+}
+
+/* Filtros de fecha personalizados */
+.date-range-selector {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.date-range-selector .form-label {
+  font-weight: 600;
+  color: var(--gris);
+  margin-bottom: 8px;
+}
+
+/* Indicadores de tendencia */
+.trend-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+}
+
+.trend-up {
+  background-color: rgba(129, 199, 132, 0.2);
+  color: var(--verde);
+}
+
+.trend-down {
+  background-color: rgba(229, 57, 53, 0.2);
+  color: var(--rojo);
+}
+
+.trend-neutral {
+  background-color: rgba(255, 183, 77, 0.2);
+  color: var(--naranja);
+}
+
+/* Grid de gráficos responsive */
+.charts-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+  margin-bottom: 25px;
+}
+
+/* Responsive para la sección de reportes */
+@media (max-width: 1200px) {
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .chart-container {
+    height: 250px;
+  }
+}
+
+@media (max-width: 768px) {
+  .export-buttons {
+    flex-direction: column;
+  }
+
+  .export-buttons .btn {
+    justify-content: center;
+  }
+
+  .report-metrics {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .chart-container {
+    height: 200px;
+  }
+
+  .date-range-selector .row {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 576px) {
+  .report-metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .chart-container {
+    height: 180px;
+  }
+}
+
+/* Estados de sección */
+.section-content {
+  animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Mejoras para tablas responsive */
 .table-responsive {
-    border-radius: 10px;
-    overflow: hidden;
+  border-radius: 10px;
+  overflow: hidden;
 }
 
-.table th {
-    background-color: var(--light-color);
-    border-top: none;
+/* Estilos para el título de sección */
+.section-title {
+  color: #333;
+  font-weight: 700;
+  margin-bottom: 25px;
+  padding-bottom: 10px;
+  border-bottom: 3px solid var(--naranja);
+  display: inline-block;
 }
 
-.action-buttons {
-    display: flex;
-    gap: 5px;
+/* Badge para contadores en headers */
+.header-badge {
+  background-color: var(--rojo);
+  color: white;
+  border-radius: 50%;
+  width: 25px;
+  height: 25px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  margin-left: 8px;
 }
 
-/* Estilos para búsqueda y filtros */
-.search-filter-container {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-    gap: 10px;
+/* ==== RESPONSIVE GENERAL ==== */
+@media (max-width: 992px) {
+  .sidebar {
+    width: 80px;
+  }
+  .sidebar .nav-link span,
+  .sidebar .logo-text {
+    display: none;
+  }
+  .main-content {
+    padding: 15px;
+  }
 }
 
-.search-box {
-    flex-grow: 1;
-    max-width: 400px;
+/* Scroll personalizado */
+::-webkit-scrollbar {
+  width: 8px;
 }
 
-.filter-buttons {
-    display: flex;
-    gap: 10px;
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
 }
 
-/* Estilos para dropdown de exportación */
-.export-dropdown .dropdown-menu {
-    min-width: 180px;
+::-webkit-scrollbar-thumb {
+  background: var(--naranja);
+  border-radius: 10px;
 }
 
-.export-dropdown .dropdown-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+::-webkit-scrollbar-thumb:hover {
+  background: var(--rojo);
 }

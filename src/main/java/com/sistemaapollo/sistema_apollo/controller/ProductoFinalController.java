@@ -37,7 +37,7 @@ public class ProductoFinalController {
         return "menu"; // vista para los clientes
     }
 
-    //  Obtener producto por ID (JSON, para AJAX)
+    //  Obtener producto
     @GetMapping("/{id}")
     @ResponseBody
     public ResponseEntity<?> obtenerProducto(@PathVariable Long id) {

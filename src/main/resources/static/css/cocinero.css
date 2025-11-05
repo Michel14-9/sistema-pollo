@@ -1,0 +1,215 @@
+/* ======= Paleta ======= */
+:root {
+  --verde: #81c784;
+  --naranja: #ffb74d;
+  --amarillo: #fff9c4;
+  --rojo: #e53935;
+  --gris: #6c757d;
+  --blanco: #fafafa;
+}
+
+/* ======= Estilos Generales ======= */
+body {
+  background-color: var(--blanco);
+  color: var(--gris);
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+header.cocinero-header {
+  background: linear-gradient(90deg, var(--verde), var(--verde));
+  color: white;
+  padding: 10px 20px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.empresa-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.empresa-info img {
+  height: 50px;
+  border-radius: 50%;
+  border: 2px solid var(--amarillo);
+}
+
+.empresa-nombre {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #fff;
+}
+
+.usuario-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #fff;
+}
+
+.usuario-info button {
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.usuario-info button:hover {
+  background-color: var(--rojo);
+  color: white;
+}
+
+/* ======= Barra de Estado ======= */
+.cocinero-nav {
+  background-color: var(--amarillo);
+  padding: 8px 20px;
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+  color: var(--gris);
+}
+
+/* ======= Tarjetas de Métricas ======= */
+.stat-card {
+  text-align: center;
+  padding: 20px;
+  border-radius: 15px;
+  background-color: white;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+.stat-card i {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+.stat-card .number {
+  font-size: 1.8rem;
+  font-weight: bold;
+}
+
+.stat-card .label {
+  color: var(--gris);
+  font-size: 0.95rem;
+}
+
+/* ======= Tarjetas de Listas ======= */
+.card-header {
+  font-weight: bold;
+  border-top-left-radius: 12px !important;
+  border-top-right-radius: 12px !important;
+}
+
+.card {
+  border: none;
+  border-radius: 12px;
+  background-color: #fff;
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  transform: scale(1.01);
+}
+
+.list-group-item {
+  padding: 15px;
+  border: none;
+  border-bottom: 1px solid #eee;
+}
+
+/* ======= Botones ======= */
+button, .btn {
+  border-radius: 8px !important;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.btn-primary {
+  background-color: var(--naranja);
+  border: none;
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background-color: #ff9800;
+}
+
+.btn-success {
+  background-color: var(--verde);
+  border: none;
+  color: white;
+}
+
+.btn-success:hover {
+  background-color: #66bb6a;
+}
+
+.btn-secondary {
+  background-color: var(--gris);
+  border: none;
+  color: white;
+}
+
+.btn-outline-danger {
+  border-color: var(--rojo);
+  color: var(--rojo);
+}
+
+.btn-outline-danger:hover {
+  background-color: var(--rojo);
+  color: white;
+}
+
+/* ======= Modal ======= */
+.modal-content {
+  border-radius: 12px;
+}
+
+.modal-header {
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+}
+
+/* ======= Toast ======= */
+.toast {
+  border-radius: 10px;
+  background-color: var(--blanco);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.toast-header {
+  background-color: var(--naranja);
+  color: white;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+}
+
+/* ======= Responsive ======= */
+@media (max-width: 768px) {
+  .header-top {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .usuario-info {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .empresa-info img {
+    height: 40px;
+  }
+}

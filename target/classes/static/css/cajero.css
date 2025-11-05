@@ -1,231 +1,269 @@
-/* --- Estilos para Header Vertical Izquierdo --- */
+/* 🎨 PALETA DE COLORES LUREN */
+:root {
+  --verde: #81c784;        /* Frescura y confirmación */
+  --naranja: #ffb74d;      /* Energía y apetito */
+  --amarillo: #fff9c4;     /* Suavidad y calidez */
+  --rojo: #e53935;         /* Resaltado o error */
+  --gris: #6c757d;         /* Texto secundario */
+  --blanco: #fafafa;       /* Fondo cálido */
+}
+
+/* ====== ESTILOS GENERALES ====== */
+body {
+  background-color: var(--blanco);
+  font-family: 'Poppins', sans-serif;
+  color: #333;
+  margin: 0;
+}
+
+/* ====== HEADER ====== */
 .cajero-header {
-    background-color: #000000;
-    /* Negro */
-    color: white;
-    padding: 20px 10px;
-    box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
-    width: 200px;
-    height: 100vh;
-    position: fixed;
-    left: 0;
-    top: 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    z-index: 1000;
+  background: linear-gradient(90deg, var(--naranja), var(--amarillo));
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  padding: 10px 20px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
 .header-top {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .empresa-info {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-.logo {
-    width: 80px;
-    height: 80px;
-    margin-bottom: 10px;
-    border-radius: 10px;
-    background-color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-}
-
-.logo img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+.empresa-info img {
+  width: 50px;
+  height: 50px;
+  border-radius: 10px;
+  object-fit: cover;
 }
 
 .empresa-nombre {
-    font-size: 1.2rem;
-    font-weight: bold;
-    color: white;
+  font-weight: bold;
+  font-size: 1.3rem;
+  color: #333;
 }
 
 .usuario-info {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 500;
+  color: #333;
 }
 
-.usuario-info span {
-    margin-bottom: 5px;
-    font-size: 0.9rem;
-    text-align: center;
-    color: white;
+.usuario-info .btn-outline-danger {
+  border-color: var(--rojo);
+  color: var(--rojo);
+  transition: 0.3s;
 }
 
+.usuario-info .btn-outline-danger:hover {
+  background-color: var(--rojo);
+  color: #fff;
+}
+
+/* ====== NAV BAR (ESTADO CAJA) ====== */
 .cajero-nav {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    border-top: 1px solid rgba(255, 255, 255, 0.3);
-    padding-top: 10px;
+  border-top: 1px solid rgba(255,255,255,0.4);
+  padding-top: 8px;
+  text-align: center;
+  color: #333;
 }
 
 .estado-caja {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 10px;
+  font-weight: 600;
 }
 
-.estado-caja span {
-    margin-bottom: 5px;
-    font-weight: 500;
-    text-align: center;
-    color: white;
+/* ====== TARJETAS DE MÉTRICAS ====== */
+.stat-card {
+  background: white;
+  border-radius: 15px;
+  padding: 20px;
+  text-align: center;
+  border: 1px solid #eee;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  transition: transform 0.2s ease;
 }
 
-/* Ajuste del contenido principal para el header vertical */
-.container {
-    margin-left: 220px;
-    /* Espacio para el header vertical */
-    padding-right: 20px;
+.stat-card:hover {
+  transform: translateY(-4px);
 }
 
-/* --- Estilos Anteriores (Mantendos) --- */
+.stat-card i {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+.stat-card .number {
+  font-size: 1.8rem;
+  font-weight: bold;
+}
+
+/* ====== TABLAS Y LISTAS ====== */
+.card {
+  background: #fff;
+  border-radius: 15px;
+  border: 1px solid #e0e0e0;
+}
+
+.card-header {
+  border-radius: 15px 15px 0 0;
+  background-color: var(--naranja);
+  color: #333;
+  font-weight: bold;
+}
+
+.list-group-item {
+  border: none;
+  border-bottom: 1px solid #eee;
+  transition: background-color 0.2s;
+}
+
+.list-group-item:hover {
+  background-color: var(--amarillo);
+}
+
+/* ====== BOTONES ====== */
+.btn {
+  border-radius: 10px;
+  transition: all 0.3s;
+}
+
+.btn-success {
+  background-color: var(--verde);
+  border: none;
+}
+
+.btn-success:hover {
+  background-color: #9be7a8;
+  color: #333;
+}
+
+.btn-danger {
+  background-color: var(--rojo);
+  border: none;
+}
+
+.btn-danger:hover {
+  background-color: #ff6659;
+}
+
+.btn-outline-danger {
+  border: 1px solid var(--rojo);
+  color: var(--rojo);
+}
+
+.btn-outline-danger:hover {
+  background-color: var(--rojo);
+  color: white;
+}
+
+/* ====== DETALLE DE PEDIDO ====== */
+#detalle-pedido {
+  background-color: #fff;
+  border: 1px solid #eee;
+  border-radius: 12px;
+}
+
 .delivery-option {
-    cursor: pointer;
-    border: 1px solid #ccc;
-    transition: all 0.2s;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 .delivery-option:hover {
-    background-color: #f8f9fa;
-}
-
-.delivery-option.active {
-    border-color: #0d6efd;
-    background-color: #e9f0ff;
+  background-color: var(--amarillo);
+  transform: scale(1.03);
 }
 
 .order-status-bar {
-    position: relative;
-    padding-bottom: 20px;
-}
-
-.order-status-bar::before {
-    content: '';
-    position: absolute;
-    top: 15px;
-    left: 5%;
-    right: 5%;
-    height: 2px;
-    background-color: #ccc;
-    z-index: 1;
+  gap: 15px;
 }
 
 .status-item {
-    position: relative;
-    z-index: 2;
+  flex: 1;
+  position: relative;
 }
 
 .step-circle {
-    width: 30px;
-    height: 30px;
-    background-color: #ccc;
-    border-radius: 50%;
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
-    font-weight: bold;
-    color: #fff;
-    margin-bottom: 5px;
+  width: 35px;
+  height: 35px;
+  line-height: 35px;
+  border-radius: 50%;
+  display: inline-block;
+  border: 2px solid #ccc;
+  background-color: #fff;
+  font-weight: 600;
 }
 
 .status-item.active .step-circle {
-    background-color: #0d6efd;
+  background-color: var(--verde);
+  color: #fff;
+  border-color: var(--verde);
 }
 
-.invoice-container {
-    font-size: 0.9rem;
+.status-item.active div {
+  color: var(--verde);
+  font-weight: bold;
 }
 
-/* Botones específicos */
-.btn-whatsapp {
-    background-color: #25D366;
-    color: white;
-    border: none;
+/* ====== MODALES ====== */
+.modal-content {
+  border-radius: 15px;
+  border: none;
 }
 
-.btn-whatsapp:hover {
-    background-color: #128C7E;
-    color: white;
+.modal-header {
+  background-color: var(--naranja);
+  color: #333;
+  border-radius: 15px 15px 0 0;
 }
 
-.btn-generar-boleta {
-    background-color: #17a2b8;
-    color: white;
-    border: none;
+.modal-footer .btn-success {
+  background-color: var(--verde);
 }
 
-.btn-generar-boleta:hover {
-    background-color: #138496;
-    color: white;
+/* ====== TOAST ====== */
+.toast {
+  border-radius: 10px;
+  background-color: white;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
-@media print {
-    body>*:not(#paymentReceiptModal) {
-        visibility: hidden;
-        display: none;
-    }
-
-    #paymentReceiptModal {
-        visibility: visible;
-        display: block;
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        margin: 0;
-        padding: 0;
-    }
-
-    #paymentReceiptModal .modal-content {
-        border: none !important;
-        box-shadow: none !important;
-        width: 100% !important;
-    }
-
-    #paymentReceiptModal .modal-header,
-    #paymentReceiptModal .modal-footer {
-        display: none !important;
-    }
-
-    #receipt-to-print {
-        visibility: visible;
-        display: block;
-        padding: 20px;
-        font-size: 10pt;
-    }
+.toast-header {
+  background-color: var(--amarillo);
+  color: #333;
+  border-bottom: 1px solid #eee;
 }
 
-/* Responsive */
+/* ====== SIN PEDIDOS ====== */
+#sin-pedidos {
+  color: var(--gris);
+}
+
+#sin-pedidos i {
+  color: var(--naranja);
+}
+
+/* ====== RESPONSIVE ====== */
 @media (max-width: 768px) {
-    .cajero-header {
-        width: 100%;
-        height: auto;
-        position: relative;
-        padding: 10px;
-    }
+  .header-top {
+    flex-direction: column;
+    gap: 10px;
+  }
 
-    .container {
-        margin-left: 0;
-        padding-right: 15px;
-    }
+  .estado-caja {
+    flex-direction: column;
+    gap: 4px;
+  }
 }

@@ -1,341 +1,440 @@
-/* Estilos específicos para la página de mis pedidos */
-.text-orange {
-    color: #ff6600 !important;
+
+       
+
+/* ======== PALETA DE COLORES ======== */
+:root {
+  --verde: #81c784;        /* Verde claro (frescura) */
+  --naranja: #ffb74d;      /* Naranja (energía y apetito) */
+  --amarillo: #fff9c4;     /* Amarillo claro (comida deliciosa) */
+  --rojo: #e53935;         /* Toque rojo (resaltado) */
+  --gris: #6c757d;         /* Gris suave (texto) */
+  --blanco: #fafafa;       /* Fondo cálido */
 }
 
+/* ======= ESTILO GENERAL ======= */
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: var(--blanco);
+  color: var(--gris);
+  margin: 0;
+  padding: 0;
+}
+
+/* ======= HEADER ======= */
+header .navbar {
+  background-color: var(--amarillo);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+  padding: 0.8rem 1.5rem;
+  border-bottom: 3px solid var(--naranja);
+}
+
+.navbar-brand img {
+  width: 3rem;
+  border-radius: 50%;
+  transition: transform 0.3s ease;
+}
+
+.navbar-brand img:hover {
+  transform: scale(1.1);
+}
+
+.nav-link {
+  color: #333 !important;
+  font-weight: 500;
+  transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.nav-link:hover {
+  color: var(--rojo) !important;
+  transform: translateY(-2px);
+}
+
+header .navbar-toggler {
+  border-color: var(--naranja);
+}
+
+/* ======= BOTONES ======= */
+.btn {
+  border-radius: 25px;
+  padding: 0.6rem 1.3rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+/* Verde - principal */
+.btn-verde {
+  background-color: var(--verde);
+  color: white;
+}
+
+.btn-verde:hover {
+  background-color: #66BB6A;
+  box-shadow: 0 4px 10px rgba(129, 199, 132, 0.4);
+}
+
+/* Naranja - secundario */
+.btn-naranja {
+  background-color: var(--naranja);
+  color: white;
+}
+
+.btn-naranja:hover {
+  background-color: #FFA726;
+  box-shadow: 0 4px 10px rgba(255, 183, 77, 0.4);
+}
+
+/* Rojo - advertencia o eliminar */
+.btn-rojo {
+  background-color: var(--rojo);
+  color: white;
+}
+
+.btn-rojo:hover {
+  background-color: #EF5350;
+  box-shadow: 0 4px 10px rgba(229, 115, 115, 0.4);
+}
+
+/* Amarillo claro - informativo */
+.btn-amarillo {
+  background-color: var(--amarillo);
+  color: #333;
+}
+
+.btn-amarillo:hover {
+  background-color: #FFECB3;
+  box-shadow: 0 4px 10px rgba(255, 248, 225, 0.3);
+}
+
+/* ======= FOOTER ======= */
+footer {
+  background-color: var(--amarillo);
+  color: #333;
+  border-top: 4px solid var(--naranja);
+  padding-top: 2rem;
+  padding-bottom: 1.5rem;
+}
+
+footer h5 {
+  color: var(--verde);
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+footer a {
+  color: #333;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+footer a:hover {
+  color: var(--rojo);
+}
+
+/* Redes sociales */
+footer .btn-outline-secondary {
+  border-color: var(--verde);
+  color: var(--verde);
+  transition: all 0.3s ease;
+}
+
+footer .btn-outline-secondary:hover {
+  background-color: var(--verde);
+  color: white;
+}
+
+/* Línea separadora y copyright */
+footer hr {
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+footer small {
+  color: var(--gris);
+  font-size: 0.9rem;
+}
+
+/* ======= EFECTOS SUAVES ======= */
+img, .btn, .nav-link {
+  transition: all 0.3s ease;
+}
+
+/* ======= RESPONSIVO ======= */
+@media (max-width: 768px) {
+  header .navbar-nav {
+    text-align: center;
+  }
+
+  footer .row {
+    text-align: center;
+  }
+
+  footer .d-flex {
+    justify-content: center;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+/*  ESTILOS "MIS PEDIDOS" */
+
+/* ===== CONTENEDOR PRINCIPAL ===== */
+main.container {
+  color: var(--gris);
+  font-family: "Poppins", sans-serif;
+}
+
+/* ===== TÍTULOS ===== */
+h1.h2.text-luren {
+  color: var(--verde);
+  font-weight: 600;
+}
+
+.text-muted {
+  color: #777 !important;
+}
+
+/* ===== SIDEBAR ===== */
+.sidebar-menu {
+  border: none;
+  border-radius: 12px;
+  background-color: var(--blanco);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.sidebar-menu .card-header {
+  background-color: var(--naranja);
+  color: #fff;
+  border-radius: 12px 12px 0 0;
+}
+
+.sidebar-menu .list-group-item {
+  border: none;
+  font-weight: 500;
+  color: var(--gris);
+  transition: all 0.3s ease;
+}
+
+.sidebar-menu .list-group-item:hover {
+  background-color: var(--amarillo);
+  color: var(--verde);
+}
+
+.sidebar-menu .list-group-item.active {
+  background-color: var(--verde);
+  color: #fff;
+}
+
+/* ===== TARJETAS ===== */
+.card {
+  border: none;
+  border-radius: 12px;
+  background-color: var(--blanco);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.card-header.bg-light {
+  background-color: #f8f9fa !important;
+  border-bottom: 1px solid #eee;
+}
+
+/* ===== BUSCADOR Y FILTROS ===== */
+.input-group-text {
+  background-color: var(--amarillo);
+  color: var(--gris);
+  border: 1px solid #ddd;
+}
+
+.form-control,
+.form-select {
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  transition: all 0.3s ease;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--verde);
+  box-shadow: 0 0 0 0.15rem rgba(129, 199, 132, 0.25);
+}
+
+label.form-label {
+  font-weight: 600;
+  color: var(--verde);
+}
+
+/* ===== BOTONES ===== */
 .btn-luren {
-    background-color: #ff6600;
-    border-color: #ff6600;
-    color: white;
+  background-color: var(--verde);
+  color: #fff;
+  font-weight: 600;
+  border-radius: 8px;
+  border: none;
+  transition: all 0.3s ease;
 }
 
 .btn-luren:hover {
-    background-color: #e55a00;
-    border-color: #e55a00;
-    color: white;
+  background-color: var(--verde-oscuro);
 }
 
-.pedidos-container {
-    min-height: 60vh;
-    padding: 2rem 0;
+.btn-outline-luren {
+  border: 2px solid var(--naranja);
+  color: var(--naranja);
+  background: transparent;
+  font-weight: 600;
+  border-radius: 8px;
+  transition: all 0.3s ease;
 }
 
-.pedidos-title {
-    color: #333;
-    font-weight: bold;
-    margin-bottom: 1.5rem;
-    font-size: 2.5rem;
+.btn-outline-luren:hover {
+  background-color: var(--naranja);
+  color: #fff;
 }
 
-.menu-lateral {
-    background-color: #f8f9fa;
-    border-radius: 10px;
-    padding: 1.5rem;
-    height: fit-content;
+.btn-secondary {
+  background-color: var(--gris);
+  border: none;
+  color: #fff;
+  font-weight: 600;
+  border-radius: 8px;
+  transition: all 0.3s ease;
 }
 
-.menu-lateral ul {
-    list-style: none;
-    padding-left: 0;
+.btn-secondary:hover {
+  background-color: #5a6268;
 }
 
-.menu-lateral li {
-    margin-bottom: 0.8rem;
-    padding: 0.5rem 0;
-    border-bottom: 1px solid #e9ecef;
+/* ===== ALERTAS ===== */
+.alert-warning {
+  background-color: var(--amarillo);
+  color: var(--gris);
+  border: none;
+  border-radius: 10px;
+  font-weight: 500;
 }
 
-.menu-lateral li:last-child {
-    border-bottom: none;
+/* ===== LISTA DE PEDIDOS ===== */
+.pedidos-lista .pedido-card {
+  border-left: 6px solid var(--verde);
+  border-radius: 12px;
+  margin: 15px;
+  padding: 15px 20px;
+  background-color: var(--blanco);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
 }
 
-.menu-lateral a {
-    color: #333;
-    text-decoration: none;
-    font-weight: 500;
-    display: block;
-    transition: all 0.3s;
+.pedidos-lista .pedido-card:hover {
+  border-left-color: var(--naranja);
+  transform: translateY(-3px);
 }
 
-.menu-lateral a:hover {
-    color: #ff6600;
-    padding-left: 5px;
+/* Estado visual por tipo de pedido */
+.estado-pedido {
+  display: inline-block;
+  padding: 6px 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border-radius: 8px;
+  text-transform: uppercase;
 }
 
-.menu-lateral a.active {
-    color: #ff6600;
-    font-weight: bold;
-    border-left: 3px solid #ff6600;
-    padding-left: 10px;
+.estado-PENDIENTE { background-color: #fff3cd; color: #856404; }
+.estado-CONFIRMADO { background-color: #c8e6c9; color: #256029; }
+.estado-PREPARACION { background-color: #fff9c4; color: #8d6e00; }
+.estado-EN_CAMINO { background-color: #bbdefb; color: #0d47a1; }
+.estado-ENTREGADO { background-color: #dcedc8; color: #33691e; }
+.estado-CANCELADO { background-color: #ffcdd2; color: #b71c1c; }
+
+/* ===== ESTADOS VACÍO Y ERROR ===== */
+#pedidosVacios, #errorCarga {
+  background-color: var(--amarillo);
+  border-radius: 12px;
+  border: 2px dashed var(--naranja);
+  color: var(--gris);
 }
 
-.contenido-pedidos {
-    padding: 1.5rem;
+#pedidosVacios i,
+#errorCarga i {
+  opacity: 0.7;
 }
 
-.volver-btn {
-    background-color: #f8f9fa;
-    border: 1px solid #dee2e6;
-    border-radius: 5px;
-    padding: 8px 15px;
-    color: #333;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    margin-bottom: 1.5rem;
-    transition: all 0.3s;
+#pedidosVacios .btn-luren,
+#errorCarga .btn-luren {
+  background-color: var(--verde);
+  color: #fff;
 }
 
-.volver-btn:hover {
-    background-color: #e9ecef;
-    color: #ff6600;
+#estadoCarga .spinner-border {
+  color: var(--naranja);
 }
 
-.seccion-titulo {
-    color: #333;
-    font-weight: bold;
-    margin-bottom: 1rem;
-    border-bottom: 2px solid #ff6600;
-    padding-bottom: 0.5rem;
+/* ===== MODAL DE DETALLES ===== */
+.modal-content {
+  border-radius: 12px;
+  background-color: var(--blanco);
+  border: 2px solid var(--amarillo);
 }
 
-/* Filtros */
-.filtros-pedidos {
-    background-color: #f8f9fa;
-    padding: 1rem;
-    border-radius: 10px;
-}
-
-/* Tarjetas de pedidos */
-.pedido-card {
-    border: 1px solid #e9ecef;
-    border-radius: 10px;
-    padding: 1.5rem;
-    margin-bottom: 1rem;
-    transition: all 0.3s;
-    position: relative;
-}
-
-.pedido-card:hover {
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-}
-
-.pedido-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 1rem;
-    flex-wrap: wrap;
-    gap: 10px;
-}
-
-.pedido-info-principal {
-    flex: 1;
-}
-
-.pedido-codigo {
-    font-weight: bold;
-    font-size: 1.2rem;
-    color: #333;
-    margin: 0;
-}
-
-.pedido-fecha {
-    color: #666;
-    font-size: 0.9rem;
-    margin: 0;
-}
-
-.pedido-estado {
-    padding: 5px 12px;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: bold;
-    text-transform: uppercase;
-}
-
-.estado-pendiente {
-    background-color: #fff3cd;
-    color: #856404;
-    border: 1px solid #ffeaa7;
-}
-
-.estado-confirmado {
-    background-color: #d1ecf1;
-    color: #0c5460;
-    border: 1px solid #bee5eb;
-}
-
-.estado-preparando {
-    background-color: #d1ecf1;
-    color: #0c5460;
-    border: 1px solid #bee5eb;
-}
-
-.estado-en-camino {
-    background-color: #cce5ff;
-    color: #004085;
-    border: 1px solid #b3d7ff;
-}
-
-.estado-entregado {
-    background-color: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
-}
-
-.estado-cancelado {
-    background-color: #f8d7da;
-    color: #721c24;
-    border: 1px solid #f5c6cb;
-}
-
-.pedido-detalles {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr 1fr;
-    gap: 1rem;
-    margin-bottom: 1rem;
-}
-
-.pedido-productos {
-    color: #666;
-}
-
-.pedido-cantidad, .pedido-total {
-    font-weight: bold;
-    color: #333;
-}
-
-.pedido-acciones {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-}
-
-.btn-ver-detalle {
-    background-color: #ff6600;
-    border: 1px solid #ff6600;
-    color: white;
-    padding: 5px 15px;
-    border-radius: 5px;
-    transition: all 0.3s;
-}
-
-.btn-ver-detalle:hover {
-    background-color: #e55a00;
-    border-color: #e55a00;
-    color: white;
-}
-
-.btn-seguir-pedido {
-    background-color: transparent;
-    border: 1px solid #28a745;
-    color: #28a745;
-    padding: 5px 15px;
-    border-radius: 5px;
-    transition: all 0.3s;
-}
-
-.btn-seguir-pedido:hover {
-    background-color: #28a745;
-    color: white;
-}
-
-.btn-repetir-pedido {
-    background-color: transparent;
-    border: 1px solid #007bff;
-    color: #007bff;
-    padding: 5px 15px;
-    border-radius: 5px;
-    transition: all 0.3s;
-}
-
-.btn-repetir-pedido:hover {
-    background-color: #007bff;
-    color: white;
-}
-
-/* Estados de sesión */
-.no-sesion, .pedidos-vacios {
-    background-color: #f8f9fa;
-    border-radius: 10px;
-    padding: 2rem;
-}
-
-/* Modal */
 .modal-header {
-    border-bottom: 2px solid #ff6600;
+  background-color: var(--naranja);
+  color: #fff;
+  border-radius: 12px 12px 0 0;
 }
 
-.modal-title {
-    color: #333;
-    font-weight: bold;
+.modal-footer {
+  background-color: #fdfdfd;
+  border-top: 1px solid #eee;
 }
 
-.detalle-producto {
-    display: flex;
-    justify-content: space-between;
-    padding: 0.5rem 0;
-    border-bottom: 1px solid #eee;
+/* ===== INFORMACIÓN ADICIONAL ===== */
+.card.mt-4 h6 {
+  color: var(--verde);
+  font-weight: 600;
 }
 
-.detalle-producto:last-child {
-    border-bottom: none;
+.card.mt-4 .text-muted {
+  color: var(--gris);
 }
 
-.detalle-total {
-    font-weight: bold;
-    font-size: 1.2rem;
-    color: #ff6600;
-    border-top: 2px solid #ff6600;
-    padding-top: 1rem;
-    margin-top: 1rem;
+/* ===== EFECTOS ===== */
+a {
+  text-decoration: none;
+  transition: all 0.3s ease;
 }
 
-/* Responsive */
+a:hover {
+  color: var(--verde);
+}
+
+/* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
-    .menu-lateral {
-        margin-bottom: 2rem;
-    }
+  .sidebar-menu {
+    margin-bottom: 20px;
+  }
 
-    .pedidos-title {
-        font-size: 2rem;
-    }
+  .card .btn {
+    width: 100%;
+  }
 
-    .pedido-header {
-        flex-direction: column;
-        align-items: flex-start;
-    }
+  .modal-dialog {
+    margin: 10px;
+  }
 
-    .pedido-detalles {
-        grid-template-columns: 1fr;
-        gap: 0.5rem;
-    }
-
-    .pedido-acciones {
-        flex-direction: column;
-        width: 100%;
-    }
-
-    .pedido-acciones button {
-        width: 100%;
-    }
-}
-
-@media (max-width: 576px) {
-    .filtros-pedidos .row {
-        flex-direction: column;
-        gap: 10px;
-    }
-}
-
-/* Animaciones */
-.fade-in {
-    animation: fadeIn 0.5s ease-in;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
+  .pedido-card {
+    margin: 10px 0;
+  }
 }

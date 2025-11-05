@@ -1,6 +1,4 @@
-
 // SISTEMA DE GESTIÓN DE CUENTAS
-
 
 // Configuración
 const API_BASE_URL = '/api/auth';
@@ -8,16 +6,14 @@ const API_BASE_URL = '/api/auth';
 // Estado global
 let datosUsuario = null;
 
-
 // INICIALIZACIÓN
-
 document.addEventListener('DOMContentLoaded', function() {
     console.log(" Inicializando gestión de cuentas...");
 
     // Verificar si el usuario está autenticado
     if (document.getElementById('usuarioNombre')) {
         cargarDatosUsuario();
-        cargarEstadisticasCuenta();
+        cargarEstadisticasReales();
         cargarDirecciones();
         inicializarEventListeners();
         inicializarAvanzada();
@@ -25,9 +21,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-
 // FUNCIONES PRINCIPALES
-
 async function cargarDatosUsuario() {
     console.log(" Cargando datos del usuario...");
 
@@ -59,8 +53,69 @@ async function cargarDatosUsuario() {
     }
 }
 
+
+async function cargarEstadisticasReales() {
+    console.log("Cargando estadísticas reales...");
+
+    try {
+        // Cargar contador de favoritos
+        const responseFavoritos = await fetch('/favoritos/count', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include'
+        });
+
+        let totalFavoritos = 0;
+        if (responseFavoritos.ok) {
+            const dataFavoritos = await responseFavoritos.json();
+            if (dataFavoritos.success) {
+                totalFavoritos = dataFavoritos.count;
+            }
+        }
+
+        // Cargar contador de pedidos
+        const responsePedidos = await fetch('/pedido/mis-pedidos', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include'
+        });
+
+        let totalPedidos = 0;
+        if (responsePedidos.ok) {
+            const dataPedidos = await responsePedidos.json();
+            if (Array.isArray(dataPedidos)) {
+                totalPedidos = dataPedidos.length;
+            }
+        }
+
+        // Actualizar la UI con los datos reales
+        document.getElementById('totalPedidos').textContent = totalPedidos;
+        document.getElementById('totalFavoritos').textContent = totalFavoritos;
+
+        console.log(" Estadísticas cargadas:", {
+            totalPedidos: totalPedidos,
+            totalFavoritos: totalFavoritos
+        });
+
+    } catch (error) {
+        console.error(" Error cargando estadísticas:", error);
+
+        document.getElementById('totalPedidos').textContent = '0';
+        document.getElementById('totalFavoritos').textContent = '0';
+    }
+}
+
+
+async function cargarEstadisticasCuenta() {
+    await cargarEstadisticasReales();
+}
+
 function mostrarDatosUsuario(usuario) {
-    // Validar y mostrar cada campo
+
     document.getElementById('usuarioNombre').textContent = validarCampoTexto(usuario.nombres || usuario.nombre);
     document.getElementById('usuarioApellidos').textContent = validarCampoTexto(usuario.apellidos);
     document.getElementById('usuarioEmail').textContent = validarCampoTexto(usuario.email || usuario.username);
@@ -68,28 +123,6 @@ function mostrarDatosUsuario(usuario) {
     document.getElementById('usuarioNumeroDocumento').textContent = validarCampoTexto(usuario.numeroDocumento);
     document.getElementById('usuarioTelefono').textContent = validarCampoTexto(usuario.telefono);
     document.getElementById('usuarioFechaNacimiento').textContent = validarFecha(usuario.fechaNacimiento);
-}
-
-async function cargarEstadisticasCuenta() {
-    console.log(" Cargando estadísticas de cuenta...");
-
-    try {
-        // Simular estadísticas - en una implementación real harías llamadas a APIs específicas
-        const estadisticas = {
-            totalPedidos: 0,
-            totalFavoritos: 0
-        };
-
-        document.getElementById('totalPedidos').textContent = estadisticas.totalPedidos;
-        document.getElementById('totalFavoritos').textContent = estadisticas.totalFavoritos;
-
-        console.log(" Estadísticas cargadas:", estadisticas);
-
-    } catch (error) {
-        console.error(" Error cargando estadísticas:", error);
-        document.getElementById('totalPedidos').textContent = '0';
-        document.getElementById('totalFavoritos').textContent = '0';
-    }
 }
 
 async function cargarDirecciones() {
@@ -167,8 +200,6 @@ function mostrarDireccion(tipo, direccion) {
     contenedor.innerHTML = html;
 }
 
-
-// VALIDACIONES
 
 function validarCampoTexto(valor) {
     if (!valor || valor.trim() === '') {
@@ -281,25 +312,20 @@ function validarFechaNacimiento(fechaString) {
 }
 
 
-// GESTIÓN DE DIRECCIONES
-
 function gestionarDireccion(tipo) {
     console.log(` Gestionando dirección de ${tipo}`);
 
     // Mostrar mensaje informativo
     mostrarExito(`Redirigiendo a la gestión de direcciones...`);
 
-    // Redirigir a la página de direcciones después de un breve delay
+
     setTimeout(() => {
         window.location.href = '/direcciones';
     }, 1000);
 }
 
-// ==========================
-// UTILIDADES
-// ==========================
 function inicializarEventListeners() {
-    console.log("🔧 Inicializando event listeners...");
+    console.log(" Inicializando event listeners...");
 
     // Listeners para botones de acción
     const botonesGestion = document.querySelectorAll('[onclick*="gestionarDireccion"]');
@@ -316,6 +342,7 @@ function inicializarEventListeners() {
         if (!document.hidden) {
             console.log(" Página visible, actualizando datos...");
             cargarDatosUsuario();
+            cargarEstadisticasReales();
             cargarDirecciones();
         }
     });
@@ -324,11 +351,12 @@ function inicializarEventListeners() {
     window.addEventListener('online', function() {
         mostrarExito("Conexión restaurada. Actualizando datos...");
         cargarDatosUsuario();
+        cargarEstadisticasReales();
         cargarDirecciones();
     });
 
     window.addEventListener('offline', function() {
-        mostrarErrorGeneral("Sin conexión. Algunas funciones pueden no estar disponibles.");
+        mostrarErrorGeneral(" Sin conexión. Algunas funciones pueden no estar disponibles.");
     });
 
     console.log(" Event listeners inicializados");
@@ -372,7 +400,7 @@ function mostrarExito(mensaje) {
     `;
 
     const contenido = document.querySelector('.col-md-9');
-    if (contenedo) {
+    if (contenido) {
         // Limpiar alertas previas del mismo tipo
         const alertasPrevias = contenido.querySelectorAll('.alert-success');
         alertasPrevias.forEach(alerta => alerta.remove());
@@ -395,8 +423,6 @@ function escaparHTML(texto) {
 }
 
 
-// MANEJO DE ERRORES GLOBAL
-
 window.addEventListener('error', function(e) {
     console.error(' Error global:', e.error);
 });
@@ -407,34 +433,30 @@ window.addEventListener('unhandledrejection', function(e) {
 });
 
 
-// FUNCIONES DE ACTUALIZACIÓN EN TIEMPO REAL
-
 function iniciarActualizacionesAutomaticas() {
     // Actualizar cada 2 minutos si la página está visible
     setInterval(() => {
         if (!document.hidden && navigator.onLine) {
             console.log(" Actualización automática de datos...");
             cargarDatosUsuario();
-            cargarEstadisticasCuenta();
+            cargarEstadisticasReales();
             cargarDirecciones();
         }
     }, 120000); // 2 minutos
 }
 
 
-// INICIALIZACIÓN AVANZADA
-
 function inicializarAvanzada() {
-    // Verificar conectividad inicial
+
     if (!navigator.onLine) {
-        mostrarErrorGeneral("Estás sin conexión. Algunas funciones pueden no estar disponibles.");
+        mostrarErrorGeneral(" Estás sin conexión. Algunas funciones pueden no estar disponibles.");
     }
 
-    // Iniciar actualizaciones automáticas
+
     iniciarActualizacionesAutomaticas();
 
-    // Mostrar información de debug en consola
-    console.log("🔧 Configuración del sistema:");
+
+    console.log("Configuración del sistema:");
     console.log("- API Base URL:", API_BASE_URL);
     console.log("- Online:", navigator.onLine);
     console.log("- User Agent:", navigator.userAgent);
@@ -442,7 +464,7 @@ function inicializarAvanzada() {
 
 console.log(" Sistema de gestión de cuentas cargado correctamente");
 
-// Exportar funciones para testing (si es necesario)
+
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
         validarCampoTexto,

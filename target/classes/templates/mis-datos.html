@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,349 +10,394 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <!-- Estilos propios -->
-    <link th:href="@{/css/mis-datos.css}" rel="stylesheet">
+    <link th:href="@{/css/mis.datos.css}" rel="stylesheet">
 </head>
 
 <body>
-<!-- CSRF Token para Spring Security -->
-<input type="hidden" id="csrfToken" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-<!-- HEADER (Mantengo tu header original) -->
-<header>
-    <nav class="navbar navbar-expand-lg navbar-light">
-        <div class="container-fluid">
-            <!-- Logo -->
-            <a class="navbar-brand" th:href="@{/}">
-                <img th:src="@{/archivos/logo.jpg}" alt="Logo" style="width: 3rem;">
-            </a>
+    <!-- CSRF Token para Spring Security -->
+    <input type="hidden" id="csrfToken" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+    <!-- HEADER (Mantengo tu header original) -->
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-light">
+            <div class="container-fluid">
+                <!-- Logo -->
+                <a class="navbar-brand" th:href="@{/}">
+                    <img th:src="@{/archivos/logo.jpg}" alt="Logo" style="width: 3rem;">
+                </a>
 
-            <!-- Botón móvil -->
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                    data-bs-target="#navbarLuren" aria-controls="navbarLuren"
-                    aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+                <!-- Botón móvil -->
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarLuren"
+                    aria-controls="navbarLuren" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
 
-            <!-- Links -->
-            <div class="collapse navbar-collapse" id="navbarLuren">
-                <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-3 justify-content-center align-items-center">
-                    <li class="nav-item">
-                        <a class="nav-link" th:href="@{/menu}">Menú</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" th:href="@{/nuestros-locales}">Local</a>
-                    </li>
-                    <li class="nav-item d-flex align-items-center">
-                        <i class="fa-solid fa-magnifying-glass"></i>
-                    </li>
-                </ul>
+                <!-- Links -->
+                <div class="collapse navbar-collapse" id="navbarLuren">
+                    <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-3 justify-content-center align-items-center">
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{/menu}">Menú</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{/nuestros-locales}">Local</a>
+                        </li>
+                        <li class="nav-item d-flex align-items-center">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </li>
+                    </ul>
 
-                <!-- Lado derecho (escritorio) -->
-                <ul class="navbar-nav ms-auto gap-3 align-items-center">
-                    <li class="nav-item d-flex align-items-center" style="font-weight: bold; font-size: 14px; gap: 0.2rem;">
-                        <i class="fa-brands fa-whatsapp" style="font-size: 1.8rem;"></i>
-                        <div>Pide por <br><span class="text-orange">WHATSAPP</span></div>
-                    </li>
-                    <li class="nav-item d-flex align-items-center" style="font-weight: bold; font-size: 14px; gap: 0.2rem;">
-                        <i class="fa-solid fa-phone" style="font-size: 1.5rem;"></i>
-                        <div>Llámanos <br><span class="text-orange">123-456-7890</span></div>
-                    </li>
-                    <li class="nav-item d-flex align-items-center" style="font-weight: bold; font-size: 14px;">
-                        <i class="fa-solid fa-user" style="font-size: 1.5rem;"></i>
-                        <div>
-                            <div th:if="${#authorization.expression('isAuthenticated()')}">
-                                <span th:text="'Hola, ' + ${#authentication.principal.username}"></span>
-                                <br>
-                                <a th:href="@{/logout}" class="text-decoration-none text-muted small">Cerrar sesión</a>
+                    <!-- Lado derecho (escritorio) -->
+                    <ul class="navbar-nav ms-auto gap-3 align-items-center">
+                        <li class="nav-item d-flex align-items-center"
+                            style="font-weight: bold; font-size: 14px; gap: 0.2rem;">
+                            <i class="fa-brands fa-whatsapp" style="font-size: 1.8rem;"></i>
+                            <div>Pide por <br><span class="text-orange">WHATSAPP</span></div>
+                        </li>
+                        <li class="nav-item d-flex align-items-center"
+                            style="font-weight: bold; font-size: 14px; gap: 0.2rem;">
+                            <i class="fa-solid fa-phone" style="font-size: 1.5rem;"></i>
+                            <div>Llámanos <br><span class="text-orange">123-456-7890</span></div>
+                        </li>
+                        <li class="nav-item d-flex align-items-center" style="font-weight: bold; font-size: 14px;">
+                            <i class="fa-solid fa-user" style="font-size: 1.5rem;"></i>
+                            <div>
+                                <div th:if="${#authorization.expression('isAuthenticated()')}">
+                                    <span th:text="'Hola, ' + ${#authentication.principal.username}"></span>
+                                    <br>
+                                    <a th:href="@{/logout}" class="text-decoration-none text-muted small">Cerrar
+                                        sesión</a>
+                                </div>
                             </div>
-                        </div>
-                    </li>
-                    <li class="nav-item">
-                        <a th:href="@{/carrito}" class="btn btn-success" style="border-radius: 20px; text-decoration: none;">
-                            <i class="fa-solid fa-cart-shopping"></i> S/. 0.00
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Links rápidos escritorio -->
-    <div class="bg-light py-2 px-3 border-bottom d-none d-lg-block">
-        <div class="container-fluid d-flex justify-content-end gap-4 small">
-            <a th:href="@{/favoritos}" class="text-decoration-none text-reset">
-                <i class="fa-solid fa-star"></i> Mis favoritos
-            </a>
-            <a th:href="@{/sigue-tu-pedido}" class="text-decoration-none text-reset">
-                <i class="fa-solid fa-truck"></i> Sigue tu pedido
-            </a>
-        </div>
-    </div>
-</header>
-
-<!-- CONTENIDO PRINCIPAL -->
-<main class="container my-5">
-    <div class="row">
-        <!-- Menú Lateral -->
-        <div class="col-md-3 mb-4">
-            <div class="card sidebar-menu">
-                <div class="card-header bg-luren text-white">
-                    <h5 class="mb-0"><i class="fas fa-user-circle me-2"></i>Mi Cuenta</h5>
-                </div>
-                <div class="card-body p-0">
-                    <div class="list-group list-group-flush">
-                        <a th:href="@{/cuenta}" class="list-group-item list-group-item-action">
-                            <i class="fas fa-user me-2"></i>Mi Perfil
-                        </a>
-                        <a th:href="@{/datos}" class="list-group-item list-group-item-action active">
-                            <i class="fas fa-address-card me-2"></i>Mis Datos
-                        </a>
-                        <a th:href="@{/direcciones}" class="list-group-item list-group-item-action">
-                            <i class="fas fa-map-marker-alt me-2"></i>Mis Direcciones
-                        </a>
-                        <a th:href="@{/pedidos}" class="list-group-item list-group-item-action">
-                            <i class="fas fa-receipt me-2"></i>Mis Pedidos
-                        </a>
-                        <a th:href="@{/favoritos}" class="list-group-item list-group-item-action">
-                            <i class="fas fa-heart me-2"></i>Mis Favoritos
-                        </a>
-                    </div>
+                        </li>
+                        <li class="nav-item">
+                            <a th:href="@{/carrito}" class="btn btn-success"
+                                style="border-radius: 20px; text-decoration: none;">
+                                <i class="fa-solid fa-cart-shopping"></i> S/. 0.00
+                            </a>
+                        </li>
+                    </ul>
                 </div>
             </div>
-        </div>
+        </nav>
 
-        <!-- Contenido Principal -->
-        <div class="col-md-9">
-            <!-- Header de la página -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h1 class="h2 text-luren mb-1">Mis Datos Personales</h1>
-                    <p class="text-muted">Gestiona y actualiza tu información personal</p>
-                </div>
-                <a th:href="@{/cuenta}" class="btn btn-outline-luren">
-                    <i class="fas fa-arrow-left me-2"></i>Volver
+        <!-- Links rápidos escritorio -->
+        <div class="bg-light py-2 px-3 border-bottom d-none d-lg-block">
+            <div class="container-fluid d-flex justify-content-end gap-4 small">
+                <a th:href="@{/favoritos}" class="text-decoration-none text-reset">
+                    <i class="fa-solid fa-star"></i> Mis favoritos
+                </a>
+                <a th:href="@{/sigue-tu-pedido}" class="text-decoration-none text-reset">
+                    <i class="fa-solid fa-truck"></i> Sigue tu pedido
                 </a>
             </div>
+        </div>
+    </header>
 
-            <!-- Estado de Sesión (solo para no autenticados) -->
-            <div th:if="${#authorization.expression('!isAuthenticated()')}" class="alert alert-warning">
-                <i class="fas fa-exclamation-triangle me-2"></i>
-                Debes <a th:href="@{/login}" class="alert-link">iniciar sesión</a> para ver y editar tu información personal.
+
+
+
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="container my-5">
+        <div class="row">
+            <!-- Menú Lateral -->
+            <div class="col-md-3 mb-4">
+                <div class="card sidebar-menu">
+                    <div class="card-header bg-luren text-white">
+                        <h5 class="mb-0"><i class="fas fa-user-circle me-2"></i>Mi Cuenta</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="list-group list-group-flush">
+                            <a th:href="@{/cuenta}" class="list-group-item list-group-item-action">
+                                <i class="fas fa-user me-2"></i>Mi Perfil
+                            </a>
+                            <a th:href="@{/datos}" class="list-group-item list-group-item-action active">
+                                <i class="fas fa-address-card me-2"></i>Mis Datos
+                            </a>
+                            <a th:href="@{/direcciones}" class="list-group-item list-group-item-action">
+                                <i class="fas fa-map-marker-alt me-2"></i>Mis Direcciones
+                            </a>
+                            <a th:href="@{/pedidos}" class="list-group-item list-group-item-action">
+                                <i class="fas fa-receipt me-2"></i>Mis Pedidos
+                            </a>
+                            <a th:href="@{/favoritos}" class="list-group-item list-group-item-action">
+                                <i class="fas fa-heart me-2"></i>Mis Favoritos
+                            </a>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <!-- Contenido para usuarios autenticados -->
-            <div th:if="${#authorization.expression('isAuthenticated()')}">
-                <!-- Información Actual -->
-                <div class="card mb-4" id="infoView">
-                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                        <h4 class="mb-0"><i class="fas fa-user me-2"></i>Información Personal</h4>
-                        <button class="btn btn-luren btn-sm" onclick="habilitarEdicion()">
-                            <i class="fas fa-edit me-1"></i>Editar
-                        </button>
+            <!-- Contenido Principal -->
+            <div class="col-md-9">
+                <!-- Header de la página -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h1 class="h2 text-luren mb-1">Mis Datos Personales</h1>
+                        <p class="text-muted">Gestiona y actualiza tu información personal</p>
                     </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="info-item">
-                                    <strong class="info-label">Nombre:</strong>
-                                    <span class="info-value" id="viewNombre">-</span>
+                    <a th:href="@{/cuenta}" class="btn btn-outline-luren">
+                        <i class="fas fa-arrow-left me-2"></i>Volver
+                    </a>
+                </div>
+
+                <!-- Estado de Sesión (solo para no autenticados) -->
+                <div th:if="${#authorization.expression('!isAuthenticated()')}" class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Debes <a th:href="@{/login}" class="alert-link">iniciar sesión</a> para ver y editar tu información
+                    personal.
+                </div>
+
+                <!-- Contenido para usuarios autenticados -->
+                <div th:if="${#authorization.expression('isAuthenticated()')}">
+                    <!-- Información Actual -->
+                    <div class="card mb-4" id="infoView">
+                        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                            <h4 class="mb-0"><i class="fas fa-user me-2"></i>Información Personal</h4>
+                            <button class="btn btn-luren btn-sm" onclick="habilitarEdicion()">
+                                <i class="fas fa-edit me-1"></i>Editar
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <strong class="info-label">Nombre:</strong>
+                                        <span class="info-value" id="viewNombre">-</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <strong class="info-label">Apellidos:</strong>
+                                        <span class="info-value" id="viewApellidos">-</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <strong class="info-label">Email:</strong>
+                                        <span class="info-value" id="viewEmail">-</span>
+                                    </div>
                                 </div>
-                                <div class="info-item">
-                                    <strong class="info-label">Apellidos:</strong>
-                                    <span class="info-value" id="viewApellidos">-</span>
-                                </div>
-                                <div class="info-item">
-                                    <strong class="info-label">Email:</strong>
-                                    <span class="info-value" id="viewEmail">-</span>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="info-item">
-                                    <strong class="info-label">Tipo de Documento:</strong>
-                                    <span class="info-value" id="viewTipoDocumento">-</span>
-                                </div>
-                                <div class="info-item">
-                                    <strong class="info-label">Número de Documento:</strong>
-                                    <span class="info-value" id="viewNumeroDocumento">-</span>
-                                </div>
-                                <div class="info-item">
-                                    <strong class="info-label">Teléfono:</strong>
-                                    <span class="info-value" id="viewTelefono">-</span>
-                                </div>
-                                <div class="info-item">
-                                    <strong class="info-label">Fecha de Nacimiento:</strong>
-                                    <span class="info-value" id="viewFechaNacimiento">-</span>
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <strong class="info-label">Tipo de Documento:</strong>
+                                        <span class="info-value" id="viewTipoDocumento">-</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <strong class="info-label">Número de Documento:</strong>
+                                        <span class="info-value" id="viewNumeroDocumento">-</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <strong class="info-label">Teléfono:</strong>
+                                        <span class="info-value" id="viewTelefono">-</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <strong class="info-label">Fecha de Nacimiento:</strong>
+                                        <span class="info-value" id="viewFechaNacimiento">-</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Formulario de Edición -->
-                <div class="card" id="editForm" style="display: none;">
-                    <div class="card-header bg-luren text-white">
-                        <h4 class="mb-0"><i class="fas fa-edit me-2"></i>Editar Información</h4>
-                    </div>
-                    <div class="card-body">
-                        <form id="editarDatosForm" novalidate>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label class="form-label">Nombre *</label>
-                                        <input type="text" class="form-control" id="editNombre" name="nombre" required>
-                                        <div class="invalid-feedback">Por favor ingresa tu nombre</div>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label class="form-label">Apellidos *</label>
-                                        <input type="text" class="form-control" id="editApellidos" name="apellidos" required>
-                                        <div class="invalid-feedback">Por favor ingresa tus apellidos</div>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label class="form-label">Fecha de Nacimiento *</label>
-                                        <input type="date" class="form-control" id="editFechaNacimiento" name="fechaNacimiento" required>
-                                        <div class="invalid-feedback">Por favor ingresa tu fecha de nacimiento</div>
-                                    </div>
-                                </div>
-
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label class="form-label">Tipo de Documento *</label>
-                                        <select class="form-select" id="editTipoDocumento" name="tipoDocumento" required>
-                                            <option value="">Seleccione...</option>
-                                            <option value="DNI">DNI</option>
-                                            <option value="Pasaporte">Pasaporte</option>
-                                            <option value="Carné de extranjería">Carné de extranjería</option>
-                                        </select>
-                                        <div class="invalid-feedback">Por favor selecciona un tipo de documento</div>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label class="form-label">Número de Documento *</label>
-                                        <input type="text" class="form-control" id="editNumeroDocumento" name="numeroDocumento" required>
-                                        <div class="invalid-feedback">Por favor ingresa tu número de documento</div>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label class="form-label">Teléfono *</label>
-                                        <input type="tel" class="form-control" id="editTelefono" name="telefono" required>
-                                        <div class="invalid-feedback">Por favor ingresa tu teléfono</div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Sección de Cambio de Contraseña -->
-                            <div class="password-section mt-4 pt-4 border-top">
-                                <h5 class="mb-3"><i class="fas fa-lock me-2"></i>Cambiar Contraseña</h5>
+                    <!-- Formulario de Edición -->
+                    <div class="card" id="editForm" style="display: none;">
+                        <div class="card-header bg-luren text-white">
+                            <h4 class="mb-0"><i class="fas fa-edit me-2"></i>Editar Información</h4>
+                        </div>
+                        <div class="card-body">
+                            <form id="editarDatosForm" novalidate>
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label class="form-label">Contraseña Actual</label>
-                                            <input type="password" class="form-control" id="passwordActual" name="passwordActual">
-                                            <div class="invalid-feedback">Por favor ingresa tu contraseña actual</div>
+                                            <label class="form-label">Nombre *</label>
+                                            <input type="text" class="form-control" id="editNombre" name="nombre"
+                                                required>
+                                            <div class="invalid-feedback">Por favor ingresa tu nombre</div>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label">Apellidos *</label>
+                                            <input type="text" class="form-control" id="editApellidos" name="apellidos"
+                                                required>
+                                            <div class="invalid-feedback">Por favor ingresa tus apellidos</div>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label">Fecha de Nacimiento *</label>
+                                            <input type="date" class="form-control" id="editFechaNacimiento"
+                                                name="fechaNacimiento" required>
+                                            <div class="invalid-feedback">Por favor ingresa tu fecha de nacimiento</div>
                                         </div>
                                     </div>
+
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label class="form-label">Nueva Contraseña</label>
-                                            <input type="password" class="form-control" id="nuevaPassword" name="nuevaPassword">
-                                            <div class="invalid-feedback">La contraseña debe tener al menos 6 caracteres</div>
-                                            <div class="password-strength small mt-1" id="passwordStrength"></div>
+                                            <label class="form-label">Tipo de Documento *</label>
+                                            <select class="form-select" id="editTipoDocumento" name="tipoDocumento"
+                                                required>
+                                                <option value="">Seleccione...</option>
+                                                <option value="DNI">DNI</option>
+                                                <option value="Pasaporte">Pasaporte</option>
+                                                <option value="Carné de extranjería">Carné de extranjería</option>
+                                            </select>
+                                            <div class="invalid-feedback">Por favor selecciona un tipo de documento
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label">Número de Documento *</label>
+                                            <input type="text" class="form-control" id="editNumeroDocumento"
+                                                name="numeroDocumento" required>
+                                            <div class="invalid-feedback">Por favor ingresa tu número de documento</div>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label">Teléfono *</label>
+                                            <input type="tel" class="form-control" id="editTelefono" name="telefono"
+                                                required>
+                                            <div class="invalid-feedback">Por favor ingresa tu teléfono</div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <!-- Botones de Acción -->
-                            <div class="d-flex gap-2 mt-4">
-                                <button type="submit" class="btn btn-luren">
-                                    <i class="fas fa-save me-2"></i>Guardar Cambios
-                                </button>
-                                <button type="button" class="btn btn-outline-secondary" onclick="cancelarEdicion()">
-                                    <i class="fas fa-times me-2"></i>Cancelar
-                                </button>
-                            </div>
-                        </form>
+                                <!-- Sección de Cambio de Contraseña -->
+                                <div class="password-section mt-4 pt-4 border-top">
+                                    <h5 class="mb-3"><i class="fas fa-lock me-2"></i>Cambiar Contraseña</h5>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">Contraseña Actual</label>
+                                                <input type="password" class="form-control" id="passwordActual"
+                                                    name="passwordActual">
+                                                <div class="invalid-feedback">Por favor ingresa tu contraseña actual
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">Nueva Contraseña</label>
+                                                <input type="password" class="form-control" id="nuevaPassword"
+                                                    name="nuevaPassword">
+                                                <div class="invalid-feedback">La contraseña debe tener al menos 6
+                                                    caracteres</div>
+                                                <div class="password-strength small mt-1" id="passwordStrength"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Botones de Acción -->
+                                <div class="d-flex gap-2 mt-4">
+                                    <button type="submit" class="btn btn-luren">
+                                        <i class="fas fa-save me-2"></i>Guardar Cambios
+                                    </button>
+                                    <button type="button" class="btn btn-outline-secondary" onclick="cancelarEdicion()">
+                                        <i class="fas fa-times me-2"></i>Cancelar
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-</main>
+    </main>
 
-<!-- FOOTER (Mantengo tu footer original) -->
-<footer class="bg-light pt-5 pb-3">
-    <div class="container-fluid px-4">
-        <div class="row">
-            <!-- Columna del Logo y Conectividad -->
-            <div class="col-md-3 mb-4">
-                <div class="d-flex flex-column align-items-md-start align-items-center">
-                    <img th:src="@{/archivos/logo.jpg}" alt="Logo" style="height: 70px;" class="mb-3">
-                    <h5 class="fw-bold mb-2 text-md-start text-center">Conéctate con nosotros</h5>
-                    <div class="d-flex gap-2">
-                        <a th:href="@{https://www.instagram.com}" target="_blank"
-                           class="btn btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center"
-                           style="width: 40px; height: 40px;">
-                            <i class="fab fa-instagram"></i>
-                        </a>
-                        <a th:href="@{https://www.facebook.com}" target="_blank"
-                           class="btn btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center"
-                           style="width: 40px; height: 40px;">
-                            <i class="fab fa-facebook-f"></i>
-                        </a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    <!-- FOOTER (Mantengo tu footer original) -->
+    <footer class="bg-light pt-5 pb-3">
+        <div class="container-fluid px-4">
+            <div class="row">
+                <!-- Columna del Logo y Conectividad -->
+                <div class="col-md-3 mb-4">
+                    <div class="d-flex flex-column align-items-md-start align-items-center">
+                        <img th:src="@{/archivos/logo.jpg}" alt="Logo" style="height: 70px;" class="mb-3">
+                        <h5 class="fw-bold mb-2 text-md-start text-center">Conéctate con nosotros</h5>
+                        <div class="d-flex gap-2">
+                            <a th:href="@{https://www.instagram.com}" target="_blank"
+                                class="btn btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center"
+                                style="width: 40px; height: 40px;">
+                                <i class="fab fa-instagram"></i>
+                            </a>
+                            <a th:href="@{https://www.facebook.com}" target="_blank"
+                                class="btn btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center"
+                                style="width: 40px; height: 40px;">
+                                <i class="fab fa-facebook-f"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- En la sección de Productos del footer -->
+                <div class="col-md-3 mb-4">
+                    <h5 class="fw-bold mb-3">Nuestros Productos</h5>
+                    <ul class="list-unstyled">
+                        <li><a th:href="@{/menu#pollos}" class="text-decoration-none text-dark">Pollo a la brasa</a>
+                        </li>
+                        <li><a th:href="@{/menu#parrillas}" class="text-decoration-none text-dark">Parrillas</a></li>
+                        <li><a th:href="@{/menu#chicharron}" class="text-decoration-none text-dark">Chicharrón</a></li>
+                        <li><a th:href="@{/menu#broaster}" class="text-decoration-none text-dark">Broster</a></li>
+                        <li><a th:href="@{/menu#hamburguesas}" class="text-decoration-none text-dark">Hamburguesas</a>
+                        </li>
+                        <li><a th:href="@{/menu#criollos}" class="text-decoration-none text-dark">Criollos</a></li>
+                        <li><a th:href="@{/menu#combos}" class="text-decoration-none text-dark">Combos</a></li>
+                    </ul>
+                </div>
+
+                <!-- Columna de Ayuda -->
+                <div class="col-md-3 mb-4">
+                    <h5 class="fw-bold mb-3">Ayuda</h5>
+                    <ul class="list-unstyled">
+                        <li><a th:href="@{/politica-datos}" class="text-decoration-none text-dark">Política de Datos
+                                Personales</a></li>
+                        <li><a th:href="@{/terminos}" class="text-decoration-none text-dark">Términos y Condiciones</a>
+                        </li>
+                        <li><a th:href="@{/nuestros-locales}" class="text-decoration-none text-dark">Nuestro Local</a>
+                        </li>
+                        <li><a th:href="@{/politica-cookies}" class="text-decoration-none text-dark">Política de
+                                cookies</a></li>
+                    </ul>
+                </div>
+
+                <!-- Columna de Reclamaciones y Pagos -->
+                <div class="col-md-3 mb-4">
+                    <h5 class="fw-bold mb-3">Libro de reclamaciones</h5>
+                    <a th:href="@{/libro-reclamaciones}">
+                        <img th:src="@{/archivos/libro.png}" alt="Libro de Reclamaciones" style="width: 120px;"
+                            class="mb-3">
+                    </a>
+                    <h5 class="fw-bold mb-3">Métodos de Pago</h5>
+                    <div class="d-flex gap-2 align-items-center">
+                        <img th:src="@{/archivos/visa_PNG30.png}" alt="Visa" style="width: 50px; border-radius: 10px;">
+                        <img th:src="@{/archivos/mastercard-og-image.png}" alt="Mastercard"
+                            style="width: 50px; border-radius: 10px;">
                     </div>
                 </div>
             </div>
 
-            <!-- En la sección de Productos del footer -->
-            <div class="col-md-3 mb-4">
-                <h5 class="fw-bold mb-3">Nuestros Productos</h5>
-                <ul class="list-unstyled">
-                    <li><a th:href="@{/menu#pollos}" class="text-decoration-none text-dark">Pollo a la brasa</a></li>
-                    <li><a th:href="@{/menu#parrillas}" class="text-decoration-none text-dark">Parrillas</a></li>
-                    <li><a th:href="@{/menu#chicharron}" class="text-decoration-none text-dark">Chicharrón</a></li>
-                    <li><a th:href="@{/menu#broaster}" class="text-decoration-none text-dark">Broster</a></li>
-                    <li><a th:href="@{/menu#hamburguesas}" class="text-decoration-none text-dark">Hamburguesas</a></li>
-                    <li><a th:href="@{/menu#criollos}" class="text-decoration-none text-dark">Criollos</a></li>
-                    <li><a th:href="@{/menu#combos}" class="text-decoration-none text-dark">Combos</a></li>
-                </ul>
-            </div>
-
-            <!-- Columna de Ayuda -->
-            <div class="col-md-3 mb-4">
-                <h5 class="fw-bold mb-3">Ayuda</h5>
-                <ul class="list-unstyled">
-                    <li><a th:href="@{/politica-datos}" class="text-decoration-none text-dark">Política de Datos Personales</a></li>
-                    <li><a th:href="@{/terminos}" class="text-decoration-none text-dark">Términos y Condiciones</a></li>
-                    <li><a th:href="@{/nuestros-locales}" class="text-decoration-none text-dark">Nuestro Local</a></li>
-                    <li><a th:href="@{/politica-cookies}" class="text-decoration-none text-dark">Política de cookies</a></li>
-                </ul>
-            </div>
-
-            <!-- Columna de Reclamaciones y Pagos -->
-            <div class="col-md-3 mb-4">
-                <h5 class="fw-bold mb-3">Libro de reclamaciones</h5>
-                <a th:href="@{/libro-reclamaciones}">
-                    <img th:src="@{/archivos/libro.png}" alt="Libro de Reclamaciones" style="width: 120px;" class="mb-3">
-                </a>
-                <h5 class="fw-bold mb-3">Métodos de Pago</h5>
-                <div class="d-flex gap-2 align-items-center">
-                    <img th:src="@{/archivos/visa_PNG30.png}" alt="Visa" style="width: 50px; border-radius: 10px;">
-                    <img th:src="@{/archivos/mastercard-og-image.png}" alt="Mastercard" style="width: 50px; border-radius: 10px;">
-                </div>
+            <!-- Separador y Copyright -->
+            <hr class="my-4">
+            <div class="d-flex justify-content-center text-center">
+                <small>&copy; 2024 D'LurenChicken. Todos los derechos reservados.</small>
             </div>
         </div>
+    </footer>
 
-        <!-- Separador y Copyright -->
-        <hr class="my-4">
-        <div class="d-flex justify-content-center text-center">
-            <small>&copy; 2024 D'LurenChicken. Todos los derechos reservados.</small>
-        </div>
-    </div>
-</footer>
-
-<!-- Scripts -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-<script th:src="@{/script/mis-datos.js}"></script>
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:src="@{/script/mis-datos.js}"></script>
+    <script th:src="@{/script/global-carrito.js}"></script>
 </body>
+
 </html>

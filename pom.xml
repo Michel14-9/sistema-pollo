@@ -99,6 +99,13 @@
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
         </dependency>
+        <!-- En tu pom.xml -->
+        <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>itext7-core</artifactId>
+            <version>8.0.3</version> <!-- Versión más reciente -->
+            <type>pom</type>
+        </dependency>
     </dependencies>
 
 	<build>

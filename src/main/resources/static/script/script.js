@@ -3,11 +3,21 @@
 
 const RECAPTCHA_SITE_KEY = "6LcOWNQrAAAAAD_mcy9fM5j71rg4kr0p-THrhQ-L";
 
-
+function limpiarErroresIniciales() {
+    // Limpiar todos los errores al cargar la página
+    const form = document.getElementById("registroForm");
+    if (form) {
+        const campos = form.querySelectorAll('input, select');
+        campos.forEach(campo => {
+            campo.classList.remove('is-invalid');
+        });
+    }
+}
 // INICIALIZACIÓN
 
 document.addEventListener('DOMContentLoaded', function() {
     console.log(" Inicializando formulario de registro...");
+    limpiarErroresIniciales();
     inicializarFormulario();
 });
 
@@ -23,10 +33,6 @@ function inicializarFormulario() {
 
     // Desactivar validación HTML5
     form.setAttribute("novalidate", "true");
-
-    // Remover atributos required
-    const requiredFields = form.querySelectorAll('[required]');
-    requiredFields.forEach(field => field.removeAttribute('required'));
 
     // Event listener para submit
     form.addEventListener("submit", manejarEnvioFormulario);
@@ -413,6 +419,13 @@ function validarPassword() {
         return false;
     }
 
+
+    const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/;
+    if (!passwordPattern.test(valor)) {
+        mostrarErrorCampo(password, 'La contraseña debe contener al menos una mayúscula, una minúscula y un número');
+        return false;
+    }
+
     // Mostrar fortaleza de contraseña
     actualizarFortalezaPassword(valor);
 
@@ -432,6 +445,8 @@ function validarTerminos() {
 // VALIDACIONES EN TIEMPO REAL
 
 function configurarValidacionesTiempoReal(form) {
+    console.log(" Configurando validaciones en tiempo real...");
+
     // Nombres y Apellidos - solo letras y espacios
     configurarValidacionTexto('nombres', /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]*$/);
     configurarValidacionTexto('apellidos', /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]*$/);
@@ -453,15 +468,22 @@ function configurarValidacionesTiempoReal(form) {
                 this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 12);
                 break;
         }
+        // Solo validar si hay contenido
+        if (this.value.trim() !== '') {
+            this.classList.remove('is-invalid');
+        }
     });
 
     // Teléfono - solo números, máximo 9
     const telefono = form.querySelector('[name="telefono"]');
     telefono.addEventListener('input', function() {
         this.value = this.value.replace(/\D/g, '').slice(0, 9);
+        if (this.value.trim() !== '') {
+            this.classList.remove('is-invalid');
+        }
     });
 
-    // Fecha de nacimiento - validación en tiempo real
+    // Fecha de nacimiento - validación solo cuando hay valor
     const fechaNacimiento = form.querySelector('[name="fechaNacimiento"]');
     fechaNacimiento.addEventListener('change', function() {
         if (this.value) {
@@ -479,24 +501,28 @@ function configurarValidacionesTiempoReal(form) {
         }
     });
 
-    // Email - validación en tiempo real
+    // Email - validación solo cuando hay valor
     const email = form.querySelector('[name="email"]');
     email.addEventListener('blur', function() {
         if (this.value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.value)) {
             this.classList.add('is-invalid');
-        } else {
+        } else if (this.value) {
             this.classList.remove('is-invalid');
         }
     });
 
-    // Password - fortaleza en tiempo real
+    // Password - fortaleza en tiempo real (solo cuando hay valor)
     const password = form.querySelector('[name="password"]');
     password.addEventListener('input', function() {
         actualizarFortalezaPassword(this.value);
-        if (this.value.length > 0 && this.value.length < 6) {
-            this.classList.add('is-invalid');
-        } else {
-            this.classList.remove('is-invalid');
+        if (this.value.length > 0) {
+            if (this.value.length < 6) {
+                this.classList.add('is-invalid');
+            } else if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/.test(this.value)) {
+                this.classList.add('is-invalid');
+            } else {
+                this.classList.remove('is-invalid');
+            }
         }
     });
 
@@ -520,6 +546,22 @@ function configurarValidacionesTiempoReal(form) {
             default:
                 numeroDocField.placeholder = '';
         }
+    });
+
+    // Agregar evento para limpiar errores cuando el usuario empiece a escribir
+    const campos = form.querySelectorAll('input, select');
+    campos.forEach(campo => {
+        campo.addEventListener('input', function() {
+            if (this.value.trim() !== '') {
+                this.classList.remove('is-invalid');
+            }
+        });
+
+        campo.addEventListener('change', function() {
+            if (this.value && this.value !== '') {
+                this.classList.remove('is-invalid');
+            }
+        });
     });
 }
 
@@ -578,33 +620,36 @@ function actualizarFortalezaPassword(password) {
     if (!strengthElement) return;
 
     let strength = '';
-    let color = '';
     let message = '';
+    let strengthClass = '';
 
     if (password.length === 0) {
         strength = '';
         message = '';
+        strengthElement.className = 'password-strength';
+        strengthElement.textContent = '';
     } else if (password.length < 6) {
         strength = 'Débil';
-        color = '#dc3545';
-        message = 'Muy corta';
+        message = 'Muy corta (mínimo 6 caracteres)';
+        strengthClass = 'weak';
     } else if (password.length < 8) {
         strength = 'Media';
-        color = '#fd7e14';
         message = 'Podría ser más segura';
-    } else if (/[A-Z]/.test(password) && /\d/.test(password) && /[!@#$%^&*]/.test(password)) {
+        strengthClass = 'medium';
+    } else if (/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/.test(password)) {
         strength = 'Fuerte';
-        color = '#198754';
-        message = 'Excelente seguridad';
+        message = '¡Excelente! Cumple todos los requisitos';
+        strengthClass = 'strong';
     } else {
         strength = 'Media';
-        color = '#fd7e14';
-        message = 'Usa mayúsculas, números y símbolos';
+        message = 'Usa mayúsculas, minúsculas y números';
+        strengthClass = 'medium';
     }
 
-    strengthElement.textContent = strength ? `Seguridad: ${strength} - ${message}` : '';
-    strengthElement.style.color = color;
-    strengthElement.style.fontWeight = 'bold';
+    if (strength) {
+        strengthElement.textContent = `Seguridad: ${strength} - ${message}`;
+        strengthElement.className = `password-strength ${strengthClass}`;
+    }
 }
 
 function ejecutarRecaptcha() {

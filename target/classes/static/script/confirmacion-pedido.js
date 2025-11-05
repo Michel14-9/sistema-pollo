@@ -1,4 +1,4 @@
-// confirmacion-pedido.js - Funcionalidades para la página de confirmación
+// confirmacion-pedido.js
 document.addEventListener('DOMContentLoaded', function() {
     console.log('=== CONFIRMACIÓN PEDIDO - INICIADO ===');
     inicializarConfirmacion();
@@ -53,14 +53,13 @@ function configurarEventosConfirmacion() {
     }
 }
 
-//  Actualizar información en tiempo real (opcional)
+//  Actualizar información en tiempo real
 function actualizarTiempoReal() {
-    // Esta función puede usarse para actualizar el estado del pedido
-    // sin recargar la página (si implementas WebSockets o polling)
+
 
     console.log(' Iniciando actualizaciones en tiempo real');
 
-    // Ejemplo: Actualizar el tiempo transcurrido cada minuto
+
     setInterval(() => {
         actualizarTiempoTranscurrido();
     }, 60000);
@@ -107,7 +106,7 @@ function parsearFecha(fechaTexto) {
 
     return new Date(
         parseInt(anio),
-        parseInt(mes) - 1, // Meses en JavaScript son 0-based
+        parseInt(mes) - 1,
         parseInt(dia),
         parseInt(horas),
         parseInt(minutos)

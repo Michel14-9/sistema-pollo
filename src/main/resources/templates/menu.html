@@ -8,7 +8,7 @@
           integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <!-- Aquí pon las rutas correctas para tus CSS -->
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
+
     <link rel="stylesheet" th:href="@{/css/menu.css}">
 </head>
 
@@ -114,6 +114,11 @@
     </div>
 </header>
 
+
+
+
+
+
 <!-- CONTENIDO PRINCIPAL -->
 <main class="container my-4">
 
@@ -135,6 +140,11 @@
     <div class="row g-3 mb-5">
         <div class="col-md-4" th:each="producto : ${pollos}">
             <div class="card h-100 product-card">
+
+                <!-- BOTÓN DEL CORAZÓN PARA FAVORITOS -->
+                <button class="favorite-btn" th:data-product-id="${producto.id}">
+                    <i class="far fa-heart"></i>
+                </button>
                 <!--  IMAGEN DINÁMICA DESDE LA BASE DE DATOS -->
                 <img th:src="${producto.imagenUrl != null} ? @{${producto.imagenUrl}} : @{/imagenes/default-product.jpg}"
                      class="card-img-top" alt="Producto"
@@ -164,6 +174,10 @@
     <div class="row g-3 mb-5">
         <div class="col-md-4" th:each="producto : ${parrillas}">
             <div class="card h-100 product-card">
+                <!-- BOTÓN DEL CORAZÓN PARA FAVORITOS -->
+                <button class="favorite-btn" th:data-product-id="${producto.id}">
+                    <i class="far fa-heart"></i>
+                </button>
                 <!--  IMAGEN DINÁMICA DESDE LA BASE DE DATOS -->
                 <img th:src="${producto.imagenUrl != null} ? @{${producto.imagenUrl}} : @{/imagenes/default-product.jpg}"
                      class="card-img-top" alt="Producto"
@@ -192,6 +206,10 @@
     <div class="row g-3 mb-5">
         <div class="col-md-4" th:each="producto : ${chicharron}">
             <div class="card h-100 product-card">
+                <!-- BOTÓN DEL CORAZÓN PARA FAVORITOS -->
+                <button class="favorite-btn" th:data-product-id="${producto.id}">
+                    <i class="far fa-heart"></i>
+                </button>
                 <!--  IMAGEN DINÁMICA DESDE LA BASE DE DATOS -->
                 <img th:src="${producto.imagenUrl != null} ? @{${producto.imagenUrl}} : @{/imagenes/default-product.jpg}"
                      class="card-img-top" alt="Producto"
@@ -220,6 +238,10 @@
     <div class="row g-3 mb-5">
         <div class="col-md-4" th:each="producto : ${broaster}">
             <div class="card h-100 product-card">
+                <!-- BOTÓN DEL CORAZÓN PARA FAVORITOS -->
+                <button class="favorite-btn" th:data-product-id="${producto.id}">
+                    <i class="far fa-heart"></i>
+                </button>
                 <!--  IMAGEN DINÁMICA DESDE LA BASE DE DATOS -->
                 <img th:src="${producto.imagenUrl != null} ? @{${producto.imagenUrl}} : @{/imagenes/default-product.jpg}"
                      class="card-img-top" alt="Producto"
@@ -248,6 +270,10 @@
     <div class="row g-3 mb-5">
         <div class="col-md-4" th:each="producto : ${hamburguesas}">
             <div class="card h-100 product-card">
+                <!-- BOTÓN DEL CORAZÓN PARA FAVORITOS -->
+                <button class="favorite-btn" th:data-product-id="${producto.id}">
+                    <i class="far fa-heart"></i>
+                </button>
                 <!--  IMAGEN DINÁMICA DESDE LA BASE DE DATOS -->
                 <img th:src="${producto.imagenUrl != null} ? @{${producto.imagenUrl}} : @{/imagenes/default-product.jpg}"
                      class="card-img-top" alt="Producto"
@@ -276,6 +302,10 @@
     <div class="row g-3 mb-5">
         <div class="col-md-4" th:each="producto : ${criollos}">
             <div class="card h-100 product-card">
+                <!-- BOTÓN DEL CORAZÓN PARA FAVORITOS -->
+                <button class="favorite-btn" th:data-product-id="${producto.id}">
+                    <i class="far fa-heart"></i>
+                </button>
                 <!--  IMAGEN DINÁMICA DESDE LA BASE DE DATOS -->
                 <img th:src="${producto.imagenUrl != null} ? @{${producto.imagenUrl}} : @{/imagenes/default-product.jpg}"
                      class="card-img-top" alt="Producto"
@@ -304,6 +334,10 @@
     <div class="row g-3 mb-5">
         <div class="col-md-4" th:each="producto : ${combos}">
             <div class="card h-100 product-card">
+                <!-- BOTÓN DEL CORAZÓN PARA FAVORITOS -->
+                <button class="favorite-btn" th:data-product-id="${producto.id}">
+                    <i class="far fa-heart"></i>
+                </button>
                 <!--  IMAGEN DINÁMICA DESDE LA BASE DE DATOS -->
                 <img th:src="${producto.imagenUrl != null} ? @{${producto.imagenUrl}} : @{/imagenes/default-product.jpg}"
                      class="card-img-top" alt="Producto"
@@ -328,6 +362,23 @@
     </div>
 
 </main>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 <footer class="bg-light pt-5 pb-3">
     <div class="container-fluid px-4">

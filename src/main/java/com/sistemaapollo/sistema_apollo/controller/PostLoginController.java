@@ -8,14 +8,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class PostLoginController {
 
-    /**
-     * Redirige al usuario según su rol después de iniciar sesión
-     */
     @GetMapping("/postLogin")
     public String postLogin(Authentication authentication) {
 
         if (authentication == null || !authentication.isAuthenticated()) {
-            return "redirect:/login"; // fallback por seguridad
+            return "redirect:/login";
         }
 
         // Obtiene el rol del usuario
@@ -24,13 +21,20 @@ public class PostLoginController {
                 .findFirst()
                 .orElse("");
 
+        // TODOS LOS CASOS AQUÍ
         switch (rol) {
             case "ROLE_ADMIN":
-                return "redirect:/admin-menu"; // tu menú admin
+                return "redirect:/admin-menu";
+            case "ROLE_CAJERO":
+                return "redirect:/cajero";
+            case "ROLE_COCINERO":
+                return "redirect:/cocinero";
+            case "ROLE_DELIVERY":
+                return "redirect:/delivery";
             case "ROLE_CLIENTE":
-                return "redirect:/menu";       // menú para clientes
+                return "redirect:/menu";
             default:
-                return "redirect:/";           // fallback
+                return "redirect:/";
         }
     }
 }

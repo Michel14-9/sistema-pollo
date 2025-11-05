@@ -40,6 +40,8 @@ public class SecurityConfig {
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                         // PERMITIR endpoints POST de todos los módulos
                         .ignoringRequestMatchers(
+                                "/api/auth/**",
+                                "/api/direcciones/**",
                                 "/cajero/marcar-pagado/**",
                                 "/cajero/marcar-cancelado/**",
                                 "/cocinero/iniciar-preparacion/**",
@@ -66,6 +68,7 @@ public class SecurityConfig {
                                 "/locales", "/nuestros-locales",
                                 "/login", "/registrate", "/registro",
                                 "/api/auth/**",
+                                "/api/direcciones/**",
                                 "/css/**", "/script/**", "/imagenes/**", "/archivos/**",
                                 "/error", "/libro-reclamaciones", "/terminos",
                                 "/politica-datos", "/politica-cookies",

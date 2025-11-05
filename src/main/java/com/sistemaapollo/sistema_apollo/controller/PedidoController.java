@@ -1,5 +1,6 @@
 package com.sistemaapollo.sistema_apollo.controller;
 
+import com.sistemaapollo.sistema_apollo.model.ItemPedido;
 import com.sistemaapollo.sistema_apollo.model.Pedido;
 import com.sistemaapollo.sistema_apollo.model.CarritoItem;
 import com.sistemaapollo.sistema_apollo.model.Usuario;
@@ -16,10 +17,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+
+import java.util.*;
 
 @Controller
 @RequestMapping("/pedido")
@@ -219,16 +218,73 @@ public class PedidoController {
     @ResponseBody
     public ResponseEntity<?> obtenerMisPedidos(Authentication authentication) {
         try {
-            String correo = authentication.getName();
-            Usuario usuario = usuarioService.buscarPorCorreo(correo)
-                    .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+            System.out.println("=== SOLICITANDO PEDIDOS DEL USUARIO ===");
 
-            List<Pedido> pedidos = pedidoService.obtenerPedidosPorUsuario(usuario.getId());
-            return ResponseEntity.ok(pedidos);
+            if (authentication == null || !authentication.isAuthenticated()) {
+                return ResponseEntity.status(401).body("Usuario no autenticado");
+            }
+
+            String correo = authentication.getName();
+            Optional<Usuario> usuarioOpt = usuarioService.buscarPorCorreo(correo);
+
+            if (usuarioOpt.isEmpty()) {
+                return ResponseEntity.status(404).body("Usuario no encontrado");
+            }
+
+            Usuario usuario = usuarioOpt.get();
+
+            // Obtener pedidos con items inicializados
+            List<Pedido> pedidos = pedidoService.obtenerPedidosPorUsuarioConItems(usuario.getId());
+
+            System.out.println(" Pedidos encontrados: " + pedidos.size());
+
+            // Crear respuesta simplificada manualmente
+            List<Map<String, Object>> pedidosResponse = new ArrayList<>();
+
+            for (Pedido pedido : pedidos) {
+                Map<String, Object> pedidoMap = new HashMap<>();
+                pedidoMap.put("id", pedido.getId());
+                pedidoMap.put("codigo", pedido.getNumeroPedido());
+                pedidoMap.put("estado", pedido.getEstado());
+                pedidoMap.put("fechaPedido", pedido.getFechaPedido());
+                pedidoMap.put("total", pedido.getTotal());
+                pedidoMap.put("metodoPago", pedido.getMetodoPago());
+                pedidoMap.put("tipoEntrega", pedido.getTipoEntrega());
+                pedidoMap.put("direccionEntrega", pedido.getDireccionEntrega());
+
+                // Items del pedido
+                List<Map<String, Object>> itemsList = new ArrayList<>();
+                for (ItemPedido item : pedido.getItems()) {
+                    Map<String, Object> itemMap = new HashMap<>();
+                    itemMap.put("cantidad", item.getCantidad());
+                    itemMap.put("precio", item.getPrecio());
+                    itemMap.put("subtotal", item.getSubtotal());
+
+                    // Información del producto
+                    Map<String, Object> productoMap = new HashMap<>();
+                    if (item.getProductoFinal() != null) {
+                        productoMap.put("id", item.getProductoFinal().getId());
+                        productoMap.put("nombre", item.getProductoFinal().getNombre());
+                        productoMap.put("precio", item.getProductoFinal().getPrecio());
+                    } else {
+                        productoMap.put("nombre", "Producto no disponible");
+                        productoMap.put("precio", 0.0);
+                    }
+                    itemMap.put("producto", productoMap);
+
+                    itemsList.add(itemMap);
+                }
+                pedidoMap.put("items", itemsList);
+
+                pedidosResponse.add(pedidoMap);
+            }
+
+            return ResponseEntity.ok(pedidosResponse);
 
         } catch (Exception e) {
-            return ResponseEntity.status(500)
-                    .body("Error al cargar los pedidos: " + e.getMessage());
+            System.err.println(" ERROR en obtenerMisPedidos: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Error interno del servidor");
         }
     }
 }

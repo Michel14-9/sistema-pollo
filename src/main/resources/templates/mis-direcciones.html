@@ -221,6 +221,7 @@
         </div>
     </main>
 
+
     <!-- Modal para Agregar/Editar Dirección -->
     <div class="modal fade" id="modalDireccion" tabindex="-1" aria-labelledby="modalDireccionLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
@@ -236,7 +237,7 @@
                             <div class="col-md-6 mb-3">
                                 <label for="nombre" class="form-label">Nombre de la dirección *</label>
                                 <input type="text" class="form-control" id="nombre" required
-                                    placeholder="Ej: Casa, Oficina, Departamento">
+                                       placeholder="Ej: Casa, Oficina, Departamento">
                             </div>
 
                             <!-- Tipo de Dirección -->
@@ -255,14 +256,14 @@
                             <div class="col-12 mb-3">
                                 <label for="direccion" class="form-label">Dirección completa *</label>
                                 <input type="text" class="form-control" id="direccion" required
-                                    placeholder="Calle, número, urbanización, etc.">
+                                       placeholder="Calle, número, urbanización, etc.">
                             </div>
 
                             <!-- Referencia -->
                             <div class="col-12 mb-3">
                                 <label for="referencia" class="form-label">Referencia</label>
                                 <input type="text" class="form-control" id="referencia"
-                                    placeholder="Ej: Frente al parque, al lado de...">
+                                       placeholder="Ej: Frente al parque, al lado de...">
                             </div>
 
                             <!-- Ciudad -->
@@ -271,14 +272,20 @@
                                 <select class="form-select" id="ciudad" required>
                                     <option value="" selected disabled>Selecciona la ciudad</option>
                                     <option value="Ica">Ica</option>
+                                    <!-- Puedes agregar más ciudades si es necesario -->
                                 </select>
                             </div>
 
-                            <!-- Teléfono de Contacto -->
+                            <!-- Teléfono de Contacto (OPCIONAL - se auto-completa) -->
                             <div class="col-md-6 mb-3">
-                                <label for="telefono" class="form-label">Teléfono de contacto *</label>
-                                <input type="tel" class="form-control" id="telefono" required
-                                    placeholder="Ej: 987654321" maxlength="9">
+                                <label for="telefono" class="form-label">Teléfono de contacto</label>
+                                <input type="tel" class="form-control" id="telefono"
+                                       placeholder="Se usará tu teléfono registrado" maxlength="9" readonly
+                                       style="background-color: #f8f9fa;">
+                                <div class="form-text">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Se usará tu teléfono principal: <span id="telefonoUsuario" class="fw-bold">Cargando...</span>
+                                </div>
                             </div>
 
                             <!-- Opciones -->
@@ -307,6 +314,7 @@
                 </div>
             </div>
         </div>
+    </div>
     </div>
 
 
@@ -403,6 +411,7 @@
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
     <script th:src="@{/script/mis-direcciones.js}"></script>
+    <script th:src="@{/script/global-carrito.js}"></script>
 </body>
 
 </html>

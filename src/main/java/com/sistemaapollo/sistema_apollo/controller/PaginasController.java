@@ -28,11 +28,7 @@ public class PaginasController {
 
 
 
-    // Mis Favoritos
-    @GetMapping("/favoritos")
-    public String favoritos() {
-        return "mis-favoritos"; // templates/mis-favoritos.html
-    }
+
 
     // Mis cuentas
     @GetMapping("/cuenta")

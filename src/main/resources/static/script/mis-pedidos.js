@@ -1,18 +1,14 @@
-
 // SISTEMA DE GESTIÓN DE PEDIDOS
 
-
 // Configuración
-const API_BASE_URL = '/api/pedidos';
+const API_BASE_URL = '/pedido/mis-pedidos';
 
 // Estado global
 let pedidos = [];
 let pedidoSeleccionado = null;
 let modalDetallePedido = null;
 
-
 // INICIALIZACIÓN
-
 document.addEventListener('DOMContentLoaded', function() {
     console.log(" Inicializando gestión de pedidos...");
 
@@ -35,9 +31,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-
 // CONFIGURACIÓN DE EVENT LISTENERS
-
 function configurarEventListeners() {
     console.log(" Configurando event listeners...");
 
@@ -64,27 +58,17 @@ function configurarEventListeners() {
         btnRepetir.addEventListener('click', repetirPedido);
     }
 
-    // Recargar cuando la página se vuelve visible
-    document.addEventListener('visibilitychange', function() {
-        if (!document.hidden) {
-            console.log(" Página visible, actualizando pedidos...");
-            cargarPedidos();
-        }
-    });
-
     console.log(" Event listeners configurados");
 }
 
-
 // FUNCIONES PRINCIPALES
-
 async function cargarPedidos() {
-    console.log(" Cargando pedidos del usuario...");
+    console.log(" Iniciando carga de pedidos...");
 
     try {
         mostrarEstadoCarga();
 
-        const response = await fetch(API_BASE_URL, {
+        const response = await fetch('/pedido/mis-pedidos', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -92,24 +76,67 @@ async function cargarPedidos() {
             credentials: 'include'
         });
 
-        console.log(" Respuesta del servidor:", response.status);
+        console.log("Estado HTTP:", response.status);
+        console.log("Texto estado:", response.statusText);
 
         if (!response.ok) {
+            const errorText = await response.text();
+            console.error(" Error response body:", errorText);
             throw new Error(`Error ${response.status}: ${response.statusText}`);
         }
 
-        pedidos = await response.json();
-        console.log(" Pedidos cargados:", pedidos.length);
+        const pedidosData = await response.json();
+        console.log(" Datos recibidos del backend:", pedidosData);
 
-        // Validar estructura de los pedidos
-        pedidos = pedidos.map(pedido => validarEstructuraPedido(pedido));
 
-        mostrarPedidos();
+        if (pedidosData && Array.isArray(pedidosData)) {
+            pedidos = pedidosData.map(procesarPedidoBackend);
+            console.log(` ${pedidos.length} pedidos procesados correctamente`);
+            mostrarPedidos();
+        } else {
+            console.warn(" Formato de datos inesperado:", pedidosData);
+            pedidos = [];
+            mostrarPedidos();
+        }
 
     } catch (error) {
-        console.error(" Error cargando pedidos:", error);
+        console.error(" Error completo:", error);
         mostrarErrorCarga("Error al cargar los pedidos: " + error.message);
     }
+}
+
+
+function procesarPedidoBackend(pedidoBackend) {
+    console.log(" Procesando pedido del backend:", pedidoBackend);
+
+    return {
+        id: pedidoBackend.id || 0,
+        codigo: pedidoBackend.codigo || pedidoBackend.numeroPedido || `P${String(pedidoBackend.id || 0).padStart(4, '0')}`,
+        estado: pedidoBackend.estado || 'PENDIENTE',
+        fechaPedido: pedidoBackend.fechaPedido || pedidoBackend.fecha,
+        total: pedidoBackend.total || 0,
+        subtotal: pedidoBackend.subtotal || 0,
+        metodoPago: pedidoBackend.metodoPago || 'No especificado',
+        tipoEntrega: pedidoBackend.tipoEntrega || 'Delivery',
+        direccionEntrega: pedidoBackend.direccionEntrega || 'No especificada',
+        observaciones: pedidoBackend.observaciones || '',
+        items: procesarItemsBackend(pedidoBackend.items || [])
+    };
+}
+
+
+function procesarItemsBackend(itemsBackend) {
+    return itemsBackend.map(item => ({
+        id: item.id || 0,
+        producto: {
+            id: item.producto?.id || 0,
+            nombre: item.producto?.nombre || 'Producto no disponible',
+            precio: item.producto?.precio || item.precio || 0
+        },
+        cantidad: item.cantidad || 1,
+        precio: item.precio || 0,
+        subtotal: item.subtotal || (item.cantidad * item.precio) || 0
+    }));
 }
 
 function mostrarPedidos() {
@@ -117,6 +144,8 @@ function mostrarPedidos() {
     const estadoVacio = document.getElementById('pedidosVacios');
     const estadoCarga = document.getElementById('estadoCarga');
     const errorCarga = document.getElementById('errorCarga');
+
+    console.log(" Mostrando pedidos. Total en memoria:", pedidos.length);
 
     if (!contenedor) {
         console.error(" No se encontró el contenedor de pedidos");
@@ -131,16 +160,14 @@ function mostrarPedidos() {
     contenedor.innerHTML = '';
 
     if (pedidos.length === 0) {
-        console.log("
-
-
-        No hay pedidos para mostrar");
+        console.log(" No hay pedidos para mostrar");
         if (estadoVacio) estadoVacio.style.display = 'block';
         return;
     }
 
     // Aplicar filtros
     const pedidosFiltrados = aplicarFiltros();
+    console.log("Pedidos después de filtros:", pedidosFiltrados.length);
 
     if (pedidosFiltrados.length === 0) {
         contenedor.innerHTML = `
@@ -157,6 +184,7 @@ function mostrarPedidos() {
 
     // Mostrar cada pedido
     pedidosFiltrados.forEach((pedido, index) => {
+        console.log(`Renderizando pedido ${index}:`, pedido.codigo);
         const pedidoElement = crearElementoPedido(pedido, index);
         contenedor.appendChild(pedidoElement);
     });
@@ -176,7 +204,7 @@ function crearElementoPedido(pedido, index) {
         <div class="row align-items-center py-3">
             <div class="col-md-3">
                 <div class="pedido-info">
-                    <h6 class="mb-1">Pedido #${validarCampoTexto(pedidoValidado.codigo || `P${String(index + 1).padStart(4, '0')}`)}</h6>
+                    <h6 class="mb-1">Pedido #${validarCampoTexto(pedidoValidado.codigo)}</h6>
                     <small class="text-muted">${validarFecha(pedidoValidado.fechaPedido)}</small>
                 </div>
             </div>
@@ -206,12 +234,10 @@ function crearElementoPedido(pedido, index) {
     return div;
 }
 
-
 // FUNCIONES DE FILTRADO Y BÚSQUEDA
-
 function aplicarFiltros() {
-    const terminoBusqueda = document.getElementById('buscarPedido').value.toLowerCase().trim();
-    const filtroEstado = document.getElementById('filtroEstado').value;
+    const terminoBusqueda = document.getElementById('buscarPedido')?.value.toLowerCase().trim() || '';
+    const filtroEstado = document.getElementById('filtroEstado')?.value || 'todos';
 
     return pedidos.filter(pedido => {
         // Filtro por estado
@@ -238,9 +264,8 @@ function filtrarPedidos() {
     mostrarPedidos();
 }
 
-
 function verDetallePedido(index) {
-    console.log(" Viendo detalle del pedido índice:", index);
+    console.log("👁 Viendo detalle del pedido índice:", index);
 
     const pedido = pedidos[index];
     if (!pedido) {
@@ -269,7 +294,7 @@ function mostrarDetallePedido(pedido) {
             <div class="row mb-4">
                 <div class="col-md-6">
                     <h6 class="text-muted">Código del Pedido</h6>
-                    <p class="h5">${validarCampoTexto(pedidoValidado.codigo || 'N/A')}</p>
+                    <p class="h5">${validarCampoTexto(pedidoValidado.codigo)}</p>
                 </div>
                 <div class="col-md-6 text-end">
                     <h6 class="text-muted">Estado</h6>
@@ -292,15 +317,12 @@ function mostrarDetallePedido(pedido) {
             </div>
 
             <!-- Dirección de entrega -->
-            ${pedidoValidado.direccionEntrega ? `
+            ${pedidoValidado.direccionEntrega && pedidoValidado.direccionEntrega !== 'No especificada' ? `
             <div class="mb-4">
                 <h6 class="text-muted">Dirección de Entrega</h6>
                 <div class="card bg-light">
                     <div class="card-body py-2">
-                        <p class="mb-1">${validarCampoTexto(pedidoValidado.direccionEntrega.direccion)}</p>
-                        <p class="mb-1">${validarCampoTexto(pedidoValidado.direccionEntrega.ciudad)}</p>
-                        ${pedidoValidado.direccionEntrega.referencia ?
-                          `<p class="mb-0"><small>Referencia: ${validarCampoTexto(pedidoValidado.direccionEntrega.referencia)}</small></p>` : ''}
+                        <p class="mb-1">${validarCampoTexto(pedidoValidado.direccionEntrega)}</p>
                     </div>
                 </div>
             </div>
@@ -373,21 +395,7 @@ function repetirPedido() {
     }, 2000);
 }
 
-
-function validarEstructuraPedido(pedido) {
-    return {
-        id: validarNumero(pedido.id),
-        codigo: validarCampoTexto(pedido.codigo || pedido.numeroPedido),
-        estado: validarEstadoPedido(pedido.estado),
-        fechaPedido: validarFecha(pedido.fechaPedido || pedido.fechaCreacion),
-        total: validarPrecio(pedido.total || pedido.montoTotal),
-        items: validarItemsPedido(pedido.items || pedido.detalles || []),
-        direccionEntrega: validarDireccionEntrega(pedido.direccionEntrega || pedido.direccion),
-        observaciones: validarCampoTexto(pedido.observaciones || pedido.notas),
-        metodoPago: validarCampoTexto(pedido.metodoPago)
-    };
-}
-
+// ... (el resto de tus funciones de utilidad se mantienen igual)
 function validarDatosPedido(pedido) {
     // Validaciones adicionales para mostrar
     if (!pedido.items || pedido.items.length === 0) {
@@ -396,51 +404,17 @@ function validarDatosPedido(pedido) {
     }
 
     if (!pedido.total || pedido.total <= 0) {
-        console.warn(" Pedido con total inválido:", pedido.codigo);
+        console.warn("Pedido con total inválido:", pedido.codigo);
         pedido.total = pedido.items.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
     }
 
     return pedido;
 }
 
-function validarItemsPedido(items) {
-    if (!Array.isArray(items)) return [];
-
-    return items.map(item => ({
-        producto: {
-            id: validarNumero(item.producto?.id),
-            nombre: validarCampoTexto(item.producto?.nombre || item.nombreProducto || "Producto"),
-            precio: validarPrecio(item.producto?.precio || item.precio || 0)
-        },
-        cantidad: validarCantidad(item.cantidad),
-        precio: validarPrecio(item.precio || item.producto?.precio || 0),
-        subtotal: validarPrecio(item.subtotal || (item.cantidad * item.precio) || 0)
-    }));
-}
-
-function validarDireccionEntrega(direccion) {
-    if (!direccion) return null;
-
-    return {
-        direccion: validarCampoTexto(direccion.direccion || direccion.calle),
-        ciudad: validarCampoTexto(direccion.ciudad || direccion.distrito),
-        referencia: validarCampoTexto(direccion.referencia),
-        telefono: validarTelefono(direccion.telefono)
-    };
-}
-
-function validarEstadoPedido(estado) {
-    const estadosValidos = ['PENDIENTE', 'CONFIRMADO', 'PREPARACION', 'EN_CAMINO', 'ENTREGADO', 'CANCELADO'];
-    return estadosValidos.includes(estado) ? estado : 'PENDIENTE';
-}
-
 function validarPedidoRepetible(pedido) {
     // Solo se pueden repetir pedidos entregados o cancelados
     return pedido.estado === 'ENTREGADO' || pedido.estado === 'CANCELADO';
 }
-
-
-// FUNCIONES DE UTILIDAD
 
 function obtenerClaseEstado(estado) {
     const clases = {
@@ -493,15 +467,9 @@ function generarItemsPedido(items) {
     `).join('');
 }
 
-
 function validarCampoTexto(valor) {
     if (!valor || valor.toString().trim() === '') return 'No especificado';
     return escapeHTML(valor.toString().trim());
-}
-
-function validarNumero(valor) {
-    const num = Number(valor);
-    return isNaN(num) ? 0 : num;
 }
 
 function validarPrecio(valor) {
@@ -534,21 +502,13 @@ function validarFecha(fechaString) {
     }
 }
 
-function validarTelefono(telefono) {
-    if (!telefono) return 'No especificado';
-    const telefonoStr = telefono.toString().replace(/\D/g, '');
-    return telefonoStr.length >= 9 ? telefonoStr : 'No especificado';
-}
-
 function escapeHTML(texto) {
     const div = document.createElement('div');
     div.textContent = texto;
     return div.innerHTML;
 }
 
-
 // MANEJO DE ESTADOS DE LA UI
-
 function mostrarEstadoCarga() {
     const estadoCarga = document.getElementById('estadoCarga');
     const pedidosVacios = document.getElementById('pedidosVacios');
@@ -574,26 +534,27 @@ function mostrarErrorCarga(mensaje) {
 }
 
 function mostrarError(mensaje) {
-    // Implementar sistema de notificaciones toast
     console.error(" Error:", mensaje);
     alert("Error: " + mensaje);
 }
 
 function mostrarExito(mensaje) {
-    // Implementar sistema de notificaciones toast
-    console.log(" Éxito:", mensaje);
+    console.log("Éxito:", mensaje);
     alert("Éxito: " + mensaje);
 }
 
-
-window.addEventListener('error', function(e) {
-    console.error(' Error global:', e.error);
-});
-
-window.addEventListener('unhandledrejection', function(e) {
-    console.error(' Promise rechazada no manejada:', e.reason);
-    mostrarError('Error inesperado: ' + e.reason.message);
-    e.preventDefault();
-});
+// Debug global
+window.debugPedidos = {
+    getPedidos: () => pedidos,
+    recargar: () => cargarPedidos(),
+    verEstado: () => {
+        console.log(" Estado actual:", {
+            pedidosEnMemoria: pedidos,
+            contenedor: document.getElementById('pedidosLista'),
+            estadoCarga: document.getElementById('estadoCarga')?.style.display,
+            estadoVacio: document.getElementById('pedidosVacios')?.style.display
+        });
+    }
+};
 
 console.log(" Sistema de gestión de pedidos cargado correctamente");

@@ -2,9 +2,11 @@ package com.sistemaapollo.sistema_apollo.controller;
 
 import com.sistemaapollo.sistema_apollo.model.ProductoFinal;
 import com.sistemaapollo.sistema_apollo.service.ProductoFinalService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
 import java.util.Set;
@@ -19,6 +21,25 @@ public class MenuController {
         this.productoFinalService = productoFinalService;
     }
 
+    @GetMapping("/api/combos")
+    @ResponseBody
+    public ResponseEntity<List<ProductoFinal>> obtenerCombosJson() {
+        try {
+            List<ProductoFinal> todosProductos = productoFinalService.obtenerTodos();
+
+            List<ProductoFinal> combos = todosProductos.stream()
+                    .filter(p -> "combos".equalsIgnoreCase(p.getTipo()))
+                    .collect(Collectors.toList());
+
+            System.out.println(" Endpoint /api/combos llamado - Combos encontrados: " + combos.size());
+
+            return ResponseEntity.ok(combos);
+
+        } catch (Exception e) {
+            System.err.println(" Error en /api/combos: " + e.getMessage());
+            return ResponseEntity.status(500).body(List.of());
+        }
+    }
     @GetMapping("/menu")
     public String menuPublico(Model model) {
         // Obtener todos los productos de la base de datos

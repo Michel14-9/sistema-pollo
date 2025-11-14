@@ -1,85 +1,408 @@
-// Funcionalidades para la página de inicio
+// index.js -
 document.addEventListener('DOMContentLoaded', function() {
-    // Animación de las cards de ofertas
-    const offerCards = document.querySelectorAll('.offer-card');
+    console.log('=== LUREN CHICKEN - INICIO ===');
 
-    offerCards.forEach(card => {
-        card.addEventListener('mouseenter', function() {
-            this.style.transform = 'translateY(-10px)';
-        });
 
-        card.addEventListener('mouseleave', function() {
-            this.style.transform = 'translateY(0)';
-        });
-    });
+    function inicializarPaginaInicio() {
+        cargarCombosEnCarrusel();
+        configurarCarruselAutoplay();
+        configurarScrollSuave();
+        configurarAnimacionesScroll();
+        actualizarContadorCarrito();
+        configurarHoverCategorias();
+    }
 
-    // Smooth scroll para enlaces internos
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-            e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
-            if (target) {
-                target.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
+
+    async function cargarCombosEnCarrusel() {
+        try {
+            console.log(' Cargando combos desde /api/combos...');
+
+            const response = await fetch('/api/combos');
+
+            if (!response.ok) {
+                throw new Error(`Error HTTP: ${response.status}`);
             }
-        });
-    });
 
-    // Función para agregar productos al carrito desde las ofertas
-    document.querySelectorAll('.offer-card .btn-success').forEach(button => {
-        button.addEventListener('click', function() {
-            const productName = this.closest('.offer-content').querySelector('h3').textContent;
-            const price = this.closest('.offer-content').querySelector('.current-price').textContent;
+            const combos = await response.json();
+            console.log(`${combos.length} combos cargados exitosamente`);
 
-            agregarAlCarrito(productName, price);
+            if (combos.length > 0) {
+                mostrarCombosEnCarrusel(combos);
+            } else {
+                mostrarCarruselFallback();
+            }
+
+        } catch (error) {
+            console.error(' Error cargando combos:', error);
+            mostrarCarruselFallback();
+        }
+    }
+
+    function mostrarCombosEnCarrusel(combos) {
+        const carouselInner = document.getElementById('combos-inner');
+        const carouselIndicators = document.getElementById('combos-indicators');
+
+        if (!carouselInner || !carouselIndicators) {
+            console.error(' No se encontraron elementos del carrusel');
+            return;
+        }
+
+        // Limpiar contenido existente
+        carouselInner.innerHTML = '';
+        carouselIndicators.innerHTML = '';
+
+        // Agrupar combos en grupos de 3 para el carrusel
+        const comboGroups = [];
+        for (let i = 0; i < combos.length; i += 3) {
+            comboGroups.push(combos.slice(i, i + 3));
+        }
+
+        console.log(` Creando ${comboGroups.length} slides para el carrusel`);
+
+        // Generar indicadores
+        comboGroups.forEach((_, index) => {
+            const indicator = document.createElement('button');
+            indicator.type = 'button';
+            indicator.dataset.bsTarget = '#combosCarousel';
+            indicator.dataset.bsSlideTo = index;
+            indicator.ariaLabel = `Slide ${index + 1}`;
+            if (index === 0) {
+                indicator.classList.add('active');
+                indicator.setAttribute('aria-current', 'true');
+            }
+
+            carouselIndicators.appendChild(indicator);
         });
-    });
+
+        // Generar slides
+        comboGroups.forEach((group, groupIndex) => {
+            const slide = document.createElement('div');
+            slide.className = `carousel-item ${groupIndex === 0 ? 'active' : ''}`;
+
+            let combosHTML = '<div class="row justify-content-center">';
+
+            group.forEach(combo => {
+                const imagenUrl = combo.imagenUrl || '/imagenes/default-product.jpg';
+                const descripcion = combo.descripcion || 'Delicioso combo preparado con los mejores ingredientes';
+
+                combosHTML += `
+                    <div class="col-md-4 mb-4">
+                        <div class="combo-card h-100">
+                            <div class="position-relative">
+                                <img src="${imagenUrl}"
+                                     alt="${combo.nombre}"
+                                     class="combo-image img-fluid"
+                                     style="height: 200px; object-fit: cover; width: 100%;"
+                                     onerror="this.src='/imagenes/default-product.jpg'">
+                                <div class="combo-badge">COMBO</div>
+                            </div>
+                            <div class="combo-content p-3">
+                                <h4 class="combo-title">${combo.nombre}</h4>
+                                <p class="combo-description">${descripcion}</p>
+                                <div class="price-section d-flex justify-content-between align-items-center mb-3">
+                                    <div class="price-left">
+                                        <span class="current-price text-success fw-bold">S/ ${combo.precio.toFixed(2)}</span>
+                                    </div>
+                                </div>
+                                <button class="btn btn-success w-100 agregar-combo-btn"
+                                        onclick="agregarAlCarritoDesdeIndex(${combo.id})"
+                                        data-producto-id="${combo.id}">
+                                    <i class="fas fa-cart-plus me-2"></i>AGREGAR AL PEDIDO
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            combosHTML += '</div>';
+            slide.innerHTML = combosHTML;
+            carouselInner.appendChild(slide);
+        });
+
+        console.log(' Carrusel de combos actualizado con productos reales');
+    }
+
+    function mostrarCarruselFallback() {
+        const carouselInner = document.getElementById('combos-inner');
+        const carouselIndicators = document.getElementById('combos-indicators');
+
+        if (!carouselInner) return;
+
+        // Limpiar indicadores
+        if (carouselIndicators) {
+            carouselIndicators.innerHTML = `
+                <button type="button" data-bs-target="#combosCarousel" data-bs-slide-to="0" class="active" aria-current="true"></button>
+            `;
+        }
+
+        // Mostrar mensaje de fallback
+        carouselInner.innerHTML = `
+            <div class="carousel-item active">
+                <div class="row">
+                    <div class="col-12 text-center py-5">
+                        <div class="alert alert-info border-0">
+                            <i class="fas fa-utensils fa-3x mb-3 text-orange"></i>
+                            <h4>Próximamente Nuevos Combos</h4>
+                            <p class="mb-3">Estamos preparando deliciosos combos especiales para ti.</p>
+                            <a href="/menu" class="btn btn-primary">
+                                <i class="fas fa-utensils me-2"></i>Ver Menú Completo
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        console.log(' Mostrando carrusel de respaldo');
+    }
+
+
+    function configurarCarruselAutoplay() {
+        const carousel = document.getElementById('combosCarousel');
+        if (!carousel) return;
+
+
+        const bsCarousel = new bootstrap.Carousel(carousel, {
+            interval: 5000,
+            wrap: true,
+            pause: 'hover'
+        });
+
+        console.log('🎠 Carrusel configurado con autoplay');
+    }
+
+
+    window.agregarAlCarritoDesdeIndex = async function(productoId) {
+        try {
+            console.log('🛒 Agregando producto al carrito desde index:', productoId);
+
+            // Obtener token CSRF
+            const csrfToken = document.getElementById('csrfToken')?.value;
+
+            if (!csrfToken) {
+                console.error(' No se encontró el token CSRF');
+                mostrarNotificacion(' Error de seguridad. Recarga la página.', 'error');
+                return;
+            }
+
+
+            const boton = document.querySelector(`.agregar-combo-btn[data-producto-id="${productoId}"]`);
+            const textoOriginal = boton ? boton.innerHTML : null;
+
+            if (boton) {
+                boton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>AGREGANDO...';
+                boton.disabled = true;
+            }
+
+
+            const response = await fetch('/carrito/agregar-ajax', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({
+                    'productoId': productoId,
+                    'cantidad': '1',
+                    '_csrf': csrfToken
+                })
+            });
+
+            // Verificar si la respuesta es JSON
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                const textResponse = await response.text();
+                console.error(' El servidor devolvió HTML en lugar de JSON:', textResponse.substring(0, 200));
+
+
+                if (textResponse.includes('login') || response.status === 403 || response.status === 401) {
+                    throw new Error('Debes iniciar sesión para agregar productos al carrito');
+                } else {
+                    throw new Error('Error del servidor: Respuesta inesperada');
+                }
+            }
+
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                mostrarNotificacion(` ${data.message}`, 'success');
+                await actualizarContadorCarrito();
+
+                // Restaurar botón después de éxito
+                if (boton) {
+                    boton.innerHTML = '<i class="fas fa-check me-2"></i>¡AGREGADO!';
+                    setTimeout(() => {
+                        if (textoOriginal) {
+                            boton.innerHTML = textoOriginal;
+                        }
+                        boton.disabled = false;
+                    }, 2000);
+                }
+            } else {
+                throw new Error(data.message || 'Error al agregar al carrito');
+            }
+
+        } catch (error) {
+            console.error(' Error agregando al carrito:', error);
+            mostrarNotificacion(` ${error.message}`, 'error');
+
+            // Restaurar botón en caso de error
+            const boton = document.querySelector(`.agregar-combo-btn[data-producto-id="${productoId}"]`);
+            if (boton) {
+                boton.innerHTML = '<i class="fas fa-cart-plus me-2"></i>AGREGAR AL PEDIDO';
+                boton.disabled = false;
+            }
+        }
+    };
+
+    // Actualizar contador del carrito
+    async function actualizarContadorCarrito() {
+        try {
+            const response = await fetch('/carrito/total');
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success) {
+                    const carritoBtn = document.querySelector('.carrito-btn');
+                    if (carritoBtn) {
+                        const totalSpan = carritoBtn.querySelector('span');
+                        if (totalSpan) {
+                            totalSpan.textContent = data.total.toFixed(2);
+                        }
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Error actualizando contador del carrito:', error);
+        }
+    }
+
+    // ========== NOTIFICACIONES ==========
+    function mostrarNotificacion(mensaje, tipo = 'info') {
+        // Eliminar notificaciones anteriores
+        const notificacionesAnteriores = document.querySelectorAll('.notificacion-index');
+        notificacionesAnteriores.forEach(notif => notif.remove());
+
+        const notificacion = document.createElement('div');
+        notificacion.className = `notificacion-index alert alert-${tipo} alert-dismissible fade show`;
+
+        notificacion.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            min-width: 300px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            animation: slideInRight 0.3s ease-out;
+        `;
+
+        notificacion.innerHTML = `
+            <div class="d-flex align-items-center">
+                <i class="fas ${getIconoNotificacion(tipo)} me-2"></i>
+                <span>${mensaje}</span>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+
+        document.body.appendChild(notificacion);
+
+        // Auto-eliminar después de 5 segundos
+        setTimeout(() => {
+            if (notificacion.parentNode) {
+                notificacion.remove();
+            }
+        }, 5000);
+    }
+
+    function getIconoNotificacion(tipo) {
+        switch(tipo) {
+            case 'success': return 'fa-check-circle';
+            case 'error': return 'fa-exclamation-circle';
+            case 'warning': return 'fa-exclamation-triangle';
+            default: return 'fa-info-circle';
+        }
+    }
+
+    // ========== OTRAS FUNCIONALIDADES ==========
+    function configurarScrollSuave() {
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    }
+
+    function configurarAnimacionesScroll() {
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate__animated', 'animate__fadeInUp');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.category-card, .combo-card, .feature-icon').forEach(el => {
+            observer.observe(el);
+        });
+    }
+
+    function configurarHoverCategorias() {
+        const categoryCards = document.querySelectorAll('.category-card');
+        categoryCards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-10px)';
+                this.style.boxShadow = '0 15px 40px rgba(0,0,0,0.15)';
+            });
+
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+                this.style.boxShadow = '0 10px 30px rgba(0,0,0,0.1)';
+            });
+        });
+    }
+
+
+    inicializarPaginaInicio();
+
+
+    setInterval(cargarCombosEnCarrusel, 300000);
+
+    console.log(' Página de inicio inicializada correctamente');
 });
 
-async function agregarAlCarrito(productoNombre, precio) {
-    try {
-        const response = await fetch("/api/carrito/agregar", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                productoNombre: productoNombre,
-                precio: precio,
-                cantidad: 1
-            })
-        });
-
-        if (response.ok) {
-            mostrarNotificacion(`${productoNombre} agregado al carrito`);
-        } else {
-            mostrarNotificacion(" Error al agregar al carrito");
-        }
-    } catch (error) {
-        console.error("Error:", error);
-        mostrarNotificacion("Error de conexión con el servidor");
+// CSS para animaciones
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideInRight {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
     }
-}
 
+    .combo-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
 
-function mostrarNotificacion(mensaje) {
-    const notification = document.createElement('div');
-    notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: #28a745;
-        color: white;
-        padding: 15px 20px;
-        border-radius: 5px;
-        z-index: 1000;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-    `;
-    notification.textContent = mensaje;
+    .combo-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
 
-    document.body.appendChild(notification);
+    .agregar-combo-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+`;
+document.head.appendChild(style);
 
-    setTimeout(() => {
-        notification.remove();
-    }, 3000);
-}
+console.log(' Luren Chicken Index - Cargado y listo!');

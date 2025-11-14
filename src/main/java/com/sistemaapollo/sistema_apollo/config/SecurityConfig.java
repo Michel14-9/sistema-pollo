@@ -69,6 +69,7 @@ public class SecurityConfig {
                                 "/login", "/registrate", "/registro",
                                 "/api/auth/**",
                                 "/api/direcciones/**",
+                                "/api/combos",
                                 "/css/**", "/script/**", "/imagenes/**", "/archivos/**",
                                 "/error", "/libro-reclamaciones", "/terminos",
                                 "/politica-datos", "/politica-cookies",

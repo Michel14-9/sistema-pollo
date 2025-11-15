@@ -126,14 +126,6 @@ public class SecurityConfig {
                 // MANEJO DE EXCEPCIONES
                 .exceptionHandling(exception -> exception
                         .accessDeniedPage("/login?accessDenied=true")
-                )
-                .headers(headers -> headers
-                        .contentSecurityPolicy(csp -> csp
-                                .policyDirectives("default-src 'self'; script-src 'self'; connect-src 'self'; child-src 'self'; img-src 'self' data:; font-src 'self' data:; style-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none';")
-                        )
-                )
-                .authorizeHttpRequests(auth -> auth
-                        .anyRequest().permitAll()
                 );
 
         return http.build();

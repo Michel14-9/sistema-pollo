@@ -169,7 +169,7 @@ document.addEventListener('DOMContentLoaded', function() {
             pause: 'hover'
         });
 
-        console.log('🎠 Carrusel configurado con autoplay');
+        console.log(' Carrusel configurado con autoplay');
     }
 
 

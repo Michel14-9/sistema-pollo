@@ -1,7 +1,6 @@
-// index.js -
+// index.js
 document.addEventListener('DOMContentLoaded', function() {
     console.log('=== LUREN CHICKEN - INICIO ===');
-
 
     function inicializarPaginaInicio() {
         cargarCombosEnCarrusel();
@@ -12,7 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
         configurarHoverCategorias();
     }
 
-
+    // ========== CARGAR COMBOS EN CARRUSEL ==========
     async function cargarCombosEnCarrusel() {
         try {
             console.log(' Cargando combos desde /api/combos...');
@@ -24,7 +23,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             const combos = await response.json();
-            console.log(`${combos.length} combos cargados exitosamente`);
+            console.log(` ${combos.length} combos cargados exitosamente`);
 
             if (combos.length > 0) {
                 mostrarCombosEnCarrusel(combos);
@@ -85,14 +84,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 const imagenUrl = combo.imagenUrl || '/imagenes/default-product.jpg';
                 const descripcion = combo.descripcion || 'Delicioso combo preparado con los mejores ingredientes';
 
+
                 combosHTML += `
                     <div class="col-md-4 mb-4">
                         <div class="combo-card h-100">
                             <div class="position-relative">
                                 <img src="${imagenUrl}"
                                      alt="${combo.nombre}"
-                                     class="combo-image img-fluid"
-                                     style="height: 200px; object-fit: cover; width: 100%;"
+                                     class="combo-image-carousel img-fluid"
                                      onerror="this.src='/imagenes/default-product.jpg'">
                                 <div class="combo-badge">COMBO</div>
                             </div>
@@ -157,11 +156,10 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log(' Mostrando carrusel de respaldo');
     }
 
-
+    // ========== CONFIGURAR CARRUSEL ==========
     function configurarCarruselAutoplay() {
         const carousel = document.getElementById('combosCarousel');
         if (!carousel) return;
-
 
         const bsCarousel = new bootstrap.Carousel(carousel, {
             interval: 5000,
@@ -169,13 +167,13 @@ document.addEventListener('DOMContentLoaded', function() {
             pause: 'hover'
         });
 
-        console.log('🎠 Carrusel configurado con autoplay');
+        console.log(' Carrusel configurado con autoplay');
     }
 
-
+    // ========== AGREGAR AL CARRITO ==========
     window.agregarAlCarritoDesdeIndex = async function(productoId) {
         try {
-            console.log('🛒 Agregando producto al carrito desde index:', productoId);
+            console.log(' Agregando producto al carrito desde index:', productoId);
 
             // Obtener token CSRF
             const csrfToken = document.getElementById('csrfToken')?.value;
@@ -186,15 +184,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-
             const boton = document.querySelector(`.agregar-combo-btn[data-producto-id="${productoId}"]`);
             const textoOriginal = boton ? boton.innerHTML : null;
 
             if (boton) {
                 boton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>AGREGANDO...';
                 boton.disabled = true;
+                boton.classList.add('btn-loading');
             }
-
 
             const response = await fetch('/carrito/agregar-ajax', {
                 method: 'POST',
@@ -214,7 +211,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 const textResponse = await response.text();
                 console.error(' El servidor devolvió HTML en lugar de JSON:', textResponse.substring(0, 200));
 
-
                 if (textResponse.includes('login') || response.status === 403 || response.status === 401) {
                     throw new Error('Debes iniciar sesión para agregar productos al carrito');
                 } else {
@@ -230,11 +226,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 // Restaurar botón después de éxito
                 if (boton) {
+                    boton.classList.remove('btn-loading');
+                    boton.classList.add('btn-success-state');
                     boton.innerHTML = '<i class="fas fa-check me-2"></i>¡AGREGADO!';
                     setTimeout(() => {
                         if (textoOriginal) {
                             boton.innerHTML = textoOriginal;
                         }
+                        boton.classList.remove('btn-success-state');
                         boton.disabled = false;
                     }, 2000);
                 }
@@ -249,13 +248,14 @@ document.addEventListener('DOMContentLoaded', function() {
             // Restaurar botón en caso de error
             const boton = document.querySelector(`.agregar-combo-btn[data-producto-id="${productoId}"]`);
             if (boton) {
+                boton.classList.remove('btn-loading');
                 boton.innerHTML = '<i class="fas fa-cart-plus me-2"></i>AGREGAR AL PEDIDO';
                 boton.disabled = false;
             }
         }
     };
 
-    // Actualizar contador del carrito
+    // ========== ACTUALIZAR CONTADOR CARRITO ==========
     async function actualizarContadorCarrito() {
         try {
             const response = await fetch('/carrito/total');
@@ -283,34 +283,48 @@ document.addEventListener('DOMContentLoaded', function() {
         notificacionesAnteriores.forEach(notif => notif.remove());
 
         const notificacion = document.createElement('div');
-        notificacion.className = `notificacion-index alert alert-${tipo} alert-dismissible fade show`;
-
-        notificacion.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 9999;
-            min-width: 300px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            animation: slideInRight 0.3s ease-out;
-        `;
+        notificacion.className = `notificacion-index notificacion-flotante-index notificacion-${tipo}`;
 
         notificacion.innerHTML = `
-            <div class="d-flex align-items-center">
-                <i class="fas ${getIconoNotificacion(tipo)} me-2"></i>
-                <span>${mensaje}</span>
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <i class="fas ${getIconoNotificacion(tipo)} me-2"></i>
+                    <span>${mensaje}</span>
+                </div>
+                <button type="button" class="btn-close-notif" aria-label="Cerrar">&times;</button>
             </div>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         `;
+
+        // Agregar event listener al botón de cerrar
+        const btnCerrar = notificacion.querySelector('.btn-close-notif');
+        btnCerrar.addEventListener('click', () => {
+            cerrarNotificacion(notificacion);
+        });
 
         document.body.appendChild(notificacion);
 
+        // Mostrar con animación
+        setTimeout(() => {
+            notificacion.classList.add('notificacion-visible');
+        }, 10);
+
         // Auto-eliminar después de 5 segundos
+        setTimeout(() => {
+            cerrarNotificacion(notificacion);
+        }, 5000);
+    }
+
+    function cerrarNotificacion(notificacion) {
+        if (!notificacion || !notificacion.parentNode) return;
+
+        notificacion.classList.remove('notificacion-visible');
+        notificacion.classList.add('notificacion-salida');
+
         setTimeout(() => {
             if (notificacion.parentNode) {
                 notificacion.remove();
             }
-        }, 5000);
+        }, 300);
     }
 
     function getIconoNotificacion(tipo) {
@@ -322,7 +336,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // ========== OTRAS FUNCIONALIDADES ==========
+    // ========== SCROLL SUAVE ==========
     function configurarScrollSuave() {
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
@@ -338,6 +352,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // ========== ANIMACIONES SCROLL ==========
     function configurarAnimacionesScroll() {
         const observerOptions = {
             threshold: 0.1,
@@ -357,22 +372,21 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+
     function configurarHoverCategorias() {
         const categoryCards = document.querySelectorAll('.category-card');
         categoryCards.forEach(card => {
             card.addEventListener('mouseenter', function() {
-                this.style.transform = 'translateY(-10px)';
-                this.style.boxShadow = '0 15px 40px rgba(0,0,0,0.15)';
+                this.classList.add('category-card-hover');
             });
 
             card.addEventListener('mouseleave', function() {
-                this.style.transform = 'translateY(0)';
-                this.style.boxShadow = '0 10px 30px rgba(0,0,0,0.1)';
+                this.classList.remove('category-card-hover');
             });
         });
     }
 
-
+    // ========== INICIALIZACIÓN ==========
     inicializarPaginaInicio();
 
 
@@ -381,28 +395,4 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log(' Página de inicio inicializada correctamente');
 });
 
-// CSS para animaciones
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes slideInRight {
-        from { transform: translateX(100%); opacity: 0; }
-        to { transform: translateX(0); opacity: 1; }
-    }
-
-    .combo-card {
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .combo-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-    }
-
-    .agregar-combo-btn:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-    }
-`;
-document.head.appendChild(style);
-
-console.log(' Luren Chicken Index - Cargado y listo!');
+console.log(' Luren Chicken Index - Cargado y listo (100% CSP Compliant)!');

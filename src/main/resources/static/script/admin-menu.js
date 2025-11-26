@@ -1,4 +1,3 @@
-// admin-menu.js
 document.addEventListener('DOMContentLoaded', function() {
     console.log('=== ADMIN MENÚ - INICIADO ===');
 
@@ -25,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
 
         const dynamicAlerts = document.getElementById('dynamicAlerts');
-        dynamicAlerts.innerHTML = ''; // Limpiar alertas anteriores
+        dynamicAlerts.innerHTML = '';
         dynamicAlerts.appendChild(alerta);
 
         setTimeout(() => {
@@ -35,13 +34,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 5000);
     }
 
-
-
     // INICIALIZAR SECCIÓN DE REPORTES
     function inicializarReportes() {
         console.log('Inicializando sección de reportes...');
 
-        // Configurar event listeners para reportes
         const generateReportBtn = document.getElementById('generateReportBtn');
         const exportPdfBtn = document.getElementById('exportPdfBtn');
         const exportExcelBtn = document.getElementById('exportExcelBtn');
@@ -68,77 +64,74 @@ document.addEventListener('DOMContentLoaded', function() {
             reportType.addEventListener('change', cambiarTipoReporte);
         }
 
-        // Inicializar fechas
         inicializarFechas();
     }
 
-  // INICIALIZAR FECHAS
-  function inicializarFechas() {
-      const hoy = new Date();
+    // INICIALIZAR FECHAS
+    function inicializarFechas() {
+        const hoy = new Date();
 
-      function formatLocalDate(date) {
-          const year = date.getFullYear();
-          const month = String(date.getMonth() + 1).padStart(2, '0');
-          const day = String(date.getDate()).padStart(2, '0');
-          return `${year}-${month}-${day}`;
-      }
+        function formatLocalDate(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
 
-      const primerDiaMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+        const primerDiaMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
 
-      document.getElementById('startDate').value = formatLocalDate(primerDiaMes);
-      document.getElementById('endDate').value = formatLocalDate(hoy);
-  }
+        document.getElementById('startDate').value = formatLocalDate(primerDiaMes);
+        document.getElementById('endDate').value = formatLocalDate(hoy);
+    }
 
-   // MANEJAR CAMBIO DE RANGO DE FECHAS
-   function manejarCambioRangoFechas() {
-       const dateRange = document.getElementById('dateRange').value;
-       const hoy = new Date();
-       let startDate, endDate;
+    // MANEJAR CAMBIO DE RANGO DE FECHAS
+    function manejarCambioRangoFechas() {
+        const dateRange = document.getElementById('dateRange').value;
+        const hoy = new Date();
+        let startDate, endDate;
 
-       // Función auxiliar para formatear fecha en zona horaria local
-       function formatLocalDate(date) {
-           const year = date.getFullYear();
-           const month = String(date.getMonth() + 1).padStart(2, '0');
-           const day = String(date.getDate()).padStart(2, '0');
-           return `${year}-${month}-${day}`;
-       }
+        function formatLocalDate(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
 
-       switch(dateRange) {
-           case 'hoy':
-               startDate = endDate = formatLocalDate(hoy);
-               break;
-           case 'ayer':
-               const ayer = new Date(hoy);
-               ayer.setDate(hoy.getDate() - 1);
-               startDate = endDate = formatLocalDate(ayer);
-               break;
-           case 'semana':
-               const inicioSemana = new Date(hoy);
-               inicioSemana.setDate(hoy.getDate() - hoy.getDay());
-               startDate = formatLocalDate(inicioSemana);
-               endDate = formatLocalDate(hoy);
-               break;
-           case 'mes':
-               const inicioMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
-               startDate = formatLocalDate(inicioMes);
-               endDate = formatLocalDate(hoy);
-               break;
-           case 'personalizado':
-               // No hacer nada, el usuario seleccionará manualmente
-               return;
-       }
+        switch(dateRange) {
+            case 'hoy':
+                startDate = endDate = formatLocalDate(hoy);
+                break;
+            case 'ayer':
+                const ayer = new Date(hoy);
+                ayer.setDate(hoy.getDate() - 1);
+                startDate = endDate = formatLocalDate(ayer);
+                break;
+            case 'semana':
+                const inicioSemana = new Date(hoy);
+                inicioSemana.setDate(hoy.getDate() - hoy.getDay());
+                startDate = formatLocalDate(inicioSemana);
+                endDate = formatLocalDate(hoy);
+                break;
+            case 'mes':
+                const inicioMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+                startDate = formatLocalDate(inicioMes);
+                endDate = formatLocalDate(hoy);
+                break;
+            case 'personalizado':
+                return;
+        }
 
-       if (startDate && endDate) {
-           document.getElementById('startDate').value = startDate;
-           document.getElementById('endDate').value = endDate;
+        if (startDate && endDate) {
+            document.getElementById('startDate').value = startDate;
+            document.getElementById('endDate').value = endDate;
 
-           console.log('Rango de fechas seleccionado:', {
-               rango: dateRange,
-               inicio: startDate,
-               fin: endDate
-           });
-       }
-   }
+            console.log('Rango de fechas seleccionado:', {
+                rango: dateRange,
+                inicio: startDate,
+                fin: endDate
+            });
+        }
+    }
 
     // CAMBIAR TIPO DE REPORTE
     function cambiarTipoReporte() {
@@ -208,13 +201,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     url = `/admin-menu/reportes/ventas?fechaInicio=${startDate}&fechaFin=${endDate}`;
                     break;
                 case 'productos':
-                    url = `/admin-menu/reportes/productos?fechaInicio=${startDate}&fechaFin=${endDate}`;
+                    url = `/admin-menu/reportes/productos?fechaInicio=${startDate}&fendaFin=${endDate}`;
                     break;
                 case 'usuarios':
                     url = `/admin-menu/reportes/usuarios?fechaInicio=${startDate}&fechaFin=${endDate}`;
                     break;
                 case 'pedidos':
-                    // Usar ventas como fallback para pedidos
                     url = `/admin-menu/reportes/ventas?fechaInicio=${startDate}&fechaFin=${endDate}`;
                     break;
             }
@@ -238,47 +230,48 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // MOSTRAR REPORTE
     function mostrarReporte(data, reportType) {
-        // Actualizar métricas
         actualizarMetricasReporte(data.metricas);
-
-        // Actualizar gráficos
         actualizarGraficosReporte(data, reportType);
-
-        // Actualizar tabla
         actualizarTablaReporte(data.tablaDatos, reportType);
     }
 
     // ACTUALIZAR MÉTRICAS DEL REPORTE
     function actualizarMetricasReporte(metricas) {
-        if (document.getElementById('reportTotalVentas')) {
-            document.getElementById('reportTotalVentas').textContent =
-                metricas.totalVentas ? `S/ ${metricas.totalVentas.toFixed(2)}` : '0';
+        const reportTotalVentas = document.getElementById('reportTotalVentas');
+        const reportTotalPedidos = document.getElementById('reportTotalPedidos');
+        const reportProductosVendidos = document.getElementById('reportProductosVendidos');
+        const reportCrecimiento = document.getElementById('reportCrecimiento');
+
+        if (reportTotalVentas) {
+            reportTotalVentas.textContent = metricas.totalVentas ? `S/ ${metricas.totalVentas.toFixed(2)}` : '0';
         }
 
-        if (document.getElementById('reportTotalPedidos')) {
-            document.getElementById('reportTotalPedidos').textContent =
-                metricas.totalPedidos || '0';
+        if (reportTotalPedidos) {
+            reportTotalPedidos.textContent = metricas.totalPedidos || '0';
         }
 
-        if (document.getElementById('reportProductosVendidos')) {
-            document.getElementById('reportProductosVendidos').textContent =
-                metricas.productosVendidos || metricas.usuariosActivos || '0';
+        if (reportProductosVendidos) {
+            reportProductosVendidos.textContent = metricas.productosVendidos || metricas.usuariosActivos || '0';
         }
 
-        if (document.getElementById('reportCrecimiento')) {
+        if (reportCrecimiento) {
             const crecimiento = metricas.crecimiento || 0;
-            document.getElementById('reportCrecimiento').textContent =
-                `${crecimiento > 0 ? '+' : ''}${crecimiento.toFixed(1)}%`;
+            reportCrecimiento.textContent = `${crecimiento > 0 ? '+' : ''}${crecimiento.toFixed(1)}%`;
 
-            // Cambiar color según crecimiento
-            const elemento = document.getElementById('reportCrecimiento');
-            elemento.className = 'number ' + (crecimiento > 0 ? 'text-success' : crecimiento < 0 ? 'text-danger' : 'text-secondary');
+            // Usar clases CSS en lugar de estilos inline
+            reportCrecimiento.classList.remove('text-success', 'text-danger', 'text-secondary');
+            if (crecimiento > 0) {
+                reportCrecimiento.classList.add('text-success');
+            } else if (crecimiento < 0) {
+                reportCrecimiento.classList.add('text-danger');
+            } else {
+                reportCrecimiento.classList.add('text-secondary');
+            }
         }
     }
 
     // ACTUALIZAR GRÁFICOS DEL REPORTE
     function actualizarGraficosReporte(data, reportType) {
-        // Destruir gráficos existentes
         if (reportChartInstance) {
             reportChartInstance.destroy();
         }
@@ -291,7 +284,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (!reportCtx || !categoryCtx) return;
 
-        // Gráfico principal
         const mainChartData = data.datosGrafico;
         if (mainChartData && mainChartData.labels && mainChartData.datos) {
             reportChartInstance = new Chart(reportCtx, {
@@ -346,7 +338,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
 
-        // Gráfico de categorías (solo para ventas y productos)
         if ((reportType === 'ventas' || reportType === 'productos') && data.datosCategoria) {
             const categoryData = data.datosCategoria;
             if (categoryData.labels && categoryData.datos) {
@@ -386,11 +377,12 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // ACTUALIZAR TABLA DEL REPORTE
+    // ACTUALIZAR TABLA DEL REPORTE - SIN ESTILOS INLINE
     function actualizarTablaReporte(tablaDatos, reportType) {
         const tbody = document.getElementById('reportTableBody');
         const thead = document.getElementById('reportTableHeader');
         const noDataMessage = document.getElementById('noReportData');
+        const tableContainer = document.querySelector('.table-responsive');
 
         if (!tbody || !thead) return;
 
@@ -399,14 +391,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (!tablaDatos || tablaDatos.length === 0) {
             if (noDataMessage) noDataMessage.classList.remove('d-none');
-            if (tbody.parentNode) tbody.parentNode.classList.add('d-none');
+            if (tableContainer) tableContainer.classList.add('d-none');
             return;
         }
 
         if (noDataMessage) noDataMessage.classList.add('d-none');
-        if (tbody.parentNode) tbody.parentNode.classList.remove('d-none');
+        if (tableContainer) tableContainer.classList.remove('d-none');
 
-        // Configurar encabezados según el tipo de reporte
         let headers = [];
         switch(reportType) {
             case 'ventas':
@@ -423,7 +414,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 break;
         }
 
-        // Crear encabezados
         const headerRow = document.createElement('tr');
         headers.forEach(header => {
             const th = document.createElement('th');
@@ -432,43 +422,83 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         thead.appendChild(headerRow);
 
-        // Llenar datos
         tablaDatos.forEach(fila => {
             const tr = document.createElement('tr');
 
             switch(reportType) {
                 case 'ventas':
                 case 'pedidos':
-                    tr.innerHTML = `
-                        <td>${fila.id || 'N/A'}</td>
-                        <td>${fila.fecha || 'N/A'}</td>
-                        <td>${fila.cliente || 'Cliente general'}</td>
-                        <td>${fila.productos || 'Sin productos'}</td>
-                        <td><strong>S/ ${(fila.total || 0).toFixed(2)}</strong></td>
-                        <td>
-                            <span class="badge ${getBadgeClassForEstado(fila.estado)}">
-                                ${fila.estado || 'PENDIENTE'}
-                            </span>
-                        </td>
-                    `;
+                    const idTd = document.createElement('td');
+                    idTd.textContent = fila.id || 'N/A';
+
+                    const fechaTd = document.createElement('td');
+                    fechaTd.textContent = fila.fecha || 'N/A';
+
+                    const clienteTd = document.createElement('td');
+                    clienteTd.textContent = fila.cliente || 'Cliente general';
+
+                    const productosTd = document.createElement('td');
+                    productosTd.textContent = fila.productos || 'Sin productos';
+
+                    const totalTd = document.createElement('td');
+                    const totalStrong = document.createElement('strong');
+                    totalStrong.textContent = `S/ ${(fila.total || 0).toFixed(2)}`;
+                    totalTd.appendChild(totalStrong);
+
+                    const estadoTd = document.createElement('td');
+                    const estadoBadge = document.createElement('span');
+                    estadoBadge.className = `badge ${getBadgeClassForEstado(fila.estado)}`;
+                    estadoBadge.textContent = fila.estado || 'PENDIENTE';
+                    estadoTd.appendChild(estadoBadge);
+
+                    tr.appendChild(idTd);
+                    tr.appendChild(fechaTd);
+                    tr.appendChild(clienteTd);
+                    tr.appendChild(productosTd);
+                    tr.appendChild(totalTd);
+                    tr.appendChild(estadoTd);
                     break;
 
                 case 'productos':
-                    tr.innerHTML = `
-                        <td>${fila.producto || 'N/A'}</td>
-                        <td>${fila.categoria || 'General'}</td>
-                        <td>${fila.vendidos || 0}</td>
-                        <td><strong>S/ ${(fila.ingresos || 0).toFixed(2)}</strong></td>
-                    `;
+                    const productoTd = document.createElement('td');
+                    productoTd.textContent = fila.producto || 'N/A';
+
+                    const categoriaTd = document.createElement('td');
+                    categoriaTd.textContent = fila.categoria || 'General';
+
+                    const vendidosTd = document.createElement('td');
+                    vendidosTd.textContent = fila.vendidos || 0;
+
+                    const ingresosTd = document.createElement('td');
+                    const ingresosStrong = document.createElement('strong');
+                    ingresosStrong.textContent = `S/ ${(fila.ingresos || 0).toFixed(2)}`;
+                    ingresosTd.appendChild(ingresosStrong);
+
+                    tr.appendChild(productoTd);
+                    tr.appendChild(categoriaTd);
+                    tr.appendChild(vendidosTd);
+                    tr.appendChild(ingresosTd);
                     break;
 
                 case 'usuarios':
-                    tr.innerHTML = `
-                        <td>${fila.usuario || 'N/A'}</td>
-                        <td>${fila.rol || 'N/A'}</td>
-                        <td>${fila.pedidos || 0}</td>
-                        <td><strong>S/ ${(fila.totalGastado || 0).toFixed(2)}</strong></td>
-                    `;
+                    const usuarioTd = document.createElement('td');
+                    usuarioTd.textContent = fila.usuario || 'N/A';
+
+                    const rolTd = document.createElement('td');
+                    rolTd.textContent = fila.rol || 'N/A';
+
+                    const pedidosTd = document.createElement('td');
+                    pedidosTd.textContent = fila.pedidos || 0;
+
+                    const gastadoTd = document.createElement('td');
+                    const gastadoStrong = document.createElement('strong');
+                    gastadoStrong.textContent = `S/ ${(fila.totalGastado || 0).toFixed(2)}`;
+                    gastadoTd.appendChild(gastadoStrong);
+
+                    tr.appendChild(usuarioTd);
+                    tr.appendChild(rolTd);
+                    tr.appendChild(pedidosTd);
+                    tr.appendChild(gastadoTd);
                     break;
             }
 
@@ -476,494 +506,336 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-  // EXPORTAR PDF
-  async function exportarPDF() {
-      try {
-          if (!currentReportData) {
-              mostrarAlerta('Primero debe generar un reporte', 'warning');
-              return;
-          }
-
-          mostrarAlerta('Generando PDF profesional...', 'info');
-
-          const { jsPDF } = window.jspdf;
-          const doc = new jsPDF();
-
-          const reportType = document.getElementById('reportType').value;
-          const startDate = document.getElementById('startDate').value;
-          const endDate = document.getElementById('endDate').value;
-          const metricas = currentReportData.metricas;
-
-          // CONFIGURACIÓN PROFESIONAL
-          const pageWidth = doc.internal.pageSize.getWidth();
-          const margin = 20;
-          let yPos = margin;
-
-          // ========== ENCABEZADO CORPORATIVO ==========
-          doc.setFillColor(41, 128, 185); // Azul corporativo
-          doc.rect(0, 0, pageWidth, 40, 'F');
-
-          // Logo y título
-          doc.setTextColor(255, 255, 255);
-          doc.setFontSize(20);
-          doc.setFont('helvetica', 'bold');
-          doc.text('LUREN CHICKEN', pageWidth / 2, 15, { align: 'center' });
-
-          doc.setFontSize(12);
-          doc.text('SISTEMA DE GESTIÓN - REPORTES AUTOMATIZADOS', pageWidth / 2, 25, { align: 'center' });
-
-          // ========== INFORMACIÓN DEL REPORTE ==========
-          yPos = 50;
-          doc.setTextColor(0, 0, 0);
-          doc.setFontSize(10);
-          doc.setFont('helvetica', 'normal');
-
-          // Cuadro de información
-          doc.setDrawColor(41, 128, 185);
-          doc.setFillColor(248, 249, 250);
-          doc.rect(margin, yPos - 5, pageWidth - 2 * margin, 25, 'F');
-          doc.rect(margin, yPos - 5, pageWidth - 2 * margin, 25, 'S');
-
-          doc.text(`Fecha de generación: ${new Date().toLocaleString('es-ES')}`, margin + 5, yPos);
-          doc.text(`Tipo de reporte: ${reportType.toUpperCase()}`, margin + 5, yPos + 8);
-          doc.text(`Período analizado: ${formatFecha(startDate)} a ${formatFecha(endDate)}`, margin + 5, yPos + 16);
-
-          // ========== MÉTRICAS PRINCIPALES ==========
-          yPos += 35;
-          doc.setFontSize(14);
-          doc.setFont('helvetica', 'bold');
-          doc.setTextColor(41, 128, 185);
-          doc.text('MÉTRICAS PRINCIPALES', margin, yPos);
-
-          // Cuadro de métricas
-          yPos += 10;
-          doc.setDrawColor(200, 200, 200);
-          doc.setFillColor(255, 255, 255);
-          doc.rect(margin, yPos, pageWidth - 2 * margin, 40, 'F');
-          doc.rect(margin, yPos, pageWidth - 2 * margin, 40, 'S');
-
-          doc.setFontSize(10);
-          doc.setFont('helvetica', 'normal');
-          doc.setTextColor(0, 0, 0);
-
-          // Métricas en 2 columnas
-          const col1X = margin + 10;
-          const col2X = pageWidth / 2 + 10;
-          let metricY = yPos + 12;
-
-          // Columna 1
-          doc.setFont('helvetica', 'bold');
-          doc.text('VENTAS TOTALES:', col1X, metricY);
-          doc.setFont('helvetica', 'normal');
-          doc.text(metricas.totalVentas ? `S/ ${metricas.totalVentas.toFixed(2)}` : 'S/ 0.00', col1X + 40, metricY);
-
-          doc.setFont('helvetica', 'bold');
-          doc.text('TOTAL PEDIDOS:', col1X, metricY + 8);
-          doc.setFont('helvetica', 'normal');
-          doc.text(metricas.totalPedidos?.toString() || '0', col1X + 40, metricY + 8);
-
-          // Columna 2
-          doc.setFont('helvetica', 'bold');
-          doc.text('PRODUCTOS VENDIDOS:', col2X, metricY);
-          doc.setFont('helvetica', 'normal');
-          doc.text((metricas.productosVendidos || metricas.usuariosActivos || '0').toString(), col2X + 50, metricY);
-
-          doc.setFont('helvetica', 'bold');
-          doc.text('TASA DE CRECIMIENTO:', col2X, metricY + 8);
-          doc.setFont('helvetica', 'normal');
-          const crecimiento = metricas.crecimiento || 0;
-          doc.text(`${crecimiento > 0 ? '+' : ''}${crecimiento.toFixed(1)}%`, col2X + 50, metricY + 8);
-
-          // ========== TABLA DE DATOS DETALLADOS ==========
-          if (currentReportData.tablaDatos && currentReportData.tablaDatos.length > 0) {
-              yPos += 60;
-
-              // Verificar si necesitamos nueva página
-              if (yPos > 200) {
-                  doc.addPage();
-                  yPos = margin;
-              }
-
-              doc.setFontSize(14);
-              doc.setFont('helvetica', 'bold');
-              doc.setTextColor(41, 128, 185);
-              doc.text('DETALLE DEL REPORTE', margin, yPos);
-              yPos += 10;
-
-              // Preparar datos para la tabla
-              const headers = Object.keys(currentReportData.tablaDatos[0]);
-              const body = currentReportData.tablaDatos.map(fila =>
-                  headers.map(header => {
-                      const valor = fila[header];
-                      // Formatear valores especiales
-                      if (typeof valor === 'number') {
-                          if (header.toLowerCase().includes('total') ||
-                              header.toLowerCase().includes('ingreso') ||
-                              header.toLowerCase().includes('precio')) {
-                              return `S/ ${valor.toFixed(2)}`;
-                          }
-                          return valor.toString();
-                      }
-                      return valor?.toString() || '';
-                  })
-              );
-
-              // Crear tabla con autoTable (más profesional)
-              doc.autoTable({
-                  startY: yPos,
-                  head: [headers.map(h => h.toUpperCase())],
-                  body: body,
-                  theme: 'grid',
-                  headStyles: {
-                      fillColor: [41, 128, 185],
-                      textColor: 255,
-                      fontStyle: 'bold',
-                      fontSize: 9,
-                      cellPadding: 3
-                  },
-                  bodyStyles: {
-                      fontSize: 8,
-                      cellPadding: 2,
-                      textColor: [0, 0, 0]
-                  },
-                  alternateRowStyles: {
-                      fillColor: [248, 249, 250]
-                  },
-                  styles: {
-                      lineColor: [200, 200, 200],
-                      lineWidth: 0.1
-                  },
-                  margin: { left: margin, right: margin }
-              });
-          }
-
-          // ========== PIE DE PÁGINA ==========
-          const totalPages = doc.internal.getNumberOfPages();
-          for (let i = 1; i <= totalPages; i++) {
-              doc.setPage(i);
-
-              // Línea separadora
-              doc.setDrawColor(200, 200, 200);
-              doc.line(margin, doc.internal.pageSize.getHeight() - 20, pageWidth - margin, doc.internal.pageSize.getHeight() - 20);
-
-              // Información de página
-              doc.setFontSize(8);
-              doc.setTextColor(150, 150, 150);
-              doc.text(`Página ${i} de ${totalPages}`, pageWidth / 2, doc.internal.pageSize.getHeight() - 15, { align: 'center' });
-              doc.text('© Luren Chicken - Sistema de Gestión Interno', pageWidth / 2, doc.internal.pageSize.getHeight() - 10, { align: 'center' });
-              doc.text('Reporte generado automáticamente - Confidencial', pageWidth / 2, doc.internal.pageSize.getHeight() - 5, { align: 'center' });
-          }
-
-         // ========== GUARDAR PDF ==========
-
-         function formatLocalDate(date) {
-             const year = date.getFullYear();
-             const month = String(date.getMonth() + 1).padStart(2, '0');
-             const day = String(date.getDate()).padStart(2, '0');
-             return `${year}-${month}-${day}`;
-         }
-
-         const timestamp = formatLocalDate(new Date());
-         doc.save(`Reporte_Luren_${reportType}_${timestamp}.pdf`);
-
-          mostrarAlerta('PDF profesional exportado exitosamente', 'success');
-
-      } catch (error) {
-          console.error('Error exportando PDF:', error);
-          mostrarAlerta('Error al exportar PDF: ' + error.message, 'danger');
-      }
-  }
-
-
-// EXPORTAR EXCEL
-async function exportarExcel() {
-    try {
-        if (!currentReportData) {
-            mostrarAlerta('Primero debe generar un reporte', 'warning');
-            return;
-        }
-
-        mostrarAlerta('Generando Excel con estilos profesionales...', 'info');
-
-        const reportType = document.getElementById('reportType').value;
-        const startDate = document.getElementById('startDate').value;
-        const endDate = document.getElementById('endDate').value;
-        const metricas = currentReportData.metricas;
-        const crecimiento = metricas.crecimiento || 0;
-
-        // CREAR WORKBOOK CON EXCELJS
-        const workbook = new ExcelJS.Workbook();
-
-        // ========== HOJA DE RESUMEN ==========
-        const worksheet = workbook.addWorksheet('Resumen Ejecutivo');
-
-        // CONFIGURAR ANCHOS DE COLUMNA
-        worksheet.columns = [
-            { width: 25 }, { width: 20 }, { width: 15 }, { width: 15 }, { width: 25 }
-        ];
-
-        // ========== TÍTULO PRINCIPAL ==========
-        const titleRow = worksheet.getRow(1);
-        titleRow.height = 30;
-        worksheet.mergeCells('A1:E1');
-        const titleCell = worksheet.getCell('A1');
-        titleCell.value = 'LUREN CHICKEN';
-        titleCell.fill = {
-            type: 'pattern',
-            pattern: 'solid',
-            fgColor: { argb: 'FF2E86AB' }
-        };
-        titleCell.font = {
-            name: 'Arial',
-            size: 16,
-            bold: true,
-            color: { argb: 'FFFFFFFF' }
-        };
-        titleCell.alignment = {
-            vertical: 'middle',
-            horizontal: 'center'
-        };
-        titleCell.border = {
-            top: { style: 'thin' }, left: { style: 'thin' },
-            bottom: { style: 'thin' }, right: { style: 'thin' }
-        };
-
-        // ========== SUBTÍTULO ==========
-        worksheet.mergeCells('A2:E2');
-        const subtitleCell = worksheet.getCell('A2');
-        subtitleCell.value = 'Sistema de Gestión - Reportes Automatizados';
-        subtitleCell.font = {
-            name: 'Arial',
-            size: 12,
-            bold: true,
-            color: { argb: 'FF2E86AB' }
-        };
-        subtitleCell.alignment = {
-            vertical: 'middle',
-            horizontal: 'center'
-        };
-
-        // ========== INFORMACIÓN DEL REPORTE ==========
-        let currentRow = 4;
-
-        // Título de sección
-        worksheet.mergeCells(`A${currentRow}:E${currentRow}`);
-        const infoTitleCell = worksheet.getCell(`A${currentRow}`);
-        infoTitleCell.value = 'INFORMACIÓN DEL REPORTE';
-        infoTitleCell.fill = {
-            type: 'pattern',
-            pattern: 'solid',
-            fgColor: { argb: 'FF2E86AB' }
-        };
-        infoTitleCell.font = {
-            name: 'Arial',
-            size: 14,
-            bold: true,
-            color: { argb: 'FFFFFFFF' }
-        };
-        infoTitleCell.alignment = {
-            vertical: 'middle',
-            horizontal: 'left'
-        };
-        infoTitleCell.border = {
-            top: { style: 'thin' }, left: { style: 'thin' },
-            bottom: { style: 'thin' }, right: { style: 'thin' }
-        };
-
-        // Datos de información
-        currentRow++;
-        worksheet.getCell(`A${currentRow}`).value = 'Fecha de Generación';
-        worksheet.getCell(`B${currentRow}`).value = new Date().toLocaleString('es-ES');
-
-        currentRow++;
-        worksheet.getCell(`A${currentRow}`).value = 'Tipo de Reporte';
-        worksheet.getCell(`B${currentRow}`).value = reportType.toUpperCase();
-
-        currentRow++;
-        worksheet.getCell(`A${currentRow}`).value = 'Período Analizado';
-        worksheet.getCell(`B${currentRow}`).value = `${formatFecha(startDate)} a ${formatFecha(endDate)}`;
-
-        // Aplicar bordes a las celdas de información
-        for (let i = 5; i <= 7; i++) {
-            for (let j = 1; j <= 2; j++) {
-                const cell = worksheet.getCell(i, j);
-                cell.border = {
-                    top: { style: 'thin' }, left: { style: 'thin' },
-                    bottom: { style: 'thin' }, right: { style: 'thin' }
-                };
+    // EXPORTAR PDF
+    async function exportarPDF() {
+        try {
+            if (!currentReportData) {
+                mostrarAlerta('Primero debe generar un reporte', 'warning');
+                return;
             }
+
+            mostrarAlerta('Generando PDF profesional...', 'info');
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            const reportType = document.getElementById('reportType').value;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            const metricas = currentReportData.metricas;
+
+            const pageWidth = doc.internal.pageSize.getWidth();
+            const margin = 20;
+            let yPos = margin;
+
+            // Encabezado
+            doc.setFillColor(41, 128, 185);
+            doc.rect(0, 0, pageWidth, 40, 'F');
+
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(20);
+            doc.setFont('helvetica', 'bold');
+            doc.text('LUREN CHICKEN', pageWidth / 2, 15, { align: 'center' });
+
+            doc.setFontSize(12);
+            doc.text('SISTEMA DE GESTIÓN - REPORTES AUTOMATIZADOS', pageWidth / 2, 25, { align: 'center' });
+
+            yPos = 50;
+            doc.setTextColor(0, 0, 0);
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'normal');
+
+            // Información del reporte
+            doc.setDrawColor(41, 128, 185);
+            doc.setFillColor(248, 249, 250);
+            doc.rect(margin, yPos - 5, pageWidth - 2 * margin, 25, 'F');
+            doc.rect(margin, yPos - 5, pageWidth - 2 * margin, 25, 'S');
+
+            doc.text(`Fecha de generación: ${new Date().toLocaleString('es-ES')}`, margin + 5, yPos);
+            doc.text(`Tipo de reporte: ${reportType.toUpperCase()}`, margin + 5, yPos + 8);
+            doc.text(`Período analizado: ${formatFecha(startDate)} a ${formatFecha(endDate)}`, margin + 5, yPos + 16);
+
+            yPos += 35;
+            doc.setFontSize(14);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(41, 128, 185);
+            doc.text('MÉTRICAS PRINCIPALES', margin, yPos);
+
+            yPos += 10;
+            doc.setDrawColor(200, 200, 200);
+            doc.setFillColor(255, 255, 255);
+            doc.rect(margin, yPos, pageWidth - 2 * margin, 40, 'F');
+            doc.rect(margin, yPos, pageWidth - 2 * margin, 40, 'S');
+
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(0, 0, 0);
+
+            const col1X = margin + 10;
+            const col2X = pageWidth / 2 + 10;
+            let metricY = yPos + 12;
+
+            doc.setFont('helvetica', 'bold');
+            doc.text('VENTAS TOTALES:', col1X, metricY);
+            doc.setFont('helvetica', 'normal');
+            doc.text(metricas.totalVentas ? `S/ ${metricas.totalVentas.toFixed(2)}` : 'S/ 0.00', col1X + 40, metricY);
+
+            doc.setFont('helvetica', 'bold');
+            doc.text('TOTAL PEDIDOS:', col1X, metricY + 8);
+            doc.setFont('helvetica', 'normal');
+            doc.text(metricas.totalPedidos?.toString() || '0', col1X + 40, metricY + 8);
+
+            doc.setFont('helvetica', 'bold');
+            doc.text('PRODUCTOS VENDIDOS:', col2X, metricY);
+            doc.setFont('helvetica', 'normal');
+            doc.text((metricas.productosVendidos || metricas.usuariosActivos || '0').toString(), col2X + 50, metricY);
+
+            doc.setFont('helvetica', 'bold');
+            doc.text('TASA DE CRECIMIENTO:', col2X, metricY + 8);
+            doc.setFont('helvetica', 'normal');
+            const crecimiento = metricas.crecimiento || 0;
+            doc.text(`${crecimiento > 0 ? '+' : ''}${crecimiento.toFixed(1)}%`, col2X + 50, metricY + 8);
+
+            if (currentReportData.tablaDatos && currentReportData.tablaDatos.length > 0) {
+                yPos += 60;
+
+                if (yPos > 200) {
+                    doc.addPage();
+                    yPos = margin;
+                }
+
+                doc.setFontSize(14);
+                doc.setFont('helvetica', 'bold');
+                doc.setTextColor(41, 128, 185);
+                doc.text('DETALLE DEL REPORTE', margin, yPos);
+                yPos += 10;
+
+                const headers = Object.keys(currentReportData.tablaDatos[0]);
+                const body = currentReportData.tablaDatos.map(fila =>
+                    headers.map(header => {
+                        const valor = fila[header];
+                        if (typeof valor === 'number') {
+                            if (header.toLowerCase().includes('total') ||
+                                header.toLowerCase().includes('ingreso') ||
+                                header.toLowerCase().includes('precio')) {
+                                return `S/ ${valor.toFixed(2)}`;
+                            }
+                            return valor.toString();
+                        }
+                        return valor?.toString() || '';
+                    })
+                );
+
+                doc.autoTable({
+                    startY: yPos,
+                    head: [headers.map(h => h.toUpperCase())],
+                    body: body,
+                    theme: 'grid',
+                    headStyles: {
+                        fillColor: [41, 128, 185],
+                        textColor: 255,
+                        fontStyle: 'bold',
+                        fontSize: 9,
+                        cellPadding: 3
+                    },
+                    bodyStyles: {
+                        fontSize: 8,
+                        cellPadding: 2,
+                        textColor: [0, 0, 0]
+                    },
+                    alternateRowStyles: {
+                        fillColor: [248, 249, 250]
+                    },
+                    styles: {
+                        lineColor: [200, 200, 200],
+                        lineWidth: 0.1
+                    },
+                    margin: { left: margin, right: margin }
+                });
+            }
+
+            const totalPages = doc.internal.getNumberOfPages();
+            for (let i = 1; i <= totalPages; i++) {
+                doc.setPage(i);
+
+                doc.setDrawColor(200, 200, 200);
+                doc.line(margin, doc.internal.pageSize.getHeight() - 20, pageWidth - margin, doc.internal.pageSize.getHeight() - 20);
+
+                doc.setFontSize(8);
+                doc.setTextColor(150, 150, 150);
+                doc.text(`Página ${i} de ${totalPages}`, pageWidth / 2, doc.internal.pageSize.getHeight() - 15, { align: 'center' });
+                doc.text('© Luren Chicken - Sistema de Gestión Interno', pageWidth / 2, doc.internal.pageSize.getHeight() - 10, { align: 'center' });
+                doc.text('Reporte generado automáticamente - Confidencial', pageWidth / 2, doc.internal.pageSize.getHeight() - 5, { align: 'center' });
+            }
+
+            function formatLocalDate(date) {
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            }
+
+            const timestamp = formatLocalDate(new Date());
+            doc.save(`Reporte_Luren_${reportType}_${timestamp}.pdf`);
+
+            mostrarAlerta('PDF profesional exportado exitosamente', 'success');
+
+        } catch (error) {
+            console.error('Error exportando PDF:', error);
+            mostrarAlerta('Error al exportar PDF: ' + error.message, 'danger');
         }
+    }
 
-        // ========== MÉTRICAS PRINCIPALES ==========
-        currentRow += 2;
+    // EXPORTAR EXCEL
+    async function exportarExcel() {
+        try {
+            if (!currentReportData) {
+                mostrarAlerta('Primero debe generar un reporte', 'warning');
+                return;
+            }
 
-        // Título de sección
-        worksheet.mergeCells(`A${currentRow}:E${currentRow}`);
-        const metricsTitleCell = worksheet.getCell(`A${currentRow}`);
-        metricsTitleCell.value = 'MÉTRICAS PRINCIPALES';
-        metricsTitleCell.fill = {
-            type: 'pattern',
-            pattern: 'solid',
-            fgColor: { argb: 'FF2E86AB' }
-        };
-        metricsTitleCell.font = {
-            name: 'Arial',
-            size: 14,
-            bold: true,
-            color: { argb: 'FFFFFFFF' }
-        };
-        metricsTitleCell.alignment = {
-            vertical: 'middle',
-            horizontal: 'left'
-        };
-        metricsTitleCell.border = {
-            top: { style: 'thin' }, left: { style: 'thin' },
-            bottom: { style: 'thin' }, right: { style: 'thin' }
-        };
+            mostrarAlerta('Generando Excel con estilos profesionales...', 'info');
 
-        // Encabezados de métricas
-        currentRow++;
-        const headerRow = worksheet.getRow(currentRow);
-        headerRow.values = ['INDICADOR', 'VALOR', 'TENDENCIA', 'META', 'OBSERVACIONES'];
-        headerRow.height = 20;
+            const reportType = document.getElementById('reportType').value;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            const metricas = currentReportData.metricas;
+            const crecimiento = metricas.crecimiento || 0;
 
-        // Estilo para encabezados
-        for (let i = 1; i <= 5; i++) {
-            const cell = worksheet.getCell(currentRow, i);
-            cell.fill = {
+            const workbook = new ExcelJS.Workbook();
+
+            const worksheet = workbook.addWorksheet('Resumen Ejecutivo');
+
+            worksheet.columns = [
+                { width: 25 }, { width: 20 }, { width: 15 }, { width: 15 }, { width: 25 }
+            ];
+
+            const titleRow = worksheet.getRow(1);
+            titleRow.height = 30;
+            worksheet.mergeCells('A1:E1');
+            const titleCell = worksheet.getCell('A1');
+            titleCell.value = 'LUREN CHICKEN';
+            titleCell.fill = {
                 type: 'pattern',
                 pattern: 'solid',
-                fgColor: { argb: 'FF5D8AA8' }
+                fgColor: { argb: 'FF2E86AB' }
             };
-            cell.font = {
+            titleCell.font = {
                 name: 'Arial',
-                size: 10,
+                size: 16,
                 bold: true,
                 color: { argb: 'FFFFFFFF' }
             };
-            cell.alignment = {
+            titleCell.alignment = {
                 vertical: 'middle',
                 horizontal: 'center'
             };
-            cell.border = {
+            titleCell.border = {
                 top: { style: 'thin' }, left: { style: 'thin' },
                 bottom: { style: 'thin' }, right: { style: 'thin' }
             };
-        }
 
-        // Datos de métricas
-        const metricsData = [
-            ['Ventas Totales', metricas.totalVentas ? `S/ ${metricas.totalVentas.toFixed(2)}` : 'S/ 0.00', '', 'Por definir', ''],
-            ['Total de Pedidos', metricas.totalPedidos || '0', '', 'Por definir', ''],
-            ['Productos Vendidos', metricas.productosVendidos || metricas.usuariosActivos || '0', '', 'Por definir', ''],
-            ['Tasa de Crecimiento', `${crecimiento > 0 ? '+' : ''}${crecimiento.toFixed(1)}%`, '', 'Por definir', '']
-        ];
+            worksheet.mergeCells('A2:E2');
+            const subtitleCell = worksheet.getCell('A2');
+            subtitleCell.value = 'Sistema de Gestión - Reportes Automatizados';
+            subtitleCell.font = {
+                name: 'Arial',
+                size: 12,
+                bold: true,
+                color: { argb: 'FF2E86AB' }
+            };
+            subtitleCell.alignment = {
+                vertical: 'middle',
+                horizontal: 'center'
+            };
 
-        metricsData.forEach((metric, index) => {
+            let currentRow = 4;
+
+            worksheet.mergeCells(`A${currentRow}:E${currentRow}`);
+            const infoTitleCell = worksheet.getCell(`A${currentRow}`);
+            infoTitleCell.value = 'INFORMACIÓN DEL REPORTE';
+            infoTitleCell.fill = {
+                type: 'pattern',
+                pattern: 'solid',
+                fgColor: { argb: 'FF2E86AB' }
+            };
+            infoTitleCell.font = {
+                name: 'Arial',
+                size: 14,
+                bold: true,
+                color: { argb: 'FFFFFFFF' }
+            };
+            infoTitleCell.alignment = {
+                vertical: 'middle',
+                horizontal: 'left'
+            };
+            infoTitleCell.border = {
+                top: { style: 'thin' }, left: { style: 'thin' },
+                bottom: { style: 'thin' }, right: { style: 'thin' }
+            };
+
             currentRow++;
-            const dataRow = worksheet.getRow(currentRow);
-            dataRow.values = metric;
-            dataRow.height = 18;
+            worksheet.getCell(`A${currentRow}`).value = 'Fecha de Generación';
+            worksheet.getCell(`B${currentRow}`).value = new Date().toLocaleString('es-ES');
 
-            // Estilo para filas de datos
+            currentRow++;
+            worksheet.getCell(`A${currentRow}`).value = 'Tipo de Reporte';
+            worksheet.getCell(`B${currentRow}`).value = reportType.toUpperCase();
+
+            currentRow++;
+            worksheet.getCell(`A${currentRow}`).value = 'Período Analizado';
+            worksheet.getCell(`B${currentRow}`).value = `${formatFecha(startDate)} a ${formatFecha(endDate)}`;
+
+            for (let i = 5; i <= 7; i++) {
+                for (let j = 1; j <= 2; j++) {
+                    const cell = worksheet.getCell(i, j);
+                    cell.border = {
+                        top: { style: 'thin' }, left: { style: 'thin' },
+                        bottom: { style: 'thin' }, right: { style: 'thin' }
+                    };
+                }
+            }
+
+            currentRow += 2;
+
+            worksheet.mergeCells(`A${currentRow}:E${currentRow}`);
+            const metricsTitleCell = worksheet.getCell(`A${currentRow}`);
+            metricsTitleCell.value = 'MÉTRICAS PRINCIPALES';
+            metricsTitleCell.fill = {
+                type: 'pattern',
+                pattern: 'solid',
+                fgColor: { argb: 'FF2E86AB' }
+            };
+            metricsTitleCell.font = {
+                name: 'Arial',
+                size: 14,
+                bold: true,
+                color: { argb: 'FFFFFFFF' }
+            };
+            metricsTitleCell.alignment = {
+                vertical: 'middle',
+                horizontal: 'left'
+            };
+            metricsTitleCell.border = {
+                top: { style: 'thin' }, left: { style: 'thin' },
+                bottom: { style: 'thin' }, right: { style: 'thin' }
+            };
+
+            currentRow++;
+            const headerRow = worksheet.getRow(currentRow);
+            headerRow.values = ['INDICADOR', 'VALOR', 'TENDENCIA', 'META', 'OBSERVACIONES'];
+            headerRow.height = 20;
+
             for (let i = 1; i <= 5; i++) {
                 const cell = worksheet.getCell(currentRow, i);
-                const isFirstCol = i === 1;
-
                 cell.fill = {
                     type: 'pattern',
                     pattern: 'solid',
-                    fgColor: { argb: index % 2 === 0 ? 'FFF8F9FA' : 'FFFFFFFF' }
+                    fgColor: { argb: 'FF5D8AA8' }
                 };
                 cell.font = {
                     name: 'Arial',
                     size: 10,
-                    bold: isFirstCol,
-                    color: { argb: isFirstCol ? 'FF2E86AB' : 'FF000000' }
-                };
-                cell.alignment = {
-                    vertical: 'middle',
-                    horizontal: isFirstCol ? 'left' : 'center'
-                };
-                cell.border = {
-                    top: { style: 'thin' }, left: { style: 'thin' },
-                    bottom: { style: 'thin' }, right: { style: 'thin' }
-                };
-            }
-        });
-
-        // ========== ANÁLISIS EJECUTIVO ==========
-        currentRow += 2;
-
-        // Título de sección
-        worksheet.mergeCells(`A${currentRow}:E${currentRow}`);
-        const analysisTitleCell = worksheet.getCell(`A${currentRow}`);
-        analysisTitleCell.value = 'ANÁLISIS EJECUTIVO';
-        analysisTitleCell.fill = {
-            type: 'pattern',
-            pattern: 'solid',
-            fgColor: { argb: 'FF2E86AB' }
-        };
-        analysisTitleCell.font = {
-            name: 'Arial',
-            size: 14,
-            bold: true,
-            color: { argb: 'FFFFFFFF' }
-        };
-        analysisTitleCell.alignment = {
-            vertical: 'middle',
-            horizontal: 'left'
-        };
-        analysisTitleCell.border = {
-            top: { style: 'thin' }, left: { style: 'thin' },
-            bottom: { style: 'thin' }, right: { style: 'thin' }
-        };
-
-        // Texto de análisis
-        const analysisText = [
-            'Este reporte fue generado automáticamente por el sistema de gestión Luren Chicken.',
-            'Los datos reflejan el desempeño comercial del período seleccionado.',
-            'Para más información detallada, contacte al administrador del sistema.'
-        ];
-
-        analysisText.forEach((text, index) => {
-            currentRow++;
-            worksheet.mergeCells(`A${currentRow}:E${currentRow}`);
-            const analysisCell = worksheet.getCell(`A${currentRow}`);
-            analysisCell.value = text;
-            analysisCell.font = {
-                name: 'Arial',
-                size: 10,
-                italic: true
-            };
-            analysisCell.alignment = {
-                vertical: 'middle',
-                horizontal: 'left'
-            };
-        });
-
-        // ========== HOJA DE DATOS DETALLADOS ==========
-        if (currentReportData.tablaDatos && currentReportData.tablaDatos.length > 0) {
-            const datosWorksheet = workbook.addWorksheet('Datos Detallados');
-
-            const headers = Object.keys(currentReportData.tablaDatos[0]);
-
-            // Encabezados
-            const headerRowDatos = datosWorksheet.getRow(1);
-            headerRowDatos.values = headers.map(h => h.toUpperCase());
-            headerRowDatos.height = 22;
-
-            // Estilo para encabezados
-            for (let i = 1; i <= headers.length; i++) {
-                const cell = datosWorksheet.getCell(1, i);
-                cell.fill = {
-                    type: 'pattern',
-                    pattern: 'solid',
-                    fgColor: { argb: 'FF2E86AB' }
-                };
-                cell.font = {
-                    name: 'Arial',
-                    size: 11,
                     bold: true,
                     color: { argb: 'FFFFFFFF' }
                 };
@@ -977,44 +849,37 @@ async function exportarExcel() {
                 };
             }
 
-            // Datos
-            currentReportData.tablaDatos.forEach((fila, rowIndex) => {
-                const dataRow = datosWorksheet.getRow(rowIndex + 2);
-                dataRow.values = headers.map(header => {
-                    const valor = fila[header];
-                    if (typeof valor === 'number') {
-                        if (header.toLowerCase().includes('precio') ||
-                            header.toLowerCase().includes('total') ||
-                            header.toLowerCase().includes('ingreso') ||
-                            header.toLowerCase().includes('gastado')) {
-                            return `S/ ${valor.toFixed(2)}`;
-                        }
-                        return valor;
-                    }
-                    return valor || '';
-                });
+            const metricsData = [
+                ['Ventas Totales', metricas.totalVentas ? `S/ ${metricas.totalVentas.toFixed(2)}` : 'S/ 0.00', '', 'Por definir', ''],
+                ['Total de Pedidos', metricas.totalPedidos || '0', '', 'Por definir', ''],
+                ['Productos Vendidos', metricas.productosVendidos || metricas.usuariosActivos || '0', '', 'Por definir', ''],
+                ['Tasa de Crecimiento', `${crecimiento > 0 ? '+' : ''}${crecimiento.toFixed(1)}%`, '', 'Por definir', '']
+            ];
+
+            metricsData.forEach((metric, index) => {
+                currentRow++;
+                const dataRow = worksheet.getRow(currentRow);
+                dataRow.values = metric;
                 dataRow.height = 18;
 
-                // Estilo para filas de datos
-                for (let i = 1; i <= headers.length; i++) {
-                    const cell = datosWorksheet.getCell(rowIndex + 2, i);
-                    const cellValue = dataRow.values[i - 1];
-                    const isNumeric = typeof cellValue === 'string' && cellValue.includes('S/');
+                for (let i = 1; i <= 5; i++) {
+                    const cell = worksheet.getCell(currentRow, i);
+                    const isFirstCol = i === 1;
 
                     cell.fill = {
                         type: 'pattern',
                         pattern: 'solid',
-                        fgColor: { argb: rowIndex % 2 === 0 ? 'FFF8F9FA' : 'FFFFFFFF' }
+                        fgColor: { argb: index % 2 === 0 ? 'FFF8F9FA' : 'FFFFFFFF' }
                     };
                     cell.font = {
                         name: 'Arial',
                         size: 10,
-                        bold: isNumeric,
-                        color: { argb: 'FF000000' }
+                        bold: isFirstCol,
+                        color: { argb: isFirstCol ? 'FF2E86AB' : 'FF000000' }
                     };
                     cell.alignment = {
                         vertical: 'middle',
-                        horizontal: isNumeric ? 'right' : 'left'
+                        horizontal: isFirstCol ? 'left' : 'center'
                     };
                     cell.border = {
                         top: { style: 'thin' }, left: { style: 'thin' },
@@ -1023,55 +888,174 @@ async function exportarExcel() {
                 }
             });
 
-            // Ajustar anchos de columna
-            datosWorksheet.columns = headers.map(() => ({ width: 18 }));
+            currentRow += 2;
+
+            worksheet.mergeCells(`A${currentRow}:E${currentRow}`);
+            const analysisTitleCell = worksheet.getCell(`A${currentRow}`);
+            analysisTitleCell.value = 'ANÁLISIS EJECUTIVO';
+            analysisTitleCell.fill = {
+                type: 'pattern',
+                pattern: 'solid',
+                fgColor: { argb: 'FF2E86AB' }
+            };
+            analysisTitleCell.font = {
+                name: 'Arial',
+                size: 14,
+                bold: true,
+                color: { argb: 'FFFFFFFF' }
+            };
+            analysisTitleCell.alignment = {
+                vertical: 'middle',
+                horizontal: 'left'
+            };
+            analysisTitleCell.border = {
+                top: { style: 'thin' }, left: { style: 'thin' },
+                bottom: { style: 'thin' }, right: { style: 'thin' }
+            };
+
+            const analysisText = [
+                'Este reporte fue generado automáticamente por el sistema de gestión Luren Chicken.',
+                'Los datos reflejan el desempeño comercial del período seleccionado.',
+                'Para más información detallada, contacte al administrador del sistema.'
+            ];
+
+            analysisText.forEach((text, index) => {
+                currentRow++;
+                worksheet.mergeCells(`A${currentRow}:E${currentRow}`);
+                const analysisCell = worksheet.getCell(`A${currentRow}`);
+                analysisCell.value = text;
+                analysisCell.font = {
+                    name: 'Arial',
+                    size: 10,
+                    italic: true
+                };
+                analysisCell.alignment = {
+                    vertical: 'middle',
+                    horizontal: 'left'
+                };
+            });
+
+            if (currentReportData.tablaDatos && currentReportData.tablaDatos.length > 0) {
+                const datosWorksheet = workbook.addWorksheet('Datos Detallados');
+
+                const headers = Object.keys(currentReportData.tablaDatos[0]);
+
+                const headerRowDatos = datosWorksheet.getRow(1);
+                headerRowDatos.values = headers.map(h => h.toUpperCase());
+                headerRowDatos.height = 22;
+
+                for (let i = 1; i <= headers.length; i++) {
+                    const cell = datosWorksheet.getCell(1, i);
+                    cell.fill = {
+                        type: 'pattern',
+                        pattern: 'solid',
+                        fgColor: { argb: 'FF2E86AB' }
+                    };
+                    cell.font = {
+                        name: 'Arial',
+                        size: 11,
+                        bold: true,
+                        color: { argb: 'FFFFFFFF' }
+                    };
+                    cell.alignment = {
+                        vertical: 'middle',
+                        horizontal: 'center'
+                    };
+                    cell.border = {
+                        top: { style: 'thin' }, left: { style: 'thin' },
+                        bottom: { style: 'thin' }, right: { style: 'thin' }
+                    };
+                }
+
+                currentReportData.tablaDatos.forEach((fila, rowIndex) => {
+                    const dataRow = datosWorksheet.getRow(rowIndex + 2);
+                    dataRow.values = headers.map(header => {
+                        const valor = fila[header];
+                        if (typeof valor === 'number') {
+                            if (header.toLowerCase().includes('precio') ||
+                                header.toLowerCase().includes('total') ||
+                                header.toLowerCase().includes('ingreso') ||
+                                header.toLowerCase().includes('gastado')) {
+                                return `S/ ${valor.toFixed(2)}`;
+                            }
+                            return valor;
+                        }
+                        return valor || '';
+                    });
+                    dataRow.height = 18;
+
+                    for (let i = 1; i <= headers.length; i++) {
+                        const cell = datosWorksheet.getCell(rowIndex + 2, i);
+                        const cellValue = dataRow.values[i - 1];
+                        const isNumeric = typeof cellValue === 'string' && cellValue.includes('S/');
+
+                        cell.fill = {
+                            type: 'pattern',
+                            pattern: 'solid',
+                            fgColor: { argb: rowIndex % 2 === 0 ? 'FFF8F9FA' : 'FFFFFFFF' }
+                        };
+                        cell.font = {
+                            name: 'Arial',
+                            size: 10,
+                            bold: isNumeric,
+                            color: { argb: 'FF000000' }
+                        };
+                        cell.alignment = {
+                            vertical: 'middle',
+                            horizontal: isNumeric ? 'right' : 'left'
+                        };
+                        cell.border = {
+                            top: { style: 'thin' }, left: { style: 'thin' },
+                            bottom: { style: 'thin' }, right: { style: 'thin' }
+                        };
+                    }
+                });
+
+                datosWorksheet.columns = headers.map(() => ({ width: 18 }));
+            }
+
+            function formatLocalDate(date) {
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            }
+
+            const timestamp = formatLocalDate(new Date());
+            const buffer = await workbook.xlsx.writeBuffer();
+
+            const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Reporte_Luren_${reportType}_${timestamp}.xlsx`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+
+            mostrarAlerta('Excel profesional exportado exitosamente', 'success');
+
+        } catch (error) {
+            console.error('Error exportando Excel:', error);
+            mostrarAlerta('Error al exportar Excel: ' + error.message, 'danger');
         }
-
-        // ========== DESCARGAR ARCHIVO ==========
-        function formatLocalDate(date) {
-            const year = date.getFullYear();
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const day = String(date.getDate()).padStart(2, '0');
-            return `${year}-${month}-${day}`;
-        }
-
-        const timestamp = formatLocalDate(new Date());
-        const buffer = await workbook.xlsx.writeBuffer();
-
-        // Crear blob y descargar
-        const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `Reporte_Luren_${reportType}_${timestamp}.xlsx`;
-        a.click();
-        window.URL.revokeObjectURL(url);
-
-        mostrarAlerta('Excel profesional exportado exitosamente', 'success');
-
-    } catch (error) {
-        console.error('Error exportando Excel:', error);
-        mostrarAlerta('Error al exportar Excel: ' + error.message, 'danger');
     }
-}
-// FUNCIÓN AUXILIAR PARA FORMATEAR FECHAS
-function formatFecha(fechaStr) {
-    if (!fechaStr) return 'N/A';
-    const fecha = new Date(fechaStr);
-    return fecha.toLocaleDateString('es-ES', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
-    });
-}
 
+    // FUNCIÓN AUXILIAR PARA FORMATEAR FECHAS
+    function formatFecha(fechaStr) {
+        if (!fechaStr) return 'N/A';
+        const fecha = new Date(fechaStr);
+        return fecha.toLocaleDateString('es-ES', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        });
+    }
 
     // CARGAR ESTADÍSTICAS COMPLETAS DEL DASHBOARD
     async function cargarEstadisticasDashboard() {
         try {
             console.log('Cargando estadísticas completas del dashboard...');
 
-            // Cargar estadísticas básicas (productos y usuarios)
             const [estadisticasResponse, ventasRecientesResponse, estadisticasVentasResponse] = await Promise.all([
                 fetch('/admin-menu/estadisticas-dashboard'),
                 fetch('/admin-menu/ventas-recientes'),
@@ -1093,18 +1077,13 @@ function formatFecha(fechaStr) {
             });
 
             if (estadisticasData.success !== false) {
-                // Actualizar tarjetas del dashboard
                 actualizarTarjetasDashboard(estadisticasData);
-
-                // Actualizar tabla de ventas recientes
                 actualizarVentasRecientes(ventasRecientes);
 
-                // Actualizar gráfico de ventas
                 if (estadisticasVentas.success) {
                     actualizarGraficoVentas(estadisticasVentas.ventasPorDia);
                 }
 
-                // Actualizar resumen de ventas
                 actualizarResumenVentas(estadisticasData);
             } else {
                 throw new Error(estadisticasData.error || 'Error desconocido');
@@ -1118,7 +1097,6 @@ function formatFecha(fechaStr) {
 
     // ACTUALIZAR TARJETAS DEL DASHBOARD
     function actualizarTarjetasDashboard(data) {
-        // Actualizar tarjetas principales
         if (document.getElementById('totalProductos')) {
             document.getElementById('totalProductos').textContent = data.totalProductos || 0;
         }
@@ -1149,7 +1127,7 @@ function formatFecha(fechaStr) {
         }
     }
 
-    // ACTUALIZAR TABLA DE VENTAS RECIENTES
+    // ACTUALIZAR TABLA DE VENTAS RECIENTES - SIN ESTILOS INLINE
     function actualizarVentasRecientes(ventas) {
         const tbody = document.getElementById('salesTableBody');
         const noSalesMessage = document.getElementById('noSalesMessage');
@@ -1171,7 +1149,6 @@ function formatFecha(fechaStr) {
         ventas.forEach(pedido => {
             const tr = document.createElement('tr');
 
-            // Formatear fecha
             const fecha = pedido.fecha ? new Date(pedido.fecha).toLocaleDateString('es-ES', {
                 day: '2-digit',
                 month: '2-digit',
@@ -1180,11 +1157,9 @@ function formatFecha(fechaStr) {
                 minute: '2-digit'
             }) : 'N/A';
 
-            // === PARTE MODIFICADA - USAR EL NUEVO MÉTODO ===
             let productosHtml = '';
             if (pedido.items && pedido.items.length > 0) {
                 pedido.items.forEach(item => {
-                    // USAR nombreProductoSeguro O nombreProducto como fallback
                     const nombreProducto = item.nombreProductoSeguro || item.nombreProducto || 'Producto no disponible';
                     productosHtml += `${nombreProducto} (x${item.cantidad})<br>`;
                 });
@@ -1192,24 +1167,41 @@ function formatFecha(fechaStr) {
                 productosHtml = 'Sin productos';
             }
 
-
-            // Cliente (usar nombre del usuario o "Cliente general")
             const cliente = pedido.usuario ?
                 `${pedido.usuario.nombres} ${pedido.usuario.apellidos}` :
                 (pedido.cliente || 'Cliente general');
 
-            tr.innerHTML = `
-                <td>${pedido.numeroPedido || pedido.id}</td>
-                <td>${cliente}</td>
-                <td>${productosHtml}</td>
-                <td><strong>S/ ${(pedido.total || 0).toFixed(2)}</strong></td>
-                <td>${fecha}</td>
-                <td>
-                    <span class="badge ${getBadgeClassForEstado(pedido.estado)}">
-                        ${pedido.estado || 'PENDIENTE'}
-                    </span>
-                </td>
-            `;
+            // Crear elementos individualmente sin estilos inline
+            const pedidoTd = document.createElement('td');
+            pedidoTd.textContent = pedido.numeroPedido || pedido.id;
+
+            const clienteTd = document.createElement('td');
+            clienteTd.textContent = cliente;
+
+            const productosTd = document.createElement('td');
+            productosTd.innerHTML = productosHtml;
+
+            const totalTd = document.createElement('td');
+            const totalStrong = document.createElement('strong');
+            totalStrong.textContent = `S/ ${(pedido.total || 0).toFixed(2)}`;
+            totalTd.appendChild(totalStrong);
+
+            const fechaTd = document.createElement('td');
+            fechaTd.textContent = fecha;
+
+            const estadoTd = document.createElement('td');
+            const estadoBadge = document.createElement('span');
+            estadoBadge.className = `badge ${getBadgeClassForEstado(pedido.estado)}`;
+            estadoBadge.textContent = pedido.estado || 'PENDIENTE';
+            estadoTd.appendChild(estadoBadge);
+
+            tr.appendChild(pedidoTd);
+            tr.appendChild(clienteTd);
+            tr.appendChild(productosTd);
+            tr.appendChild(totalTd);
+            tr.appendChild(fechaTd);
+            tr.appendChild(estadoTd);
+
             tbody.appendChild(tr);
         });
     }
@@ -1228,26 +1220,24 @@ function formatFecha(fechaStr) {
         }
     }
 
-    // ACTUALIZAR GRÁFICO DE VENTAS
+    // ACTUALIZAR GRÁFICO DE VENTAS - SIN ESTILOS INLINE
     function actualizarGraficoVentas(ventasPorDia) {
         const ctx = document.getElementById('salesChart');
         const emptyChartMessage = document.getElementById('emptyChartMessage');
 
         if (!ctx) return;
 
-        // Verificar si hay datos para mostrar
         const hasData = ventasPorDia && Object.values(ventasPorDia).some(valor => valor > 0);
 
         if (!hasData) {
-            ctx.style.display = 'none';
+            ctx.classList.add('d-none');
             if (emptyChartMessage) emptyChartMessage.classList.remove('d-none');
             return;
         }
 
-        ctx.style.display = 'block';
+        ctx.classList.remove('d-none');
         if (emptyChartMessage) emptyChartMessage.classList.add('d-none');
 
-        // Destruir gráfico existente si existe
         if (window.salesChartInstance) {
             window.salesChartInstance.destroy();
         }
@@ -1298,8 +1288,6 @@ function formatFecha(fechaStr) {
         });
     }
 
-    // ================== FUNCIONES EXISTENTES ==================
-
     // CARGAR PRODUCTOS DESDE EL BACKEND
     async function cargarProductos() {
         try {
@@ -1321,10 +1309,11 @@ function formatFecha(fechaStr) {
         }
     }
 
-    // MOSTRAR PRODUCTOS EN LA TABLA
+    // MOSTRAR PRODUCTOS EN LA TABLA - SIN ESTILOS INLINE
     function mostrarProductos() {
         const tbody = document.getElementById('productsTableBody');
         const noProductsMessage = document.getElementById('noProductsMessage');
+        const tableContainer = document.querySelector('.table-responsive');
 
         if (!tbody) {
             console.error('No se encontró el tbody de productos');
@@ -1334,82 +1323,102 @@ function formatFecha(fechaStr) {
         tbody.innerHTML = '';
 
         if (products.length === 0) {
-            if (noProductsMessage) {
-                noProductsMessage.classList.remove('d-none');
-            }
-            if (tbody.parentNode) {
-                tbody.parentNode.classList.add('d-none');
-            }
+            if (noProductsMessage) noProductsMessage.classList.remove('d-none');
+            if (tableContainer) tableContainer.classList.add('d-none');
             return;
         }
 
-        if (noProductsMessage) {
-            noProductsMessage.classList.add('d-none');
-        }
-        if (tbody.parentNode) {
-            tbody.parentNode.classList.remove('d-none');
-        }
+        if (noProductsMessage) noProductsMessage.classList.add('d-none');
+        if (tableContainer) tableContainer.classList.remove('d-none');
 
-        // Aplicar filtros
         const searchTerm = document.getElementById('searchProducts')?.value.toLowerCase() || '';
         const categoryFilter = document.getElementById('categoryFilter')?.value || '';
-
-        console.log('Filtrando productos:', {
-            searchTerm,
-            categoryFilter,
-            totalProducts: products.length
-        });
 
         const filteredProducts = products.filter(product => {
             const matchesSearch = product.nombre.toLowerCase().includes(searchTerm) ||
                 (product.descripcion && product.descripcion.toLowerCase().includes(searchTerm));
-
-            const matchesCategory = !categoryFilter ||
-                product.tipo.toLowerCase() === categoryFilter.toLowerCase();
-
+            const matchesCategory = !categoryFilter || product.tipo.toLowerCase() === categoryFilter.toLowerCase();
             return matchesSearch && matchesCategory;
         });
 
-        console.log('Productos filtrados:', filteredProducts.length);
-
         filteredProducts.forEach(product => {
             const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${product.id}</td>
-                <td>
-                    <img src="${product.imagenUrl || '/imagenes/default-product.jpg'}"
-                         alt="${product.nombre}"
-                         style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;"
-                         onerror="this.src='/imagenes/default-product.jpg'">
-                </td>
-                <td>
-                    <strong>${product.nombre}</strong>
-                    ${product.descripcion ? `<br><small class="text-muted">${product.descripcion}</small>` : ''}
-                </td>
-                <td>
-                    <span class="badge bg-primary">${product.tipo}</span>
-                </td>
-                <td><strong>S/ ${product.precio.toFixed(2)}</strong></td>
-                <td>
-                    <div class="action-buttons">
-                        <button class="btn btn-sm btn-outline-primary edit-product" data-id="${product.id}"
-                                title="Editar producto">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="btn btn-sm btn-outline-danger delete-product" data-id="${product.id}"
-                                title="Eliminar producto">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                </td>
-            `;
+
+            // ID
+            const idTd = document.createElement('td');
+            idTd.textContent = product.id;
+
+            // Imagen
+            const imgTd = document.createElement('td');
+            const img = document.createElement('img');
+            img.src = product.imagenUrl || '/imagenes/default-product.jpg';
+            img.alt = product.nombre;
+            img.className = 'product-image';
+            img.addEventListener('error', function() {
+                this.src = '/imagenes/default-product.jpg';
+            });
+            imgTd.appendChild(img);
+
+            // Nombre y descripción
+            const nameTd = document.createElement('td');
+            const strong = document.createElement('strong');
+            strong.textContent = product.nombre;
+            nameTd.appendChild(strong);
+
+            if (product.descripcion) {
+                const br = document.createElement('br');
+                const small = document.createElement('small');
+                small.className = 'text-muted';
+                small.textContent = product.descripcion;
+                nameTd.appendChild(br);
+                nameTd.appendChild(small);
+            }
+
+            // Categoría
+            const categoryTd = document.createElement('td');
+            const badge = document.createElement('span');
+            badge.className = 'badge bg-primary';
+            badge.textContent = product.tipo;
+            categoryTd.appendChild(badge);
+
+            // Precio
+            const priceTd = document.createElement('td');
+            const priceStrong = document.createElement('strong');
+            priceStrong.textContent = `S/ ${product.precio.toFixed(2)}`;
+            priceTd.appendChild(priceStrong);
+
+            // Acciones
+            const actionsTd = document.createElement('td');
+            const actionsDiv = document.createElement('div');
+            actionsDiv.className = 'action-buttons';
+
+            const editBtn = document.createElement('button');
+            editBtn.className = 'btn btn-sm btn-outline-primary edit-product';
+            editBtn.setAttribute('data-id', product.id);
+            editBtn.setAttribute('title', 'Editar producto');
+            editBtn.innerHTML = '<i class="fas fa-edit"></i>';
+
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'btn btn-sm btn-outline-danger delete-product';
+            deleteBtn.setAttribute('data-id', product.id);
+            deleteBtn.setAttribute('title', 'Eliminar producto');
+            deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+
+            actionsDiv.appendChild(editBtn);
+            actionsDiv.appendChild(deleteBtn);
+            actionsTd.appendChild(actionsDiv);
+
+            // Agregar todas las celdas
+            tr.appendChild(idTd);
+            tr.appendChild(imgTd);
+            tr.appendChild(nameTd);
+            tr.appendChild(categoryTd);
+            tr.appendChild(priceTd);
+            tr.appendChild(actionsTd);
+
             tbody.appendChild(tr);
         });
-
-        console.log('Productos mostrados en tabla:', filteredProducts.length);
     }
-
-
 
     // CARGAR USUARIOS DESDE EL BACKEND
     async function cargarUsuarios() {
@@ -1432,10 +1441,11 @@ function formatFecha(fechaStr) {
         }
     }
 
-    // MOSTRAR USUARIOS EN LA TABLA
+    // MOSTRAR USUARIOS EN LA TABLA - SIN ESTILOS INLINE
     function mostrarUsuarios() {
         const tbody = document.getElementById('usersTableBody');
         const noUsersMessage = document.getElementById('noUsersMessage');
+        const tableContainer = document.querySelector('.table-responsive');
 
         if (!tbody) {
             console.error('No se encontró el tbody de usuarios');
@@ -1445,78 +1455,97 @@ function formatFecha(fechaStr) {
         tbody.innerHTML = '';
 
         if (users.length === 0) {
-            if (noUsersMessage) {
-                noUsersMessage.classList.remove('d-none');
-            }
-            if (tbody.parentNode) {
-                tbody.parentNode.classList.add('d-none');
-            }
+            if (noUsersMessage) noUsersMessage.classList.remove('d-none');
+            if (tableContainer) tableContainer.classList.add('d-none');
             return;
         }
 
-        if (noUsersMessage) {
-            noUsersMessage.classList.add('d-none');
-        }
-        if (tbody.parentNode) {
-            tbody.parentNode.classList.remove('d-none');
-        }
+        if (noUsersMessage) noUsersMessage.classList.add('d-none');
+        if (tableContainer) tableContainer.classList.remove('d-none');
 
-        // Aplicar filtros
         const searchTerm = document.getElementById('searchUsers')?.value.toLowerCase() || '';
         const roleFilter = document.getElementById('roleFilter')?.value || '';
-
-        console.log('Filtrando usuarios:', {
-            searchTerm,
-            roleFilter,
-            totalUsers: users.length
-        });
 
         const filteredUsers = users.filter(user => {
             const matchesSearch = user.nombres.toLowerCase().includes(searchTerm) ||
                 user.apellidos.toLowerCase().includes(searchTerm) ||
                 user.username.toLowerCase().includes(searchTerm);
 
-            const matchesRole = !roleFilter ||
-                user.rol.toLowerCase() === roleFilter.toLowerCase();
+            const matchesRole = !roleFilter || user.rol.toLowerCase() === roleFilter.toLowerCase();
 
             return matchesSearch && matchesRole;
         });
 
-        console.log('Usuarios filtrados:', filteredUsers.length);
-
         filteredUsers.forEach(user => {
             const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${user.id}</td>
-                <td>
-                    <div class="user-avatar-small">
-                        ${user.nombres.charAt(0)}${user.apellidos.charAt(0)}
-                    </div>
-                </td>
-                <td>
-                    <strong>${user.nombres} ${user.apellidos}</strong>
-                    <br><small class="text-muted">${user.tipoDocumento}: ${user.numeroDocumento}</small>
-                </td>
-                <td>${user.username}</td>
-                <td>
-                    <span class="badge ${getBadgeClassForRole(user.rol)}">${user.rol}</span>
-                </td>
-                <td>
-                    <span class="badge bg-success">Activo</span>
-                </td>
-                <td>
-                    <div class="action-buttons">
-                        <button class="btn btn-sm btn-outline-danger delete-user" data-id="${user.id}"
-                                title="Eliminar usuario">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                </td>
-            `;
+
+            // ID
+            const idTd = document.createElement('td');
+            idTd.textContent = user.id;
+
+            // Avatar
+            const avatarTd = document.createElement('td');
+            const avatarDiv = document.createElement('div');
+            avatarDiv.className = 'user-avatar-small';
+            avatarDiv.textContent = user.nombres.charAt(0) + user.apellidos.charAt(0);
+            avatarTd.appendChild(avatarDiv);
+
+            // Información
+            const infoTd = document.createElement('td');
+            const nameStrong = document.createElement('strong');
+            nameStrong.textContent = `${user.nombres} ${user.apellidos}`;
+            infoTd.appendChild(nameStrong);
+
+            const br = document.createElement('br');
+            const docSmall = document.createElement('small');
+            docSmall.className = 'text-muted';
+            docSmall.textContent = `${user.tipoDocumento}: ${user.numeroDocumento}`;
+            infoTd.appendChild(br);
+            infoTd.appendChild(docSmall);
+
+            // Username
+            const usernameTd = document.createElement('td');
+            usernameTd.textContent = user.username;
+
+            // Rol
+            const roleTd = document.createElement('td');
+            const roleBadge = document.createElement('span');
+            roleBadge.className = `badge ${getBadgeClassForRole(user.rol)}`;
+            roleBadge.textContent = user.rol;
+            roleTd.appendChild(roleBadge);
+
+            // Estado
+            const statusTd = document.createElement('td');
+            const statusBadge = document.createElement('span');
+            statusBadge.className = 'badge bg-success';
+            statusBadge.textContent = 'Activo';
+            statusTd.appendChild(statusBadge);
+
+            // Acciones
+            const actionsTd = document.createElement('td');
+            const actionsDiv = document.createElement('div');
+            actionsDiv.className = 'action-buttons';
+
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'btn btn-sm btn-outline-danger delete-user';
+            deleteBtn.setAttribute('data-id', user.id);
+            deleteBtn.setAttribute('title', 'Eliminar usuario');
+            deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+
+            actionsDiv.appendChild(deleteBtn);
+            actionsTd.appendChild(actionsDiv);
+
+            // Agregar todas las celdas
+            tr.appendChild(idTd);
+            tr.appendChild(avatarTd);
+            tr.appendChild(infoTd);
+            tr.appendChild(usernameTd);
+            tr.appendChild(roleTd);
+            tr.appendChild(statusTd);
+            tr.appendChild(actionsTd);
+
             tbody.appendChild(tr);
         });
-
-        console.log('Usuarios mostrados en tabla:', filteredUsers.length);
     }
 
     // OBTENER CLASE BADGE PARA ROL
@@ -1562,16 +1591,13 @@ function formatFecha(fechaStr) {
             console.log('Respuesta del servidor:', result);
 
             if (result.success) {
-                // Cerrar modal
                 const modal = bootstrap.Modal.getInstance(document.getElementById('userModal'));
                 if (modal) {
                     modal.hide();
                 }
 
-                // Recargar usuarios
                 await cargarUsuarios();
 
-                // Mostrar mensaje de éxito
                 mostrarAlerta(result.message, 'success');
 
                 if (currentSection === 'users') {
@@ -1610,11 +1636,9 @@ function formatFecha(fechaStr) {
             const result = await response.json();
 
             if (result.success) {
-                // Recargar usuarios
                 await cargarUsuarios();
                 mostrarAlerta(result.message, 'success');
 
-                // Mantener en la sección actual
                 if (currentSection === 'users') {
                     cambiarSeccion('users');
                 }
@@ -1676,7 +1700,6 @@ function formatFecha(fechaStr) {
                 ? `/admin-menu/actualizar/${currentEditingId}`
                 : '/admin-menu/guardar';
 
-            // Agregar CSRF token
             const csrfToken = document.querySelector('input[name="_csrf"]').value;
             formData.append('_csrf', csrfToken);
 
@@ -1686,16 +1709,13 @@ function formatFecha(fechaStr) {
             });
 
             if (response.ok) {
-                // Cerrar modal
                 const modal = bootstrap.Modal.getInstance(document.getElementById('productModal'));
                 if (modal) {
                     modal.hide();
                 }
 
-                // Recargar productos
                 await cargarProductos();
 
-                // Mostrar mensaje de éxito
                 mostrarAlerta(
                     currentEditingId
                         ? 'Producto actualizado exitosamente!'
@@ -1703,7 +1723,6 @@ function formatFecha(fechaStr) {
                     'success'
                 );
 
-                // Mantener en la sección actual (menú)
                 if (currentSection === 'menu') {
                     cambiarSeccion('menu');
                 }
@@ -1735,7 +1754,6 @@ function formatFecha(fechaStr) {
             });
 
             if (response.ok) {
-                // Recargar productos
                 await cargarProductos();
                 mostrarAlerta('Producto eliminado exitosamente!', 'success');
 
@@ -1761,7 +1779,6 @@ function formatFecha(fechaStr) {
 
         modalBody.textContent = mensaje;
 
-        // Limpiar event listeners anteriores
         const nuevoConfirmBtn = confirmBtn.cloneNode(true);
         confirmBtn.parentNode.replaceChild(nuevoConfirmBtn, confirmBtn);
 
@@ -1786,19 +1803,15 @@ function formatFecha(fechaStr) {
         const sectionTitle = document.getElementById('sectionTitle');
         const navLinks = document.querySelectorAll('.sidebar .nav-link');
 
-        // Ocultar todas las secciones
         sectionContents.forEach(section => section.classList.add('d-none'));
 
-        // Remover active de todos los links
         navLinks.forEach(navLink => navLink.classList.remove('active'));
 
-        // Mostrar sección seleccionada
         const selectedSection = document.getElementById(seccion + '-section');
         if (selectedSection) {
             selectedSection.classList.remove('d-none');
         }
 
-        // Actualizar título
         if (sectionTitle) {
             const activeLink = document.querySelector(`[data-section="${seccion}"]`);
             if (activeLink) {
@@ -1807,21 +1820,19 @@ function formatFecha(fechaStr) {
             }
         }
 
-        // Activar link correspondiente
         const activeLink = document.querySelector(`[data-section="${seccion}"]`);
         if (activeLink) {
             activeLink.classList.add('active');
         }
 
-        // Cargar datos específicos de la sección
         if (seccion === 'dashboard') {
-            cargarEstadisticasDashboard(); // Cambiado a la nueva función
+            cargarEstadisticasDashboard();
         } else if (seccion === 'menu') {
             cargarProductos();
         } else if (seccion === 'users') {
             cargarUsuarios();
         } else if (seccion === 'reports') {
-            inicializarReportes(); // NUEVO: Inicializar reportes cuando se cambie a esa sección
+            inicializarReportes();
         }
     }
 
@@ -1829,11 +1840,9 @@ function formatFecha(fechaStr) {
     function inicializarAdminMenu() {
         console.log('Inicializando Admin Menu...');
 
-        // Cargar datos iniciales
-        cargarEstadisticasDashboard(); // Cambiado a la nueva función
+        cargarEstadisticasDashboard();
         cargarProductos();
 
-        // Navegación entre secciones
         const navLinks = document.querySelectorAll('.sidebar .nav-link');
 
         navLinks.forEach(link => {
@@ -1849,7 +1858,6 @@ function formatFecha(fechaStr) {
             });
         });
 
-        // EVENTOS PARA GESTIÓN DE PRODUCTOS
         const addProductBtn = document.getElementById('addProductBtn');
         if (addProductBtn) {
             addProductBtn.addEventListener('click', () => {
@@ -1866,7 +1874,6 @@ function formatFecha(fechaStr) {
             });
         }
 
-        // Eventos para búsqueda y filtros de productos
         const searchProducts = document.getElementById('searchProducts');
         if (searchProducts) {
             searchProducts.addEventListener('input', function() {
@@ -1891,7 +1898,6 @@ function formatFecha(fechaStr) {
             });
         }
 
-        // EVENTOS PARA GESTIÓN DE USUARIOS
         const addUserBtn = document.getElementById('addUserBtn');
         if (addUserBtn) {
             addUserBtn.addEventListener('click', () => {
@@ -1908,7 +1914,6 @@ function formatFecha(fechaStr) {
             });
         }
 
-        // Eventos para búsqueda y filtros de usuarios
         const searchUsers = document.getElementById('searchUsers');
         if (searchUsers) {
             searchUsers.addEventListener('input', function() {
@@ -1933,11 +1938,10 @@ function formatFecha(fechaStr) {
             });
         }
 
-        // FORMULARIO DE PRODUCTO
         const productForm = document.getElementById('productForm');
         if (productForm) {
             productForm.addEventListener('submit', async function(e) {
-                e.preventDefault(); // IMPORTANTE: Prevenir envío tradicional
+                e.preventDefault();
 
                 const nombre = document.getElementById('productName').value.trim();
                 const tipo = document.getElementById('productCategory').value;
@@ -1945,7 +1949,6 @@ function formatFecha(fechaStr) {
                 const descripcion = document.getElementById('productDescription').value.trim();
                 const imagenUrl = document.getElementById('productImage').value.trim();
 
-                // Validaciones
                 if (!nombre) {
                     mostrarAlerta('El nombre del producto es requerido', 'warning');
                     return;
@@ -1961,7 +1964,6 @@ function formatFecha(fechaStr) {
                     return;
                 }
 
-                // Crear FormData
                 const formData = new FormData();
                 formData.append('nombre', nombre);
                 formData.append('tipo', tipo);
@@ -1971,12 +1973,10 @@ function formatFecha(fechaStr) {
 
                 mostrarAlerta('Guardando producto...', 'info');
 
-                // Llamar a la función guardar
                 await guardarProducto(formData);
             });
         }
 
-        // FORMULARIO DE USUARIO
         const saveUserBtn = document.getElementById('saveUserBtn');
         if (saveUserBtn) {
             saveUserBtn.addEventListener('click', async function() {
@@ -1990,7 +1990,6 @@ function formatFecha(fechaStr) {
                 const rol = document.getElementById('userRole').value;
                 const password = document.getElementById('userPassword').value;
 
-                // Validaciones
                 if (!nombres || !apellidos) {
                     mostrarAlerta('Los nombres y apellidos son requeridos', 'warning');
                     return;
@@ -2031,7 +2030,6 @@ function formatFecha(fechaStr) {
                     return;
                 }
 
-                // Crear FormData
                 const formData = new FormData();
                 formData.append('nombres', nombres);
                 formData.append('apellidos', apellidos);
@@ -2049,9 +2047,7 @@ function formatFecha(fechaStr) {
             });
         }
 
-        // EVENTOS DELEGADOS
         document.addEventListener('click', function (e) {
-            // Editar producto
             if (e.target.closest('.edit-product')) {
                 const btn = e.target.closest('.edit-product');
                 const id = btn.getAttribute('data-id');
@@ -2066,7 +2062,6 @@ function formatFecha(fechaStr) {
                 }
             }
 
-            // Eliminar producto
             if (e.target.closest('.delete-product')) {
                 const btn = e.target.closest('.delete-product');
                 const id = btn.getAttribute('data-id');
@@ -2084,7 +2079,6 @@ function formatFecha(fechaStr) {
                 }
             }
 
-            // Eliminar usuario
             if (e.target.closest('.delete-user')) {
                 const btn = e.target.closest('.delete-user');
                 const id = btn.getAttribute('data-id');
@@ -2103,7 +2097,6 @@ function formatFecha(fechaStr) {
             }
         });
 
-        // PREVISUALIZACIÓN DE IMAGEN
         const productImage = document.getElementById('productImage');
         if (productImage) {
             productImage.addEventListener('input', function (e) {
@@ -2119,7 +2112,6 @@ function formatFecha(fechaStr) {
             });
         }
 
-        // Botón de actualizar ventas (ACTUALIZADO)
         const refreshSales = document.getElementById('refreshSales');
         if (refreshSales) {
             refreshSales.addEventListener('click', function() {
@@ -2130,7 +2122,6 @@ function formatFecha(fechaStr) {
         }
     }
 
-    // INICIALIZAR
     inicializarAdminMenu();
 
     console.log('Admin Menu inicializado correctamente');
@@ -2144,14 +2135,12 @@ async function exportarReporteDashboard() {
             const blob = await response.blob();
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
-            a.style.display = 'none';
             a.href = url;
             a.download = `dashboard_apollo_${new Date().toISOString().split('T')[0]}.xlsx`;
             document.body.appendChild(a);
             a.click();
             window.URL.revokeObjectURL(url);
 
-            // Mostrar alerta de éxito
             const event = new CustomEvent('showAlert', {
                 detail: { message: 'Reporte exportado exitosamente', type: 'success' }
             });

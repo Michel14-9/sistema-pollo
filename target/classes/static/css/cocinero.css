@@ -6,6 +6,8 @@
   --rojo: #e53935;
   --gris: #6c757d;
   --blanco: #fafafa;
+  --azul: #1976d2;
+  --gris-claro: #e9ecef;
 }
 
 /* ======= Estilos Generales ======= */
@@ -15,13 +17,35 @@ body {
   font-family: 'Poppins', sans-serif;
   margin: 0;
   padding: 0;
+  min-height: 100vh;
 }
 
+/* ======= Clases para reemplazar estilos inline ======= */
+.hidden-element {
+  display: none !important;
+}
+
+.visible-element {
+  display: block !important;
+}
+
+.flex-element {
+  display: flex !important;
+}
+
+.toast-container {
+  z-index: 11;
+}
+
+/* ======= Header ======= */
 header.cocinero-header {
-  background: linear-gradient(90deg, var(--verde), var(--verde));
+  background: linear-gradient(90deg, var(--verde), var(--naranja));
   color: white;
   padding: 10px 20px;
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
 .header-top {
@@ -38,8 +62,10 @@ header.cocinero-header {
 
 .empresa-info img {
   height: 50px;
+  width: 50px;
   border-radius: 50%;
   border: 2px solid var(--amarillo);
+  object-fit: cover;
 }
 
 .empresa-nombre {
@@ -55,12 +81,12 @@ header.cocinero-header {
   color: #fff;
 }
 
-.usuario-info button {
+.usuario-info .btn {
   border-radius: 6px;
   transition: all 0.3s ease;
 }
 
-.usuario-info button:hover {
+.usuario-info .btn-outline-danger:hover {
   background-color: var(--rojo);
   color: white;
 }
@@ -75,6 +101,12 @@ header.cocinero-header {
   color: var(--gris);
 }
 
+.estado-cocina {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
 /* ======= Tarjetas de Métricas ======= */
 .stat-card {
   text-align: center;
@@ -83,6 +115,10 @@ header.cocinero-header {
   background-color: white;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .stat-card:hover {
@@ -98,35 +134,52 @@ header.cocinero-header {
 .stat-card .number {
   font-size: 1.8rem;
   font-weight: bold;
+  line-height: 1.2;
 }
 
 .stat-card .label {
   color: var(--gris);
   font-size: 0.95rem;
+  margin-top: 5px;
 }
 
 /* ======= Tarjetas de Listas ======= */
-.card-header {
-  font-weight: bold;
-  border-top-left-radius: 12px !important;
-  border-top-right-radius: 12px !important;
-}
-
 .card {
   border: none;
   border-radius: 12px;
   background-color: #fff;
   transition: all 0.3s ease;
+  overflow: hidden;
 }
 
 .card:hover {
   transform: scale(1.01);
 }
 
+.card-header {
+  font-weight: bold;
+  border-top-left-radius: 12px !important;
+  border-top-right-radius: 12px !important;
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+}
+
+.card-body {
+  padding: 0;
+}
+
 .list-group-item {
   padding: 15px;
   border: none;
   border-bottom: 1px solid #eee;
+  transition: all 0.2s ease;
+}
+
+.list-group-item:last-child {
+  border-bottom: none;
+}
+
+.list-group-item:hover {
+  background-color: #f8f9fa;
 }
 
 /* ======= Botones ======= */
@@ -134,59 +187,81 @@ button, .btn {
   border-radius: 8px !important;
   transition: all 0.3s ease;
   font-weight: 500;
+  border: none;
 }
 
 .btn-primary {
   background-color: var(--naranja);
-  border: none;
   color: #fff;
 }
 
 .btn-primary:hover {
   background-color: #ff9800;
+  transform: translateY(-2px);
 }
 
 .btn-success {
   background-color: var(--verde);
-  border: none;
   color: white;
 }
 
 .btn-success:hover {
   background-color: #66bb6a;
+  transform: translateY(-2px);
 }
 
 .btn-secondary {
   background-color: var(--gris);
-  border: none;
   color: white;
 }
 
 .btn-outline-danger {
-  border-color: var(--rojo);
+  border: 1px solid var(--rojo);
   color: var(--rojo);
+  background: transparent;
 }
 
 .btn-outline-danger:hover {
   background-color: var(--rojo);
+  color: white;
+  transform: translateY(-2px);
+}
+
+.btn-outline-secondary {
+  border: 1px solid var(--gris);
+  color: var(--gris);
+  background: transparent;
+}
+
+.btn-outline-secondary:hover {
+  background-color: var(--gris);
   color: white;
 }
 
 /* ======= Modal ======= */
 .modal-content {
   border-radius: 12px;
+  border: none;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
 }
 
 .modal-header {
   border-top-left-radius: 12px;
   border-top-right-radius: 12px;
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+}
+
+.modal-footer {
+  border-top: 1px solid var(--gris-claro);
+  padding: 1rem;
 }
 
 /* ======= Toast ======= */
 .toast {
   border-radius: 10px;
   background-color: var(--blanco);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+  border: none;
 }
 
 .toast-header {
@@ -194,6 +269,200 @@ button, .btn {
   color: white;
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.toast-body {
+  padding: 1rem;
+}
+
+/* ======= Elementos específicos del cocinero ======= */
+.pedido-item-cocina {
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-left: 4px solid transparent;
+}
+
+.pedido-item-cocina:hover {
+  background-color: var(--amarillo);
+  transform: translateX(2px);
+}
+
+.pedido-item-cocina.selected {
+  background-color: #e7f3ff;
+  border-left-color: var(--azul);
+}
+
+.estado-por-preparar {
+  border-left-color: var(--naranja);
+}
+
+.estado-en-preparacion {
+  border-left-color: var(--azul);
+}
+
+.estado-listos {
+  border-left-color: var(--verde);
+}
+
+/* Badges de tiempo */
+.badge-tiempo {
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+/* Estados de la cocina */
+.estado-cocina-activa {
+  color: var(--verde);
+  font-weight: bold;
+}
+
+.estado-cocina-inactiva {
+  color: var(--rojo);
+  font-weight: bold;
+}
+
+/* Alertas personalizadas */
+.alert-success {
+  background-color: rgba(129, 199, 132, 0.1);
+  border-color: var(--verde);
+  color: #2e7d32;
+}
+
+.alert-warning {
+  background-color: rgba(255, 183, 77, 0.1);
+  border-color: var(--naranja);
+  color: #f57c00;
+}
+
+.alert-info {
+  background-color: rgba(33, 150, 243, 0.1);
+  border-color: var(--azul);
+  color: #1565c0;
+}
+
+/* Items del pedido en detalle */
+.border-bottom {
+  border-bottom: 1px solid #dee2e6 !important;
+}
+
+/* Utilidades de texto */
+.text-muted {
+  color: var(--gris) !important;
+}
+
+.text-success {
+  color: var(--verde) !important;
+}
+
+.text-warning {
+  color: var(--naranja) !important;
+}
+
+.text-danger {
+  color: var(--rojo) !important;
+}
+
+.text-info {
+  color: var(--azul) !important;
+}
+
+/* Utilidades de fondo */
+.bg-primary {
+  background-color: var(--azul) !important;
+}
+
+.bg-warning {
+  background-color: var(--naranja) !important;
+}
+
+.bg-success {
+  background-color: var(--verde) !important;
+}
+
+.bg-danger {
+  background-color: var(--rojo) !important;
+}
+
+.bg-info {
+  background-color: var(--azul) !important;
+}
+
+.bg-light {
+  background-color: var(--gris-claro) !important;
+}
+
+/* Sombras */
+.shadow-sm {
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+}
+
+/* Espaciado */
+.mb-2 {
+  margin-bottom: 0.5rem !important;
+}
+
+.mb-3 {
+  margin-bottom: 1rem !important;
+}
+
+.mt-3 {
+  margin-top: 1rem !important;
+}
+
+.mt-4 {
+  margin-top: 1.5rem !important;
+}
+
+.pb-2 {
+  padding-bottom: 0.5rem !important;
+}
+
+/* Flexbox utilities */
+.d-flex {
+  display: flex !important;
+}
+
+.justify-content-between {
+  justify-content: space-between !important;
+}
+
+.align-items-center {
+  align-items: center !important;
+}
+
+.align-items-start {
+  align-items: flex-start !important;
+}
+
+.flex-grow-1 {
+  flex-grow: 1 !important;
+}
+
+/* Text utilities */
+.text-center {
+  text-align: center !important;
+}
+
+.text-end {
+  text-align: right !important;
+}
+
+.fw-bold {
+  font-weight: bold !important;
+}
+
+.fs-1 {
+  font-size: 2.5rem !important;
+}
+
+.small {
+  font-size: 0.875rem !important;
+}
+
+/* Border utilities */
+.border-bottom {
+  border-bottom: 1px solid #dee2e6 !important;
 }
 
 /* ======= Responsive ======= */
@@ -207,9 +476,193 @@ button, .btn {
   .usuario-info {
     flex-direction: column;
     align-items: flex-start;
+    gap: 5px;
   }
 
   .empresa-info img {
     height: 40px;
+    width: 40px;
   }
+
+  .empresa-nombre {
+    font-size: 1.1rem;
+  }
+
+  .cocinero-nav {
+    flex-direction: column;
+    gap: 5px;
+    text-align: center;
+  }
+
+  .estado-cocina {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .stat-card {
+    padding: 15px;
+    margin-bottom: 15px;
+    min-height: 100px;
+  }
+
+  .stat-card .number {
+    font-size: 1.5rem;
+  }
+
+  .stat-card i {
+    font-size: 1.5rem;
+  }
+
+  .btn-lg {
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .container-fluid {
+    padding: 0 15px;
+  }
+}
+
+@media (max-width: 576px) {
+  .cocinero-header {
+    padding: 8px 15px;
+  }
+
+  .empresa-info img {
+    height: 35px;
+    width: 35px;
+  }
+
+  .empresa-nombre {
+    font-size: 1rem;
+  }
+
+  .container-fluid {
+    padding: 0 10px;
+  }
+
+  .card-body {
+    padding: 1rem;
+  }
+
+  .list-group-item {
+    padding: 0.75rem 1rem;
+  }
+
+  .modal-dialog {
+    margin: 0.5rem;
+  }
+
+  .toast-container {
+    padding: 0.5rem;
+  }
+}
+
+/* ======= Animaciones ======= */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+  from { transform: translateX(-100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.slide-in {
+  animation: slideIn 0.3s ease-out;
+}
+
+/* ======= Scrollbar personalizado ======= */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--naranja);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--verde);
+}
+
+/* ======= Estados de carga ======= */
+.loading {
+  opacity: 0.6;
+  pointer-events: none;
+  position: relative;
+}
+
+.loading::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  border: 2px solid var(--naranja);
+  border-top: 2px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ======= Utilidades adicionales ======= */
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.h-100 {
+  height: 100% !important;
+}
+
+.w-100 {
+  width: 100% !important;
+}
+
+.float-end {
+  float: right !important;
+}
+
+.d-block {
+  display: block !important;
+}
+
+.d-none {
+  display: none !important;
+}
+
+/* ======= Estados de pedidos urgentes ======= */
+.pedido-urgente {
+  border-left-color: var(--rojo) !important;
+  background-color: rgba(229, 57, 53, 0.05);
+}
+
+/* ======= Tiempos ======= */
+.tiempo-normal {
+  color: var(--verde);
+}
+
+.tiempo-alerta {
+  color: var(--naranja);
+}
+
+.tiempo-critico {
+  color: var(--rojo);
+  font-weight: bold;
 }

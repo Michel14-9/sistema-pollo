@@ -4,13 +4,14 @@ document.addEventListener('DOMContentLoaded', function() {
     inicializarCarrito();
 });
 
-//  Inicializar carrito
+// Inicializar carrito
 function inicializarCarrito() {
     configurarModalConfirmacion();
+    configurarEventListeners();
     console.log('Carrito inicializado');
 }
 
-//  Configurar modal de confirmación
+// Configurar modal de confirmación
 function configurarModalConfirmacion() {
     const modal = document.getElementById('modalConfirmacion');
     if (modal) {
@@ -18,7 +19,37 @@ function configurarModalConfirmacion() {
     }
 }
 
-//  Actualizar cantidad
+// Configurar event listeners
+function configurarEventListeners() {
+    // Event delegation para botones de cantidad
+    document.addEventListener('click', function(e) {
+        // Botones aumentar cantidad
+        if (e.target.closest('.cantidad-btn.aumentar')) {
+            const boton = e.target.closest('.cantidad-btn.aumentar');
+            actualizarCantidad(boton, 1);
+        }
+
+        // Botones disminuir cantidad
+        if (e.target.closest('.cantidad-btn.disminuir')) {
+            const boton = e.target.closest('.cantidad-btn.disminuir');
+            actualizarCantidad(boton, -1);
+        }
+
+        // Botones eliminar producto
+        if (e.target.closest('.eliminar-btn')) {
+            const boton = e.target.closest('.eliminar-btn');
+            eliminarProducto(boton);
+        }
+    });
+
+    // Botón vaciar carrito
+    const btnVaciar = document.querySelector('.btn-vaciar-carrito');
+    if (btnVaciar) {
+        btnVaciar.addEventListener('click', vaciarCarrito);
+    }
+}
+
+// Actualizar cantidad
 async function actualizarCantidad(boton, cambio) {
     console.log('Actualizando cantidad...', cambio);
 
@@ -29,12 +60,12 @@ async function actualizarCantidad(boton, cambio) {
 
     // Validaciones básicas
     if (nuevaCantidad < 1) {
-        mostrarNotificacion(' La cantidad mínima es 1', 'error');
+        mostrarNotificacion('La cantidad mínima es 1', 'error');
         return;
     }
 
     if (nuevaCantidad > 50) {
-        mostrarNotificacion(' La cantidad máxima es 50', 'error');
+        mostrarNotificacion('La cantidad máxima es 50', 'error');
         return;
     }
 
@@ -52,7 +83,7 @@ async function actualizarCantidad(boton, cambio) {
             throw new Error('Token de seguridad no encontrado');
         }
 
-        //  SOLO ACTUALIZAR EN EL SERVIDOR
+        // SOLO ACTUALIZAR EN EL SERVIDOR
         const response = await fetch(`/carrito/actualizar/${itemId}?cantidad=${nuevaCantidad}`, {
             method: 'POST',
             headers: {
@@ -64,8 +95,8 @@ async function actualizarCantidad(boton, cambio) {
         });
 
         if (response.ok) {
-            console.log(' Cantidad actualizada en servidor, recargando...');
-            mostrarNotificacion(' Cantidad actualizada', 'success');
+            console.log('Cantidad actualizada en servidor, recargando...');
+            mostrarNotificacion('Cantidad actualizada', 'success');
 
             // Pequeño delay para mostrar la notificación antes de recargar
             setTimeout(() => {
@@ -80,7 +111,7 @@ async function actualizarCantidad(boton, cambio) {
 
     } catch (error) {
         console.error('Error:', error);
-        mostrarNotificacion(' Error al actualizar cantidad', 'error');
+        mostrarNotificacion('Error al actualizar cantidad', 'error');
 
         // Revertir visualmente
         cantidadDisplay.textContent = cantidadActual;
@@ -91,7 +122,7 @@ async function actualizarCantidad(boton, cambio) {
     }
 }
 
-//  Eliminar producto
+// Eliminar producto
 async function eliminarProducto(boton) {
     const itemId = boton.getAttribute('data-item-id');
     const productoItem = boton.closest('.producto-item');
@@ -106,7 +137,7 @@ async function eliminarProducto(boton) {
                 boton.disabled = true;
                 boton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
 
-                //  SOLO ELIMINAR EN EL SERVIDOR
+                // SOLO ELIMINAR EN EL SERVIDOR
                 const response = await fetch(`/carrito/eliminar/${itemId}`, {
                     method: 'GET',
                     headers: {
@@ -115,14 +146,14 @@ async function eliminarProducto(boton) {
                 });
 
                 if (response.ok) {
-                    console.log(' Producto eliminado, recargando...');
+                    console.log('Producto eliminado, recargando...');
 
-                    // Animación de eliminación
-                    productoItem.style.animation = 'fadeOut 0.3s ease-out';
-                    mostrarNotificacion(' Producto eliminado', 'success');
+                    // Animación de eliminación usando clases CSS
+                    productoItem.classList.add('animacion-eliminar');
+                    mostrarNotificacion('Producto eliminado', 'success');
 
                     setTimeout(() => {
-                        //  RECARGAR para que Spring Boot actualice todo
+                        // RECARGAR para que Spring Boot actualice todo
                         window.location.reload();
                     }, 1000);
 
@@ -132,7 +163,7 @@ async function eliminarProducto(boton) {
 
             } catch (error) {
                 console.error('Error:', error);
-                mostrarNotificacion(' Error al eliminar producto', 'error');
+                mostrarNotificacion('Error al eliminar producto', 'error');
             } finally {
                 boton.disabled = false;
                 boton.innerHTML = '<i class="fas fa-trash"></i>';
@@ -141,8 +172,7 @@ async function eliminarProducto(boton) {
     );
 }
 
-
-//   Vaciar carrito con POST
+// Vaciar carrito con POST
 async function vaciarCarrito() {
     const productos = document.querySelectorAll('.producto-item');
     if (productos.length === 0) {
@@ -162,9 +192,9 @@ async function vaciarCarrito() {
                     throw new Error('Token de seguridad no encontrado');
                 }
 
-                //   POST
+                // POST
                 const response = await fetch('/carrito/vaciar', {
-                    method: 'POST', // ← Cambiado a POST
+                    method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
                     },
@@ -174,16 +204,16 @@ async function vaciarCarrito() {
                 });
 
                 if (response.ok) {
-                    console.log(' Carrito vaciado, recargando...');
+                    console.log('Carrito vaciado, recargando...');
 
-                    // Animación para vaciar carrito
+                    // Animación para vaciar carrito usando clases CSS
                     productos.forEach((producto, index) => {
                         setTimeout(() => {
-                            producto.style.animation = 'slideOutLeft 0.3s ease-out';
+                            producto.classList.add('animacion-vaciar');
                         }, index * 100);
                     });
 
-                    mostrarNotificacion(' Carrito vaciado', 'success');
+                    mostrarNotificacion('Carrito vaciado', 'success');
 
                     // RECARGAR después de la animación
                     setTimeout(() => {
@@ -204,7 +234,7 @@ async function vaciarCarrito() {
     );
 }
 
-//  Mostrar modal de confirmación
+// Mostrar modal de confirmación
 function mostrarModalConfirmacion(mensaje, callbackConfirmar) {
     const modal = document.getElementById('modalConfirmacion');
     const modalMensaje = document.getElementById('modalMensaje');
@@ -239,7 +269,7 @@ function mostrarModalConfirmacion(mensaje, callbackConfirmar) {
     }
 }
 
-// Mostrar notificaciones
+// Mostrar notificaciones (versión CSP compliant)
 function mostrarNotificacion(mensaje, tipo = 'info') {
     // Remover notificación anterior si existe
     const notificacionAnterior = document.querySelector('.notificacion-flotante');
@@ -256,24 +286,8 @@ function mostrarNotificacion(mensaje, tipo = 'info') {
         </div>
     `;
 
-    // Estilos para la notificación
-    notificacion.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: ${tipo === 'success' ? '#d4edda' : tipo === 'error' ? '#f8d7da' : tipo === 'info' ? '#d1ecf1' : '#fff3cd'};
-        color: ${tipo === 'success' ? '#155724' : tipo === 'error' ? '#721c24' : tipo === 'info' ? '#0c5460' : '#856404'};
-        padding: 15px 20px;
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        z-index: 10000;
-        border: 1px solid ${tipo === 'success' ? '#c3e6cb' : tipo === 'error' ? '#f5c6cb' : tipo === 'info' ? '#bee5eb' : '#ffeaa7'};
-        max-width: 300px;
-        animation: slideInRight 0.3s ease-out;
-    `;
-
     notificacion.querySelector('.notificacion-cerrar').onclick = () => {
-        notificacion.style.animation = 'slideOutRight 0.3s ease-in';
+        notificacion.classList.add('notificacion-salida');
         setTimeout(() => notificacion.remove(), 300);
     };
 
@@ -282,84 +296,10 @@ function mostrarNotificacion(mensaje, tipo = 'info') {
     // Auto-remover después de 4 segundos
     setTimeout(() => {
         if (notificacion.parentNode) {
-            notificacion.style.animation = 'slideOutRight 0.3s ease-in';
+            notificacion.classList.add('notificacion-salida');
             setTimeout(() => notificacion.remove(), 300);
         }
     }, 4000);
 }
 
-//  CSS dinámico para animaciones
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes slideInRight {
-        from {
-            transform: translateX(100%);
-            opacity: 0;
-        }
-        to {
-            transform: translateX(0);
-            opacity: 1;
-        }
-    }
-
-    @keyframes slideOutRight {
-        from {
-            transform: translateX(0);
-            opacity: 1;
-        }
-        to {
-            transform: translateX(100%);
-            opacity: 0;
-        }
-    }
-
-    @keyframes fadeOut {
-        from {
-            opacity: 1;
-            transform: scale(1);
-        }
-        to {
-            opacity: 0;
-            transform: scale(0.8);
-        }
-    }
-
-    @keyframes slideOutLeft {
-        from {
-            transform: translateX(0);
-            opacity: 1;
-        }
-        to {
-            transform: translateX(-100%);
-            opacity: 0;
-        }
-    }
-
-    .notificacion-cerrar {
-        background: none;
-        border: none;
-        font-size: 18px;
-        cursor: pointer;
-        margin-left: 10px;
-        color: inherit;
-    }
-
-    .notificacion-contenido {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
-
-    .cantidad-btn:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-    }
-
-    .eliminar-btn:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-    }
-`;
-document.head.appendChild(style);
-
-console.log('Carrito cargado - Listo para usar');
+console.log('Carrito cargado - Listo para usar (CSP Compliant)');

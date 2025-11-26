@@ -67,7 +67,7 @@ public class ItemPedido {
     public Pedido getPedido() { return pedido; }
     public void setPedido(Pedido pedido) { this.pedido = pedido; }
 
-    // === GETTER Y SETTER PARA PRODUCTO ===
+
     public ProductoFinal getProductoFinal() { return producto; }
     public void setProductoFinal(ProductoFinal producto) { this.producto = producto; }
 }

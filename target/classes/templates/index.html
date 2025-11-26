@@ -19,7 +19,7 @@
         <div class="container-fluid">
             <!-- Logo -->
             <a class="navbar-brand" th:href="@{/}">
-                <img th:src="@{/archivos/logo.jpg}" alt="Logo" style="width: 3rem;">
+                <img th:src="@{/archivos/logo.jpg}" alt="Logo" class="nav-logo">
             </a>
 
             <!-- Botón móvil -->
@@ -38,7 +38,7 @@
                         <a class="nav-link" th:href="@{/nuestros-locales}">Local</a>
                     </li>
                     <li class="nav-item d-flex align-items-center">
-                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <i class="fa-solid fa-magnifying-glass search-icon"></i>
                     </li>
                     <!-- Enlaces móviles -->
                     <li class="nav-item d-lg-none">
@@ -56,20 +56,17 @@
 
                 <!-- Lado derecho (escritorio) -->
                 <ul class="navbar-nav ms-auto gap-3 align-items-center">
-                    <li class="nav-item d-flex align-items-center"
-                        style="font-weight: bold; font-size: 14px; gap: 0.2rem;">
-                        <i class="fa-brands fa-whatsapp" style="font-size: 1.8rem;"></i>
-                        <div>Pide por <br><span class="text-orange">WHATSAPP</span></div>
+                    <li class="nav-item d-flex align-items-center nav-icon-item">
+                        <i class="fa-brands fa-whatsapp nav-icon whatsapp-icon"></i>
+                        <div class="nav-text">Pide por <br><span class="text-orange">WHATSAPP</span></div>
                     </li>
-                    <li class="nav-item d-flex align-items-center"
-                        style="font-weight: bold; font-size: 14px; gap: 0.2rem;">
-                        <i class="fa-solid fa-phone" style="font-size: 1.5rem;"></i>
-                        <div>Llámanos <br><span class="text-orange">123-456-7890</span></div>
+                    <li class="nav-item d-flex align-items-center nav-icon-item">
+                        <i class="fa-solid fa-phone nav-icon phone-icon"></i>
+                        <div class="nav-text">Llámanos <br><span class="text-orange">123-456-7890</span></div>
                     </li>
-                    <!---->
-                    <li class="nav-item d-flex align-items-center" style="font-weight: bold; font-size: 14px;">
-                        <i class="fa-solid fa-user" style="font-size: 1.5rem;"></i>
-                        <div>
+                    <li class="nav-item d-flex align-items-center nav-icon-item">
+                        <i class="fa-solid fa-user nav-icon user-icon"></i>
+                        <div class="nav-text">
                             <!-- Usuario NO logueado -->
                             <div th:if="${#authorization.expression('!isAuthenticated()')}">
                                 Hola, <br>
@@ -87,8 +84,7 @@
                     </li>
 
                     <li class="nav-item">
-                        <a th:href="@{/carrito}" class="btn btn-success"
-                           style="border-radius: 20px; text-decoration: none;">
+                        <a th:href="@{/carrito}" class="btn btn-success btn-carrito">
                             <i class="fa-solid fa-cart-shopping"></i> S/. 0.00
                         </a>
                     </li>
@@ -311,17 +307,15 @@
             <!-- Columna del Logo y Conectividad -->
             <div class="col-md-3 mb-4">
                 <div class="d-flex flex-column align-items-md-start align-items-center">
-                    <img th:src="@{/archivos/logo.jpg}" alt="Logo" style="height: 70px;" class="mb-3">
+                    <img th:src="@{/archivos/logo.jpg}" alt="Logo" class="footer-logo mb-3">
                     <h5 class="fw-bold mb-2">Conéctate con nosotros</h5>
                     <div class="d-flex gap-2">
                         <a th:href="@{https://www.instagram.com}" target="_blank"
-                           class="btn btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center"
-                           style="width: 40px; height: 40px;">
+                           class="btn btn-outline-secondary rounded-circle social-btn">
                             <i class="fab fa-instagram"></i>
                         </a>
                         <a th:href="@{https://www.facebook.com}" target="_blank"
-                           class="btn btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center"
-                           style="width: 40px; height: 40px;">
+                           class="btn btn-outline-secondary rounded-circle social-btn">
                             <i class="fab fa-facebook-f"></i>
                         </a>
                     </div>
@@ -357,12 +351,12 @@
             <div class="col-md-3 mb-4">
                 <h5 class="fw-bold mb-3">Libro de reclamaciones</h5>
                 <a th:href="@{/libro-reclamaciones}">
-                    <img th:src="@{/archivos/libro.png}" alt="Libro de Reclamaciones" style="width: 120px;" class="mb-3">
+                    <img th:src="@{/archivos/libro.png}" alt="Libro de Reclamaciones" class="footer-libro-img mb-3">
                 </a>
                 <h5 class="fw-bold mb-3">Métodos de Pago</h5>
                 <div class="d-flex gap-2 align-items-center">
-                    <img th:src="@{/archivos/visa_PNG30.png}" alt="Visa" style="width: 50px; border-radius: 10px;">
-                    <img th:src="@{/archivos/mastercard-og-image.png}" alt="Mastercard" style="width: 50px; border-radius: 10px;">
+                    <img th:src="@{/archivos/visa_PNG30.png}" alt="Visa" class="footer-payment-img">
+                    <img th:src="@{/archivos/mastercard-og-image.png}" alt="Mastercard" class="footer-payment-img">
                 </div>
             </div>
         </div>

@@ -1,13 +1,9 @@
-
 // SISTEMA DE GESTIÓN DE DATOS PERSONALES
-
 
 // Configuración
 const API_BASE_URL = '/api/auth';
 
-
 // INICIALIZACIÓN
-
 document.addEventListener('DOMContentLoaded', function() {
     console.log(" Inicializando gestión de datos personales...");
 
@@ -18,7 +14,6 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log(" Sistema de datos personales inicializado");
     }
 });
-
 
 // FUNCIONES PRINCIPALES
 
@@ -31,7 +26,7 @@ async function cargarDatosUsuario() {
             headers: {
                 'Content-Type': 'application/json',
             },
-            credentials: 'include' // Importante para enviar cookies de sesión
+            credentials: 'include'
         });
 
         if (!response.ok) {
@@ -70,7 +65,7 @@ function cargarDatosEnFormulario(usuario) {
     document.getElementById('editNumeroDocumento').value = usuario.numeroDocumento || '';
     document.getElementById('editTelefono').value = usuario.telefono || '';
     document.getElementById('editFechaNacimiento').value = usuario.fechaNacimiento || '';
-    
+
     // Limpiar campos de contraseña
     document.getElementById('passwordActual').value = '';
     document.getElementById('nuevaPassword').value = '';
@@ -78,18 +73,31 @@ function cargarDatosEnFormulario(usuario) {
 }
 
 function inicializarEventListeners() {
+    // Configurar botones de edición y cancelación
+    const btnEditar = document.getElementById('btnEditar');
+    const btnCancelar = document.getElementById('btnCancelar');
     const form = document.getElementById('editarDatosForm');
+
+    if (btnEditar) {
+        btnEditar.addEventListener('click', habilitarEdicion);
+    }
+
+    if (btnCancelar) {
+        btnCancelar.addEventListener('click', cancelarEdicion);
+    }
+
     if (form) {
         form.addEventListener('submit', manejarEnvioFormulario);
     }
+
+    // Inicialmente ocultar el formulario de edición
+    document.getElementById('editForm').style.display = 'none';
 
     // Validaciones en tiempo real
     configurarValidacionesTiempoReal();
 }
 
-// ==========================
-// GESTIÓN DE VISTAS
-// ==========================
+
 function habilitarEdicion() {
     console.log(" Habilitando modo edición...");
 
@@ -120,7 +128,6 @@ function cancelarEdicion() {
 }
 
 
-// MANEJO DEL FORMULARIO
 
 async function manejarEnvioFormulario(event) {
     console.log(" Procesando actualización de datos...");
@@ -136,7 +143,7 @@ async function manejarEnvioFormulario(event) {
     }
 
     try {
-        // Deshabilitar botón
+
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando...';
 
@@ -187,9 +194,7 @@ function prepararDatosFormulario() {
     return datos;
 }
 
-// ==========================
-// VALIDACIONES
-// ==========================
+
 function validarFormularioCompleto() {
     let esValido = true;
 
@@ -361,7 +366,6 @@ function validarPassword() {
     return true;
 }
 
-
 // VALIDACIONES EN TIEMPO REAL
 
 function configurarValidacionesTiempoReal() {
@@ -419,7 +423,6 @@ function configurarValidacionTexto(elementId, regex) {
         });
     }
 }
-
 
 // UTILIDADES
 
@@ -526,7 +529,6 @@ function formatearFecha(fechaString) {
         day: 'numeric'
     });
 }
-
 
 // COMUNICACIÓN CON EL SERVIDOR
 

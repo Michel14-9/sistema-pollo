@@ -1,14 +1,19 @@
-
-       
-
 /* ======== PALETA DE COLORES ======== */
 :root {
   --verde: #81c784;        /* Verde claro (frescura) */
+  --verde-oscuro: #66BB6A; /* Verde más oscuro para hover */
   --naranja: #ffb74d;      /* Naranja (energía y apetito) */
+  --naranja-oscuro: #FFA726; /* Naranja más oscuro para hover */
   --amarillo: #fff9c4;     /* Amarillo claro (comida deliciosa) */
+  --amarillo-oscuro: #FFECB3; /* Amarillo más oscuro para hover */
   --rojo: #e53935;         /* Toque rojo (resaltado) */
+  --rojo-oscuro: #EF5350;  /* Rojo más oscuro para hover */
   --gris: #6c757d;         /* Gris suave (texto) */
+  --gris-claro: #777;      /* Gris más claro */
   --blanco: #fafafa;       /* Fondo cálido */
+  --borde-suave: #e4e4e4;  /* Color para bordes suaves */
+  --sombra-suave: rgba(0, 0, 0, 0.08);
+  --sombra-media: rgba(0, 0, 0, 0.1);
 }
 
 /* ======= ESTILO GENERAL ======= */
@@ -21,20 +26,20 @@ body {
 }
 
 /* ======= HEADER ======= */
-header .navbar {
+.header-navbar {
   background-color: var(--amarillo);
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 3px 8px var(--sombra-suave);
   padding: 0.8rem 1.5rem;
   border-bottom: 3px solid var(--naranja);
 }
 
-.navbar-brand img {
+.navbar-logo {
   width: 3rem;
   border-radius: 50%;
   transition: transform 0.3s ease;
 }
 
-.navbar-brand img:hover {
+.navbar-logo:hover {
   transform: scale(1.1);
 }
 
@@ -49,8 +54,33 @@ header .navbar {
   transform: translateY(-2px);
 }
 
-header .navbar-toggler {
+.navbar-toggler {
   border-color: var(--naranja);
+}
+
+/* Estilos para información de contacto en header */
+.contact-info {
+  font-weight: bold;
+  font-size: 14px;
+  gap: 0.2rem;
+}
+
+.contact-icon {
+  font-size: 1.5rem;
+}
+
+.contact-icon-whatsapp {
+  font-size: 1.8rem;
+}
+
+.user-info {
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.cart-btn {
+  border-radius: 20px;
+  text-decoration: none;
 }
 
 /* ======= BOTONES ======= */
@@ -70,7 +100,7 @@ header .navbar-toggler {
 }
 
 .btn-verde:hover {
-  background-color: #66BB6A;
+  background-color: var(--verde-oscuro);
   box-shadow: 0 4px 10px rgba(129, 199, 132, 0.4);
 }
 
@@ -81,7 +111,7 @@ header .navbar-toggler {
 }
 
 .btn-naranja:hover {
-  background-color: #FFA726;
+  background-color: var(--naranja-oscuro);
   box-shadow: 0 4px 10px rgba(255, 183, 77, 0.4);
 }
 
@@ -92,7 +122,7 @@ header .navbar-toggler {
 }
 
 .btn-rojo:hover {
-  background-color: #EF5350;
+  background-color: var(--rojo-oscuro);
   box-shadow: 0 4px 10px rgba(229, 115, 115, 0.4);
 }
 
@@ -103,12 +133,40 @@ header .navbar-toggler {
 }
 
 .btn-amarillo:hover {
-  background-color: #FFECB3;
+  background-color: var(--amarillo-oscuro);
   box-shadow: 0 4px 10px rgba(255, 248, 225, 0.3);
 }
 
+/* Botones específicos para Luren */
+.btn-luren {
+  background-color: var(--verde);
+  color: #fff;
+  font-weight: 600;
+  border-radius: 8px;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.btn-luren:hover {
+  background-color: var(--verde-oscuro);
+}
+
+.btn-outline-luren {
+  border: 2px solid var(--naranja);
+  color: var(--naranja);
+  background: transparent;
+  font-weight: 600;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.btn-outline-luren:hover {
+  background-color: var(--naranja);
+  color: #fff;
+}
+
 /* ======= FOOTER ======= */
-footer {
+.site-footer {
   background-color: var(--amarillo);
   color: #333;
   border-top: 4px solid var(--naranja);
@@ -116,40 +174,58 @@ footer {
   padding-bottom: 1.5rem;
 }
 
-footer h5 {
+.footer-logo {
+  height: 70px;
+}
+
+.site-footer h5 {
   color: var(--verde);
   font-weight: 700;
   margin-bottom: 1rem;
 }
 
-footer a {
+.site-footer a {
   color: #333;
   text-decoration: none;
   transition: color 0.3s ease;
 }
 
-footer a:hover {
+.site-footer a:hover {
   color: var(--rojo);
 }
 
 /* Redes sociales */
-footer .btn-outline-secondary {
+.social-btn {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-color: var(--verde);
   color: var(--verde);
   transition: all 0.3s ease;
 }
 
-footer .btn-outline-secondary:hover {
+.social-btn:hover {
   background-color: var(--verde);
   color: white;
 }
 
+.complaint-book {
+  width: 120px;
+}
+
+.payment-method {
+  width: 50px;
+  border-radius: 10px;
+}
+
 /* Línea separadora y copyright */
-footer hr {
+.site-footer hr {
   border-color: rgba(0, 0, 0, 0.1);
 }
 
-footer small {
+.site-footer small {
   color: var(--gris);
   font-size: 0.9rem;
 }
@@ -159,46 +235,20 @@ img, .btn, .nav-link {
   transition: all 0.3s ease;
 }
 
-/* ======= RESPONSIVO ======= */
-@media (max-width: 768px) {
-  header .navbar-nav {
-    text-align: center;
-  }
-
-  footer .row {
-    text-align: center;
-  }
-
-  footer .d-flex {
-    justify-content: center;
-  }
-}
-
-
-
-
-
-
-
-
-
-
-/*  ESTILOS "MI CUENTA" */
-
-/* ===== CONTENEDOR PRINCIPAL ===== */
-main.container {
+/* ======= CONTENEDOR PRINCIPAL ======= */
+.main-container {
   color: var(--gris);
   font-family: "Poppins", sans-serif;
 }
 
 /* ===== TÍTULO Y SUBTÍTULO ===== */
-h1.h2.text-luren {
+.page-title {
   color: var(--verde-oscuro);
   font-weight: 600;
 }
 
 .text-muted {
-  color: #777 !important;
+  color: var(--gris-claro) !important;
 }
 
 /* ===== SIDEBAR ===== */
@@ -206,7 +256,7 @@ h1.h2.text-luren {
   border: none;
   border-radius: 12px;
   background-color: var(--blanco);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 12px var(--sombra-suave);
 }
 
 .sidebar-menu .card-header {
@@ -238,16 +288,16 @@ h1.h2.text-luren {
   border: none;
   border-radius: 12px;
   background-color: var(--blanco);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 8px var(--sombra-suave);
   transition: all 0.3s ease;
 }
 
 .card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px var(--sombra-media);
 }
 
-.card-header.bg-light {
+.card-header-bg-light {
   background-color: #f8f9fa !important;
   border-bottom: 1px solid #eee;
 }
@@ -255,7 +305,7 @@ h1.h2.text-luren {
 /* ===== INFORMACIÓN PERSONAL ===== */
 .info-item {
   padding: 6px 0;
-  border-bottom: 1px dashed #e4e4e4;
+  border-bottom: 1px dashed var(--borde-suave);
 }
 
 .info-label {
@@ -269,46 +319,44 @@ h1.h2.text-luren {
 }
 
 /* ===== RESUMEN DE CUENTA ===== */
-#totalPedidos,
-#totalFavoritos {
+.summary-number {
   font-weight: 700;
 }
 
-.bg-primary.bg-opacity-10,
-.bg-warning.bg-opacity-10 {
+.bg-opacity-custom {
   background-color: rgba(0, 0, 0, 0.05) !important;
 }
 
 /* ===== ACCIONES RÁPIDAS ===== */
-.card .btn {
+.quick-action-btn {
   border-radius: 10px;
   font-weight: 600;
   transition: all 0.3s ease;
 }
 
-.card .btn i {
+.quick-action-btn i {
   font-size: 1.4rem;
 }
 
-.card .btn-outline-primary:hover {
+.quick-action-btn.btn-outline-primary:hover {
   background-color: var(--verde);
   color: #fff;
   border-color: var(--verde);
 }
 
-.card .btn-outline-success:hover {
+.quick-action-btn.btn-outline-success:hover {
   background-color: var(--naranja);
   color: #fff;
   border-color: var(--naranja);
 }
 
-.card .btn-outline-warning:hover {
+.quick-action-btn.btn-outline-warning:hover {
   background-color: var(--amarillo);
   color: var(--verde-oscuro);
 }
 
 /* ===== ALERTAS ===== */
-.alert-warning {
+.alert-warning-custom {
   background-color: var(--amarillo);
   color: var(--gris);
   border: none;
@@ -316,37 +364,13 @@ h1.h2.text-luren {
   font-weight: 500;
 }
 
-/* ===== BOTONES ===== */
-.btn-luren {
-  background-color: var(--verde);
-  color: #fff;
-  font-weight: 600;
-  border-radius: 8px;
-  border: none;
-  transition: all 0.3s ease;
-}
-
-.btn-luren:hover {
-  background-color: var(--verde-oscuro);
-}
-
-.btn-outline-luren {
-  border: 2px solid var(--naranja);
-  color: var(--naranja);
-  background: transparent;
-  font-weight: 600;
-  border-radius: 8px;
-  transition: all 0.3s ease;
-}
-
-.btn-outline-luren:hover {
-  background-color: var(--naranja);
-  color: #fff;
-}
-
-/* ===== ÍCONOS ===== */
+/* ===== COLORES DE TEXTO ===== */
 .text-luren {
   color: var(--verde-oscuro);
+}
+
+.text-orange {
+  color: var(--naranja);
 }
 
 /* ===== EFECTOS DE ENLACES ===== */
@@ -361,11 +385,23 @@ a:hover {
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
+  .header-navbar .navbar-nav {
+    text-align: center;
+  }
+
   .sidebar-menu {
     margin-bottom: 20px;
   }
 
-  .card .btn span {
+  .quick-action-btn span {
     font-size: 0.9rem;
+  }
+
+  .site-footer .row {
+    text-align: center;
+  }
+
+  .site-footer .d-flex {
+    justify-content: center;
   }
 }

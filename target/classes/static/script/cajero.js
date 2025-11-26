@@ -1,4 +1,4 @@
-// cajero.js -
+// cajero.js
 
 // Variables globales
 let pedidoSeleccionado = null;
@@ -41,26 +41,83 @@ const elementos = {
     }
 };
 
-// FUNCIONES DE CONEXIÓN CON BACKEND
+
+
+function showElement(element) {
+    if (typeof element === 'string') {
+        element = document.getElementById(element);
+    }
+    if (element) {
+        element.classList.remove('hidden-element');
+        element.classList.add('visible-element');
+    }
+}
+
+function hideElement(element) {
+    if (typeof element === 'string') {
+        element = document.getElementById(element);
+    }
+    if (element) {
+        element.classList.add('hidden-element');
+        element.classList.remove('visible-element');
+    }
+}
+
+function toggleElement(element) {
+    if (typeof element === 'string') {
+        element = document.getElementById(element);
+    }
+    if (element) {
+        element.classList.toggle('hidden-element');
+    }
+}
+
+function addClass(element, className) {
+    if (typeof element === 'string') {
+        element = document.getElementById(element);
+    }
+    if (element) {
+        element.classList.add(className);
+    }
+}
+
+function removeClass(element, className) {
+    if (typeof element === 'string') {
+        element = document.getElementById(element);
+    }
+    if (element) {
+        element.classList.remove(className);
+    }
+}
+
+function toggleClass(element, className) {
+    if (typeof element === 'string') {
+        element = document.getElementById(element);
+    }
+    if (element) {
+        element.classList.toggle(className);
+    }
+}
+
+
 
 // OBTENER TOKEN CSRF
 function getCsrfToken() {
-    // Buscar en múltiples ubicaciones posibles
     const csrfInput = document.querySelector('input[name="_csrf"]');
     const csrfMeta = document.querySelector('meta[name="_csrf"]');
 
     const token = csrfInput ? csrfInput.value : (csrfMeta ? csrfMeta.content : '');
 
     if (!token) {
-        console.warn('⚠️ No se encontró token CSRF');
+        console.warn(' No se encontró token CSRF');
     } else {
-        console.log('🔐 Token CSRF encontrado');
+        console.log(' Token CSRF encontrado');
     }
 
     return token;
 }
 
-// FETCH CON CSRF -
+// FETCH CON CSRF
 async function fetchConCSRF(url, options = {}) {
     const csrfToken = getCsrfToken();
 
@@ -76,7 +133,6 @@ async function fetchConCSRF(url, options = {}) {
     console.log(`Realizando petición a: ${url}`);
     const response = await fetch(url, config);
 
-    // Verificar si hay redirección (sesión expirada)
     if (response.redirected && response.url.includes('/login')) {
         throw new Error('Sesión expirada. Por favor, inicie sesión nuevamente.');
     }
@@ -84,10 +140,10 @@ async function fetchConCSRF(url, options = {}) {
     return response;
 }
 
-// CARGAR PEDIDOS PENDIENTES DESDE BACKEND
+
 async function cargarPedidosPendientes() {
     try {
-        console.log('Cargando pedidos pendientes...');
+        console.log(' Cargando pedidos pendientes...');
         const response = await fetchConCSRF('/cajero/pedidos-pendientes');
 
         if (!response.ok) {
@@ -100,7 +156,7 @@ async function cargarPedidosPendientes() {
         cargarMetricas();
 
     } catch (error) {
-        console.error('Error cargando pedidos:', error);
+        console.error(' Error cargando pedidos:', error);
         if (error.message.includes('Sesión expirada')) {
             manejarSesionExpirada();
         } else {
@@ -109,14 +165,14 @@ async function cargarPedidosPendientes() {
     }
 }
 
-// CARGAR MÉTRICAS DESDE BACKEND
+
 async function cargarMetricas() {
     try {
         console.log(' Cargando métricas...');
         const response = await fetchConCSRF('/cajero/metricas-hoy');
 
         if (!response.ok) {
-            console.warn('⚠ Endpoint métricas no disponible, usando cálculo local');
+            console.warn(' Endpoint métricas no disponible, usando cálculo local');
             calcularMetricasLocales();
             return;
         }
@@ -127,12 +183,12 @@ async function cargarMetricas() {
         }
 
     } catch (error) {
-        console.error('Error cargando métricas:', error);
+        console.error(' Error cargando métricas:', error);
         calcularMetricasLocales();
     }
 }
 
-// CALCULAR MÉTRICAS LOCALMENTE (fallback)
+
 function calcularMetricasLocales() {
     const metricas = {
         totalPedidosPendientes: pedidosPendientes.length,
@@ -141,70 +197,6 @@ function calcularMetricasLocales() {
     };
     actualizarMetricas(metricas);
 }
-
-// MARCAR PEDIDO COMO PAGADO
-async function marcarComoPagado(pedidoId) {
-    try {
-        console.log(` Marcando pedido ${pedidoId} como PAGADO...`);
-        console.log(' Token CSRF actual:', getCsrfToken().substring(0, 20) + '...');
-
-        const response = await fetch(`/cajero/marcar-pagado/${pedidoId}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'X-CSRF-TOKEN': getCsrfToken()
-            },
-            credentials: 'include'
-        });
-
-        console.log(' Estado respuesta:', response.status, response.statusText);
-        console.log(' Redireccionó?:', response.redirected);
-
-        // Manejar diferentes códigos de estado
-        if (response.status === 401) {
-            throw new Error('Sesión expirada. Por favor, inicie sesión nuevamente.');
-        }
-
-        if (response.status === 403) {
-            const errorText = await response.text();
-            throw new Error(errorText.replace('ERROR: ', '') || 'No tiene permisos para esta acción.');
-        }
-
-        if (response.status === 400) {
-            const errorText = await response.text();
-            throw new Error(errorText.replace('ERROR: ', ''));
-        }
-
-        if (!response.ok) {
-            throw new Error(`Error del servidor: ${response.status} ${response.statusText}`);
-        }
-
-        const resultado = await response.text();
-        console.log(' Respuesta del servidor:', resultado);
-
-        if (resultado.includes('SUCCESS')) {
-            mostrarAlerta('Pedido marcado como PAGADO exitosamente', 'success');
-            await cargarPedidosPendientes();
-            ocultarDetalle();
-        } else {
-            throw new Error(resultado.replace('ERROR: ', ''));
-        }
-
-    } catch (error) {
-        console.error(' Error marcando como pagado:', error);
-
-        if (error.message.includes('Sesión expirada')) {
-            mostrarAlerta(' Sesión expirada. Redirigiendo al login...', 'error');
-            setTimeout(() => {
-                window.location.href = '/login?sessionExpired=true';
-            }, 2000);
-        } else {
-            mostrarAlerta(`${error.message}`, 'error');
-        }
-    }
-}
-
-// ================== FUNCIONES PARA BOLETA ==================
 
 // MARCAR PEDIDO COMO PAGADO CON GENERACIÓN DE BOLETA
 async function marcarComoPagadoConBoleta(pedidoId) {
@@ -239,7 +231,6 @@ async function marcarComoPagadoConBoleta(pedidoId) {
             throw new Error(`Error del servidor: ${response.status}`);
         }
 
-
         const resultado = await response.json();
         console.log(' Respuesta JSON del servidor:', resultado);
 
@@ -247,101 +238,11 @@ async function marcarComoPagadoConBoleta(pedidoId) {
             let mensaje = 'Pedido marcado como PAGADO exitosamente';
 
             if (resultado.boletaPath && !resultado.boletaPath.includes('Error')) {
-                mensaje += `<br> Boleta generada: ${resultado.boletaPath}`;
+                mensaje += `\n Boleta generada: ${resultado.boletaPath}`;
 
-                // Descargar automáticamente la boleta después de 1 segundo
                 setTimeout(() => {
                     descargarBoleta(resultado.boletaPath);
                 }, 1000);
-            }
-
-            mostrarAlerta(mensaje, 'success');
-            await cargarPedidosPendientes();
-            ocultarDetalle();
-        } else {
-            throw new Error(resultado.message || 'Error desconocido');
-        }
-
-    } catch (error) {
-        console.error('Error marcando como pagado:', error);
-
-        if (error.message.includes('Sesión expirada')) {
-            mostrarAlerta(' Sesión expirada. Redirigiendo al login...', 'error');
-            setTimeout(() => {
-                window.location.href = '/login?sessionExpired=true';
-            }, 2000);
-        } else {
-            mostrarAlerta(`${error.message}`, 'error');
-        }
-    }
-}
-
-
-function descargarBoleta(boletaFileName) {
-    try {
-        console.log(' Descargando boleta:', boletaFileName);
-
-        // Construir URL completa al endpoint de descarga
-        const downloadUrl = `/boletas/${boletaFileName}`;
-        console.log('URL de descarga:', downloadUrl);
-
-        // Crear enlace temporal
-        const link = document.createElement('a');
-        link.href = downloadUrl;
-        link.download = boletaFileName;
-        link.target = '_blank';
-        link.style.display = 'none';
-
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-
-        console.log('Descarga iniciada');
-
-    } catch (error) {
-        console.error('Error en descarga automática:', error);
-        // Fallback: abrir en nueva pestaña
-        window.open(`/boletas/${boletaFileName}`, '_blank');
-    }
-}
-
-
-async function marcarComoPagadoConBoleta(pedidoId) {
-    try {
-        console.log(` Marcando pedido ${pedidoId} como PAGADO...`);
-
-        const response = await fetch(`/cajero/marcar-pagado/${pedidoId}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': getCsrfToken()
-            },
-            credentials: 'include'
-        });
-
-        if (!response.ok) {
-            throw new Error(`Error del servidor: ${response.status}`);
-        }
-
-        const resultado = await response.json();
-        console.log(' Respuesta del servidor:', resultado);
-
-        if (resultado.status === 'SUCCESS') {
-            let mensaje = 'Pedido marcado como PAGADO exitosamente';
-
-
-            if (resultado.boletaPath &&
-                resultado.boletaPath !== 'error_generacion' &&
-                !resultado.boletaPath.includes('Error')) {
-
-                mensaje += `<br> Boleta generada: ${resultado.boletaPath}`;
-
-                // Descargar automáticamente después de 1 segundo
-                setTimeout(() => {
-                    descargarBoleta(resultado.boletaPath);
-                }, 1000);
-            } else {
-                mensaje += `<br> Boleta no generada (pero pedido procesado)`;
             }
 
             mostrarAlerta(mensaje, 'success');
@@ -353,22 +254,40 @@ async function marcarComoPagadoConBoleta(pedidoId) {
 
     } catch (error) {
         console.error(' Error marcando como pagado:', error);
-        mostrarAlerta(` ${error.message}`, 'error');
+
+        if (error.message.includes('Sesión expirada')) {
+            mostrarAlerta(' Sesión expirada. Redirigiendo al login...', 'error');
+            setTimeout(() => {
+                window.location.href = '/login?sessionExpired=true';
+            }, 2000);
+        } else {
+            mostrarAlerta(` ${error.message}`, 'error');
+        }
     }
 }
 
-
-function visualizarBoleta(boletaPath) {
+function descargarBoleta(boletaFileName) {
     try {
-        let viewUrl = boletaPath;
-        if (!boletaPath.startsWith('http')) {
-            viewUrl = `/${boletaPath}`;
-        }
+        console.log(' Descargando boleta:', boletaFileName);
 
-        window.open(viewUrl, '_blank');
-        console.log('Boleta abierta en nueva pestaña:', viewUrl);
+        const downloadUrl = `/boletas/${boletaFileName}`;
+        console.log(' URL de descarga:', downloadUrl);
+
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.download = boletaFileName;
+        link.target = '_blank';
+        hideElement(link);
+
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        console.log(' Descarga iniciada');
+
     } catch (error) {
-        console.error(' Error visualizando boleta:', error);
+        console.error(' Error en descarga automática:', error);
+        window.open(`/boletas/${boletaFileName}`, '_blank');
     }
 }
 
@@ -417,7 +336,7 @@ function manejarSesionExpirada() {
     }, 2000);
 }
 
-// ================== FUNCIONES DE INTERFAZ ==================
+
 
 // MOSTRAR PEDIDOS PENDIENTES EN LA LISTA
 function mostrarPedidosPendientes() {
@@ -426,16 +345,15 @@ function mostrarPedidosPendientes() {
     elementos.listaPedidos.innerHTML = '';
 
     if (pedidosPendientes.length === 0) {
-        elementos.sinPedidos.classList.remove('d-none');
+        removeClass(elementos.sinPedidos, 'd-none');
         return;
     }
 
-    elementos.sinPedidos.classList.add('d-none');
+    addClass(elementos.sinPedidos, 'd-none');
 
     pedidosPendientes.forEach(pedido => {
         const item = document.createElement('div');
-        item.className = 'list-group-item list-group-item-action cursor-pointer';
-        item.style.cursor = 'pointer';
+        item.className = 'list-group-item list-group-item-action pedido-item';
         item.innerHTML = `
             <div class="d-flex justify-content-between align-items-center">
                 <div>
@@ -446,7 +364,7 @@ function mostrarPedidosPendientes() {
                 <div class="text-end">
                     <strong class="text-success">S/ ${(pedido.total || 0).toFixed(2)}</strong>
                     <br>
-                    <span class="badge bg-warning">PENDIENTE</span>
+                    <span class="badge badge-pendiente">PENDIENTE</span>
                 </div>
             </div>
         `;
@@ -460,6 +378,11 @@ function mostrarPedidosPendientes() {
 function mostrarDetallePedido(pedido) {
     pedidoSeleccionado = pedido;
 
+    // Remover selección anterior
+    document.querySelectorAll('.pedido-item').forEach(item => {
+        removeClass(item, 'selected');
+    });
+
     // Actualizar información básica
     elementos.detalle.numero.textContent = pedido.numeroPedido || `#${pedido.id}`;
     elementos.detalle.orderNumber.textContent = pedido.numeroPedido || `#${pedido.id}`;
@@ -470,7 +393,7 @@ function mostrarDetallePedido(pedido) {
     if (pedido.items && pedido.items.length > 0) {
         pedido.items.forEach(item => {
             const itemElement = document.createElement('div');
-            itemElement.className = 'd-flex justify-content-between border-bottom pb-2 mb-2';
+            itemElement.className = 'd-flex justify-content-between border-bottom pb-2 mb-2 order-item';
             itemElement.innerHTML = `
                 <span>${item.nombreProductoSeguro || item.nombreProducto || 'Producto'} x ${item.cantidad || 1}</span>
                 <span>S/ ${((item.precio || 0) * (item.cantidad || 1)).toFixed(2)}</span>
@@ -486,41 +409,68 @@ function mostrarDetallePedido(pedido) {
     configurarTipoEntrega(tipoEntrega, pedido);
 
     // Mostrar acciones
-    elementos.acciones.contenedor.style.display = 'block';
-    elementos.acciones.sinSeleccion.style.display = 'none';
+    showElement('acciones-pedido');
+    hideElement('sin-pedido-seleccionado');
 
-    // Mostrar detalle con animación
-    elementos.detallePedido.style.display = 'block';
-    elementos.detallePedido.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    // Mostrar detalle
+    showElement('detalle-pedido');
+
+    // Scroll suave
+    if (elementos.detallePedido) {
+        elementos.detallePedido.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
 }
 
 // CONFIGURAR TIPO DE ENTREGA
 function configurarTipoEntrega(tipoEntrega, pedido) {
-    // Resetear todos
-    elementos.detalle.tipoEntrega.delivery.classList.remove('active', 'bg-primary', 'text-white');
-    elementos.detalle.tipoEntrega.pickup.classList.remove('active', 'bg-primary', 'text-white');
-    elementos.detalle.contenido.delivery.style.display = 'none';
-    elementos.detalle.contenido.pickup.style.display = 'none';
+    const deliveryOption = document.getElementById('delivery-option');
+    const pickupOption = document.getElementById('pickup-option');
+
+    // Resetear ambas opciones
+    if (deliveryOption) {
+        removeClass(deliveryOption, 'selected');
+    }
+    if (pickupOption) {
+        removeClass(pickupOption, 'selected');
+    }
+
+    // Ocultar ambos contenidos
+    hideElement('content-delivery');
+    hideElement('content-pickup-info');
 
     if (tipoEntrega === 'DELIVERY') {
-        elementos.detalle.tipoEntrega.delivery.classList.add('active', 'bg-primary', 'text-white');
-        elementos.detalle.contenido.delivery.style.display = 'block';
+        if (deliveryOption) {
+            addClass(deliveryOption, 'selected');
+        }
+        showElement('content-delivery');
 
         // Mostrar información de delivery
-        elementos.detalle.info.direccion.textContent = pedido.direccionEntrega || 'No especificada';
-        elementos.detalle.info.telefono.textContent = pedido.cliente?.telefono || 'No especificado';
+        if (elementos.detalle.info.direccion) {
+            elementos.detalle.info.direccion.textContent = pedido.direccionEntrega || 'No especificada';
+        }
+        if (elementos.detalle.info.telefono) {
+            elementos.detalle.info.telefono.textContent = pedido.cliente?.telefono || 'No especificado';
+        }
     } else {
-        elementos.detalle.tipoEntrega.pickup.classList.add('active', 'bg-primary', 'text-white');
-        elementos.detalle.contenido.pickup.style.display = 'block';
+        if (pickupOption) {
+            addClass(pickupOption, 'selected');
+        }
+        showElement('content-pickup-info');
     }
 }
 
 // OCULTAR DETALLE DEL PEDIDO
 function ocultarDetalle() {
     pedidoSeleccionado = null;
-    elementos.detallePedido.style.display = 'none';
-    elementos.acciones.contenedor.style.display = 'none';
-    elementos.acciones.sinSeleccion.style.display = 'block';
+
+    // Remover selección de todos los items
+    document.querySelectorAll('.pedido-item').forEach(item => {
+        removeClass(item, 'selected');
+    });
+
+    hideElement('detalle-pedido');
+    hideElement('acciones-pedido');
+    showElement('sin-pedido-seleccionado');
 }
 
 // ACTUALIZAR MÉTRICAS EN LA INTERFAZ
@@ -545,7 +495,7 @@ function actualizarMetricas(metricas) {
     }
 }
 
-// ================== FUNCIONES UTILITARIAS ==================
+
 
 // OBTENER NOMBRE DEL CLIENTE
 function obtenerNombreCliente(pedido) {
@@ -573,7 +523,7 @@ function formatearFecha(fechaString) {
     }
 }
 
-// MOSTRAR ALERTA TOAST MEJORADA
+// MOSTRAR ALERTA TOAST
 function mostrarAlerta(mensaje, tipo = 'info') {
     const toastEl = document.getElementById('liveAlert');
     if (!toastEl) {
@@ -584,6 +534,7 @@ function mostrarAlerta(mensaje, tipo = 'info') {
     const toastTitulo = document.getElementById('toast-titulo');
     const toastMensaje = document.getElementById('toast-mensaje');
     const toastIcon = document.getElementById('toast-icon');
+    const toastHeader = toastEl.querySelector('.toast-header');
 
     const config = {
         success: {
@@ -606,25 +557,27 @@ function mostrarAlerta(mensaje, tipo = 'info') {
         }
     }[tipo] || config.info;
 
-    toastTitulo.textContent = config.titulo;
-    toastMensaje.textContent = mensaje;
-    toastIcon.className = `bi ${config.icon} me-2 ${config.color}`;
+    if (toastTitulo) toastTitulo.textContent = config.titulo;
+    if (toastMensaje) toastMensaje.innerHTML = mensaje;
+    if (toastIcon) toastIcon.className = `bi ${config.icon} me-2 ${config.color}`;
 
-    // Estilo del header del toast
-    const toastHeader = toastEl.querySelector('.toast-header');
-    toastHeader.className = `toast-header ${config.bgColor} text-white`;
+    if (toastHeader) {
+        // Limpiar clases anteriores
+        toastHeader.className = 'toast-header';
+        addClass(toastHeader, config.bgColor);
+        addClass(toastHeader, 'text-white');
+    }
 
     const bsToast = new bootstrap.Toast(toastEl);
     bsToast.show();
 }
 
-// ================== FUNCIONES DE INICIALIZACIÓN ==================
+
 
 // ACTUALIZAR HORA Y FECHA EN TIEMPO REAL
 function actualizarHoraYFecha() {
     const ahora = new Date();
 
-    // Header (formato simple)
     const headerHora = document.getElementById('header-hora-actual');
     const headerFecha = document.getElementById('header-fecha-actual');
 
@@ -643,7 +596,6 @@ function actualizarHoraYFecha() {
         });
     }
 
-    // Panel lateral (formato completo)
     const currentDate = document.getElementById('currentDate');
     const currentTime = document.getElementById('currentTime');
 
@@ -666,36 +618,40 @@ function actualizarHoraYFecha() {
     }
 }
 
-// ================== EVENT LISTENERS ==================
+
 
 document.addEventListener('DOMContentLoaded', function () {
     console.log(' Inicializando módulo de cajero...');
 
-    // Verificar que existe el token CSRF
     const csrfToken = getCsrfToken();
     console.log(' Token CSRF disponible:', csrfToken ? 'SÍ' : 'NO');
 
     // Cargar datos iniciales
     cargarPedidosPendientes();
 
-    // Configurar eventos de botones si existen
+    // Botón Marcar como Pagado
     if (elementos.acciones.btnPagado) {
         elementos.acciones.btnPagado.addEventListener('click', () => {
             if (pedidoSeleccionado) {
                 const modal = new bootstrap.Modal(document.getElementById('modalConfirmarPago'));
-                document.getElementById('confirmar-numero-pedido').textContent =
-                    pedidoSeleccionado.numeroPedido || `#${pedidoSeleccionado.id}`;
+                const confirmarNumero = document.getElementById('confirmar-numero-pedido');
+                if (confirmarNumero) {
+                    confirmarNumero.textContent = pedidoSeleccionado.numeroPedido || `#${pedidoSeleccionado.id}`;
+                }
                 modal.show();
             }
         });
     }
 
+    // Botón Cancelar Pedido
     if (elementos.acciones.btnCancelar) {
         elementos.acciones.btnCancelar.addEventListener('click', () => {
             if (pedidoSeleccionado) {
                 const modal = new bootstrap.Modal(document.getElementById('modalCancelar'));
-                document.getElementById('cancelar-numero-pedido').textContent =
-                    pedidoSeleccionado.numeroPedido || `#${pedidoSeleccionado.id}`;
+                const cancelarNumero = document.getElementById('cancelar-numero-pedido');
+                if (cancelarNumero) {
+                    cancelarNumero.textContent = pedidoSeleccionado.numeroPedido || `#${pedidoSeleccionado.id}`;
+                }
                 modal.show();
             }
         });
@@ -707,8 +663,10 @@ document.addEventListener('DOMContentLoaded', function () {
         btnConfirmarPago.addEventListener('click', () => {
             if (pedidoSeleccionado) {
                 const modal = bootstrap.Modal.getInstance(document.getElementById('modalConfirmarPago'));
-                modal.hide();
-                marcarComoPagadoConBoleta(pedidoSeleccionado.id); // Cambiado aquí
+                if (modal) {
+                    modal.hide();
+                }
+                marcarComoPagadoConBoleta(pedidoSeleccionado.id);
             }
         });
     }
@@ -719,8 +677,11 @@ document.addEventListener('DOMContentLoaded', function () {
         btnConfirmarCancelacion.addEventListener('click', () => {
             if (pedidoSeleccionado) {
                 const modal = bootstrap.Modal.getInstance(document.getElementById('modalCancelar'));
-                const motivo = document.getElementById('motivoCancelacion').value;
-                modal.hide();
+                if (modal) {
+                    modal.hide();
+                }
+                const motivoInput = document.getElementById('motivoCancelacion');
+                const motivo = motivoInput ? motivoInput.value : '';
                 cancelarPedido(pedidoSeleccionado.id, motivo);
             }
         });
@@ -739,11 +700,10 @@ document.addEventListener('DOMContentLoaded', function () {
     // Recargar datos cada 30 segundos
     setInterval(cargarPedidosPendientes, 30000);
 
-    console.log('Módulo de cajero inicializado correctamente');
+    console.log(' Módulo de cajero inicializado correctamente');
 });
 
-
-
+// Funciones auxiliares
 function convertNumberToWords(number) {
     const totalFixed = number.toFixed(2);
     let [integerPart, decimalPart] = totalFixed.split('.').map(Number);

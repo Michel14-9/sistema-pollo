@@ -1,4 +1,4 @@
-// SISTEMA DE GESTIÓN DE CUENTAS
+
 
 // Configuración
 const API_BASE_URL = '/api/auth';

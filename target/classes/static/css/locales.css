@@ -25,13 +25,14 @@ header .navbar {
   border-bottom: 3px solid var(--naranja);
 }
 
-.navbar-brand img {
+/* Logo y navegación */
+.nav-logo {
   width: 3rem;
   border-radius: 50%;
   transition: transform 0.3s ease;
 }
 
-.navbar-brand img:hover {
+.nav-logo:hover {
   transform: scale(1.1);
 }
 
@@ -48,6 +49,46 @@ header .navbar {
 
 header .navbar-toggler {
   border-color: var(--naranja);
+}
+
+/* Elementos de navegación */
+.nav-icon-item {
+  font-weight: bold;
+  font-size: 14px;
+  gap: 0.2rem;
+}
+
+.nav-icon {
+  font-size: 1.5rem;
+}
+
+.whatsapp-icon {
+  font-size: 1.8rem;
+}
+
+.phone-icon {
+  font-size: 1.5rem;
+}
+
+.user-icon {
+  font-size: 1.5rem;
+}
+
+.nav-text {
+  line-height: 1.2;
+}
+
+.search-icon {
+  font-size: 1rem;
+}
+
+.btn-carrito {
+  border-radius: 20px;
+  text-decoration: none;
+}
+
+.text-orange {
+  color: var(--naranja) !important;
 }
 
 /* ======= BOTONES ======= */
@@ -104,94 +145,20 @@ header .navbar-toggler {
   box-shadow: 0 4px 10px rgba(255, 248, 225, 0.3);
 }
 
-/* ======= FOOTER ======= */
-footer {
-  background-color: var(--amarillo);
-  color: #333;
-  border-top: 4px solid var(--naranja);
-  padding-top: 2rem;
-  padding-bottom: 1.5rem;
-}
-
-footer h5 {
-  color: var(--verde);
-  font-weight: 700;
-  margin-bottom: 1rem;
-}
-
-footer a {
-  color: #333;
-  text-decoration: none;
-  transition: color 0.3s ease;
-}
-
-footer a:hover {
-  color: var(--rojo);
-}
-
-/* Redes sociales */
-footer .btn-outline-secondary {
-  border-color: var(--verde);
-  color: var(--verde);
-  transition: all 0.3s ease;
-}
-
-footer .btn-outline-secondary:hover {
-  background-color: var(--verde);
-  color: white;
-}
-
-/* Línea separadora y copyright */
-footer hr {
-  border-color: rgba(0, 0, 0, 0.1);
-}
-
-footer small {
-  color: var(--gris);
-  font-size: 0.9rem;
-}
-
-/* ======= EFECTOS SUAVES ======= */
-img, .btn, .nav-link {
-  transition: all 0.3s ease;
-}
-
-/* ======= RESPONSIVO ======= */
-@media (max-width: 768px) {
-  header .navbar-nav {
-    text-align: center;
-  }
-
-  footer .row {
-    text-align: center;
-  }
-
-  footer .d-flex {
-    justify-content: center;
-  }
-}
-
-
-
-
-
-
-
-
-/* ======== ESTILO GENERAL ======== */
+/* ======= PÁGINA DE LOCALES ======= */
 .locales-page {
   background-color: var(--blanco);
   font-family: "Poppins", sans-serif;
   color: var(--gris);
 }
 
-/* ======== TÍTULO PRINCIPAL ======== */
+/* Título principal */
 .text-luren {
   color: var(--naranja);
   text-shadow: 0 1px 3px rgba(255, 140, 0, 0.3);
 }
 
-/* ======== TARJETAS ======== */
+/* Tarjetas */
 .card {
   border: none;
   border-radius: 12px;
@@ -212,13 +179,34 @@ img, .btn, .nav-link {
   color: var(--gris);
 }
 
-/* ======== MAPA ======== */
+/* Mapa */
 .mapa-google {
   border-radius: 0 0 12px 12px;
   overflow: hidden;
+  height: 400px;
+  width: 100%;
 }
 
-/* ======== INFORMACIÓN DEL LOCAL ======== */
+.mapa-placeholder {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  background-color: #f8f9fa;
+  flex-direction: column;
+}
+
+.mapa-placeholder-icon {
+  font-size: 3rem;
+  color: var(--gris);
+  margin-bottom: 1rem;
+}
+
+.mapa-placeholder-text {
+  color: var(--gris);
+}
+
+/* Información del local */
 .local-nombre {
   color: var(--verde);
   font-weight: 700;
@@ -248,7 +236,7 @@ img, .btn, .nav-link {
   color: #333 !important;
 }
 
-/* ======== BOTONES ======== */
+/* Botones locales */
 .btn-outline-luren {
   border: 2px solid var(--naranja);
   color: var(--naranja);
@@ -286,16 +274,21 @@ img, .btn, .nav-link {
   box-shadow: 0 0 8px rgba(37, 211, 102, 0.4);
 }
 
-/* ======== HORARIO ======== */
+/* Horario */
 .info-horario {
   background-color: var(--amarillo);
   border-radius: 12px;
   padding: 1rem;
   box-shadow: 0 2px 8px rgba(255, 213, 79, 0.2);
+  border-left: 3px solid var(--naranja);
 }
 
 .info-horario h6 {
   color: var(--naranja);
+}
+
+.horario-item {
+  padding: 0.5rem 0;
 }
 
 .estado-local .badge {
@@ -304,7 +297,16 @@ img, .btn, .nav-link {
   border-radius: 20px;
 }
 
-/* ======== DETALLES ======== */
+/* Detalles */
+.info-detalle {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #eee;
+}
+
+.info-detalle:last-child {
+  border-bottom: none;
+}
+
 .info-detalle strong {
   color: var(--gris);
 }
@@ -314,12 +316,12 @@ img, .btn, .nav-link {
   font-weight: 600;
 }
 
-/* ======== SERVICIOS ADICIONALES ======== */
+/* Servicios adicionales */
 .servicios-list i {
   color: var(--verde);
 }
 
-/* ======== PREGUNTAS FRECUENTES ======== */
+/* Preguntas frecuentes */
 .bg-luren {
   background-color: var(--naranja) !important;
 }
@@ -344,12 +346,81 @@ img, .btn, .nav-link {
   box-shadow: 0 2px 6px rgba(255, 183, 77, 0.3);
 }
 
-/* ======== ÍCONOS ======== */
-.text-orange {
-  color: var(--naranja) !important;
+/* ======= FOOTER ======= */
+footer {
+  background-color: var(--amarillo);
+  color: #333;
+  border-top: 4px solid var(--naranja);
+  padding-top: 2rem;
+  padding-bottom: 1.5rem;
 }
 
-/* ======== EFECTOS SUAVES ======== */
+footer h5 {
+  color: var(--verde);
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+footer a {
+  color: #333;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+footer a:hover {
+  color: var(--rojo);
+}
+
+/* Footer específicos */
+.footer-logo {
+  height: 70px;
+}
+
+.footer-payment-img {
+  width: 50px;
+  border-radius: 10px;
+}
+
+.footer-libro-img {
+  width: 120px;
+}
+
+.social-btn {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Redes sociales */
+footer .btn-outline-secondary {
+  border-color: var(--verde);
+  color: var(--verde);
+  transition: all 0.3s ease;
+}
+
+footer .btn-outline-secondary:hover {
+  background-color: var(--verde);
+  color: white;
+}
+
+/* Línea separadora y copyright */
+footer hr {
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+footer small {
+  color: var(--gris);
+  font-size: 0.9rem;
+}
+
+/* ======= EFECTOS SUAVES ======= */
+img, .btn, .nav-link {
+  transition: all 0.3s ease;
+}
+
+/* Animación para estado abierto */
 @keyframes resplandor {
   0%, 100% {
     box-shadow: 0 0 8px rgba(255, 183, 77, 0.3);
@@ -363,6 +434,38 @@ img, .btn, .nav-link {
   animation: resplandor 2s infinite ease-in-out;
 }
 
+/* ======= RESPONSIVO ======= */
+@media (max-width: 768px) {
+  header .navbar-nav {
+    text-align: center;
+  }
 
+  footer .row {
+    text-align: center;
+  }
 
+  footer .d-flex {
+    justify-content: center;
+  }
 
+  .mapa-google {
+    height: 300px;
+  }
+
+  .botones-local .btn {
+    margin-bottom: 0.5rem;
+    width: 100%;
+  }
+
+  .info-horario {
+    margin-top: 1rem;
+    border-left: none;
+    border-top: 3px solid var(--naranja);
+  }
+
+  /* En tu archivo locales.css */
+  .mapa-iframe {
+      border: 0;
+      display: block;
+  }
+}

@@ -1,10 +1,10 @@
-// pago.js -
+
 document.addEventListener('DOMContentLoaded', function() {
     console.log('=== PAGO - INICIADO ===');
     inicializarPago();
 });
 
-//  Inicializar página de pago
+// Inicializar página de pago
 function inicializarPago() {
     configurarEventos();
     configurarFechas();
@@ -13,7 +13,7 @@ function inicializarPago() {
     console.log('Página de pago inicializada');
 }
 
-//  Configurar eventos
+// Configurar eventos
 function configurarEventos() {
     // Evento para tipo de entrega
     const tipoEntrega = document.getElementById('tipoEntrega');
@@ -32,7 +32,7 @@ function configurarEventos() {
         });
     });
 
-    //  EVENTO MEJORADO: Usar formulario HTML
+    // EVENTO MEJORADO: Usar formulario HTML
     const btnConfirmar = document.getElementById('btnConfirmarPedido');
     if (btnConfirmar && !btnConfirmar.disabled) {
         btnConfirmar.addEventListener('click', confirmarPedidoConFormulario);
@@ -91,7 +91,7 @@ function confirmarPedidoConFormulario() {
         const datosPedido = obtenerDatosPedido();
         console.log(' Datos del pedido:', datosPedido);
 
-        // 4.  USAR FORMULARIO HTML EN LUGAR DE FETCH
+        // 4. USAR FORMULARIO HTML EN LUGAR DE FETCH
         const form = document.getElementById('pedidoForm');
         const formDatos = document.getElementById('formDatosPedido');
 
@@ -136,26 +136,26 @@ function configurarFechas() {
     console.log('Fechas configuradas:', fechaInput.min, 'a', fechaInput.max);
 }
 
-//  Formatear fecha para input type="date"
+// Formatear fecha para input type="date"
 function formatoFechaInput(fecha) {
     return fecha.toISOString().split('T')[0];
 }
 
-//  Manejar cambio de tipo de entrega
+// Manejar cambio de tipo de entrega
 function manejarCambioTipoEntrega(tipo) {
     const direccionField = document.getElementById('direccionField');
     const direccionInput = direccionField?.querySelector('input');
 
     if (tipo === 'recojo') {
         if (direccionField && direccionInput) {
-            direccionField.style.display = 'none';
+            direccionField.classList.add('d-none');
             direccionInput.required = false;
             direccionInput.value = '';
         }
         actualizarTiempoEstimado('15-25 minutos');
     } else {
         if (direccionField && direccionInput) {
-            direccionField.style.display = 'block';
+            direccionField.classList.remove('d-none');
             direccionInput.required = true;
         }
         actualizarTiempoEstimado('30-45 minutos');
@@ -164,18 +164,19 @@ function manejarCambioTipoEntrega(tipo) {
     console.log('Tipo de entrega cambiado a:', tipo);
 }
 
-//  Manejar cambio de método de pago
+// Manejar cambio de método de pago
 function manejarCambioMetodoPago(metodo) {
+    // Ocultar todos los paneles primero
     document.querySelectorAll('.tarjeta-info, .yape-info').forEach(panel => {
-        panel.style.display = 'none';
+        panel.classList.add('d-none');
     });
 
     if (metodo === 'tarjeta') {
         const tarjetaInfo = document.querySelector('.tarjeta-info');
-        if (tarjetaInfo) tarjetaInfo.style.display = 'block';
+        if (tarjetaInfo) tarjetaInfo.classList.remove('d-none');
     } else if (metodo === 'yape') {
         const yapeInfo = document.querySelector('.yape-info');
-        if (yapeInfo) yapeInfo.style.display = 'block';
+        if (yapeInfo) yapeInfo.classList.remove('d-none');
 
         const montoYape = document.getElementById('montoYape');
         const totalPagar = document.getElementById('totalPagar');
@@ -187,7 +188,7 @@ function manejarCambioMetodoPago(metodo) {
     console.log('Método de pago cambiado a:', metodo);
 }
 
-//  Actualizar tiempo estimado de entrega
+// Actualizar tiempo estimado de entrega
 function actualizarTiempoEstimado(tiempo) {
     const tiempoElement = document.querySelector('.tiempo-entrega .text-muted');
     if (tiempoElement) {
@@ -195,12 +196,12 @@ function actualizarTiempoEstimado(tiempo) {
     }
 }
 
-//  Actualizar montos en la interfaz
+// Actualizar montos en la interfaz
 function actualizarMontos() {
     console.log('Montos actualizados desde el servidor');
 }
 
-//  Validar fecha de entrega
+// Validar fecha de entrega
 function validarFechaEntrega() {
     const fechaInput = document.getElementById('fechaEntrega');
     if (!fechaInput.value) return false;
@@ -218,7 +219,7 @@ function validarFechaEntrega() {
     return true;
 }
 
-//  Validar campos de tarjeta
+// Validar campos de tarjeta
 function validarTarjeta() {
     const numero = document.querySelector('.tarjeta-info input[placeholder*="1234"]')?.value;
     const vencimiento = document.querySelector('.tarjeta-info input[placeholder*="MM/AA"]')?.value;
@@ -248,7 +249,7 @@ function validarTarjeta() {
     return true;
 }
 
-//  Validar formulario completo
+// Validar formulario completo
 function validarFormulario() {
     let valido = true;
 
@@ -300,7 +301,7 @@ function validarFormulario() {
     return valido;
 }
 
-//  Obtener datos del formulario de pedido
+
 function obtenerDatosPedido() {
     const tipoEntrega = document.getElementById('tipoEntrega').value;
     const metodoPagoSeleccionado = document.querySelector('input[name="metodoPago"]:checked');
@@ -326,7 +327,7 @@ function obtenerDatosPedido() {
     };
 }
 
-//  Manejar selección de dirección
+
 function configurarDirecciones() {
     const selectDireccion = document.getElementById('selectDireccion');
     const inputDireccion = document.getElementById('inputDireccion');
@@ -356,7 +357,7 @@ function configurarDirecciones() {
     }
 }
 
-//  Formatear número de tarjeta
+
 function formatearNumeroTarjeta(input) {
     let valor = input.value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
     let matches = valor.match(/\d{4,16}/g);
@@ -374,7 +375,7 @@ function formatearNumeroTarjeta(input) {
     }
 }
 
-//  Formatear fecha de vencimiento
+// Formatear fecha de vencimiento
 function formatearFechaVencimiento(input) {
     let valor = input.value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
 
@@ -385,8 +386,9 @@ function formatearFechaVencimiento(input) {
     }
 }
 
-//  Mostrar notificaciones
+
 function mostrarNotificacion(mensaje, tipo = 'info') {
+    // Remover notificación anterior si existe
     const notificacionAnterior = document.querySelector('.notificacion-flotante');
     if (notificacionAnterior) {
         notificacionAnterior.remove();
@@ -394,6 +396,7 @@ function mostrarNotificacion(mensaje, tipo = 'info') {
 
     const notificacion = document.createElement('div');
     notificacion.className = `notificacion-flotante notificacion-${tipo}`;
+
     notificacion.innerHTML = `
         <div class="notificacion-contenido">
             <span class="notificacion-texto">${mensaje}</span>
@@ -401,63 +404,29 @@ function mostrarNotificacion(mensaje, tipo = 'info') {
         </div>
     `;
 
-    notificacion.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: ${tipo === 'success' ? '#d4edda' : tipo === 'error' ? '#f8d7da' : '#d1ecf1'};
-        color: ${tipo === 'success' ? '#155724' : tipo === 'error' ? '#721c24' : '#0c5460'};
-        padding: 15px 20px;
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        z-index: 10000;
-        border: 1px solid ${tipo === 'success' ? '#c3e6cb' : tipo === 'error' ? '#f5c6cb' : '#bee5eb'};
-        max-width: 400px;
-        animation: slideInRight 0.3s ease-out;
-    `;
-
+    // Configurar el evento de cierre
     notificacion.querySelector('.notificacion-cerrar').onclick = () => {
-        notificacion.style.animation = 'slideOutRight 0.3s ease-in';
-        setTimeout(() => notificacion.remove(), 300);
+        notificacion.classList.add('notificacion-salida');
+        setTimeout(() => {
+            if (notificacion.parentNode) {
+                notificacion.remove();
+            }
+        }, 300);
     };
 
     document.body.appendChild(notificacion);
 
+
     setTimeout(() => {
         if (notificacion.parentNode) {
-            notificacion.style.animation = 'slideOutRight 0.3s ease-in';
-            setTimeout(() => notificacion.remove(), 300);
+            notificacion.classList.add('notificacion-salida');
+            setTimeout(() => {
+                if (notificacion.parentNode) {
+                    notificacion.remove();
+                }
+            }, 300);
         }
     }, 5000);
 }
 
-//  CSS dinámico para animaciones
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes slideInRight {
-        from { transform: translateX(100%); opacity: 0; }
-        to { transform: translateX(0); opacity: 1; }
-    }
-    @keyframes slideOutRight {
-        from { transform: translateX(0); opacity: 1; }
-        to { transform: translateX(100%); opacity: 0; }
-    }
-    .is-invalid {
-        border-color: #dc3545 !important;
-        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath d='m5.8 3.6.4.4.4-.4'/%3e%3cpath d='M6 7v1'/%3e%3c/svg%3e");
-        background-repeat: no-repeat;
-        background-position: right calc(0.375em + 0.1875rem) center;
-        background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
-    }
-    .notificacion-cerrar {
-        background: none; border: none; font-size: 18px; cursor: pointer; margin-left: 10px; color: inherit;
-    }
-    .notificacion-contenido { display: flex; align-items: center; justify-content: space-between; }
-    .btn:disabled { cursor: not-allowed; opacity: 0.6; }
-    @media (max-width: 768px) {
-        .notificacion-flotante { left: 10px; right: 10px; max-width: none; }
-    }
-`;
-document.head.appendChild(style);
-
-console.log('Pago.js cargado - Listo para procesar pedidos');
+console.log('Pago.js cargado - CSP Compliant');

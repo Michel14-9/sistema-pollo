@@ -1,4 +1,4 @@
-/* 🎨 PALETA DE COLORES LUREN */
+
 :root {
   --verde: #81c784;        /* Frescura y confirmación */
   --naranja: #ffb74d;      /* Energía y apetito */
@@ -10,7 +10,7 @@
   --gris-claro: #e9ecef;   /* Bordes y fondos */
 }
 
-/* ====== ESTILOS GENERALES ====== */
+
 body {
   background-color: var(--blanco);
   font-family: 'Poppins', sans-serif;
@@ -19,7 +19,7 @@ body {
   min-height: 100vh;
 }
 
-/* ====== CLASES PARA REEMPLAZAR ESTILOS INLINE ====== */
+
 .hidden-element {
   display: none !important;
 }
@@ -32,7 +32,7 @@ body {
   z-index: 11;
 }
 
-/* ====== HEADER ====== */
+
 .cajero-header {
   background: linear-gradient(90deg, var(--naranja), var(--amarillo));
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);

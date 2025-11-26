@@ -1,4 +1,4 @@
-// sigue-tu-pedido.js
+
 document.addEventListener('DOMContentLoaded', function() {
     console.log('=== SIGUE TU PEDIDO - INICIADO ===');
     inicializarSeguimiento();

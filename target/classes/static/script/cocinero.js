@@ -1,6 +1,6 @@
-// cocinero.js
 
-// Variables globales
+
+
 let pedidoSeleccionado = null;
 let pedidosPorPreparar = [];
 let pedidosEnPreparacion = [];

@@ -1,4 +1,4 @@
-/* ==== PALETA DE COLORES CLAROS ==== */
+
 :root {
   --verde: #81c784;        /* Verde claro (frescura) */
   --naranja: #ffb74d;      /* Naranja (energía y apetito) */
@@ -8,7 +8,7 @@
   --blanco: #fafafa;       /* Fondo cálido */
 }
 
-/* ==== ESTILOS GENERALES ==== */
+
 body {
   background-color: var(--blanco);
   color: var(--gris);

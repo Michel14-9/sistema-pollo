@@ -143,7 +143,7 @@ public class CajeroController {
                         .body("ERROR: El pedido no está en estado PENDIENTE. Estado actual: " + pedido.getEstado());
             }
 
-            //  OBTENER INFORMACIÓN COMPLETA DEL CAJERO
+
             String username = authentication.getName();
             Optional<Usuario> cajeroOpt = usuarioRepository.findByUsername(username);
             String nombreCajero = "Cajero"; // Valor por defecto
@@ -429,7 +429,7 @@ public class CajeroController {
                 return ResponseEntity.status(401).body("ERROR: Sesión expirada. Por favor, inicie sesión nuevamente.");
             }
 
-            //   Convertir String a Long de forma segura
+
             Long pedidoIdLong;
             try {
                 pedidoIdLong = Long.parseLong(pedidoId);

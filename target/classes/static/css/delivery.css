@@ -7,6 +7,7 @@
   --gris: #6c757d;         /* Texto secundario */
   --blanco: #fafafa;       /* Fondo cálido */
   --azul: #64b5f6;         /* En camino */
+  --gris-claro: #e9ecef;   /* Bordes y fondos */
 }
 
 /* ====== ESTILOS GENERALES ====== */
@@ -15,6 +16,24 @@ body {
   font-family: 'Poppins', sans-serif;
   color: #333;
   margin: 0;
+  min-height: 100vh;
+}
+
+/* ====== CLASES PARA REEMPLAZAR ESTILOS INLINE ====== */
+.hidden-element {
+  display: none !important;
+}
+
+.visible-element {
+  display: block !important;
+}
+
+.flex-element {
+  display: flex !important;
+}
+
+.toast-container {
+  z-index: 11;
 }
 
 /* ====== HEADER DELIVERY ====== */
@@ -95,6 +114,10 @@ body {
   border: 1px solid #eee;
   box-shadow: 0 4px 10px rgba(0,0,0,0.05);
   transition: transform 0.2s ease;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .stat-card:hover {
@@ -109,6 +132,13 @@ body {
 .stat-card .number {
   font-size: 1.8rem;
   font-weight: bold;
+  line-height: 1.2;
+}
+
+.stat-card .label {
+  font-size: 0.9rem;
+  color: var(--gris);
+  margin-top: 5px;
 }
 
 /* ====== COLORES ESPECÍFICOS PARA DELIVERY ====== */
@@ -129,11 +159,13 @@ body {
   background: #fff;
   border-radius: 15px;
   border: 1px solid #e0e0e0;
+  overflow: hidden;
 }
 
 .card-header {
-  border-radius: 15px 15px 0 0;
+  border-radius: 15px 15px 0 0 !important;
   font-weight: bold;
+  border-bottom: 1px solid rgba(0,0,0,0.1);
 }
 
 /* HEADER PARA PEDIDOS LISTOS */
@@ -148,67 +180,85 @@ body {
   color: #fff;
 }
 
+.card-body {
+  padding: 0;
+}
+
 .list-group-item {
   border: none;
   border-bottom: 1px solid #eee;
   transition: background-color 0.2s;
+  padding: 1rem 1.25rem;
+}
+
+.list-group-item:last-child {
+  border-bottom: none;
 }
 
 .list-group-item:hover {
   background-color: var(--amarillo);
 }
 
-/* ESTILOS ESPECÍFICOS PARA ITEMS DE DELIVERY */
-.estado-pendientes:hover {
-  background-color: rgba(129, 199, 132, 0.1) !important;
-}
-
-.estado-en-camino:hover {
-  background-color: rgba(100, 181, 246, 0.1) !important;
-}
-
 /* ====== BOTONES ====== */
 .btn {
   border-radius: 10px;
   transition: all 0.3s;
+  font-weight: 500;
+  border: none;
 }
 
 .btn-success {
   background-color: var(--verde);
-  border: none;
+  color: white;
 }
 
 .btn-success:hover {
   background-color: #9be7a8;
   color: #333;
+  transform: translateY(-2px);
 }
 
 .btn-primary {
   background-color: var(--azul);
-  border: none;
+  color: white;
 }
 
 .btn-primary:hover {
   background-color: #90caf9;
   color: #333;
+  transform: translateY(-2px);
 }
 
 .btn-danger {
   background-color: var(--rojo);
-  border: none;
+  color: white;
 }
 
 .btn-danger:hover {
   background-color: #ff6659;
+  transform: translateY(-2px);
 }
 
 .btn-outline-danger {
   border: 1px solid var(--rojo);
   color: var(--rojo);
+  background: transparent;
 }
 
 .btn-outline-danger:hover {
   background-color: var(--rojo);
+  color: white;
+  transform: translateY(-2px);
+}
+
+.btn-outline-secondary {
+  border: 1px solid var(--gris);
+  color: var(--gris);
+  background: transparent;
+}
+
+.btn-outline-secondary:hover {
+  background-color: var(--gris);
   color: white;
 }
 
@@ -217,6 +267,7 @@ body {
   background-color: #fff;
   border: 1px solid #eee;
   border-radius: 12px;
+  transition: all 0.3s ease;
 }
 
 /* ESTILOS PARA INFORMACIÓN DE DIRECCIÓN */
@@ -234,16 +285,19 @@ body {
 .badge-tiempo {
   font-size: 0.75rem;
   padding: 4px 8px;
+  font-weight: 600;
 }
 
 /* ====== MODALES ====== */
 .modal-content {
   border-radius: 15px;
   border: none;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
 }
 
 .modal-header {
   border-radius: 15px 15px 0 0;
+  border-bottom: 1px solid rgba(0,0,0,0.1);
 }
 
 /* MODAL INICIAR ENTREGA */
@@ -258,6 +312,11 @@ body {
   color: #333;
 }
 
+.modal-footer {
+  border-top: 1px solid var(--gris-claro);
+  padding: 1rem;
+}
+
 .modal-footer .btn-success {
   background-color: var(--verde);
 }
@@ -270,24 +329,61 @@ body {
 .toast {
   border-radius: 10px;
   background-color: white;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+  border: none;
 }
 
 .toast-header {
   background-color: var(--amarillo);
   color: #333;
   border-bottom: 1px solid #eee;
+  border-radius: 10px 10px 0 0;
+}
+
+.toast-body {
+  padding: 1rem;
 }
 
 /* ====== SIN PEDIDOS ====== */
 #sin-pedidos-pendientes,
 #sin-pedidos-camino {
   color: var(--gris);
+  padding: 3rem 1rem;
 }
 
 #sin-pedidos-pendientes i,
 #sin-pedidos-camino i {
   color: var(--naranja);
+  opacity: 0.7;
+}
+
+/* ====== ELEMENTOS INTERACTIVOS ====== */
+.pedido-item-delivery {
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-left: 4px solid transparent;
+}
+
+.pedido-item-delivery:hover {
+  background-color: var(--amarillo);
+  transform: translateX(2px);
+}
+
+/* ESTILOS ESPECÍFICOS PARA ITEMS DE DELIVERY */
+.estado-pendientes {
+  border-left-color: var(--verde);
+}
+
+.estado-pendientes:hover {
+  background-color: rgba(129, 199, 132, 0.1) !important;
+}
+
+.estado-en-camino {
+  border-left-color: var(--azul);
+}
+
+.estado-en-camino:hover {
+  background-color: rgba(100, 181, 246, 0.1) !important;
 }
 
 /* ====== ICONOS ESPECIALES DELIVERY ====== */
@@ -303,25 +399,251 @@ body {
   color: var(--rojo);
 }
 
-/* ====== RESPONSIVE ====== */
-@media (max-width: 768px) {
-  .header-top {
-    flex-direction: column;
-    gap: 10px;
-  }
+/* ====== UTILIDADES DE TEXTO ====== */
+.text-success {
+  color: var(--verde) !important;
+}
 
-  .estado-delivery {
-    flex-direction: column;
-    gap: 4px;
-  }
+.text-primary {
+  color: var(--azul) !important;
+}
 
-  .stat-card {
-    padding: 15px;
-  }
+.text-warning {
+  color: var(--naranja) !important;
+}
 
-  .stat-card .number {
-    font-size: 1.5rem;
-  }
+.text-danger {
+  color: var(--rojo) !important;
+}
+
+.text-muted {
+  color: var(--gris) !important;
+}
+
+.text-dark {
+  color: #333 !important;
+}
+
+.text-white {
+  color: white !important;
+}
+
+.fw-bold {
+  font-weight: bold !important;
+}
+
+.fs-1 {
+  font-size: 2.5rem !important;
+}
+
+.small {
+  font-size: 0.875rem !important;
+}
+
+/* ====== UTILIDADES DE FONDO ====== */
+.bg-success {
+  background-color: var(--verde) !important;
+}
+
+.bg-primary {
+  background-color: var(--azul) !important;
+}
+
+.bg-danger {
+  background-color: var(--rojo) !important;
+}
+
+.bg-warning {
+  background-color: var(--naranja) !important;
+}
+
+.bg-info {
+  background-color: var(--azul) !important;
+}
+
+.bg-light {
+  background-color: var(--gris-claro) !important;
+}
+
+.bg-dark {
+  background-color: #333 !important;
+}
+
+/* ====== UTILIDADES DE DISPLAY ====== */
+.d-none {
+  display: none !important;
+}
+
+.d-block {
+  display: block !important;
+}
+
+.d-flex {
+  display: flex !important;
+}
+
+.d-grid {
+  display: grid !important;
+}
+
+/* ====== UTILIDADES DE FLEXBOX ====== */
+.justify-content-between {
+  justify-content: space-between !important;
+}
+
+.align-items-center {
+  align-items: center !important;
+}
+
+.align-items-start {
+  align-items: flex-start !important;
+}
+
+.flex-grow-1 {
+  flex-grow: 1 !important;
+}
+
+/* ====== UTILIDADES DE TEXTO ====== */
+.text-center {
+  text-align: center !important;
+}
+
+.text-end {
+  text-align: right !important;
+}
+
+.text-start {
+  text-align: left !important;
+}
+
+/* ====== UTILIDADES DE MARGIN Y PADDING ====== */
+.mb-1 {
+  margin-bottom: 0.25rem !important;
+}
+
+.mb-2 {
+  margin-bottom: 0.5rem !important;
+}
+
+.mb-3 {
+  margin-bottom: 1rem !important;
+}
+
+.mt-2 {
+  margin-top: 0.5rem !important;
+}
+
+.mt-3 {
+  margin-top: 1rem !important;
+}
+
+.mt-4 {
+  margin-top: 1.5rem !important;
+}
+
+.ms-2 {
+  margin-left: 0.5rem !important;
+}
+
+.me-2 {
+  margin-right: 0.5rem !important;
+}
+
+.p-0 {
+  padding: 0 !important;
+}
+
+.p-3 {
+  padding: 1rem !important;
+}
+
+.py-5 {
+  padding-top: 3rem !important;
+  padding-bottom: 3rem !important;
+}
+
+.pb-2 {
+  padding-bottom: 0.5rem !important;
+}
+
+/* ====== UTILIDADES DE BORDER ====== */
+.border {
+  border: 1px solid var(--gris-claro) !important;
+}
+
+.border-bottom {
+  border-bottom: 1px solid #dee2e6 !important;
+}
+
+.border-top {
+  border-top: 1px solid var(--gris-claro) !important;
+}
+
+.rounded-3 {
+  border-radius: 12px !important;
+}
+
+/* ====== UTILIDADES DE POSITION ====== */
+.position-fixed {
+  position: fixed !important;
+}
+
+.position-sticky {
+  position: sticky !important;
+}
+
+.top-0 {
+  top: 0 !important;
+}
+
+.end-0 {
+  right: 0 !important;
+}
+
+.float-end {
+  float: right !important;
+}
+
+/* ====== UTILIDADES DE WIDTH Y HEIGHT ====== */
+.w-100 {
+  width: 100% !important;
+}
+
+.h-100 {
+  height: 100% !important;
+}
+
+/* ====== SOMBRAS ====== */
+.shadow-sm {
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+}
+
+.shadow {
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15) !important;
+}
+
+/* ====== ALERTAS ====== */
+.alert {
+  border-radius: 8px;
+  border: 1px solid;
+}
+
+.alert-success {
+  background-color: rgba(129, 199, 132, 0.1);
+  border-color: var(--verde);
+  color: #2e7d32;
+}
+
+.alert-warning {
+  background-color: rgba(255, 183, 77, 0.1);
+  border-color: var(--naranja);
+  color: #f57c00;
+}
+
+.alert-info {
+  background-color: rgba(100, 181, 246, 0.1);
+  border-color: var(--azul);
+  color: #1565c0;
 }
 
 /* ====== ANIMACIONES ESPECIALES DELIVERY ====== */
@@ -335,6 +657,15 @@ body {
   animation: pulse-delivery 2s infinite;
 }
 
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
 /* ====== ESTILOS PARA INFORMACIÓN DE CONTACTO ====== */
 #detalle-telefono {
   font-weight: 500;
@@ -344,4 +675,164 @@ body {
 #detalle-cliente {
   font-weight: 600;
   color: #333;
+}
+
+/* ====== SCROLLBAR PERSONALIZADO ====== */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--naranja);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--verde);
+}
+
+/* ====== RESPONSIVE ====== */
+@media (max-width: 768px) {
+  .header-top {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .estado-delivery {
+    flex-direction: column;
+    gap: 4px;
+    text-align: center;
+  }
+
+  .usuario-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+
+  .stat-card {
+    padding: 15px;
+    margin-bottom: 15px;
+    min-height: 100px;
+  }
+
+  .stat-card .number {
+    font-size: 1.5rem;
+  }
+
+  .stat-card i {
+    font-size: 1.5rem;
+  }
+
+  .btn-lg {
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .container-fluid {
+    padding: 0 15px;
+  }
+}
+
+@media (max-width: 576px) {
+  .delivery-header {
+    padding: 8px 15px;
+  }
+
+  .empresa-info img {
+    width: 40px;
+    height: 40px;
+  }
+
+  .empresa-nombre {
+    font-size: 1.1rem;
+  }
+
+  .container-fluid {
+    padding: 0 10px;
+  }
+
+  .card-body {
+    padding: 1rem;
+  }
+
+  .list-group-item {
+    padding: 0.75rem 1rem;
+  }
+
+  .modal-dialog {
+    margin: 0.5rem;
+  }
+
+  .toast-container {
+    padding: 0.5rem;
+  }
+}
+
+/* ====== ESTADOS DE CARGA ====== */
+.loading {
+  opacity: 0.6;
+  pointer-events: none;
+  position: relative;
+}
+
+.loading::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  border: 2px solid var(--naranja);
+  border-top: 2px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ====== ESTADOS ESPECIALES DELIVERY ====== */
+.estado-delivery-activo {
+  color: var(--verde);
+  font-weight: bold;
+}
+
+.estado-delivery-inactivo {
+  color: var(--rojo);
+  font-weight: bold;
+}
+
+.pedido-urgente {
+  border-left-color: var(--rojo) !important;
+  background-color: rgba(229, 57, 53, 0.05);
+}
+
+/* ====== CURSORES ====== */
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.cursor-not-allowed {
+  cursor: not-allowed;
+}
+
+/* ====== BOTONES DESHABILITADOS ====== */
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.btn:disabled:hover {
+  transform: none !important;
 }

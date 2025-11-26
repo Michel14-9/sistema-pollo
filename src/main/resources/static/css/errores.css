@@ -1,0 +1,133 @@
+/* ===== ESTILOS PARA PÁGINAS DE ERROR ===== */
+
+/* Contenedor principal del mensaje de error */
+.denied-container {
+    max-width: 500px;
+    margin: 100px auto;
+    text-align: center;
+    padding: 20px;
+}
+
+/* Icono de prohibido */
+.denied-icon {
+    font-size: 4rem;
+    color: #dc3545;
+    margin-bottom: 20px;
+}
+
+/* Botones personalizados */
+.btn-custom {
+    margin: 5px;
+}
+
+/* Información de depuración */
+.debug-info {
+    background-color: #f8f9fa !important;
+    border: 1px solid #e9ecef;
+}
+
+/* ===== ESTILOS PARA HEADER EN PÁGINAS DE ERROR ===== */
+
+.error-header .nav-logo {
+    height: 40px;
+    width: auto;
+}
+
+.error-header .navbar-nav .nav-link {
+    color: #333 !important;
+    font-weight: 500;
+}
+
+.error-header .navbar-nav .nav-link:hover {
+    color: #ff6b00 !important;
+}
+
+.error-header .user-icon {
+    color: #ff6b00;
+    margin-right: 8px;
+    font-size: 1.1rem;
+}
+
+.error-header .logout-btn {
+    color: #6c757d;
+    text-decoration: none;
+    font-size: 0.875rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.error-header .logout-btn:hover {
+    color: #495057;
+    text-decoration: underline;
+}
+
+.error-header .nav-text {
+    font-size: 0.875rem;
+    line-height: 1.2;
+}
+
+/* ===== RESPONSIVE ===== */
+
+/* Tablets */
+@media (max-width: 768px) {
+    .denied-container {
+        margin: 60px auto;
+        padding: 15px;
+    }
+
+    .denied-icon {
+        font-size: 3rem;
+    }
+}
+
+/* Móviles */
+@media (max-width: 576px) {
+    .denied-container {
+        margin: 40px 15px;
+        padding: 20px 15px;
+    }
+
+    .btn-custom {
+        display: block;
+        width: 100%;
+        margin: 8px 0;
+    }
+
+    .debug-info {
+        font-size: 0.8rem;
+    }
+}
+
+/* ===== EFECTOS Y ANIMACIONES ===== */
+
+.denied-icon {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Mejoras de accesibilidad */
+.btn:focus {
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.btn-primary {
+    background-color: #ff6b00;
+    border-color: #ff6b00;
+}
+
+.btn-primary:hover {
+    background-color: #e55e00;
+    border-color: #e55e00;
+}

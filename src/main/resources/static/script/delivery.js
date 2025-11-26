@@ -301,8 +301,7 @@ function mostrarColumnaEnCamino() {
 // CREAR ITEM DE PEDIDO PARA LISTA
 function crearItemPedido(pedido, columna) {
     const item = document.createElement('div');
-    item.className = `list-group-item list-group-item-action pedido-item cursor-pointer estado-${columna}`;
-    item.style.cursor = 'pointer';
+    item.className = `list-group-item list-group-item-action pedido-item-delivery estado-${columna}`;
 
     const tiempoTranscurrido = calcularTiempoTranscurrido(pedido.fecha);
     const esUrgente = tiempoTranscurrido.minutosTotales > 45;
@@ -347,7 +346,16 @@ async function mostrarDetallePedido(pedido, columna) {
         // Calcular y mostrar tiempo transcurrido
         const tiempo = calcularTiempoTranscurrido(pedido.fecha);
         elementos.detalle.tiempoTranscurrido.textContent = tiempo.texto;
-        elementos.detalle.tiempoTranscurrido.className = `badge ${tiempo.minutosTotales > 45 ? 'bg-danger' : tiempo.minutosTotales > 30 ? 'bg-warning' : 'bg-info'}`;
+
+        // Usar clases CSS en lugar de estilos inline
+        elementos.detalle.tiempoTranscurrido.className = 'badge ';
+        if (tiempo.minutosTotales > 45) {
+            elementos.detalle.tiempoTranscurrido.classList.add('bg-danger');
+        } else if (tiempo.minutosTotales > 30) {
+            elementos.detalle.tiempoTranscurrido.classList.add('bg-warning');
+        } else {
+            elementos.detalle.tiempoTranscurrido.classList.add('bg-info');
+        }
 
         // Mostrar items del pedido
         elementos.detalle.items.innerHTML = '';
@@ -374,16 +382,19 @@ async function mostrarDetallePedido(pedido, columna) {
         // Mostrar observaciones si existen
         if (pedido.observaciones && pedido.observaciones.trim() !== '') {
             elementos.detalle.observaciones.texto.textContent = pedido.observaciones;
-            elementos.detalle.observaciones.contenedor.style.display = 'block';
+            elementos.detalle.observaciones.contenedor.classList.remove('hidden-element');
+            elementos.detalle.observaciones.contenedor.classList.add('visible-element');
         } else {
-            elementos.detalle.observaciones.contenedor.style.display = 'none';
+            elementos.detalle.observaciones.contenedor.classList.add('hidden-element');
+            elementos.detalle.observaciones.contenedor.classList.remove('visible-element');
         }
 
         // Mostrar acciones según la columna
         mostrarAccionesDelivery(columna);
 
         // Mostrar detalle con animación
-        elementos.detalle.contenedor.style.display = 'block';
+        elementos.detalle.contenedor.classList.remove('hidden-element');
+        elementos.detalle.contenedor.classList.add('visible-element');
         elementos.detalle.contenedor.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
     } catch (error) {
@@ -600,7 +611,8 @@ function mostrarAlerta(mensaje, tipo = 'info') {
 function ocultarDetalle() {
     pedidoSeleccionado = null;
     if (elementos.detalle.contenedor) {
-        elementos.detalle.contenedor.style.display = 'none';
+        elementos.detalle.contenedor.classList.add('hidden-element');
+        elementos.detalle.contenedor.classList.remove('visible-element');
     }
 }
 

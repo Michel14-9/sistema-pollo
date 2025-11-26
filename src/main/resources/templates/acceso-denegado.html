@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso Denegado - Luren Chicken</title>
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <!-- Estilos para errores -->
+    <link rel="stylesheet" th:href="@{/css/errores.css}">
+</head>
+<body>
+
+<!-- HEADER con clase específica -->
+<header class="error-header">
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container-fluid">
+            <!-- Logo -->
+            <a class="navbar-brand" th:href="@{/}">
+                <img th:src="@{/archivos/logo.jpg}" alt="Logo" class="nav-logo">
+            </a>
+
+            <!-- Botón móvil -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarLuren"
+                    aria-controls="navbarLuren" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <!-- Links -->
+            <div class="collapse navbar-collapse" id="navbarLuren">
+                <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-3 justify-content-center align-items-center">
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/menu}">Menú</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/nuestros-locales}">Local</a>
+                    </li>
+                </ul>
+
+                <!-- Lado derecho -->
+                <ul class="navbar-nav ms-auto gap-3 align-items-center">
+                    <li class="nav-item d-flex align-items-center nav-icon-item">
+                        <i class="fa-solid fa-user nav-icon user-icon"></i>
+                        <div class="nav-text">
+                            <!-- Usuario SÍ logueado - CAMBIO AQUÍ -->
+                            <div th:if="${#authorization.expression('isAuthenticated()')}">
+                                <span th:text="'Hola, ' + ${#authentication.principal.username}"></span>
+                                <br>
+                                <!-- CAMBIO: Enlace GET en lugar de formulario POST -->
+                                <a th:href="@{/logout}" class="text-decoration-none text-muted small">
+                                    Cerrar sesión
+                                </a>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<!-- CONTENIDO PRINCIPAL -->
+<div class="container">
+    <div class="denied-container">
+        <div class="denied-icon">
+            <i class="fas fa-ban"></i>
+        </div>
+        <h2 class="text-danger mb-3">Acceso Denegado</h2>
+        <p class="lead">No tienes permisos para acceder a esta página.</p>
+        <p class="text-muted mb-4">Tu rol de usuario no tiene acceso a este recurso.</p>
+
+        <div class="mt-4">
+            <a th:href="@{/menu}" class="btn btn-primary btn-custom">
+                <i class="fas fa-home"></i> Volver al Menú
+            </a>
+            <!-- CAMBIO: También cambiar aquí a GET -->
+            <a th:href="@{/logout}" class="btn btn-outline-secondary btn-custom">
+                <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+            </a>
+        </div>
+
+        <!-- Información de depuración (opcional, quitar en producción) -->
+        <div class="mt-4 p-3 bg-light rounded small debug-info">
+            <p class="mb-1"><strong>Usuario:</strong> <span th:text="${#authentication.principal.username}">Usuario</span></p>
+            <p class="mb-1"><strong>Roles:</strong> <span th:text="${#authentication.authorities}">Roles</span></p>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

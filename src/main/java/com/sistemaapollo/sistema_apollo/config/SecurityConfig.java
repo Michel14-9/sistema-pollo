@@ -2,15 +2,18 @@ package com.sistemaapollo.sistema_apollo.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 import org.springframework.security.web.header.writers.XXssProtectionHeaderWriter;
@@ -73,7 +76,7 @@ public class SecurityConfig {
 
                 // CSRF CORREGIDO para Spring Boot 3.x
                 .csrf(csrf -> csrf
-                        .csrfTokenRepository(new HttpSessionCsrfTokenRepository()) // ASÍ ES EN SPRING BOOT 3.x
+                        .csrfTokenRepository(new HttpSessionCsrfTokenRepository())
                         .ignoringRequestMatchers(
                                 "/api/auth/**",
                                 "/api/direcciones/**",
@@ -89,11 +92,12 @@ public class SecurityConfig {
                 // CONFIGURACIÓN DE SESIÓN
                 .sessionManagement(session -> session
                         .sessionFixation().migrateSession()
+                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                         .maximumSessions(1)
                         .maxSessionsPreventsLogin(false)
                         .expiredUrl("/login?expired=true")
                 )
-
+                .rememberMe(remember -> remember.disable())
                 // RUTAS Y PERMISOS
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
@@ -129,7 +133,7 @@ public class SecurityConfig {
                 // LOGIN FORM
                 .formLogin(form -> form
                         .loginPage("/login")
-                        .defaultSuccessUrl("/postLogin")
+                        .defaultSuccessUrl("/postLogin", true)
                         .failureUrl("/login?error=true")
                         .permitAll()
                 )
@@ -139,13 +143,14 @@ public class SecurityConfig {
                         .logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET"))
                         .logoutSuccessUrl("/login?logout=true")
                         .invalidateHttpSession(true)
-                        .deleteCookies("JSESSIONID")
+                        .deleteCookies("JSESSIONID", "APOLLO_SESSION")
                         .permitAll()
                 )
 
                 // MANEJO DE EXCEPCIONES
                 .exceptionHandling(exception -> exception
-                        .accessDeniedPage("/login?accessDenied=true")
+                        .accessDeniedPage("/acceso-denegado")
+                        .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
                 );
 
         return http.build();

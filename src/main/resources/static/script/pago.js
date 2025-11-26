@@ -1,4 +1,4 @@
-// pago.js -
+
 document.addEventListener('DOMContentLoaded', function() {
     console.log('=== PAGO - INICIADO ===');
     inicializarPago();

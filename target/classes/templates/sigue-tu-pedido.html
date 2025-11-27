@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Luren Chicken - Sigue tu Pedido</title>
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <!-- CSS -->
+    <link rel="stylesheet" th:href="@{/css/sigue-tu-pedido.css}">
+</head>
+
+<body>
+
+<!-- HEADER -->
+<header>
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container-fluid">
+            <!-- Logo -->
+            <a class="navbar-brand" th:href="@{/}">
+                <img th:src="@{/archivos/logo.jpg}" alt="Logo" class="nav-logo">
+            </a>
+
+            <!-- Botón móvil -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarLuren"
+                    aria-controls="navbarLuren" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <!-- Links -->
+            <div class="collapse navbar-collapse" id="navbarLuren">
+                <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-3 justify-content-center align-items-center">
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/menu}">Menú</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/nuestros-locales}">Local</a>
+                    </li>
+                    <li class="nav-item d-flex align-items-center">
+                        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    </li>
+                    <!-- Enlaces móviles -->
+                    <li class="nav-item d-lg-none">
+                        <a th:href="@{/favoritos}" class="nav-link">
+                            <i class="fa-solid fa-star"></i> Mis favoritos
+                        </a>
+                    </li>
+                    <li class="nav-item d-lg-none">
+                        <a th:href="@{/carrito}" class="nav-link">Carrito</a>
+                    </li>
+                    <li class="nav-item d-lg-none">
+                        <a th:href="@{/sigue-tu-pedido}" class="nav-link">Sigue tu pedido</a>
+                    </li>
+                </ul>
+
+                <!-- Lado derecho (escritorio) -->
+                <ul class="navbar-nav ms-auto gap-3 align-items-center">
+                    <li class="nav-item d-flex align-items-center nav-icon-item">
+                        <i class="fa-brands fa-whatsapp nav-icon whatsapp-icon"></i>
+                        <div class="nav-text">Pide por <br><span class="text-orange">WHATSAPP</span></div>
+                    </li>
+                    <li class="nav-item d-flex align-items-center nav-icon-item">
+                        <i class="fa-solid fa-phone nav-icon phone-icon"></i>
+                        <div class="nav-text">Llámanos <br><span class="text-orange">123-456-7890</span></div>
+                    </li>
+
+                    <li class="nav-item d-flex align-items-center nav-icon-item">
+                        <i class="fa-solid fa-user nav-icon user-icon"></i>
+                        <div class="nav-text">
+                            <!-- Usuario NO logueado -->
+                            <div th:if="${#authorization.expression('!isAuthenticated()')}">
+                                Hola, <br>
+                                <a th:href="@{/login}" class="text-orange text-decoration-none">Iniciar sesión</a>
+                            </div>
+
+                            <!-- Usuario SÍ logueado -->
+                            <div th:if="${#authorization.expression('isAuthenticated()')}">
+                                <span th:text="'Hola, ' + ${#authentication.principal.username}"></span>
+                                <br>
+                                <a th:href="@{/logout}" class="text-decoration-none text-muted small">Cerrar
+                                    sesión</a>
+                            </div>
+                        </div>
+                    </li>
+
+                    <li class="nav-item">
+                        <a th:href="@{/carrito}" class="btn btn-success carrito-btn">
+                            <i class="fa-solid fa-cart-shopping"></i> S/. 0.00
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Links rápidos escritorio -->
+    <div class="bg-light py-2 px-3 border-bottom d-none d-lg-block">
+        <div class="container-fluid d-flex justify-content-end gap-4 small">
+            <a th:href="@{/favoritos}" class="text-decoration-none text-reset">
+                <i class="fa-solid fa-star"></i> Mis favoritos
+            </a>
+            <a th:href="@{/sigue-tu-pedido}" class="text-decoration-none text-reset">
+                <i class="fa-solid fa-truck"></i> Sigue tu pedido
+            </a>
+        </div>
+    </div>
+</header>
+
+<!-- CONTENIDO PRINCIPAL - SIGUE TU PEDIDO -->
+<main class="seguimiento-pedido">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-md-10">
+                <!-- Banner superior -->
+                <div class="pedido-banner text-center mb-5">
+                    <h1 class="pedido-title">¡Sigue tu pedido!</h1>
+                    <p class="pedido-subtitle">
+                        Para saber el estado de tu pedido, ingresa el número de pedido que te envíamos al correo en
+                        el momento de realizar tu compra
+                    </p>
+                </div>
+
+                <!-- Formulario de búsqueda -->
+                <div class="pedido-form-container">
+                    <div class="card shadow-sm">
+                        <div class="card-body p-4">
+                            <form id="formSeguimientoPedido" class="pedido-form"
+                                  th:action="@{/sigue-tu-pedido/buscar}" method="post">
+                                <div class="row mb-4">
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">Canal de pedido</label>
+                                        <select class="form-select" id="canalPedido" name="canalPedido" required>
+                                            <option value="WEB">Página Web</option>
+                                        </select>
+                                        <div class="form-text">Todos los pedidos se realizan a través de nuestra página web</div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">Número de pedido</label>
+                                        <input type="text" class="form-control" id="numeroPedido"
+                                               name="numeroPedido" placeholder="Ej: LR000001, LR000002, etc."
+                                               pattern="LR\d{6}"
+                                               title="Formato: LR seguido de 6 números (Ej: LR000001)"
+                                               required>
+                                        <div class="form-text">Ingresa el número que recibiste en tu correo</div>
+                                    </div>
+                                </div>
+
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-luren btn-buscar" id="btnBuscar">
+                                        <i class="fas fa-search me-2"></i>Buscar Pedido
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Thymeleaf - para búsquedas POST -->
+                <div th:if="${pedido != null}" class="pedido-resultado mt-5">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-header bg-luren text-white">
+                            <h4 class="mb-0"><i class="fas fa-clipboard-list me-2"></i>Estado de tu Pedido</h4>
+                        </div>
+                        <div class="card-body">
+                            <!-- Timeline del estado -->
+                            <div class="timeline-pedido mb-4">
+                                <div class="progress progress-pedido">
+                                    <div class="progress-bar bg-luren progress-bar-pedido" role="progressbar"
+                                         th:attr="data-estado=${pedido.estado}">
+                                    </div>
+                                </div>
+                                <div class="d-flex justify-content-between mt-2 timeline-labels">
+                                    <span th:class="${pedido.estado == 'PENDIENTE'} ? 'text-luren fw-bold' : 'text-muted'">Pendiente</span>
+                                    <span th:class="${pedido.estado == 'CONFIRMADO'} ? 'text-luren fw-bold' : 'text-muted'">Pagado</span>
+                                    <span th:class="${pedido.estado == 'PREPARACION'} ? 'text-luren fw-bold' : 'text-muted'">Preparación</span>
+                                    <span th:class="${pedido.estado == 'EN_CAMINO'} ? 'text-luren fw-bold' : 'text-muted'">En Camino</span>
+                                    <span th:class="${pedido.estado == 'ENTREGADO'} ? 'text-luren fw-bold' : 'text-muted'">Entregado</span>
+                                </div>
+                            </div>
+
+                            <!-- Información del pedido -->
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="info-pedido">
+                                        <h6 class="text-muted mb-2">Información del Pedido</h6>
+                                        <p><strong>Número de Pedido:</strong> <span th:text="${pedido.numeroPedido}"></span></p>
+                                        <p><strong>Canal:</strong> <span th:text="${pedido.canal}"></span></p>
+                                        <p><strong>Estado:</strong>
+                                            <span th:if="${pedido.estado != null}"
+                                                  th:class="${pedido.estado == 'ENTREGADO'} ? 'badge bg-success' :
+               (${pedido.estado == 'EN_CAMINO'} ? 'badge bg-info' :
+               (${pedido.estado == 'PREPARACION'} ? 'badge bg-primary' :
+               (${pedido.estado == 'CONFIRMADO'} ? 'badge bg-warning' : 'badge bg-secondary')))"
+                                                  th:text="${pedido.estado == 'CONFIRMADO'} ? 'Pagado' :
+                 (${pedido.estado == 'PREPARACION'} ? 'En Preparación' :
+                 (${pedido.estado == 'EN_CAMINO'} ? 'En Camino' :
+                 (${pedido.estado == 'ENTREGADO'} ? 'Entregado' :
+                 (${pedido.estado == 'PENDIENTE'} ? 'Pendiente' : ${pedido.estado}))))">
+                                            </span>
+                                            <span th:if="${pedido.estado == null}" class="badge bg-secondary">Estado no disponible</span>
+                                        </p>
+                                        <p><strong>Fecha:</strong>
+                                            <span th:text="${#temporals.format(pedido.fecha, 'dd/MM/yyyy HH:mm')}"></span>
+                                        </p>
+                                        <p th:if="${pedido.total != null}"><strong>Total:</strong> S/. <span th:text="${#numbers.formatDecimal(pedido.total, 1, 2)}"></span></p>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div th:if="${pedido.observaciones != null && !pedido.observaciones.isEmpty()}"
+                                         class="observaciones-pedido">
+                                        <h6 class="text-muted mb-2">Observaciones</h6>
+                                        <p class="text-muted" th:text="${pedido.observaciones}"></p>
+                                    </div>
+
+                                    <!-- Botones de acción -->
+                                    <div class="acciones-pedido mt-3">
+                                        <button class="btn btn-outline-luren btn-sm" onclick="repetirPedido()">
+                                            <i class="fas fa-redo me-1"></i>Repetir Pedido
+                                        </button>
+                                        <button class="btn btn-outline-secondary btn-sm ms-2"
+                                                onclick="descargarComprobante()">
+                                            <i class="fas fa-download me-1"></i>Descargar
+                                        </button>
+                                        <!-- Botón para copiar número de pedido -->
+                                        <button class="btn btn-outline-primary btn-sm ms-2"
+                                                onclick="copiarNumeroPedido()">
+                                            <i class="fas fa-copy me-1"></i>Copiar Número
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Items del pedido -->
+                            <div th:if="${pedido.items != null && !pedido.items.isEmpty()}"
+                                 class="items-pedido mt-4">
+                                <h6 class="text-muted mb-3">Productos del Pedido</h6>
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-pedido">
+                                        <thead>
+                                        <tr>
+                                            <th>Producto</th>
+                                            <th class="text-center">Cantidad</th>
+                                            <th class="text-end">Precio</th>
+                                            <th class="text-end">Subtotal</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr th:each="item : ${pedido.items}">
+                                            <td th:text="${item.nombreProducto}"></td>
+                                            <td class="text-center" th:text="${item.cantidad}"></td>
+                                            <td class="text-end"
+                                                th:text="'S/. ' + ${#numbers.formatDecimal(item.precio, 1, 2)}">
+                                            </td>
+                                            <td class="text-end"
+                                                th:text="'S/. ' + ${#numbers.formatDecimal(item.subtotal, 1, 2)}">
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                        <tfoot th:if="${pedido.total != null}">
+                                        <tr>
+                                            <td colspan="3" class="text-end"><strong>Total:</strong></td>
+                                            <td class="text-end"><strong
+                                                    th:text="'S/. ' + ${#numbers.formatDecimal(pedido.total, 1, 2)}"></strong>
+                                            </td>
+                                        </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mensaje de error -->
+                <div th:if="${error != null}" class="pedido-resultado mt-5">
+                    <div class="alert alert-danger d-flex align-items-center" role="alert">
+                        <i class="fas fa-exclamation-triangle me-3 fa-lg"></i>
+                        <div>
+                            <h5 class="alert-heading mb-2">No se encontró el pedido</h5>
+                            <p class="mb-0" th:text="${error}"></p>
+                            <div class="mt-2">
+                                <small class="text-muted">
+                                    Verifica que el número de pedido y el canal sean correctos.
+                                    Si el problema persiste, contáctanos.
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Información de contacto -->
+                <div class="contacto-info text-center mt-5">
+                    <div class="card bg-light border-0">
+                        <div class="card-body py-4">
+                            <h5 class="card-title mb-3">¿Necesitas ayuda con tu pedido?</h5>
+                            <div class="row">
+                                <div class="col-md-6 mb-3 mb-md-0">
+                                    <i class="fas fa-phone fa-2x text-luren mb-2"></i>
+                                    <p class="mb-1">Llámanos</p>
+                                    <a href="tel:123456789"
+                                       class="fw-bold text-decoration-none text-dark">123-456-789</a>
+                                </div>
+                                <div class="col-md-6">
+                                    <i class="fab fa-whatsapp fa-2x text-success mb-2"></i>
+                                    <p class="mb-1">Escríbenos por WhatsApp</p>
+                                    <a href="https://wa.me/123456789"
+                                       class="fw-bold text-decoration-none text-dark">+51 123 456 789</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- FOOTER -->
+<footer class="bg-light pt-5 pb-3">
+    <div class="container-fluid px-4">
+        <div class="row">
+            <!-- Columna del Logo y Conectividad -->
+            <div class="col-md-3 mb-4">
+                <div class="d-flex flex-column align-items-md-start align-items-center">
+                    <img th:src="@{/archivos/logo.jpg}" alt="Logo" class="footer-logo mb-3">
+                    <h5 class="fw-bold mb-2 text-md-start text-center">Conéctate con nosotros</h5>
+                    <div class="d-flex gap-2">
+                        <a th:href="@{https://www.instagram.com}" target="_blank"
+                           class="btn btn-outline-secondary rounded-circle social-btn">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a th:href="@{https://www.facebook.com}" target="_blank"
+                           class="btn btn-outline-secondary rounded-circle social-btn">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sección de Productos -->
+            <div class="col-md-3 mb-4">
+                <h5 class="fw-bold mb-3">Nuestros Productos</h5>
+                <ul class="list-unstyled">
+                    <li><a th:href="@{/menu#pollos}" class="text-decoration-none text-dark">Pollo a la brasa</a>
+                    </li>
+                    <li><a th:href="@{/menu#parrillas}" class="text-decoration-none text-dark">Parrillas</a></li>
+                    <li><a th:href="@{/menu#chicharron}" class="text-decoration-none text-dark">Chicharrón</a></li>
+                    <li><a th:href="@{/menu#broaster}" class="text-decoration-none text-dark">Broster</a></li>
+                    <li><a th:href="@{/menu#hamburguesas}" class="text-decoration-none text-dark">Hamburguesas</a>
+                    </li>
+                    <li><a th:href="@{/menu#criollos}" class="text-decoration-none text-dark">Criollos</a></li>
+                    <li><a th:href="@{/menu#combos}" class="text-decoration-none text-dark">Combos</a></li>
+                </ul>
+            </div>
+
+            <!-- Columna de Ayuda -->
+            <div class="col-md-3 mb-4">
+                <h5 class="fw-bold mb-3">Ayuda</h5>
+                <ul class="list-unstyled">
+                    <li><a th:href="@{/politica-datos}" class="text-decoration-none text-dark">Política de Datos
+                        Personales</a></li>
+                    <li><a th:href="@{/terminos}" class="text-decoration-none text-dark">Términos y Condiciones</a>
+                    </li>
+                    <li><a th:href="@{/nuestros-locales}" class="text-decoration-none text-dark">Nuestro Local</a>
+                    </li>
+                    <li><a th:href="@{/politica-cookies}" class="text-decoration-none text-dark">Política de
+                        cookies</a></li>
+                </ul>
+            </div>
+
+            <!-- Columna de Reclamaciones y Pagos -->
+            <div class="col-md-3 mb-4">
+                <h5 class="fw-bold mb-3">Libro de reclamaciones</h5>
+                <a th:href="@{/libro-reclamaciones}">
+                    <img th:src="@{/archivos/libro.png}" alt="Libro de Reclamaciones" class="footer-libro-img mb-3">
+                </a>
+                <h5 class="fw-bold mb-3">Métodos de Pago</h5>
+                <div class="d-flex gap-2 align-items-center">
+                    <img th:src="@{/archivos/visa_PNG30.png}" alt="Visa" class="footer-payment-img">
+                    <img th:src="@{/archivos/mastercard-og-image.png}" alt="Mastercard" class="footer-payment-img">
+                </div>
+            </div>
+        </div>
+
+        <!-- Separador y Copyright -->
+        <hr class="my-4">
+        <div class="d-flex justify-content-center text-center">
+            <small>&copy; 2024 D'LurenChicken. Todos los derechos reservados.</small>
+        </div>
+    </div>
+</footer>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/script/sigue-tu-pedido.js}" defer></script>
+
+</body>
+</html>

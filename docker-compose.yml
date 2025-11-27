@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  app:
+    # 1. Construcción: Busca el Dockerfile en el directorio actual
+    build: . 
+    
+    # 2. Reinicio: Asegura que la app se relance si falla o si se reinicia el servidor
+    restart: always
+    
+    # 3. Puertos: Mapea el puerto 80 del host (navegador) al 8080 interno del contenedor
+    ports:
+      - "${APP_PORT}:8080"
+      
+    # 4. Variables de Entorno: Inyecta los secretos desde el archivo .env
+    environment:
+      # Credenciales de Neon para Spring Boot
+      SPRING_DATASOURCE_URL: ${NEON_DB_URL} 
+      SPRING_DATASOURCE_USERNAME: ${NEON_DB_USER}
+      SPRING_DATASOURCE_PASSWORD: ${NEON_DB_PASSWORD}
+      
+      # Otras variables de seguridad
+      RECAPTCHA_SECRET: ${RECAPTCHA_SECRET}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      
+      # Activa el perfil de producción
+      SPRING_PROFILES_ACTIVE: prod
+      
+      # Asegúrate de que el puerto de la aplicación se tome del .env si es necesario
+      APP_PORT: ${APP_PORT}

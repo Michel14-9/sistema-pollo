@@ -1,14 +1,21 @@
-
-       
-
 /* ======== PALETA DE COLORES ======== */
 :root {
-  --verde: #81c784;        /* Verde claro (frescura) */
-  --naranja: #ffb74d;      /* Naranja (energía y apetito) */
-  --amarillo: #fff9c4;     /* Amarillo claro (comida deliciosa) */
-  --rojo: #e53935;         /* Toque rojo (resaltado) */
-  --gris: #6c757d;         /* Gris suave (texto) */
-  --blanco: #fafafa;       /* Fondo cálido */
+  --verde: #81c784;        
+  --verde-oscuro: #66BB6A; 
+  --naranja: #ffb74d;      
+  --naranja-oscuro: #FFA726;
+  --amarillo: #fff9c4;     
+  --amarillo-oscuro: #FFECB3;
+  --rojo: #e53935;         
+  --rojo-oscuro: #EF5350;  
+  --gris: #6c757d;         
+  --gris-claro: #777;      
+  --blanco: #fafafa;       
+  --borde-suave: #e4e4e4;  
+  --sombra-suave: rgba(0, 0, 0, 0.08);
+  --sombra-media: rgba(0, 0, 0, 0.1);
+  --sombra-intensa: rgba(0, 0, 0, 0.06);
+  --sombra-verde: rgba(129, 199, 132, 0.25);
 }
 
 /* ======= ESTILO GENERAL ======= */
@@ -21,20 +28,20 @@ body {
 }
 
 /* ======= HEADER ======= */
-header .navbar {
+.header-navbar {
   background-color: var(--amarillo);
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 3px 8px var(--sombra-suave);
   padding: 0.8rem 1.5rem;
   border-bottom: 3px solid var(--naranja);
 }
 
-.navbar-brand img {
+.navbar-logo {
   width: 3rem;
   border-radius: 50%;
   transition: transform 0.3s ease;
 }
 
-.navbar-brand img:hover {
+.navbar-logo:hover {
   transform: scale(1.1);
 }
 
@@ -49,8 +56,33 @@ header .navbar {
   transform: translateY(-2px);
 }
 
-header .navbar-toggler {
+.navbar-toggler-custom {
   border-color: var(--naranja);
+}
+
+/* Estilos para información de contacto */
+.contact-info {
+  font-weight: bold;
+  font-size: 14px;
+  gap: 0.2rem;
+}
+
+.contact-icon {
+  font-size: 1.5rem;
+}
+
+.contact-icon-whatsapp {
+  font-size: 1.8rem;
+}
+
+.user-info {
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.cart-btn {
+  border-radius: 20px;
+  text-decoration: none;
 }
 
 /* ======= BOTONES ======= */
@@ -70,7 +102,7 @@ header .navbar-toggler {
 }
 
 .btn-verde:hover {
-  background-color: #66BB6A;
+  background-color: var(--verde-oscuro);
   box-shadow: 0 4px 10px rgba(129, 199, 132, 0.4);
 }
 
@@ -81,7 +113,7 @@ header .navbar-toggler {
 }
 
 .btn-naranja:hover {
-  background-color: #FFA726;
+  background-color: var(--naranja-oscuro);
   box-shadow: 0 4px 10px rgba(255, 183, 77, 0.4);
 }
 
@@ -92,7 +124,7 @@ header .navbar-toggler {
 }
 
 .btn-rojo:hover {
-  background-color: #EF5350;
+  background-color: var(--rojo-oscuro);
   box-shadow: 0 4px 10px rgba(229, 115, 115, 0.4);
 }
 
@@ -103,152 +135,11 @@ header .navbar-toggler {
 }
 
 .btn-amarillo:hover {
-  background-color: #FFECB3;
+  background-color: var(--amarillo-oscuro);
   box-shadow: 0 4px 10px rgba(255, 248, 225, 0.3);
 }
 
-/* ======= FOOTER ======= */
-footer {
-  background-color: var(--amarillo);
-  color: #333;
-  border-top: 4px solid var(--naranja);
-  padding-top: 2rem;
-  padding-bottom: 1.5rem;
-}
-
-footer h5 {
-  color: var(--verde);
-  font-weight: 700;
-  margin-bottom: 1rem;
-}
-
-footer a {
-  color: #333;
-  text-decoration: none;
-  transition: color 0.3s ease;
-}
-
-footer a:hover {
-  color: var(--rojo);
-}
-
-/* Redes sociales */
-footer .btn-outline-secondary {
-  border-color: var(--verde);
-  color: var(--verde);
-  transition: all 0.3s ease;
-}
-
-footer .btn-outline-secondary:hover {
-  background-color: var(--verde);
-  color: white;
-}
-
-/* Línea separadora y copyright */
-footer hr {
-  border-color: rgba(0, 0, 0, 0.1);
-}
-
-footer small {
-  color: var(--gris);
-  font-size: 0.9rem;
-}
-
-/* ======= EFECTOS SUAVES ======= */
-img, .btn, .nav-link {
-  transition: all 0.3s ease;
-}
-
-/* ======= RESPONSIVO ======= */
-@media (max-width: 768px) {
-  header .navbar-nav {
-    text-align: center;
-  }
-
-  footer .row {
-    text-align: center;
-  }
-
-  footer .d-flex {
-    justify-content: center;
-  }
-}
-
-
-
-
-
-
-
-/* ESTILOS "MIS DIRECCIONES" */
-
-/* ===== CONTENEDOR PRINCIPAL ===== */
-main.container {
-  color: var(--gris);
-  font-family: "Poppins", sans-serif;
-}
-
-/* ===== TÍTULOS ===== */
-h1.h2.text-luren {
-  color: var(--verde);
-  font-weight: 600;
-}
-
-.text-muted {
-  color: #777 !important;
-}
-
-/* ===== SIDEBAR ===== */
-.sidebar-menu {
-  border: none;
-  border-radius: 12px;
-  background-color: var(--blanco);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-}
-
-.sidebar-menu .card-header {
-  background-color: var(--naranja);
-  color: #fff;
-  border-radius: 12px 12px 0 0;
-}
-
-.sidebar-menu .list-group-item {
-  border: none;
-  font-weight: 500;
-  color: var(--gris);
-  transition: all 0.3s ease;
-}
-
-.sidebar-menu .list-group-item:hover {
-  background-color: var(--amarillo);
-  color: var(--verde);
-}
-
-.sidebar-menu .list-group-item.active {
-  background-color: var(--verde);
-  color: #fff;
-}
-
-/* ===== TARJETAS Y SECCIONES ===== */
-.card {
-  border: none;
-  border-radius: 12px;
-  background-color: var(--blanco);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  transition: all 0.3s ease;
-}
-
-.card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.card-header.bg-light {
-  background-color: #f8f9fa !important;
-  border-bottom: 1px solid #eee;
-}
-
-/* ===== BOTONES ===== */
+/* Botones específicos para Luren */
 .btn-luren {
   background-color: var(--verde);
   color: #fff;
@@ -276,8 +167,158 @@ h1.h2.text-luren {
   color: #fff;
 }
 
+.btn-outline-secondary-custom {
+  border: 2px solid #ccc;
+  color: #555;
+  font-weight: 600;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.btn-outline-secondary-custom:hover {
+  background-color: #ccc;
+  color: white;
+}
+
+/* ======= FOOTER ======= */
+.site-footer {
+  background-color: var(--amarillo);
+  color: #333;
+  border-top: 4px solid var(--naranja);
+  padding-top: 2rem;
+  padding-bottom: 1.5rem;
+}
+
+.footer-logo {
+  height: 70px;
+}
+
+.site-footer h5 {
+  color: var(--verde);
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.site-footer a {
+  color: #333;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.site-footer a:hover {
+  color: var(--rojo);
+}
+
+/* Redes sociales */
+.social-btn {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-color: var(--verde);
+  color: var(--verde);
+  transition: all 0.3s ease;
+}
+
+.social-btn:hover {
+  background-color: var(--verde);
+  color: white;
+}
+
+.complaint-book {
+  width: 120px;
+}
+
+.payment-method {
+  width: 50px;
+  border-radius: 10px;
+}
+
+/* Línea separadora y copyright */
+.site-footer hr {
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+.site-footer small {
+  color: var(--gris);
+  font-size: 0.9rem;
+}
+
+/* ======= EFECTOS SUAVES ======= */
+img, .btn, .nav-link {
+  transition: all 0.3s ease;
+}
+
+/* ======= CONTENEDOR PRINCIPAL ======= */
+.main-container {
+  color: var(--gris);
+  font-family: "Poppins", sans-serif;
+}
+
+/* ===== TÍTULOS ===== */
+.page-title {
+  color: var(--verde);
+  font-weight: 600;
+}
+
+.text-muted-custom {
+  color: var(--gris-claro) !important;
+}
+
+/* ===== SIDEBAR ===== */
+.sidebar-menu {
+  border: none;
+  border-radius: 12px;
+  background-color: var(--blanco);
+  box-shadow: 0 4px 12px var(--sombra-suave);
+}
+
+.sidebar-menu .card-header {
+  background-color: var(--naranja);
+  color: #fff;
+  border-radius: 12px 12px 0 0;
+  font-weight: 600;
+}
+
+.sidebar-menu .list-group-item {
+  border: none;
+  font-weight: 500;
+  color: var(--gris);
+  transition: all 0.3s ease;
+}
+
+.sidebar-menu .list-group-item:hover {
+  background-color: var(--amarillo);
+  color: var(--verde);
+}
+
+.sidebar-menu .list-group-item.active {
+  background-color: var(--verde);
+  color: #fff;
+}
+
+/* ===== TARJETAS Y SECCIONES ===== */
+.card-custom {
+  border: none;
+  border-radius: 12px;
+  background-color: var(--blanco);
+  box-shadow: 0 2px 8px var(--sombra-intensa);
+  transition: all 0.3s ease;
+}
+
+.card-custom:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--sombra-media);
+}
+
+.card-header-custom {
+  background-color: #f8f9fa !important;
+  border-bottom: 1px solid var(--borde-suave);
+}
+
 /* ===== ALERTAS ===== */
-.alert-warning {
+.alert-warning-custom {
   background-color: var(--amarillo);
   color: var(--gris);
   border: none;
@@ -286,78 +327,83 @@ h1.h2.text-luren {
 }
 
 /* ===== MODAL ===== */
-.modal-content {
+.modal-content-custom {
   border-radius: 12px;
   background-color: var(--blanco);
   border: 2px solid var(--amarillo);
 }
 
-.modal-header {
+.modal-header-custom {
   background-color: var(--naranja);
   color: #fff;
   border-radius: 12px 12px 0 0;
 }
 
-.modal-footer {
+.modal-footer-custom {
   background-color: #fdfdfd;
-  border-top: 1px solid #eee;
+  border-top: 1px solid var(--borde-suave);
 }
 
 /* ===== FORMULARIO DE DIRECCIONES ===== */
-form label.form-label {
+.form-label-custom {
   font-weight: 600;
   color: var(--verde);
 }
 
-.form-control,
-.form-select {
+.form-control-custom,
+.form-select-custom {
   border-radius: 8px;
   border: 1px solid #ccc;
   transition: all 0.3s ease;
 }
 
-.form-control:focus,
-.form-select:focus {
+.form-control-custom:focus,
+.form-select-custom:focus {
   border-color: var(--verde);
-  box-shadow: 0 0 0 0.15rem rgba(129, 199, 132, 0.25);
+  box-shadow: 0 0 0 0.15rem var(--sombra-verde);
 }
 
-.form-check-input:checked {
+.readonly-field {
+  background-color: #f8f9fa !important;
+}
+
+.form-check-input-custom:checked {
   background-color: var(--verde);
   border-color: var(--verde);
 }
 
 /* ===== LISTA DE DIRECCIONES ===== */
-#direccionesLista .card {
+.direccion-card {
   background-color: var(--blanco);
   border-left: 6px solid var(--verde);
   padding: 10px;
   transition: all 0.3s ease;
 }
 
-#direccionesLista .card:hover {
+.direccion-card:hover {
   border-left-color: var(--naranja);
   transform: translateY(-3px);
 }
 
+.direccion-predeterminada {
+  border-left: 6px solid var(--naranja);
+  background-color: var(--amarillo);
+}
+
 /* ===== ESTADO VACÍO ===== */
-#direccionesVacias {
+.estado-vacio {
   border: 2px dashed var(--naranja);
   background-color: var(--amarillo);
   color: var(--gris);
 }
 
-#direccionesVacias .btn-luren {
-  background-color: var(--verde);
-}
-
 /* ===== INFORMACIÓN IMPORTANTE ===== */
-.card.mt-4 h6 {
+.info-section h6 {
   color: var(--verde);
   font-weight: 600;
 }
 
-.card.mt-4 .text-muted {
+.info-section .text-muted-custom {
   color: var(--gris);
 }
 
@@ -371,8 +417,7 @@ a:hover {
   color: var(--verde);
 }
 
-#btnAgregarDireccion,
-#btnAgregarPrimeraDireccion {
+.btn-pulse {
   animation: pulse 1.5s infinite;
 }
 
@@ -388,27 +433,59 @@ a:hover {
   }
 }
 
+/* ===== COLORES DE TEXTO ===== */
+.text-luren {
+  color: var(--verde);
+}
+
+.text-orange {
+  color: var(--naranja);
+}
+
+/* ===== UTILIDADES ===== */
+.bg-luren {
+  background-color: var(--naranja) !important;
+}
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
+  .header-navbar .navbar-nav {
+    text-align: center;
+  }
+
   .sidebar-menu {
     margin-bottom: 20px;
   }
 
-  .card .btn {
+  .card-custom .btn {
     width: 100%;
+    text-align: center;
   }
 
   .modal-dialog {
     margin: 10px;
   }
+
+  .site-footer .row {
+    text-align: center;
+  }
+
+  .site-footer .d-flex {
+    justify-content: center;
+  }
 }
 
+@media (max-width: 576px) {
+  .header-navbar {
+    padding: 0.5rem 1rem;
+  }
 
+  .contact-info {
+    font-size: 12px;
+  }
 
-
-
-
-
-
-
-
+  .btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+  }
+}

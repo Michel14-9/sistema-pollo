@@ -1,6 +1,6 @@
-// cocinero.js
 
-// Variables globales
+
+
 let pedidoSeleccionado = null;
 let pedidosPorPreparar = [];
 let pedidosEnPreparacion = [];
@@ -93,7 +93,6 @@ async function cargarPedidosCocina() {
             fetchConCSRF('/cocinero/pedidos-listos-hoy').then(r => r.json())
         ]);
 
-
         pedidosPorPreparar = Array.isArray(porPreparar) ? porPreparar : [];
         pedidosEnPreparacion = Array.isArray(enPreparacion) ? enPreparacion : [];
         pedidosListos = Array.isArray(listos) ? listos : [];
@@ -129,13 +128,11 @@ async function cargarMetricasCocina() {
         if (metricas.success) {
             actualizarMetricas(metricas);
         } else {
-
             actualizarMetricasConDatosLocales();
         }
 
     } catch (error) {
         console.error(' Error cargando métricas:', error);
-
         actualizarMetricasConDatosLocales();
     }
 }
@@ -245,7 +242,6 @@ async function marcarComoListo(pedidoId) {
             await cargarPedidosCocina();
             ocultarDetalle();
 
-
             setTimeout(cargarMetricasCocina, 500);
         } else {
             throw new Error(resultado.message || 'Error desconocido');
@@ -274,7 +270,6 @@ function actualizarMetricas(metricas) {
 
     console.log('Actualizando métricas:', metricasData);
 
-
     if (elementos.metricas.porPreparar) {
         elementos.metricas.porPreparar.textContent = metricasData.totalPorPreparar;
     }
@@ -285,7 +280,6 @@ function actualizarMetricas(metricas) {
         elementos.metricas.listos.textContent = metricasData.totalListosHoy;
     }
     if (elementos.metricas.tiempoPromedio) {
-
         elementos.metricas.tiempoPromedio.textContent = `${metricasData.tiempoPromedio} min`;
         console.log(' Tiempo promedio mostrado:', metricasData.tiempoPromedio);
     }
@@ -373,8 +367,7 @@ function mostrarColumnaListos() {
 // CREAR ITEM DE PEDIDO PARA LISTA
 function crearItemPedido(pedido, columna) {
     const item = document.createElement('div');
-    item.className = `list-group-item list-group-item-action pedido-item cursor-pointer estado-${columna}`;
-    item.style.cursor = 'pointer';
+    item.className = `list-group-item list-group-item-action pedido-item-cocina estado-${columna}`;
 
     const tiempoTranscurrido = calcularTiempoTranscurrido(pedido.fecha);
     const esUrgente = tiempoTranscurrido.minutosTotales > 30;
@@ -405,7 +398,6 @@ function calcularTiempoTranscurrido(fechaString) {
     if (!fechaString) return { texto: 'N/A', minutosTotales: 0 };
 
     try {
-
         const fechaPedido = new Date(fechaString);
         if (isNaN(fechaPedido.getTime())) {
             return { texto: 'N/A', minutosTotales: 0 };
@@ -414,7 +406,6 @@ function calcularTiempoTranscurrido(fechaString) {
         const ahora = new Date();
         const diferenciaMs = ahora - fechaPedido;
         const minutosTotales = Math.floor(diferenciaMs / (1000 * 60));
-
 
         if (minutosTotales > 360) { // 6 horas
             console.warn(' Tiempo muy largo detectado:', minutosTotales, 'minutos para pedido');
@@ -537,7 +528,7 @@ function mostrarAlerta(mensaje, tipo = 'info') {
     bsToast.show();
 }
 
-// ================== INICIALIZACIÓN ==================
+
 
 document.addEventListener('DOMContentLoaded', function () {
     console.log('Inicializando módulo de cocinero...');
@@ -618,7 +609,8 @@ function actualizarHoraYFecha() {
 function ocultarDetalle() {
     pedidoSeleccionado = null;
     if (elementos.detalle.contenedor) {
-        elementos.detalle.contenedor.style.display = 'none';
+        elementos.detalle.contenedor.classList.add('hidden-element');
+        elementos.detalle.contenedor.classList.remove('visible-element');
     }
 }
 
@@ -637,7 +629,16 @@ async function mostrarDetallePedido(pedido, columna) {
         // Calcular y mostrar tiempo transcurrido
         const tiempo = calcularTiempoTranscurrido(pedido.fecha);
         elementos.detalle.tiempoTranscurrido.textContent = tiempo.texto;
-        elementos.detalle.tiempoTranscurrido.className = `badge ${tiempo.minutosTotales > 30 ? 'bg-danger' : tiempo.minutosTotales > 15 ? 'bg-warning' : 'bg-info'}`;
+
+        // Usar clases CSS en lugar de estilos inline
+        elementos.detalle.tiempoTranscurrido.className = 'badge ';
+        if (tiempo.minutosTotales > 30) {
+            elementos.detalle.tiempoTranscurrido.classList.add('bg-danger');
+        } else if (tiempo.minutosTotales > 15) {
+            elementos.detalle.tiempoTranscurrido.classList.add('bg-warning');
+        } else {
+            elementos.detalle.tiempoTranscurrido.classList.add('bg-info');
+        }
 
         // Mostrar items del pedido
         elementos.detalle.items.innerHTML = '';
@@ -664,16 +665,19 @@ async function mostrarDetallePedido(pedido, columna) {
         // Mostrar observaciones si existen
         if (pedido.observaciones && pedido.observaciones.trim() !== '') {
             elementos.detalle.observaciones.texto.textContent = pedido.observaciones;
-            elementos.detalle.observaciones.contenedor.style.display = 'block';
+            elementos.detalle.observaciones.contenedor.classList.remove('hidden-element');
+            elementos.detalle.observaciones.contenedor.classList.add('visible-element');
         } else {
-            elementos.detalle.observaciones.contenedor.style.display = 'none';
+            elementos.detalle.observaciones.contenedor.classList.add('hidden-element');
+            elementos.detalle.observaciones.contenedor.classList.remove('visible-element');
         }
 
         // Mostrar acciones según la columna
         mostrarAccionesCocinero(columna);
 
         // Mostrar detalle con animación
-        elementos.detalle.contenedor.style.display = 'block';
+        elementos.detalle.contenedor.classList.remove('hidden-element');
+        elementos.detalle.contenedor.classList.add('visible-element');
         elementos.detalle.contenedor.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
     } catch (error) {

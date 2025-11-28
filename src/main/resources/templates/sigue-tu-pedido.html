@@ -21,7 +21,7 @@
         <div class="container-fluid">
             <!-- Logo -->
             <a class="navbar-brand" th:href="@{/}">
-                <img th:src="@{/archivos/logo.jpg}" alt="Logo" style="width: 3rem;">
+                <img th:src="@{/archivos/logo.jpg}" alt="Logo" class="nav-logo">
             </a>
 
             <!-- Botón móvil -->
@@ -40,7 +40,7 @@
                         <a class="nav-link" th:href="@{/nuestros-locales}">Local</a>
                     </li>
                     <li class="nav-item d-flex align-items-center">
-                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <i class="fa-solid fa-magnifying-glass search-icon"></i>
                     </li>
                     <!-- Enlaces móviles -->
                     <li class="nav-item d-lg-none">
@@ -58,20 +58,18 @@
 
                 <!-- Lado derecho (escritorio) -->
                 <ul class="navbar-nav ms-auto gap-3 align-items-center">
-                    <li class="nav-item d-flex align-items-center"
-                        style="font-weight: bold; font-size: 14px; gap: 0.2rem;">
-                        <i class="fa-brands fa-whatsapp" style="font-size: 1.8rem;"></i>
-                        <div>Pide por <br><span class="text-orange">WHATSAPP</span></div>
+                    <li class="nav-item d-flex align-items-center nav-icon-item">
+                        <i class="fa-brands fa-whatsapp nav-icon whatsapp-icon"></i>
+                        <div class="nav-text">Pide por <br><span class="text-orange">WHATSAPP</span></div>
                     </li>
-                    <li class="nav-item d-flex align-items-center"
-                        style="font-weight: bold; font-size: 14px; gap: 0.2rem;">
-                        <i class="fa-solid fa-phone" style="font-size: 1.5rem;"></i>
-                        <div>Llámanos <br><span class="text-orange">123-456-7890</span></div>
+                    <li class="nav-item d-flex align-items-center nav-icon-item">
+                        <i class="fa-solid fa-phone nav-icon phone-icon"></i>
+                        <div class="nav-text">Llámanos <br><span class="text-orange">123-456-7890</span></div>
                     </li>
 
-                    <li class="nav-item d-flex align-items-center" style="font-weight: bold; font-size: 14px;">
-                        <i class="fa-solid fa-user" style="font-size: 1.5rem;"></i>
-                        <div>
+                    <li class="nav-item d-flex align-items-center nav-icon-item">
+                        <i class="fa-solid fa-user nav-icon user-icon"></i>
+                        <div class="nav-text">
                             <!-- Usuario NO logueado -->
                             <div th:if="${#authorization.expression('!isAuthenticated()')}">
                                 Hola, <br>
@@ -89,8 +87,7 @@
                     </li>
 
                     <li class="nav-item">
-                        <a th:href="@{/carrito}" class="btn btn-success"
-                           style="border-radius: 20px; text-decoration: none;">
+                        <a th:href="@{/carrito}" class="btn btn-success carrito-btn">
                             <i class="fa-solid fa-cart-shopping"></i> S/. 0.00
                         </a>
                     </li>
@@ -170,16 +167,12 @@
                         <div class="card-body">
                             <!-- Timeline del estado -->
                             <div class="timeline-pedido mb-4">
-                                <div class="progress" style="height: 8px;">
-                                    <div class="progress-bar bg-luren" role="progressbar" th:style="|width: ${
-     pedido.estado == 'ENTREGADO' ? '100%' :
-     pedido.estado == 'EN_CAMINO' ? '75%' :
-     pedido.estado == 'PREPARACION' ? '50%' :
-     pedido.estado == 'CONFIRMADO' ? '25%' : '0%'
- }|">
+                                <div class="progress progress-pedido">
+                                    <div class="progress-bar bg-luren progress-bar-pedido" role="progressbar"
+                                         th:attr="data-estado=${pedido.estado}">
                                     </div>
                                 </div>
-                                <div class="d-flex justify-content-between mt-2">
+                                <div class="d-flex justify-content-between mt-2 timeline-labels">
                                     <span th:class="${pedido.estado == 'PENDIENTE'} ? 'text-luren fw-bold' : 'text-muted'">Pendiente</span>
                                     <span th:class="${pedido.estado == 'CONFIRMADO'} ? 'text-luren fw-bold' : 'text-muted'">Pagado</span>
                                     <span th:class="${pedido.estado == 'PREPARACION'} ? 'text-luren fw-bold' : 'text-muted'">Preparación</span>
@@ -206,7 +199,7 @@
                  (${pedido.estado == 'EN_CAMINO'} ? 'En Camino' :
                  (${pedido.estado == 'ENTREGADO'} ? 'Entregado' :
                  (${pedido.estado == 'PENDIENTE'} ? 'Pendiente' : ${pedido.estado}))))">
-    </span>
+                                            </span>
                                             <span th:if="${pedido.estado == null}" class="badge bg-secondary">Estado no disponible</span>
                                         </p>
                                         <p><strong>Fecha:</strong>
@@ -245,7 +238,7 @@
                                  class="items-pedido mt-4">
                                 <h6 class="text-muted mb-3">Productos del Pedido</h6>
                                 <div class="table-responsive">
-                                    <table class="table table-sm">
+                                    <table class="table table-sm table-pedido">
                                         <thead>
                                         <tr>
                                             <th>Producto</th>
@@ -332,17 +325,15 @@
             <!-- Columna del Logo y Conectividad -->
             <div class="col-md-3 mb-4">
                 <div class="d-flex flex-column align-items-md-start align-items-center">
-                    <img th:src="@{/archivos/logo.jpg}" alt="Logo" style="height: 70px;" class="mb-3">
+                    <img th:src="@{/archivos/logo.jpg}" alt="Logo" class="footer-logo mb-3">
                     <h5 class="fw-bold mb-2 text-md-start text-center">Conéctate con nosotros</h5>
                     <div class="d-flex gap-2">
                         <a th:href="@{https://www.instagram.com}" target="_blank"
-                           class="btn btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center"
-                           style="width: 40px; height: 40px;">
+                           class="btn btn-outline-secondary rounded-circle social-btn">
                             <i class="fab fa-instagram"></i>
                         </a>
                         <a th:href="@{https://www.facebook.com}" target="_blank"
-                           class="btn btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center"
-                           style="width: 40px; height: 40px;">
+                           class="btn btn-outline-secondary rounded-circle social-btn">
                             <i class="fab fa-facebook-f"></i>
                         </a>
                     </div>
@@ -384,14 +375,12 @@
             <div class="col-md-3 mb-4">
                 <h5 class="fw-bold mb-3">Libro de reclamaciones</h5>
                 <a th:href="@{/libro-reclamaciones}">
-                    <img th:src="@{/archivos/libro.png}" alt="Libro de Reclamaciones" style="width: 120px;"
-                         class="mb-3">
+                    <img th:src="@{/archivos/libro.png}" alt="Libro de Reclamaciones" class="footer-libro-img mb-3">
                 </a>
                 <h5 class="fw-bold mb-3">Métodos de Pago</h5>
                 <div class="d-flex gap-2 align-items-center">
-                    <img th:src="@{/archivos/visa_PNG30.png}" alt="Visa" style="width: 50px; border-radius: 10px;">
-                    <img th:src="@{/archivos/mastercard-og-image.png}" alt="Mastercard"
-                         style="width: 50px; border-radius: 10px;">
+                    <img th:src="@{/archivos/visa_PNG30.png}" alt="Visa" class="footer-payment-img">
+                    <img th:src="@{/archivos/mastercard-og-image.png}" alt="Mastercard" class="footer-payment-img">
                 </div>
             </div>
         </div>

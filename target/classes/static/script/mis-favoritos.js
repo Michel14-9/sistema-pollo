@@ -9,12 +9,10 @@ let modalConfirmacion = null;
 const API_BASE_URL = '/favoritos/api/favoritos';
 const MAX_FAVORITOS = 50;
 
-
 document.addEventListener('DOMContentLoaded', function() {
     console.log(" Inicializando gestión de favoritos...");
 
     if (document.getElementById('favoritosLista')) {
-
         const modalElement = document.getElementById('modalConfirmarEliminacion');
         if (modalElement) {
             modalConfirmacion = new bootstrap.Modal(modalElement);
@@ -25,26 +23,53 @@ document.addEventListener('DOMContentLoaded', function() {
         cargarFavoritos();
         console.log(" Sistema de favoritos inicializado");
     }
+
+    // Inicializar corazones
+    inicializarCorazones();
 });
 
-
 function configurarEventListeners() {
-
     const btnLimpiar = document.getElementById('btnLimpiarFavoritos');
     if (btnLimpiar) {
         btnLimpiar.addEventListener('click', confirmarLimpiarFavoritos);
     }
 
-    // Botón confirmar eliminación en modal
     const btnConfirmarEliminar = document.getElementById('btnConfirmarEliminar');
     if (btnConfirmarEliminar) {
         btnConfirmarEliminar.addEventListener('click', eliminarFavoritoConfirmado);
     }
 
-    console.log("Event listeners configurados");
+    // Event delegation para elementos dinámicos
+    document.addEventListener('click', function(e) {
+        // Botones eliminar favorito
+        if (e.target.closest('.btn-eliminar-favorito')) {
+            const button = e.target.closest('.btn-eliminar-favorito');
+            const index = parseInt(button.getAttribute('data-index'));
+            confirmarEliminarFavorito(index);
+        }
+
+        // Botones agregar al carrito
+        if (e.target.closest('.btn-agregar-carrito')) {
+            const button = e.target.closest('.btn-agregar-carrito');
+            const index = parseInt(button.getAttribute('data-index'));
+            agregarAlCarrito(index, e);
+        }
+
+        // Fallback para onclick legacy
+        if (e.target.hasAttribute('onclick')) {
+            const onclickAttr = e.target.getAttribute('onclick');
+            if (onclickAttr && onclickAttr.includes('agregarAlCarrito')) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.warn(" Uso de onclick detectado, migrar a event listeners");
+            }
+        }
+    });
+
+    console.log(" Event listeners configurados");
 }
 
-// FUNCIONES PRINCIPALES
+// ========== FUNCIONES PRINCIPALES ==========
 async function cargarFavoritos() {
     console.log(" Cargando productos favoritos...");
 
@@ -59,7 +84,7 @@ async function cargarFavoritos() {
             credentials: 'include'
         });
 
-        console.log(" Estado HTTP:", response.status);
+        console.log("📡 Estado HTTP:", response.status);
 
         if (!response.ok) {
             const errorText = await response.text();
@@ -75,7 +100,7 @@ async function cargarFavoritos() {
             console.log(` ${favoritos.length} favoritos procesados correctamente`);
             mostrarFavoritos();
         } else {
-            console.warn("Formato de datos inesperado:", data);
+            console.warn(" Formato de datos inesperado:", data);
             favoritos = [];
             mostrarFavoritos();
         }
@@ -85,7 +110,6 @@ async function cargarFavoritos() {
         mostrarErrorCarga("Error al cargar los favoritos: " + error.message);
     }
 }
-
 
 async function confirmarLimpiarFavoritos() {
     if (favoritos.length === 0) {
@@ -100,12 +124,11 @@ async function confirmarLimpiarFavoritos() {
 
 async function limpiarFavoritos() {
     try {
-        console.log("🗑️ Limpiando todos los favoritos...");
+        console.log(" Limpiando todos los favoritos...");
         const csrfToken = document.getElementById('csrfToken')?.value;
 
-        // Eliminar uno por uno usando el endpoint que funciona
         let eliminados = 0;
-        for (const favorito of [...favoritos]) { // Copia del array para evitar problemas de iteración
+        for (const favorito of [...favoritos]) {
             const response = await fetch('/favoritos/toggle', {
                 method: 'POST',
                 headers: {
@@ -146,10 +169,9 @@ function confirmarEliminarFavorito(index) {
 
     productoAEliminar = {
         index,
-        productoId: favorito.producto.id // Usar productoId en lugar de favorito.id
+        productoId: favorito.producto.id
     };
 
-    // Actualizar mensaje del modal
     const modalBody = document.querySelector('#modalConfirmarEliminacion .modal-body');
     if (modalBody) {
         modalBody.innerHTML = `
@@ -166,10 +188,9 @@ async function eliminarFavoritoConfirmado() {
     if (!productoAEliminar) return;
 
     try {
-        console.log("Eliminando favorito:", productoAEliminar);
+        console.log(" Eliminando favorito:", productoAEliminar);
         const csrfToken = document.getElementById('csrfToken')?.value;
 
-        // USAR EL ENDPOINT QUE FUNCIONA EN MENU.JS
         const response = await fetch('/favoritos/toggle', {
             method: 'POST',
             headers: {
@@ -188,18 +209,15 @@ async function eliminarFavoritoConfirmado() {
         }
 
         const data = await response.json();
-        console.log(" Favorito eliminado:", data);
+        console.log("Favorito eliminado:", data);
 
         if (data.success && !data.agregado) {
-            // Eliminar del array local
             favoritos.splice(productoAEliminar.index, 1);
 
-            // Cerrar modal
             if (modalConfirmacion) {
                 modalConfirmacion.hide();
             }
 
-            // Actualizar vista
             mostrarFavoritos();
             mostrarNotificacion('Producto eliminado de favoritos', 'success');
 
@@ -214,9 +232,7 @@ async function eliminarFavoritoConfirmado() {
     }
 }
 
-
-
-async function agregarAlCarrito(index) {
+async function agregarAlCarrito(index, event) {
     const favorito = favoritos[index];
     if (!favorito || !favorito.producto.disponible) {
         mostrarNotificacion('Producto no disponible', 'warning');
@@ -227,13 +243,13 @@ async function agregarAlCarrito(index) {
         console.log("🛒 Agregando al carrito:", favorito.producto.nombre);
 
         const csrfToken = document.getElementById('csrfToken')?.value;
-        const boton = event?.target || document.querySelector(`[onclick="agregarAlCarrito(${index})"]`);
+        const boton = event?.target.closest('.btn-agregar-carrito');
 
-        // Guardar estado original del botón
         const textoOriginal = boton?.innerHTML;
         if (boton) {
             boton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Agregando...';
             boton.disabled = true;
+            boton.classList.add('btn-loading');
         }
 
         const response = await fetch('/carrito/agregar-ajax', {
@@ -260,20 +276,20 @@ async function agregarAlCarrito(index) {
         if (data.success) {
             mostrarNotificacion(` ${data.message} - ${data.productoNombre}`, 'success');
 
-            // Actualizar botón temporalmente
             if (boton) {
+                boton.classList.remove('btn-loading');
+                boton.classList.add('btn-success-added');
                 boton.innerHTML = '<i class="fas fa-check"></i> ¡Agregado!';
 
-                // Restaurar después de 2 segundos
                 setTimeout(() => {
                     if (boton) {
                         boton.innerHTML = textoOriginal;
+                        boton.classList.remove('btn-success-added');
                         boton.disabled = false;
                     }
                 }, 2000);
             }
 
-            // Actualizar contador del carrito en el header
             await actualizarContadorCarrito();
 
         } else {
@@ -284,48 +300,43 @@ async function agregarAlCarrito(index) {
         console.error(" Error agregando al carrito:", error);
         mostrarNotificacion(` Error: ${error.message}`, 'error');
 
-        // Restaurar botón en caso de error
-        const boton = event?.target || document.querySelector(`[onclick="agregarAlCarrito(${index})"]`);
+        const boton = document.querySelector(`.btn-agregar-carrito[data-index="${index}"]`);
         if (boton) {
+            boton.classList.remove('btn-loading');
             boton.innerHTML = '<i class="fas fa-cart-plus me-2"></i>Agregar al Carrito';
             boton.disabled = false;
         }
     }
 }
 
-// Función para actualizar contador del carrito
 async function actualizarContadorCarrito() {
     try {
         const response = await fetch('/carrito/total');
         if (response.ok) {
             const data = await response.json();
             if (data.success) {
-                // Actualizar el botón del carrito en el header
                 const carritoBtn = document.querySelector('.btn-success[th\\:href="@{/carrito}"]');
                 if (carritoBtn) {
                     const totalSpan = carritoBtn.querySelector('span');
                     if (totalSpan) {
                         totalSpan.textContent = data.total.toFixed(2);
                     } else {
-                        // Si no existe el span, actualizar el texto completo
                         carritoBtn.innerHTML = `<i class="fa-solid fa-cart-shopping"></i> S/. ${data.total.toFixed(2)}`;
                     }
                 }
             }
         }
     } catch (error) {
-        console.error("Error actualizando contador del carrito:", error);
+        console.error(" Error actualizando contador del carrito:", error);
     }
 }
 
-
-
+// ========== TOGGLE FAVORITOS ==========
 function toggleFavorito(productoId, event) {
     console.log(" Toggle favorito para producto:", productoId);
 
     const botonCorazon = event.currentTarget;
     const icono = botonCorazon.querySelector('i');
-
 
     const esFavorito = botonCorazon.classList.contains('active');
 
@@ -365,7 +376,6 @@ async function agregarAFavoritos(productoId, boton, icono) {
             icono.classList.remove('far');
             icono.classList.add('fas');
             mostrarNotificacion('Producto agregado a favoritos', 'success');
-
 
             if (document.getElementById('favoritosLista')) {
                 cargarFavoritos();
@@ -410,7 +420,6 @@ async function quitarDeFavoritos(productoId, boton, icono) {
             icono.classList.add('far');
             mostrarNotificacion('Producto eliminado de favoritos', 'success');
 
-            // Recargar lista de favoritos si estamos en la página de favoritos
             if (document.getElementById('favoritosLista')) {
                 cargarFavoritos();
             }
@@ -426,17 +435,21 @@ async function quitarDeFavoritos(productoId, boton, icono) {
 
 function inicializarCorazones() {
     document.querySelectorAll('.favorite-btn').forEach(boton => {
+        boton.replaceWith(boton.cloneNode(true));
+    });
+
+    document.querySelectorAll('.favorite-btn').forEach(boton => {
         boton.addEventListener('click', function(e) {
             e.preventDefault();
             const productoId = this.getAttribute('data-product-id');
-            toggleFavorito(productoId, e);
+            if (productoId) {
+                toggleFavorito(productoId, e);
+            }
         });
     });
 }
 
 
-
-// VALIDACIONES
 function validarEstructuraFavorito(favorito) {
     if (!favorito || typeof favorito !== 'object') {
         console.warn(" Favorito inválido, usando valores por defecto");
@@ -453,7 +466,7 @@ function validarEstructuraFavorito(favorito) {
 
 function validarProducto(producto) {
     if (!producto || typeof producto !== 'object') {
-        console.warn("Producto inválido en favorito");
+        console.warn(" Producto inválido en favorito");
         return {
             id: 0,
             nombre: 'Producto no disponible',
@@ -526,7 +539,7 @@ function validarNumeroPositivo(numero, valorPorDefecto = 0) {
     return isNaN(num) || num < 0 ? valorPorDefecto : Math.floor(num);
 }
 
-// FUNCIONES DE UTILIDAD
+
 function crearFavoritoPorDefecto() {
     return {
         id: 0,
@@ -569,7 +582,7 @@ function formatearFecha(fechaISO) {
     }
 }
 
-// FUNCIONES DE UI
+
 function mostrarEstadoCarga() {
     const favoritosLista = document.getElementById('favoritosLista');
     const favoritosVacias = document.getElementById('favoritosVacias');
@@ -584,14 +597,17 @@ function mostrarEstadoCarga() {
             </div>
         `;
     }
-    if (favoritosVacias) favoritosVacias.style.display = 'none';
+
+    if (favoritosVacias) {
+        favoritosVacias.classList.add('d-none');
+    }
 }
 
 function mostrarFavoritos() {
     const contenedor = document.getElementById('favoritosLista');
     const estadoVacio = document.getElementById('favoritosVacias');
 
-    console.log("Mostrando favoritos. Total:", favoritos.length);
+    console.log(" Mostrando favoritos. Total:", favoritos.length);
 
     if (!contenedor) {
         console.error(" No se encontró el contenedor de favoritos");
@@ -602,41 +618,50 @@ function mostrarFavoritos() {
 
     if (favoritos.length === 0) {
         console.log(" No hay favoritos para mostrar");
-        if (estadoVacio) estadoVacio.style.display = 'block';
+
+        if (estadoVacio) {
+            estadoVacio.classList.remove('d-none');
+        }
         actualizarContador(0);
         return;
     }
 
-    if (estadoVacio) estadoVacio.style.display = 'none';
+
+    if (estadoVacio) {
+        estadoVacio.classList.add('d-none');
+    }
     actualizarContador(favoritos.length);
+
+    const fragment = document.createDocumentFragment();
 
     favoritos.forEach((favorito, index) => {
         if (favorito.esActivo) {
             const favoritoElement = crearElementoFavorito(favorito, index);
-            contenedor.appendChild(favoritoElement);
+            fragment.appendChild(favoritoElement);
         }
     });
+
+    contenedor.appendChild(fragment);
 }
 
 function crearElementoFavorito(favorito, index) {
     const col = document.createElement('div');
     col.className = 'col-md-6 col-lg-4 mb-4';
 
+
     col.innerHTML = `
         <div class="card producto-favorito h-100">
             <div class="position-relative">
                 <img src="${favorito.producto.imagen}"
-                     class="card-img-top producto-imagen"
-                     alt="${favorito.producto.nombre}"
-                     style="height: 200px; object-fit: cover;"
-                     onerror="this.src='/archivos/placeholder.jpg'">
+                     class="card-img-top producto-imagen imagen-favorito"
+                     alt="${favorito.producto.nombre}">
                 ${!favorito.producto.disponible ? `
                     <div class="badge bg-danger position-absolute top-0 start-0 m-2">
                         No Disponible
                     </div>
                 ` : ''}
-                <button class="btn btn-danger btn-sm position-absolute top-0 end-0 m-2"
-                        onclick="confirmarEliminarFavorito(${index})"
+                <button class="btn btn-danger btn-sm position-absolute top-0 end-0 m-2 btn-eliminar-favorito"
+                        data-index="${index}"
                         title="Eliminar de favoritos">
                     <i class="fas fa-trash"></i>
                 </button>
@@ -647,12 +672,12 @@ function crearElementoFavorito(favorito, index) {
                     ${favorito.producto.descripcion || 'Sin descripción'}
                 </p>
                 <div class="d-flex justify-content-between align-items-center mt-auto">
-                    <span class="h5 text-success">${formatearPrecio(favorito.producto.precio)}</span>
+                    <span class="h5 text-success mb-0">${formatearPrecio(favorito.producto.precio)}</span>
                     <small class="text-muted">${formatearFecha(favorito.fechaAgregado)}</small>
                 </div>
                 <div class="mt-2">
-                    <button class="btn btn-luren btn-sm w-100 ${!favorito.producto.disponible ? 'disabled' : ''}"
-                            onclick="agregarAlCarrito(${index})"
+                    <button class="btn btn-luren btn-sm w-100 btn-agregar-carrito ${!favorito.producto.disponible ? 'disabled' : ''}"
+                            data-index="${index}"
                             ${!favorito.producto.disponible ? 'disabled' : ''}>
                         <i class="fas fa-cart-plus me-2"></i>
                         ${favorito.producto.disponible ? 'Agregar al Carrito' : 'No Disponible'}
@@ -677,133 +702,68 @@ function mostrarErrorCarga(mensaje) {
     const errorCarga = document.getElementById('errorCarga');
     const mensajeError = document.getElementById('mensajeError');
 
-    if (estadoCarga) estadoCarga.style.display = 'none';
-    if (errorCarga) errorCarga.style.display = 'block';
+
+    if (estadoCarga) estadoCarga.classList.add('d-none');
+    if (errorCarga) errorCarga.classList.remove('d-none');
     if (mensajeError) mensajeError.textContent = mensaje;
 }
 
-
 function mostrarNotificacion(mensaje, tipo = 'info') {
-    // Remover notificación anterior si existe
-    const notificacionAnterior = document.querySelector('.notificacion-flotante');
+    const notificacionAnterior = document.querySelector('.notificacion-flotante-favoritos');
     if (notificacionAnterior) {
-        notificacionAnterior.remove();
+        cerrarNotificacion(notificacionAnterior);
     }
 
     const notificacion = document.createElement('div');
-    notificacion.className = `notificacion-flotante notificacion-${tipo}`;
+    notificacion.className = `notificacion-flotante-favoritos notificacion-${tipo}`;
+
     notificacion.innerHTML = `
         <div class="notificacion-contenido">
             <span class="notificacion-texto">${mensaje}</span>
-            <button class="notificacion-cerrar">&times;</button>
+            <button class="notificacion-cerrar" aria-label="Cerrar">&times;</button>
         </div>
     `;
 
-    let backgroundColor, textColor, borderColor;
-
-    switch(tipo) {
-        case 'success':
-            backgroundColor = '#d4edda';
-            textColor = '#155724';
-            borderColor = '#c3e6cb';
-            break;
-        case 'error':
-            backgroundColor = '#f8d7da';
-            textColor = '#721c24';
-            borderColor = '#f5c6cb';
-            break;
-        case 'warning':
-            backgroundColor = '#fff3cd';
-            textColor = '#856404';
-            borderColor = '#ffeaa7';
-            break;
-        default: // info
-            backgroundColor = '#d1ecf1';
-            textColor = '#0c5460';
-            borderColor = '#bee5eb';
-    }
-
-    notificacion.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: ${backgroundColor};
-        color: ${textColor};
-        padding: 15px 20px;
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        z-index: 10000;
-        border: 1px solid ${borderColor};
-        max-width: 300px;
-        animation: slideInRight 0.3s ease-out;
-    `;
-
-    notificacion.querySelector('.notificacion-cerrar').onclick = () => {
-        notificacion.style.animation = 'slideOutRight 0.3s ease-in';
-        setTimeout(() => notificacion.remove(), 300);
-    };
+    const btnCerrar = notificacion.querySelector('.notificacion-cerrar');
+    btnCerrar.addEventListener('click', () => cerrarNotificacion(notificacion));
 
     document.body.appendChild(notificacion);
 
+    // Mostrar con animación
     setTimeout(() => {
-        if (notificacion.parentNode) {
-            notificacion.style.animation = 'slideOutRight 0.3s ease-in';
-            setTimeout(() => notificacion.remove(), 300);
-        }
+        notificacion.classList.add('notificacion-visible');
+    }, 10);
+
+    // Auto-cerrar después de 4 segundos
+    setTimeout(() => {
+        cerrarNotificacion(notificacion);
     }, 4000);
 }
 
-// CSS para notificaciones
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes slideInRight {
-        from { transform: translateX(100%); opacity: 0; }
-        to { transform: translateX(0); opacity: 1; }
-    }
-    @keyframes slideOutRight {
-        from { transform: translateX(0); opacity: 1; }
-        to { transform: translateX(100%); opacity: 0; }
-    }
-    .notificacion-cerrar {
-        background: none;
-        border: none;
-        font-size: 18px;
-        cursor: pointer;
-        margin-left: 10px;
-        color: inherit;
-    }
-    .notificacion-contenido {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
-    @media (max-width: 768px) {
-        .notificacion-flotante {
-            left: 10px;
-            right: 10px;
-            max-width: none;
-        }
-    }
-`;
-document.head.appendChild(style);
+function cerrarNotificacion(notificacion) {
+    if (!notificacion || !notificacion.parentNode) return;
 
-// Debug global
+    notificacion.classList.remove('notificacion-visible');
+    notificacion.classList.add('notificacion-salida');
+
+    setTimeout(() => {
+        if (notificacion.parentNode) {
+            notificacion.remove();
+        }
+    }, 300);
+}
+
+
 window.debugFavoritos = {
     getFavoritos: () => favoritos,
     recargar: () => cargarFavoritos(),
     verEstado: () => {
-        console.log(" Estado actual:", {
+        console.log("Estado actual:", {
             favoritosEnMemoria: favoritos,
             contenedor: document.getElementById('favoritosLista'),
-            estadoVacio: document.getElementById('favoritosVacias')?.style.display
+            estadoVacio: document.getElementById('favoritosVacias')?.classList.contains('d-none')
         });
     }
 };
 
-// Inicializar corazones cuando el DOM esté listo
-document.addEventListener('DOMContentLoaded', function() {
-    inicializarCorazones();
-    console.log(" Corazones de favoritos inicializados");
-});
-
-console.log(" Sistema de gestión de favoritos cargado correctamente");
+console.log(" Sistema de gestión de favoritos cargado correctamente (100% CSP Compliant)");

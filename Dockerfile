@@ -1,14 +1,27 @@
-# Usa una imagen base de Java (JRE)
+# Fase de construcción - Compila la aplicación
+FROM maven:3.9-eclipse-temurin-21 AS builder
+WORKDIR /app
+
+# Copia los archivos de Maven primero (para mejor caching)
+COPY pom.xml .
+# Descarga las dependencias
+RUN mvn dependency:go-offline
+
+# Copia el código fuente
+COPY src ./src
+
+# Compila y empaqueta la aplicación
+RUN mvn clean package -DskipTests
+
+# Fase de ejecución - Imagen liviana para producción
 FROM eclipse-temurin:21-jre-alpine
+WORKDIR /app
 
-# Argumento para el archivo JAR
-ARG JAR_FILE=target/sistema-apollo-0.0.1-SNAPSHOT.jar 
-
-# Copia el JAR compilado
-COPY ${JAR_FILE} /app.jar
+# Copia el JAR desde la fase de construcción
+COPY --from=builder /app/target/*.jar app.jar
 
 # Puerto que expone Spring Boot internamente
 EXPOSE 8080
 
-# Comando de inicio
-ENTRYPOINT ["java", "-jar", "/app.jar"]
+# Comando para ejecutar la aplicación
+ENTRYPOINT ["java", "-jar", "app.jar"]

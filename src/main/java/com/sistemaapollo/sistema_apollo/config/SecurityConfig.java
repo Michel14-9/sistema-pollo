@@ -49,30 +49,24 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
                 // CONFIGURACIÓN DE CABECERAS DE SEGURIDAD
-                .headers(headers -> headers .contentSecurityPolicy(csp -> csp
-                                        .policyDirectives("default-src 'self'; " +
-                                                "script-src 'self' https://cdn.jsdelivr.net https://www.google.com https://www.gstatic.com; " +
-                                                "style-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
-                                                "img-src 'self' data: blob: https://www.google.com https://cocatambo.com https://encrypted-tbn0.gstatic.com https://graph.facebook.com; " +
-                                                "font-src 'self' https://cdnjs.cloudflare.com; " +
-                                                "connect-src 'self' https://cdn.jsdelivr.net; " +
-
-                                                "object-src 'none'; " +
-                                                "media-src 'self'; " +
-                                                "frame-src https://www.google.com; " +
-                                                "child-src 'self'; " +
-                                                "worker-src 'self'; " +
-                                                "manifest-src 'self'; " +
-                                                "base-uri 'self'; " +
-                                                "form-action 'self'; " +
-                                                "frame-ancestors 'none';")
-                                )
-                                .frameOptions(frame -> frame.deny())
-                                .xssProtection(xss -> xss
-                                        .headerValue(XXssProtectionHeaderWriter.HeaderValue.ENABLED_MODE_BLOCK)
-                                )
-                                .contentTypeOptions(contentType -> {})
+                .headers(headers -> headers
+                        .contentSecurityPolicy(csp -> csp
+                                .policyDirectives("default-src 'self'; " +
+                                        "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://www.google.com https://www.gstatic.com; " +
+                                        "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
+                                        "img-src 'self' data: blob: https:; " +
+                                        "font-src 'self' https:; " +
+                                        "connect-src 'self' https:; " + // Permite TODAS las conexiones HTTPS
+                                        "frame-src 'self' https:; " + // Permite TODOS los iframes HTTPS
+                                        "object-src 'none';")
+                        )
+                        .frameOptions(frame -> frame.deny())
+                        .xssProtection(xss -> xss
+                                .headerValue(XXssProtectionHeaderWriter.HeaderValue.ENABLED_MODE_BLOCK)
+                        )
+                        .contentTypeOptions(contentType -> {})
                 )
+
 
                 // CSRF CORREGIDO para Spring Boot 3.x
                 .csrf(csrf -> csrf
@@ -180,3 +174,4 @@ public class SecurityConfig {
         return source;
     }
 }
+

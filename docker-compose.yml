@@ -5,7 +5,7 @@ services:
     build: . 
     restart: always
     ports:
-      - "${APP_PORT}:8080" # Mapea el puerto 80 de la VM al 8080 de Spring Boot
+      - "${APP_PORT}:8080"
     environment:
 
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB} 
@@ -22,16 +22,13 @@ services:
       - db
 
   db:
-    image: postgres:15-alpine # Imagen oficial de PostgreSQL
-    restart: always
+    image: postgres:15-alpine
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
-      # Persistencia de Datos: Guarda los datos en un volumen de la VM
       - db_data:/var/lib/postgresql/data
       
 volumes:
-  # Define el volumen que persistir los datos de la base de datos
   db_data:

@@ -1,5 +1,4 @@
 version: '3.8'
-
 services:
   app:
     build: . 
@@ -16,11 +15,8 @@ services:
       RECAPTCHA_SECRET: ${RECAPTCHA_SECRET}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD}
       SPRING_PROFILES_ACTIVE: prod
-      
-
     depends_on:
       - db
-
   db:
     image: postgres:15-alpine
     environment:
@@ -29,6 +25,5 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - db_data:/var/lib/postgresql/data
-      
 volumes:
   db_data:
